@@ -1,9 +1,5 @@
-#include "../libkngin/core/logfile.h"
-#include "../libkngin/core/thread.h"
 #include <iostream>
 #include <cstdio>
-
-using namespace k;
 
 extern void
 log_test ();
@@ -50,12 +46,29 @@ int main()
 //    fprintf(stderr, "**************************************************\n");
 //    cond_test();
 
+//    fprintf(stderr, "**************************************************\n");
+//    fprintf(stderr, "* threadpool_test                                *\n");
+//    fprintf(stderr, "**************************************************\n");
+//    threadpool_test();
+
     test();
 
     return 0;
 }
 
+////////////////////// test //////////////////////
+
+#include <atomic>
+#include "../libkngin/core/logfile.h"
+#include "../libkngin/core/thread.h"
+#include "../libkngin/core/lock.h"
+
+using namespace k;
+
 void
 test ()
 {
+//#error "kassert log"
 }
+
+////////////////////// test //////////////////////

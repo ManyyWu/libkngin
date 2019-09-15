@@ -1,89 +1,108 @@
 #include <cstdio>
 #include <unistd.h>
+#include <time.h>
+#include <atomic>
+#include <mutex>
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
 
 using namespace k;
 
-static char _buf1[] = "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-//                      "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-//                      "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-                      "\n";
+#define THR_NUM 10
 
-static char _buf2[] = "======================================================================================="
-//                      "======================================================================================="
-//                      "======================================================================================="
-                      "\n";
+static int              g_num1(0);
+static int              g_num2(0);
+static std::atomic<int> g_num3(0);
+static mutex *          g_mutex = NULL;
+static std::mutex       g_std_mutex;
 
-class mutex_test_thread : public thread {
-public:
-    mutex_test_thread (pthr_fn _pfn)
-    : thread(_pfn, this)
-    {
+static unsigned int
+process_mutex (void *_args)
+{
+    for (int i = 0; i < 10000000; i++) {
+        g_mutex->lock();
+        g_num1 += 1;
+        g_mutex->unlock();
     }
+}
 
-    virtual
-    ~mutex_test_thread ()
-    {
+static unsigned int
+process_std_mutex (void *_args)
+{
+    for (int i = 0; i < 10000000; i++) {
+        g_std_mutex.lock();
+        g_num2 += 1;
+        g_std_mutex.unlock();
     }
+}
 
-public:
-    static unsigned int
-    process1 (void *_args)
-    {
-        assert(_args);
-        char *_p = (char *)_args;
-
-        int _n = 10;
-        while (_n--) {
-            m_mutex->lock();
-            for (char *_i = _buf1; *_i != '\0'; ++_i)
-                fputc(*_i, stderr);
-            fflush(stderr);
-            m_mutex->unlock();
-            mutex_test_thread::sleep(100);
-        }
-        return 0;
+static unsigned int
+process_atomic (void *_args)
+{
+    for (int i = 0; i < 10000000; i++) {
+        g_num3 += 1;
     }
+}
 
-    static unsigned int
-    process2 (void *_args)
-    {
-        assert(_args);
-        char *_p = (char *)_args;
-
-        int _n = 10;
-        while (_n--) {
-            m_mutex->lock();
-            for (char *_i = _buf2; *_i != '\0'; ++_i)
-                fputc(*_i, stderr);
-            fflush(stderr);
-            m_mutex->unlock();
-            mutex_test_thread::sleep(100);
-        }
-        return 0;
-    }
-
-private:
-    static mutex *m_mutex;
-};
-
-mutex *mutex_test_thread::m_mutex = mutex::create();
-
-extern void
+void
 mutex_test ()
 {
-    unsigned int _ret;
+    /* lock */
+    thread * thrs[THR_NUM];
+    timespec ts1;
+    timespec_get(&ts1, TIME_UTC);
+    g_mutex = mutex::create();
 
-    mutex_test_thread thr1(mutex_test_thread::process1);
-    mutex_test_thread thr2(mutex_test_thread::process2);
-    thr1.run();
-    thr2.run();
+    for (int i = 0; i < THR_NUM; ++i) {
+        thrs[i] = new thread(process_mutex, NULL);
+        thrs[i]->run();
+    }
 
-    thr1.join(&_ret);
-    fprintf(stderr, "join: %d\n", _ret);
-    fflush(stderr);
-    thr2.join(&_ret);
-    fprintf(stderr, "join: %d\n", _ret);
-    fflush(stderr);
+    for (int i = 0; i < THR_NUM; ++i) {
+        thrs[i]->join(NULL);
+        delete thrs[i];
+    }
+    g_mutex->release();
+
+    timespec ts2;
+    timespec_get(&ts2, TIME_UTC);
+    printf("--- k::mutex ---\n time use: %lfms, result = %d\n",
+           (ts2.tv_sec - ts1.tv_sec ) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
+           g_num1);
+
+    /* std::mutex */
+    timespec_get(&ts1, TIME_UTC);
+
+    for (int i = 0; i < THR_NUM; ++i) {
+        thrs[i] = new thread(process_std_mutex, NULL);
+        thrs[i]->run();
+    }
+
+    for (int i = 0; i < THR_NUM; ++i) {
+        thrs[i]->join(NULL);
+        delete thrs[i];
+    }
+
+    timespec_get(&ts2, TIME_UTC);
+    printf("--- std::mutex ---\n time use: %lfms, result = %d\n",
+           (ts2.tv_sec - ts1.tv_sec) * 1000 +  (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
+           g_num2);
+
+    /* atomic */
+    timespec_get(&ts1, TIME_UTC);
+
+    for (int i = 0; i < THR_NUM; ++i) {
+        thrs[i] = new thread(process_atomic, NULL);
+        thrs[i]->run();
+    }
+
+    for (int i = 0; i < THR_NUM; ++i) {
+        thrs[i]->join(NULL);
+        delete thrs[i];
+    }
+
+    timespec_get(&ts2, TIME_UTC);
+    printf("--- atomic ---\n time use: %lfms, result = %d\n",
+           (ts2.tv_sec - ts1.tv_sec) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
+           g_num3.load());
 }

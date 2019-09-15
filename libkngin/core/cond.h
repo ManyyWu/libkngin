@@ -136,6 +136,23 @@ public:
         return true;
     }
 
+
+    inline bool
+    broadcast ()
+    {
+        assert(m_cond);
+
+        int _ret = 0;
+#ifdef _WIN32
+#else
+        assert(m_cond);
+        _ret = pthread_cond_broadcast(m_cond);
+        assert(!_ret);
+        if (_ret)
+            return false;
+#endif
+        return true;
+    }
 public:
     inline cond_interface *
     get_interface () const

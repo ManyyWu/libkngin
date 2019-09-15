@@ -5,81 +5,54 @@
 
 using namespace k;
 
-class cond_test_thread : public thread {
-public:
-    cond_test_thread (pthr_fn _pfn)
-    : thread(_pfn, this)
-    {
-    }
+static mutex *g_mutex = NULL;
+static cond * g_cond = NULL;
 
-    virtual
-    ~cond_test_thread ()
-    {
-    }
+static unsigned int
+process1 (void *_args)
+{
+    g_mutex->lock();
+    g_cond->wait();
+    fputs("process1\n", stderr);
+    fflush(stderr);
+    g_mutex->unlock();
+    g_mutex->lock();
+    g_cond->wait();
+    fputs("process1\n", stderr);
+    fflush(stderr);
+    g_mutex->unlock();
+    return 0;
+}
 
-public:
-    static unsigned int
-    process1 (void *_args)
-    {
-        assert(_args);
-        char *_buf = (char *)_args;
-
-        m_mutex->lock();
-        m_cond->wait();
-        fputs("process1\n", stderr);
-        fflush(stderr);
-        m_mutex->unlock();
-        m_mutex->lock();
-        m_cond->wait();
-        fputs("process1\n", stderr);
-        fflush(stderr);
-        m_mutex->unlock();
-        return 0;
-    }
-
-    static unsigned int
-    process2 (void *_args)
-    {
-        assert(_args);
-        char *_buf = (char *)_args;
-
-        sleep(1000);
-        m_mutex->lock();
-        fputs("process2\n", stderr);
-        fflush(stderr);
-        m_mutex->unlock();
-        m_cond->signal();
-        sleep(1000);
-        m_mutex->lock();
-        fputs("process2\n", stderr);
-        fflush(stderr);
-        m_mutex->unlock();
-        m_cond->signal();
-        return 0;
-    }
-
-private:
-    static mutex *m_mutex;
-    static cond * m_cond;
-};
-
-mutex *cond_test_thread::m_mutex = mutex::create();
-cond *cond_test_thread::m_cond = cond::create(m_mutex);
+static unsigned int
+process2 (void *_args)
+{
+    usleep(2000000);
+    g_mutex->lock();
+    fputs("process2\n", stderr);
+    fflush(stderr);
+    g_mutex->unlock();
+    g_cond->signal();
+    usleep(2000000);
+    g_mutex->lock();
+    fputs("process2\n", stderr);
+    fflush(stderr);
+    g_mutex->unlock();
+    g_cond->signal();
+    return 0;
+}
 
 extern void
 cond_test ()
 {
-    unsigned int ret;
-
-    cond_test_thread thr1(cond_test_thread::process1);
-    cond_test_thread thr2(cond_test_thread::process2);
-    thr1.run();
-    thr2.run();
-
-    thr1.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
-    thr2.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
+    g_mutex = mutex::create();
+    g_cond = cond::create(g_mutex);
+    thread t1(process1, NULL);
+    thread t2(process2, NULL);
+    t1.run();
+    t2.run();
+    t1.join(NULL);
+    t2.join(NULL);
+    g_cond->release();
+    g_mutex->release();
 }

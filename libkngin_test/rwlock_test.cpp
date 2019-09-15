@@ -1,88 +1,70 @@
 #include <cstdio>
 #include <unistd.h>
+#include <time.h>
+#include <atomic>
+#include <mutex>
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
 
 using namespace k;
 
-static char _buf1[] = "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-//                      "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-//                      "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-                      "\n";
-static char _buf2[] = "======================================================================================="
-//                      "======================================================================================="
-//                      "======================================================================================="
-                      "\n";
-class rwlock_test_thread : public thread {
-public:
-    rwlock_test_thread (pthr_fn _pfn, void *_args)
-    : thread(_pfn, _args)
-    {
+static rwlock *         g_rwlock = NULL;
+
+static unsigned int
+process1 (void *_args)
+{
+    for (int i = 0; i < 10; i++) {
+        g_rwlock->wrlock();
+        fprintf(stderr, "process1: wrlock\n");
+        fflush(stderr);
+        usleep(1000000);
+        g_rwlock->unlock();
+        fprintf(stderr, "process1: unlock\n");
+        fflush(stderr);
     }
+}
 
-    virtual
-    ~rwlock_test_thread ()
-    {
+static unsigned int
+process2 (void *_args)
+{
+    for (int i = 0; i < 10; i++) {
+        g_rwlock->rdlock();
+        fprintf(stderr, "----process2: rdlock\n");
+        fflush(stderr);
+        usleep(1000000);
+        g_rwlock->unlock();
+        fprintf(stderr, "----process2: unlock\n");
+        fflush(stderr);
     }
+}
 
-public:
-    static unsigned int
-    process1 (void *_args)
-    {
-        assert(_args);
-        char *_p = (char *)_args;
-
-        int _n = 10;
-        while (_n--) {
-            m_rwlock->rdlock();
-            for (char *_i = _buf1; *_i != '\0'; ++_i)
-                sprintf(&rwlock_test_thread::m_buf[_i - _buf1], "%c", *_i);
-            fputs(rwlock_test_thread::m_buf, stderr);
-            m_rwlock->unlock();
-        }
-        return 0;
+static unsigned int
+process3 (void *_args)
+{
+    for (int i = 0; i < 10; i++) {
+        g_rwlock->rdlock();
+        fprintf(stderr, "--------process3: rdlock\n");
+        fflush(stderr);
+        usleep(1000000);
+        g_rwlock->unlock();
+        fprintf(stderr, "--------process3: unlock\n");
+        fflush(stderr);
     }
+}
 
-    static unsigned int
-    process2 (void *_args)
-    {
-        assert(_args);
-        char *_p = (char *)_args;
-
-        int _n = 10;
-        while (_n--) {
-            m_rwlock->rdlock();
-            for (char *_i = _buf2; *_i != '\0'; ++_i)
-                sprintf(&rwlock_test_thread::m_buf[_i - _buf2], "%c", *_i);
-            fputs(rwlock_test_thread::m_buf, stderr);
-            m_rwlock->unlock();
-        }
-        return 0;
-    }
-
-private:
-    static rwlock *m_rwlock;
-
-    static char    m_buf[4096];
-};
-
-rwlock *rwlock_test_thread::m_rwlock = rwlock::create();
-char    rwlock_test_thread::m_buf[4096] = {0};
-
-extern void
+void
 rwlock_test ()
 {
-    unsigned int ret;
+    g_rwlock = rwlock::create();
+    thread t1(process1, NULL);
+    thread t2(process2, NULL);
+    thread t3(process3, NULL);
+    t1.run();
+    t2.run();
+    t3.run();
+    t1.join(NULL);
+    t2.join(NULL);
+    t3.join(NULL);
+    g_rwlock->release();
 
-    rwlock_test_thread thr1(rwlock_test_thread::process1, _buf1);
-    rwlock_test_thread thr2(rwlock_test_thread::process2, _buf2);
-    thr1.run();
-    thr2.run();
-
-    thr1.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
-    thr2.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
 }

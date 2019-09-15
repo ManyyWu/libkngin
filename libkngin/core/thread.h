@@ -49,11 +49,11 @@ public:
     static void
     sleep         (int ms);
 
-    void
+    static void
     exit          ();
 
     void
-    set_err_code  (int _err_code);
+    set_err_code  (unsigned int _err_code);
 
 public:
 #ifdef _WIN32
@@ -65,8 +65,8 @@ public:
 #endif
 
 public:
-static unsigned int
-process       (void *_args);
+    static unsigned int
+    process       (void *_args);
 
 public:
     thread_interface

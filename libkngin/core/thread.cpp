@@ -109,17 +109,15 @@ thread::sleep (int _ms)
 void
 thread::exit ()
 {
-    assert(m_tid);
-
 #ifdef _WIN32
 #else
-    assert(pthread_equal(m_tid, pthread_self()));
-    pthread_exit(&m_err_code);
+    pthread_t _tid = pthread_self();
+    pthread_exit(&_tid);
 #endif
 }
 
 void
-thread::set_err_code (int _err_code)
+thread::set_err_code (unsigned int _err_code)
 {
     m_err_code = _err_code;
 }
