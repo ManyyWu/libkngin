@@ -14,6 +14,8 @@ set(KNGIN_CORE_SRC
     core/mutex.h
     core/rwlock.h
     core/cond.h
+    core/msg.cpp
+    core/task_base.h
 )
 
 set(KNGIN_INC_DIR
