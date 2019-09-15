@@ -1,5 +1,5 @@
 #ifndef _THREADPOLL_H_
-#else _THREADPOLL_H_
+#define _THREADPOLL_H_
 
 #include <vector>
 #include "thread.h"
