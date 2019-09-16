@@ -5,49 +5,42 @@
 #include "define.h"
 #include "copyable.h"
 
-#define MAX_MSG_SIZE 4096
-#define MAX_MSG_TYPE 0x7fffffff
-#define INVALID_MSG_TYPE  0x0
+#define MAX_MSG_SIZE      4096U
+#define MAX_MSG_TYPE      0x7fffffffU
+#define INVALID_MSG_TYPE  0x0U
 
 __NAMESPACE_BEGIN
 
 class msg : copyable {
-protected:
-#pragma pack(push, 1)
-    struct msg_head {
-        int version;
-        int type;
-        int size;
-    };
-#pragma pack(pop)
-
 public:
-    msg     () = delete;
+    msg     ();
 
-    msg     (int _type);
-
-    msg     (const uint8_t *_buf, int _size, int _type);
-
-    msg     (const msg &_msg);
-
-    msg     (msg &&_msg);
-
+    virtual
     ~msg    ();
 
 public:
-    virtual int
-    process ();
-
-private:
     virtual bool
-    parse   ();
+    create  (uint32_t _type);
+
+    virtual bool
+    create  (const uint8_t *_buf, uint32_t _size, uint32_t _type);
+
+    virtual bool
+    create  (const msg &_msg);
+
+    virtual bool
+    create  (msg &&_msg);
+
+protected:
+    virtual bool
+    process ();
 
 protected:
     uint8_t *m_buf;
 
-    int      m_size;
+    uint32_t m_size;
 
-    int      m_type;
+    uint32_t m_type;
 };
 
 __NAMESPACE_END

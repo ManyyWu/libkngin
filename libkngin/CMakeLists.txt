@@ -15,7 +15,6 @@ set(KNGIN_CORE_SRC
     core/rwlock.h
     core/cond.h
     core/msg.cpp
-    core/task_base.h
 )
 
 set(KNGIN_INC_DIR
