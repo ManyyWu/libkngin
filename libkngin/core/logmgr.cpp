@@ -11,7 +11,7 @@ __logfile_set log_mgr::m_logfile_set = {
 
 __log_set     log_mgr::m_log_set;
 
-    log_mgr::log_mgr ()
+log_mgr::log_mgr ()
 {
 }
 
