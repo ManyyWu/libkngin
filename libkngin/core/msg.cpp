@@ -47,7 +47,7 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
     }
 
     return true;
-};
+}
 
 bool
 msg::create (const msg &_msg)
@@ -89,6 +89,7 @@ msg::create (msg &&_msg)
 bool
 msg::process ()
 {
+    return true;
 }
 
 __NAMESPACE_END

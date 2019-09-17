@@ -1,22 +1,14 @@
 #ifndef _RWLOCK_H_
 #define _RWLOCK_H_
 
-#ifdef _WIN32
-#include <windows.h>
-#else
 #include <pthread.h>
-#endif
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
 #include "thread.h"
 #include "noncopyable.h"
 
-#ifdef _WIN32
-typedef HANDLE           rwlock_interface;
-#else
 typedef pthread_rwlock_t rwlock_interface;
-#endif
 
 __NAMESPACE_BEGIN
 
@@ -27,7 +19,7 @@ public:
 protected:
     inline
     rwlock (rwlock_interface *_rwlock_intr)
-    : m_rwlock(_rwlock_intr)
+        : m_rwlock(_rwlock_intr)
     {
         assert(_rwlock_intr);
     }
@@ -36,16 +28,9 @@ protected:
     inline
     ~rwlock ()
     {
-        int _ret = 0;
-
-#ifdef _WIN32
-#else
-        if (m_rwlock) {
-            _ret = pthread_rwlock_destroy(m_rwlock);
-            delete m_rwlock;
-        }
-#endif
-        assert(!_ret);
+        if (m_rwlock)
+            pthread_rwlock_destroy(m_rwlock);
+        delete m_rwlock;
     }
 
 public:
@@ -53,22 +38,26 @@ public:
     create ()
     {
         int _ret = 0;
-        rwlock *          _rwlock = NULL;
+        rwlock * _rwlock = NULL;
         rwlock_interface *_rwlock_intr = NULL;
-#ifdef _WIN32
-#else
+
         _rwlock_intr = new rwlock_interface;
-        assert(_rwlock_intr);
-        _ret = pthread_rwlock_init(_rwlock_intr, NULL);
-        if (_ret) {
-            delete _rwlock_intr;
-            _rwlock_intr = NULL;
+        if (!_rwlock_intr)
             return NULL;
-        }
+        _ret = pthread_rwlock_init(_rwlock_intr, NULL);
+        if (_ret)
+            goto fail;
         _rwlock = new rwlock(_rwlock_intr);
-#endif
-        assert(_rwlock);
+        if (!_rwlock)
+            goto fail;
         return _rwlock;
+    fail:
+        if (_rwlock_intr)
+            pthread_rwlock_destroy(_rwlock_intr);
+        delete _rwlock_intr;
+        _rwlock->m_rwlock = NULL;
+        delete _rwlock;
+        return NULL;
     }
 
     inline void
@@ -83,83 +72,68 @@ public:
     inline bool
     rdlock ()
     {
+        assert(m_rwlock);
+
         int _ret = 0;
-#ifdef _WIN32
-        assert(m_rwlock);
-#else
-        assert(m_rwlock);
         _ret = pthread_rwlock_rdlock(m_rwlock);
+        assert(!_ret);
         if (_ret)
             return false;
-        assert(!_ret);
-#endif
         return true;
     }
 
     inline bool
     wrlock ()
     {
+        assert(m_rwlock);
+
         int _ret = 0;
-#ifdef _WIN32
-        assert(m_rwlock);
-#else
-        assert(m_rwlock);
         _ret = pthread_rwlock_wrlock(m_rwlock);
+        assert(!_ret);
         if (_ret)
             return false;
-        assert(!_ret);
-#endif
         return true;
     }
 
     inline bool
     try_rdlock ()
     {
+        assert(m_rwlock);
+
         int _ret = 0;
-#ifdef _WIN32
-        assert(m_rwlock);
-#else
-        assert(m_rwlock);
         _ret = pthread_rwlock_tryrdlock(m_rwlock);
+        assert(!_ret);
         if (_ret == EBUSY)
             return false;
-        assert(!_ret);
-#endif
         return true;
     }
 
     inline bool
     try_wrlock ()
     {
+        assert(m_rwlock);
+
         int _ret = 0;
-#ifdef _WIN32
-        assert(m_rwlock);
-#else
-        assert(m_rwlock);
         _ret = pthread_rwlock_trywrlock(m_rwlock);
+        assert(!_ret);
         if (_ret == EBUSY)
             return false;
-        assert(!_ret);
-#endif
         return true;
     }
 
     inline bool
     timedrdlock (int _ms)
     {
+        assert(m_rwlock);
+
         int _ret = 0;
-#ifdef _WIN32
-        assert(m_rwlock);
-#else
-        assert(m_rwlock);
         timespec _ts;
         _ts.tv_sec = _ms / 1000;
         _ts.tv_nsec = (_ms % 1000) * 1000000;
         _ret = pthread_rwlock_timedrdlock(m_rwlock, &_ts);
+        assert(!_ret);
         if (_ret)
             return false;
-        assert(!_ret);
-#endif
         return true;
     }
 
@@ -167,40 +141,45 @@ public:
     timedwrlock (int _ms)
     {
         int _ret = 0;
-#ifdef _WIN32
-        assert(m_rwlock);
-#else
         assert(m_rwlock);
         timespec _ts;
         _ts.tv_sec = _ms / 1000;
         _ts.tv_nsec = (_ms % 1000) * 1000000;
         _ret = pthread_rwlock_timedwrlock(m_rwlock, &_ts);
+        assert(!_ret);
         if (_ret)
             return false;
-        assert(!_ret);
-#endif
         return true;
     }
 
     inline bool
-    unlock ()
+    rdunlock ()
     {
         assert(m_rwlock);
 
         int _ret = 0;
-#ifdef _WIN32
-#else
-        assert(m_rwlock);
         _ret = pthread_rwlock_unlock(m_rwlock);
         assert(!_ret);
         if (_ret)
             return false;
-#endif
+        return true;
+    }
+
+    inline bool
+    wrunlock ()
+    {
+        assert(m_rwlock);
+
+        int _ret = 0;
+        _ret = pthread_rwlock_unlock(m_rwlock);
+        assert(!_ret);
+        if (_ret)
+            return false;
         return true;
     }
 
 public:
-    inline rwlock_interface *
+    inline const rwlock_interface *
     get_interface () const
     {
         return m_rwlock;

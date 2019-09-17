@@ -22,10 +22,6 @@ log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE*/)
 #endif
 {
     m_mode = __LOG_MODE_BOTH;
-#ifdef __LOG_MUTEX
-    m_mutex = mutex::create();
-    assert(m_mutex);
-#endif
 }
 
 log::~log ()
@@ -34,6 +30,17 @@ log::~log ()
     if (m_mutex)
         m_mutex->release();
 #endif
+}
+
+bool
+log::init ()
+{
+#ifdef __LOG_MUTEX
+    m_mutex = mutex::create();
+    if (m_mutex)
+        return false;
+#endif
+    return true;
 }
 
 bool
@@ -47,7 +54,7 @@ log::fatal (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    size_t _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_FATAL, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -67,7 +74,7 @@ log::error (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    size_t _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_ERROR, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -87,7 +94,7 @@ log::warning (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    size_t _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_WARNING, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -106,7 +113,7 @@ log::info (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    size_t _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_INFO, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -125,7 +132,7 @@ log::debug (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    size_t _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -144,8 +151,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     m_mutex->lock();
 #endif
 
-    va_list _vl;
-    size_t  _ret = 0;
+    int     _ret = 0;
     char    _buf[__LOG_BUF_SIZE + 1] = {0};
     char    _filename[FILENAME_MAX + 1];
     tm      _tm;
@@ -165,8 +171,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                             _filename,
                             strerror(errno),
                             errno);
-
-        return false;
+        goto fail;
     }
 
     fseek(_fplog, 0, SEEK_END);
@@ -191,7 +196,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                                 strerror(errno),
                                 errno);
             fclose(_fplog);
-            return false;
+            goto fail;
         } else if (_ret != _str_len) {
              this->write_stderr2(LOG_LEVEL_FATAL,
                                  __log_format("ERROR", 
@@ -202,7 +207,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                                  __FUNCTION__, __FILE__, __LINE__,
                                  _filename);
             fclose(_fplog);
-            return false;
+            goto fail;
         }
     }
 
@@ -217,7 +222,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                             strerror(errno),
                             errno);
         fclose(_fplog);
-        return false;
+        goto fail;
     }
     fputc('\n', _fplog);
     fflush(_fplog);
@@ -226,14 +231,20 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
 #ifdef __LOG_MUTEX
     m_mutex->unlock();
 #endif
-
     return true;
+fail:
+    return false;
 }
 
 void
 log::write_stderr (LOG_LEVEL _level, const char *_str, int _len) const
 {
     assert(_str);
+
+#ifdef __LOG_MUTEX
+    assert(m_mutex);
+    m_mutex->lock();
+#endif
 
 #ifdef _WIN32
 #else
@@ -267,14 +278,25 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len) const
     fflush(stderr);
     if (_ret < 0) {
         assert(!"write_stderr() error!");
-        return;
+        goto fail;
     }
+
+fail:
+#ifdef __LOG_MUTEX
+    m_mutex->unlock();
+#endif
+    return;
 }
 
 void
 log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...) const
 {
     assert(_fmt);
+
+#ifdef __LOG_MUTEX
+    assert(m_mutex);
+    m_mutex->lock();
+#endif
 
     va_list _vl;
     char _buf[__LOG_BUF_SIZE + 1];
@@ -314,9 +336,15 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...) const
     fflush(stderr);
     if (_ret < 0) {
         assert(!"write_stderr() error!");
-        return;
+        goto fail;
     }
     va_end(_vl);
+
+fail:
+#ifdef __LOG_MUTEX
+    m_mutex->unlock();
+#endif
+    return;
 }
 
 __NAMESPACE_END

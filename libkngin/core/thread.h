@@ -1,29 +1,20 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
-#ifdef _WIN32
-#include <windows.h>
-#else
 #include <pthread.h>
-#endif
+#include <atomic>
 #include "define.h"
 #include "common.h"
 #include "noncopyable.h"
 
 __NAMESPACE_BEGIN
 
-#ifdef _WIN32
-typedef HANDLE       thread_interface;
-#else
 typedef pthread_t    thread_interface;
-#define INFINITE     0xffffffff
-#endif
+#define INFINITE     0xFFFFFFFF
 typedef unsigned int (*pthr_fn) (void *);
 
-class thread /* : public noncopyable */ {
+class thread : public noncopyable {
 public:
-    thread        () = delete;
-
     thread        (pthr_fn _pfn, void *_args);
 
     virtual
@@ -40,9 +31,12 @@ public:
     cancel        ();
 
     bool
-    is_exited     () const;
+    is_running    () const;
 
-    int
+    thread_interface
+    get_interface () const;
+
+    unsigned int
     get_err_code  () const;
 
 public:
@@ -50,37 +44,39 @@ public:
     sleep         (int ms);
 
     static void
-    exit          ();
+    exit          (unsigned int _err_code);
+
+    static thread_interface
+    self ();
+
+    static void
+    testcancel    ();
 
     void
     set_err_code  (unsigned int _err_code);
 
-public:
-#ifdef _WIN32
-    static signed int
-    process   (void *);
-#else
+protected:
     static void *
     start         (void *_args);
-#endif
 
 public:
     static unsigned int
     process       (void *_args);
 
-public:
-    thread_interface
-    get_interface () const;
-
-
 protected:
-    thread_interface m_tid;
+    thread_interface  m_tid;
 
-    pthr_fn          m_pfn;
+    pthr_fn           m_pfn;
 
-    void *           m_args;
+    void *            m_args;
 
-    unsigned int     m_err_code;
+    unsigned int      m_err_code;
+
+#ifdef _WIN32
+    std::atomic<bool> m_cancel;
+#endif
+
+    std::atomic<bool> m_running;
 };
 
 __NAMESPACE_END

@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <unistd.h>
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
 
@@ -27,13 +26,13 @@ process1 (void *_args)
 static unsigned int
 process2 (void *_args)
 {
-    usleep(2000000);
+    thread::sleep(2000);
     g_mutex->lock();
     fputs("process2\n", stderr);
     fflush(stderr);
     g_mutex->unlock();
     g_cond->signal();
-    usleep(2000000);
+    thread::sleep(2000);
     g_mutex->lock();
     fputs("process2\n", stderr);
     fflush(stderr);

@@ -39,7 +39,7 @@ int main()
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* rwlock_test                                    *\n");
 //    fprintf(stderr, "**************************************************\n");
-//    rwlock_test();
+    rwlock_test();
 
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* cond_test                                      *\n");
@@ -53,6 +53,9 @@ int main()
 
     test();
 
+#ifdef _WIN32
+    std::cin.get();
+#endif
     return 0;
 }
 
@@ -69,6 +72,7 @@ void
 test ()
 {
 //#error "kassert log"
+// join ³¬Ê±
 }
 
 ////////////////////// test //////////////////////

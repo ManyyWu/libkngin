@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <unistd.h>
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
 
@@ -22,9 +21,9 @@ public:
     process1 (void *_args)
     {
         mythread *_p = (mythread *)_args;
-        fprintf(stderr, "process1[%ld]\n", _p->get_interface());
+        fprintf(stderr, "process1[%ld]\n", thread::self());
         fflush(stderr);
-        _p->sleep(1000);
+        thread::sleep(1000);
 
         return 0;
     }
@@ -33,9 +32,9 @@ public:
     process2 (void *_args)
     {
         mythread *_p = (mythread *)_args;
-        fprintf(stderr, "process1[%ld]\n", _p->get_interface());
+        fprintf(stderr, "process1[%ld]\n", thread::self());
         fflush(stderr);
-        _p->sleep(1000);
+        thread::sleep(1000);
 
         return 0;
     }
@@ -46,15 +45,15 @@ thread_test ()
 {
     unsigned int ret;
 
-    thread t1(thread::process, &t1);
+    thread t1(thread::process, NULL);
     t1.run();
-    t1.join(&ret, 0);
+    t1.join(&ret);
     fprintf(stderr, "join: %d\n", ret);
     fflush(stderr);
 
-    thread t2(thread::process, &t1);
+    thread t2(thread::process, NULL);
     t2.run();
-    t2.join(&ret, 0);
+    t2.join(&ret);
     fprintf(stderr, "join: %d\n", ret);
     fflush(stderr);
 

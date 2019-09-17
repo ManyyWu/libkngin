@@ -46,11 +46,20 @@ log_mgr::filename_at (int _index) const
 log_mgr &
 logger ()
 {
+///// test ///// 
+// read log config from config file
     static log_mgr _logger;
     if (log_mgr::m_log_set.empty()) {
-        log_mgr::m_log_set.push_back(new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH));
-        log_mgr::m_log_set.push_back(new log(__LOG_FILE_HTTP, __LOG_MODE_BOTH));
+        log *_log1 = new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
+        log *_log2 = new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
+        assert(_log1);
+        assert(_log2);
+        _log1->init();
+        _log2->init();
+        log_mgr::m_log_set.push_back(_log1);
+        log_mgr::m_log_set.push_back(_log2);
     }
+///// test ///// 
 
     return _logger;
 }

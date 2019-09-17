@@ -62,6 +62,11 @@ private:
     ~log          ();
 
 public:
+    bool 
+    init          ();
+
+public:
+
     bool
     fatal         (const char *_fmt, ...) const;
 

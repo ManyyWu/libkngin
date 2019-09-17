@@ -9,4 +9,8 @@
 #define __NAMESPACE_END   };
 #define __USING_NAMESPACE using namespace k;
 
+#ifdef _WIN32
+#pragma warning(disable: 4996)
+#endif
+
 #endif /* _DEFINE_H_ */

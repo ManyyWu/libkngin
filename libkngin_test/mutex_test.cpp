@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <unistd.h>
 #include <time.h>
 #include <atomic>
 #include <mutex>
@@ -19,34 +18,38 @@ static std::mutex       g_std_mutex;
 static unsigned int
 process_mutex (void *_args)
 {
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 1000000; i++) {
         g_mutex->lock();
         g_num1 += 1;
         g_mutex->unlock();
     }
+    return 0;
 }
 
 static unsigned int
 process_std_mutex (void *_args)
 {
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 1000000; i++) {
         g_std_mutex.lock();
         g_num2 += 1;
         g_std_mutex.unlock();
     }
+    return 0;
 }
 
 static unsigned int
 process_atomic (void *_args)
 {
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 1000000; i++) {
         g_num3 += 1;
     }
+    return 0;
 }
 
 void
 mutex_test ()
 {
+    printf("waiting...\n");
     /* lock */
     thread * thrs[THR_NUM];
     timespec ts1;

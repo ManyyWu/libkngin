@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <unistd.h>
 #include <time.h>
 #include <atomic>
 #include <mutex>
@@ -9,19 +8,25 @@
 using namespace k;
 
 static rwlock *         g_rwlock = NULL;
+static mutex  *         g_mutex = NULL;
+
+#define print_err(_fmt, ...) do {        \
+    g_mutex->lock();                     \
+    fprintf(stderr, _fmt, ##__VA_ARGS__);\
+    fflush(stderr);                      \
+    g_mutex->unlock();                   \
+} while (false)
 
 static unsigned int
 process1 (void *_args)
 {
     for (int i = 0; i < 10; i++) {
         g_rwlock->wrlock();
-        fprintf(stderr, "process1: wrlock\n");
-        fflush(stderr);
-        usleep(1000000);
-        g_rwlock->unlock();
-        fprintf(stderr, "process1: unlock\n");
-        fflush(stderr);
+        print_err("process1: wrlock\n");
+        g_rwlock->wrunlock();
+        print_err("process1: unlock\n");
     }
+    return 0;
 }
 
 static unsigned int
@@ -29,13 +34,11 @@ process2 (void *_args)
 {
     for (int i = 0; i < 10; i++) {
         g_rwlock->rdlock();
-        fprintf(stderr, "----process2: rdlock\n");
-        fflush(stderr);
-        usleep(1000000);
-        g_rwlock->unlock();
-        fprintf(stderr, "----process2: unlock\n");
-        fflush(stderr);
+        print_err("----process2: rdlock\n");
+        g_rwlock->rdunlock();
+        print_err("----process2: unlock\n");
     }
+    return 0;
 }
 
 static unsigned int
@@ -43,19 +46,18 @@ process3 (void *_args)
 {
     for (int i = 0; i < 10; i++) {
         g_rwlock->rdlock();
-        fprintf(stderr, "--------process3: rdlock\n");
-        fflush(stderr);
-        usleep(1000000);
-        g_rwlock->unlock();
-        fprintf(stderr, "--------process3: unlock\n");
-        fflush(stderr);
+        print_err("--------process3: rdlock\n");
+        g_rwlock->rdunlock();
+        print_err("--------process3: unlock\n");
     }
+    return 0;
 }
 
 void
 rwlock_test ()
 {
     g_rwlock = rwlock::create();
+    g_mutex = mutex::create();
     thread t1(process1, NULL);
     thread t2(process2, NULL);
     thread t3(process3, NULL);
@@ -66,5 +68,6 @@ rwlock_test ()
     t2.join(NULL);
     t3.join(NULL);
     g_rwlock->release();
+    g_mutex->release();
 
 }

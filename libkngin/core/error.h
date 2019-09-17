@@ -17,10 +17,10 @@ enum __ERR_CODE {
 
 #define __make_err_code(e) (-(e))
 
-typedef struct {
-    __ERR_CODE         code;
-    const char * const str;
-}__err_info;
+struct __err_info {
+    __ERR_CODE  code;
+    const char *str;
+};
 
 extern const __err_info __err_code_entry[__ERR_CODE_NUM] = {
     {__ERR_CODE_SUCCESS, "Success"},
