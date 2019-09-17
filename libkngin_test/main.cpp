@@ -16,6 +16,9 @@ rwlock_test ();
 extern void
 cond_test ();
 
+extern void
+threadpool_test ();
+
 void
 test ();
 
