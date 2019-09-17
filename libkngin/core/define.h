@@ -1,6 +1,10 @@
 #ifndef _DEFINE_H_
 #define _DEFINE_H_
 
+#if __cplusplus < 201103L
+#error c++ version is too low, please build the project using c++11 standard.
+#endif
+
 #include <cassert>
 
 #define __LOG_MUTEX
