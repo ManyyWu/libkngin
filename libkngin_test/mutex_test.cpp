@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <time.h>
+#include <ctime>
 #include <atomic>
 #include <mutex>
 #include "../libkngin/core/thread.h"
@@ -15,7 +15,7 @@ static std::atomic<int> g_num3(0);
 static mutex *          g_mutex = NULL;
 static std::mutex       g_std_mutex;
 
-static unsigned int
+static int
 process_mutex (void *_args)
 {
     for (int i = 0; i < 1000000; i++) {
@@ -26,7 +26,7 @@ process_mutex (void *_args)
     return 0;
 }
 
-static unsigned int
+static int
 process_std_mutex (void *_args)
 {
     for (int i = 0; i < 1000000; i++) {
@@ -37,7 +37,7 @@ process_std_mutex (void *_args)
     return 0;
 }
 
-static unsigned int
+static int
 process_atomic (void *_args)
 {
     for (int i = 0; i < 1000000; i++) {

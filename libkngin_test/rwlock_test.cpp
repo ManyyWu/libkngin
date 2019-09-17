@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <time.h>
+#include <ctime>
 #include <atomic>
 #include <mutex>
 #include "../libkngin/core/thread.h"
@@ -17,7 +17,7 @@ static mutex  *         g_mutex = NULL;
     g_mutex->unlock();                   \
 } while (false)
 
-static unsigned int
+static int
 process1 (void *_args)
 {
     for (int i = 0; i < 10; i++) {
@@ -29,7 +29,7 @@ process1 (void *_args)
     return 0;
 }
 
-static unsigned int
+static int
 process2 (void *_args)
 {
     for (int i = 0; i < 10; i++) {
@@ -41,7 +41,7 @@ process2 (void *_args)
     return 0;
 }
 
-static unsigned int
+static int
 process3 (void *_args)
 {
     for (int i = 0; i < 10; i++) {

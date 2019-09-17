@@ -39,7 +39,7 @@ int main()
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* rwlock_test                                    *\n");
 //    fprintf(stderr, "**************************************************\n");
-    rwlock_test();
+//    rwlock_test();
 
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* cond_test                                      *\n");
@@ -49,7 +49,7 @@ int main()
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* threadpool_test                                *\n");
 //    fprintf(stderr, "**************************************************\n");
-//    threadpool_test();
+    threadpool_test();
 
     test();
 
@@ -72,7 +72,7 @@ void
 test ()
 {
 //#error "kassert log"
-// join ³¬Ê±
+// join ï¿½ï¿½Ê±
 }
 
 ////////////////////// test //////////////////////

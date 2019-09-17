@@ -1,15 +1,17 @@
 #ifndef _COND_H_
 #define _COND_H_
 
+#ifdef _WIN32
+#include "pthread.h"
+#else
 #include <pthread.h>
+#endif
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
 #include "thread.h"
 #include "mutex.h"
 #include "noncopyable.h"
-
-typedef pthread_cond_t cond_interface;
 
 __NAMESPACE_BEGIN
 
@@ -19,7 +21,7 @@ public:
 
 protected:
     inline
-    cond (mutex *_mutex, cond_interface *_cond_intr)
+    cond (mutex *_mutex, pthread_cond_t *_cond_intr)
         : m_mutex(_mutex), m_cond(_cond_intr)
     {
         assert(_mutex);
@@ -47,9 +49,9 @@ public:
 
         int _ret = 0;
         cond *          _cond = NULL;
-        cond_interface *_cond_intr = NULL;
-        _cond_intr = new cond_interface;
-        if (_cond_intr)
+        pthread_cond_t *_cond_intr = NULL;
+        _cond_intr = new pthread_cond_t;
+        if (!_cond_intr)
             goto fail;
         _ret = pthread_cond_init(_cond_intr, NULL);
         if (_ret)
@@ -82,7 +84,7 @@ public:
 
         int _ret = 0;
         assert(m_cond);
-        _ret = pthread_cond_wait(m_cond, m_mutex->get_interface());
+        _ret = pthread_cond_wait(m_cond, m_mutex->m_mutex);
         assert(!_ret);
         if (_ret)
             return false;
@@ -98,7 +100,7 @@ public:
         timespec _ts;
         _ts.tv_sec = _ms / 1000;
         _ts.tv_nsec = (_ms % 1000) * 1000000;
-        _ret = pthread_cond_timedwait(m_cond, m_mutex->get_interface(), &_ts);
+        _ret = pthread_cond_timedwait(m_cond, m_mutex->m_mutex, &_ts);
         assert(!_ret);
         if (_ret)
             return false;
@@ -133,14 +135,14 @@ public:
         return true;
     }
 public:
-    inline cond_interface *
+    inline pthread_cond_t *
     get_interface () const
     {
         return m_cond;
     }
 
 protected:
-    cond_interface *m_cond;
+    pthread_cond_t *m_cond;
     mutex *         m_mutex;
 };
 

@@ -1,14 +1,16 @@
 #ifndef _MUTEX_H_
 #define _MUTEX_H_
 
+#ifdef _WIN32
+#include "pthread.h"
+#else
 #include <pthread.h>
+#endif
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
 #include "thread.h"
 #include "noncopyable.h"
-
-typedef pthread_mutex_t mutex_interface;
 
 __NAMESPACE_BEGIN
 
@@ -18,7 +20,7 @@ public:
 
 protected:
     inline
-    mutex (mutex_interface *_mutex_intr)
+    mutex (pthread_mutex_t *_mutex_intr)
         : m_mutex(_mutex_intr)
     {
         assert(_mutex_intr);
@@ -40,8 +42,8 @@ public:
     {
         int _ret = 0;
         mutex * _mutex = NULL;
-        mutex_interface *_mutex_intr = NULL;
-        _mutex_intr = new mutex_interface;
+        pthread_mutex_t *_mutex_intr = NULL;
+        _mutex_intr = new pthread_mutex_t;
         if (!_mutex_intr)
             return NULL;
         _ret = pthread_mutex_init(_mutex_intr, NULL);
@@ -126,14 +128,17 @@ public:
     }
 
 public:
-    inline const mutex_interface *
+    inline const pthread_mutex_t *
     get_interface () const
     {
         return m_mutex;
     }
 
 protected:
-    mutex_interface *m_mutex;
+    pthread_mutex_t *m_mutex;
+
+protected:
+    friend class     cond;
 };
 
 __NAMESPACE_END

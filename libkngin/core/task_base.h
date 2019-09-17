@@ -26,7 +26,7 @@ public:
     virtual bool
     create     (int _type) = 0;
 
-    virtual unsigned int
+    virtual int
     process    () = 0;
 
 protected:

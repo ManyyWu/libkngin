@@ -7,7 +7,7 @@ using namespace k;
 static mutex *g_mutex = NULL;
 static cond * g_cond = NULL;
 
-static unsigned int
+static int
 process1 (void *_args)
 {
     g_mutex->lock();
@@ -23,7 +23,7 @@ process1 (void *_args)
     return 0;
 }
 
-static unsigned int
+static int
 process2 (void *_args)
 {
     thread::sleep(2000);

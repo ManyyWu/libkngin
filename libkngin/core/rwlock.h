@@ -1,14 +1,16 @@
 #ifndef _RWLOCK_H_
 #define _RWLOCK_H_
 
+#ifdef _WIN32
+#else
 #include <pthread.h>
+#include "pthread.h"
+#endif
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
 #include "thread.h"
 #include "noncopyable.h"
-
-typedef pthread_rwlock_t rwlock_interface;
 
 __NAMESPACE_BEGIN
 
@@ -18,7 +20,7 @@ public:
 
 protected:
     inline
-    rwlock (rwlock_interface *_rwlock_intr)
+    rwlock (pthread_rwlock_t *_rwlock_intr)
         : m_rwlock(_rwlock_intr)
     {
         assert(_rwlock_intr);
@@ -39,9 +41,9 @@ public:
     {
         int _ret = 0;
         rwlock * _rwlock = NULL;
-        rwlock_interface *_rwlock_intr = NULL;
+        pthread_rwlock_t *_rwlock_intr = NULL;
 
-        _rwlock_intr = new rwlock_interface;
+        _rwlock_intr = new pthread_rwlock_t;
         if (!_rwlock_intr)
             return NULL;
         _ret = pthread_rwlock_init(_rwlock_intr, NULL);
@@ -179,14 +181,14 @@ public:
     }
 
 public:
-    inline const rwlock_interface *
+    inline const pthread_rwlock_t *
     get_interface () const
     {
         return m_rwlock;
     }
 
 protected:
-    rwlock_interface *m_rwlock;
+    pthread_rwlock_t *m_rwlock;
 };
 
 __NAMESPACE_END

@@ -1,7 +1,11 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
+#ifdef _WIN32
+#include "pthread.h"
+#else
 #include <pthread.h>
+#endif
 #include <atomic>
 #include "define.h"
 #include "common.h"
@@ -9,9 +13,8 @@
 
 __NAMESPACE_BEGIN
 
-typedef pthread_t    thread_interface;
 #define INFINITE     0xFFFFFFFF
-typedef unsigned int (*pthr_fn) (void *);
+typedef int (*pthr_fn) (void *);
 
 class thread : public noncopyable {
 public:
@@ -25,7 +28,7 @@ public:
     run           ();
 
     bool
-    join          (unsigned int *_err_code, int _ms = INFINITE);
+    join          (int *_err_code, int _ms = INFINITE);
 
     bool
     cancel        ();
@@ -33,10 +36,10 @@ public:
     bool
     is_running    () const;
 
-    thread_interface
+    pthread_t
     get_interface () const;
 
-    unsigned int
+    int
     get_err_code  () const;
 
 public:
@@ -44,33 +47,33 @@ public:
     sleep         (int ms);
 
     static void
-    exit          (unsigned int _err_code);
+    exit          (int _err_code);
 
-    static thread_interface
-    self ();
+    static pthread_t
+    self          ();
 
     static void
     testcancel    ();
 
     void
-    set_err_code  (unsigned int _err_code);
+    set_err_code  (int _err_code);
 
 protected:
     static void *
     start         (void *_args);
 
 public:
-    static unsigned int
+    static int
     process       (void *_args);
 
 protected:
-    thread_interface  m_tid;
+    pthread_t         m_tid;
 
     pthr_fn           m_pfn;
 
     void *            m_args;
 
-    unsigned int      m_err_code;
+    void *            m_retptr;
 
 #ifdef _WIN32
     std::atomic<bool> m_cancel;

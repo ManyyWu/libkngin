@@ -12,5 +12,5 @@ add_executable(libkngin_test
                msg_test.cpp
                main.cpp)
 
-target_link_libraries(libkngin_test -pthread
+target_link_libraries(libkngin_test
                       libkngin)

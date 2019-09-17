@@ -17,24 +17,22 @@ public:
     }
 
 public:
-    static unsigned int
+    static int
     process1 (void *_args)
     {
         mythread *_p = (mythread *)_args;
         fprintf(stderr, "process1[%ld]\n", thread::self());
         fflush(stderr);
-        thread::sleep(1000);
 
         return 0;
     }
 
-    static unsigned int
+    static int
     process2 (void *_args)
     {
         mythread *_p = (mythread *)_args;
         fprintf(stderr, "process1[%ld]\n", thread::self());
         fflush(stderr);
-        thread::sleep(1000);
 
         return 0;
     }
@@ -43,7 +41,7 @@ public:
 extern void
 thread_test ()
 {
-    unsigned int ret;
+    int ret;
 
     thread t1(thread::process, NULL);
     t1.run();
