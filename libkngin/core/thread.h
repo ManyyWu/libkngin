@@ -75,10 +75,6 @@ protected:
 
     void *            m_retptr;
 
-#ifdef _WIN32
-    std::atomic<bool> m_cancel;
-#endif
-
     std::atomic<bool> m_running;
 };
 

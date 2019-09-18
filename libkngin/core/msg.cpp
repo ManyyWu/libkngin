@@ -15,75 +15,67 @@ msg::~msg ()
     delete m_buf;
 }
 
-bool
+msg *
 msg::create (uint32_t _type)
 {
     if (!_type || _type > MAX_MSG_TYPE)
         return false;
 
-    m_type = _type;
-    m_size = 0;
-    m_buf = NULL;
-
-    return true;
+    msg *_msg = new msg();
+    assert(_msg);
+    return _msg;
 }
 
-bool
+msg *
 msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 {
     if ((!_type || _type > MAX_MSG_TYPE) || (_size > MAX_MSG_SIZE))
         return false;
 
-    m_type = _type;
-    m_size = _size;
+    msg *_msg = new msg();
+    assert(_msg);
+    if (!_msg)
+        return NULL;
+
+    _msg->m_type = _type;
+    _msg->m_size = _size;
     if (_size && _buf) {
-        m_buf = new uint8_t[_size];
-        if (!m_buf)
+        _msg->m_buf = new uint8_t[_size];
+        if (!_msg->m_buf)
             return false;
-        memcpy(m_buf, _buf, std::min(_size, MAX_MSG_SIZE));
+        memcpy(_msg->m_buf, _buf, std::min(_size, MAX_MSG_SIZE));
     } else {
-        m_buf = NULL;
-        m_size = 0;
+        _msg->m_buf = NULL;
+        _msg->m_size = 0;
     }
 
-    return true;
+    return _msg;
 }
 
-bool
-msg::create (const msg &_msg)
+msg *
+msg::create (const msg *_msg)
 {
-    if ((!_msg.m_type || _msg.m_type > MAX_MSG_TYPE) || (_msg.m_size > MAX_MSG_SIZE))
+    if ((!_msg->m_type || _msg->m_type > MAX_MSG_TYPE) || (_msg->m_size > MAX_MSG_SIZE))
         return false;
 
-    m_type = _msg.m_type;
-    m_size = _msg.m_size;
-    if (_msg.m_size && _msg.m_buf) {
-        m_buf = new uint8_t[_msg.m_size];
-        if (!m_buf)
+    msg *_new_msg = new msg();
+    assert(_new_msg);
+    if (!_new_msg)
+        return NULL;
+
+    _new_msg->m_type = _msg->m_type;
+    _new_msg->m_size = _msg->m_size;
+    if (_msg->m_size && _msg->m_buf) {
+        _new_msg->m_buf = new uint8_t[_msg->m_size];
+        if (!_new_msg->m_buf)
             return false;
-        memcpy(m_buf, _msg.m_buf, std::min(_msg.m_size, MAX_MSG_SIZE));
+        memcpy(_new_msg->m_buf, _msg->m_buf, std::min(_msg->m_size, MAX_MSG_SIZE));
     } else {
-        m_buf = NULL;
-        m_size = 0;
+        _new_msg->m_buf = NULL;
+        _new_msg->m_size = 0;
     }
 
-    return true;
-}
-
-bool
-msg::create (msg &&_msg)
-{
-    if ((!_msg.m_type || _msg.m_type > MAX_MSG_TYPE) || (_msg.m_size > MAX_MSG_SIZE))
-        return false;
-
-    m_type = _msg.m_type;
-    m_size = _msg.m_size;
-    m_buf = _msg.m_buf;
-    _msg.m_buf = NULL;
-    _msg.m_size = 0;
-    _msg.m_type = INVALID_MSG_TYPE;
-
-    return true;
+    return _new_msg;
 }
 
 bool

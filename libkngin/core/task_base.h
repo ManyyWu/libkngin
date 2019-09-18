@@ -8,8 +8,8 @@
 
 __NAMESPACE_BEGIN
 
-class task_base {
-public:
+class task_base : noncopyable {
+protected:
     task_base (msg *_msg)
         : m_msg (_msg)
     {
@@ -19,7 +19,7 @@ public:
     virtual
     ~task_base ()
     {
-        delete m_msg;
+        m_msg->release();
     }
 
 public:

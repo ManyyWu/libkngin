@@ -13,8 +13,8 @@ __NAMESPACE_BEGIN
 
 #ifdef _WIN32
 thread::thread (pthr_fn _pfn, void *_args)
-    : m_pfn(_pfn), m_args(_args), m_err_code(0), 
-      m_tid(pthread_t{NULL, 0}), m_cancel(false), m_running(false)
+    : m_pfn(_pfn), m_args(_args), m_retptr(NULL), 
+      m_tid(pthread_t{NULL, 0}), m_running(false)
 #else
 thread::thread (pthr_fn _pfn, void *_args)
     : m_pfn(_pfn), m_args(_args), m_retptr(NULL),
@@ -73,9 +73,9 @@ thread::join (int *_err_code, int _ms /* = INFINITE */)
     if (_ret)
         return false;
     if (_err_code)
-        *_err_code = (int)(long)m_retptr;
+        *_err_code = (int)(long long)m_retptr;
 #ifdef _WIN32
-    m_tid.p = pthread_t{NULL, 0};
+    m_tid = pthread_t{NULL, 0};
 #else
     m_tid = 0;
 #endif
@@ -118,7 +118,7 @@ int
 thread::get_err_code  () const
 {
     assert(m_running.load());
-    return (int)(long)m_retptr;
+    return (int)(long long)m_retptr;
 }
 
 void
@@ -135,7 +135,7 @@ void
 thread::exit (int _err_code)
 {
     pthread_t _tid = pthread_self();
-    pthread_exit((void *)(long)_err_code);
+    pthread_exit((void *)(long long)_err_code);
 }
 
 pthread_t
@@ -153,7 +153,7 @@ thread::testcancel ()
 void
 thread::set_err_code (int _err_code)
 {
-    m_retptr = (void *)(long)_err_code;
+    m_retptr = (void *)(long long)_err_code;
 }
 
 void *
@@ -177,11 +177,11 @@ thread::process (void *_args)
     // pthread_setcanceltype()
     // pthread testcancel()
 
-    fprintf(stderr, "thread::process()\n", self());
+    fprintf(stderr, "thread::process()\n");
     fflush(stderr);
 
     // pthread_cleanup_pop()
-    thread::exit(0);
+    return 0 ;
 }
 
 __NAMESPACE_END

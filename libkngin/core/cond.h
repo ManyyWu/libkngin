@@ -65,7 +65,7 @@ fail:
             pthread_cond_destroy(_cond_intr);
         delete _cond_intr;
         delete _cond;
-
+        return NULL;
     }
 
     inline void

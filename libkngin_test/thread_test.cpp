@@ -21,7 +21,7 @@ public:
     process1 (void *_args)
     {
         mythread *_p = (mythread *)_args;
-        fprintf(stderr, "process1[%ld]\n", thread::self());
+        fprintf(stderr, "process1\n");
         fflush(stderr);
 
         return 0;
@@ -31,7 +31,7 @@ public:
     process2 (void *_args)
     {
         mythread *_p = (mythread *)_args;
-        fprintf(stderr, "process1[%ld]\n", thread::self());
+        fprintf(stderr, "process1\n");
         fflush(stderr);
 
         return 0;

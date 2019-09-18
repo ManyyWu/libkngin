@@ -54,7 +54,7 @@ log::fatal (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    int _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_FATAL, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -74,7 +74,7 @@ log::error (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    int _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_ERROR, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -94,7 +94,7 @@ log::warning (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    int _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_WARNING, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -113,7 +113,7 @@ log::info (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    int _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_INFO, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -132,7 +132,7 @@ log::debug (const char *_fmt, ...) const
     va_start(_vl, _fmt);
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
-    int _len = strnlen(_buf, __LOG_BUF_SIZE);
+    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _buf, _len))
             return false;
@@ -185,7 +185,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                  _tm.tm_hour, _tm.tm_min, _tm.tm_sec
                  );
         size_t _str_len = strnlen(_buf, __LOG_BUF_SIZE);
-        _ret = fwrite(_buf, 1, _str_len , _fplog);
+        _ret = (int)fwrite(_buf, 1, _str_len , _fplog);
         if (_ret < 0) {
             this->write_stderr2(LOG_LEVEL_FATAL,
                                 __log_format("FATAL", "failed to write log to \"%s\" - %s[%#x]"),
@@ -211,7 +211,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
         }
     }
 
-    _ret = fwrite(_str, 1, _len, _fplog);
+    _ret = (int)fwrite(_str, 1, _len, _fplog);
     if (_ret < 0) {
         this->write_stderr2(LOG_LEVEL_FATAL,
                             __log_format("FATAL", "failed to write log to \"%s\" - write %s[%#x]"),

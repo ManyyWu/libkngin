@@ -17,6 +17,12 @@ extern void
 cond_test ();
 
 extern void
+deque_test ();
+
+extern void
+queue_test ();
+
+extern void
 threadpool_test ();
 
 void
