@@ -13,6 +13,8 @@
 #define __NAMESPACE_END   };
 #define __USING_NAMESPACE using namespace k;
 
+#define INFINITE 0xFFFFFFFF
+
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif

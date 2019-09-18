@@ -17,10 +17,10 @@ extern void
 cond_test ();
 
 extern void
-deque_test ();
+sync_deque_test ();
 
 extern void
-queue_test ();
+sync_queue_test ();
 
 extern void
 threadpool_test ();
@@ -58,8 +58,19 @@ int main()
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* threadpool_test                                *\n");
 //    fprintf(stderr, "**************************************************\n");
-    threadpool_test();
+//    threadpool_test();
 
+//    fprintf(stderr, "**************************************************\n");
+//    fprintf(stderr, "* dequeue_test                                   *\n");
+//    fprintf(stderr, "**************************************************\n");
+//    sync_deque_test();
+
+//    fprintf(stderr, "**************************************************\n");
+//    fprintf(stderr, "* queue_test                                     *\n");
+//    fprintf(stderr, "**************************************************\n");
+    sync_queue_test();
+
+// others
     test();
 
 #ifdef _WIN32

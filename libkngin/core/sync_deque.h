@@ -6,17 +6,19 @@
 #include "noncopyable.h"
 #include "lock.h"
 
+using std::deque;
+using std::iterator;
+
 __NAMESPACE_BEGIN
 
 template <class __T>
 class sync_deque : public noncopyable {
 public:
-    typedef size_t            size_type;
-    typedef std::deque<__T *> deque;
+    typedef size_t size_type;
 
 protected:
-    sync_deque ()
-        : m_mutex(NULL), m_cond(NULL), m_max_size(0)
+    sync_deque (size_type _s = deque<__T *>::max_size())
+        : m_mutex(NULL), m_cond(NULL), m_max_size(_s)
     {
         m_deque.clear();
     }
@@ -28,33 +30,33 @@ protected:
             m_cond->release();
         if (m_mutex)
             m_mutex->release();
-        m_deque.clear();
+        assert(!this->size());
+        this->clear();
     }
 
 public:
-    static deque *
-    create      (size_type _s, bool _sync)
+    static sync_deque<__T> *
+    create (size_type _s, bool _sync)
     {
-        deque *_q = new deque;
+        sync_deque<__T> *_q = new sync_deque(_s);
         assert(_q);
         if (!_q)
-            return NULL
-        _q->deque.clear();
-        _q->m_deque.assign(_s, NULL);
+            return NULL;
+        _q->m_deque.clear();
         if (_sync) {
             _q->m_mutex = mutex::create();
-            assert(_q->mutex);
+            assert(_q->m_mutex);
             if (!_q->m_mutex)
                 goto fail;
-            _q->cond = cond::create(_q->m_mutex);
-            assert(_q->cond);
-            if (!_q->cond)
+            _q->m_cond = cond::create(_q->m_mutex);
+            assert(_q->m_cond);
+            if (!_q->m_cond)
                 goto fail;
         }
-        return m_q;
+        return _q;
     fail:
-        delete _q->m_cond;
-        delete _q->m_mutex;
+        _q->m_cond->release();
+        _q->m_mutex->release();
         if (_q)
             _q->clear();
         delete _q;
@@ -65,11 +67,9 @@ public:
     virtual void
     release ()
     {
-        delete _q->m_cond;
-        delete _q->m_mutex;
-        if (_q)
-            _q->clear();
-        delete _q;
+        m_cond->release();
+        m_mutex->release();
+        delete this;
     }
 
 public:
@@ -104,9 +104,9 @@ public:
     push_back (__T *_v)
     {
         assert(_v);
-        if (m_queue.size() >= m_max_size)
+        if (m_deque.size() > m_max_size)
             return false;
-        m_queue.push_back(_v);
+        m_deque.push_back(_v);
         return true;
     }
 
@@ -114,25 +114,25 @@ public:
     push_front (__T *_v)
     {
         assert(_v);
-        if (m_queue.size() >= m_max_size)
+        if (m_deque.size() > m_max_size)
             return false;
-        m_queue.push_front(_v);
+        m_deque.push_front(_v);
         return true;
     }
 
     virtual bool
     pop_back (__T *_v)
     {
-        __T *_item = m_queue.empty() ? NULL : m_queue.back();
-        m_queue.pop_back();
+        __T *_item = m_deque.empty() ? NULL : m_deque.back();
+        m_deque.pop_back();
         return _item;
     }
 
     virtual bool
     pop_front (__T *_v)
     {
-        __T *_item = m_queue.empty() ? NULL : m_queue.front();
-        m_queue.pop_front();
+        __T *_item = m_deque.empty() ? NULL : m_deque.front();
+        m_deque.pop_front();
         return _item;
     }
 
@@ -140,7 +140,7 @@ public:
     insert (size_type _n, __T *_v)
     {
         assert(_v);
-        if (m_deque.size() >= max_size())
+        if (m_deque.size() > max_size())
             return false;
         return true;
     }
@@ -151,22 +151,14 @@ public:
         assert(_n >= 0 && _n < m_deque.size());
         if (m_deque.empty())
             return false;
-        for (std::deque<iterator> iter = m_deque.begin(); iter != iter.end; ++iter)
-            if (iter)
-                m_deque.erase(iter);
-        return true;
+        typename deque<__T *>::iterator iter;
+        for (iter = m_deque.begin(); iter != m_deque.end(); ++iter) {
+            m_deque.erase(iter);
+            return true;
+        }
+        return false;
     }
-
-    virtual bool
-    erase (size_type _f, size_type _n)
-    {
-        assert(_n >= 0 && _n < m_deque.size());
-        if (m_deque.empty())
-            return false;
-        m_deque.erase(_f, _l);
-        return true;
-    }
-
+    
 public:
     virtual void
     shrink ()
@@ -183,7 +175,7 @@ public:
     virtual size_type
     size () const
     {
-        m_deque.size();
+        return m_deque.size();
     }
 
     virtual size_type
@@ -202,6 +194,12 @@ public:
     empty () const
     {
         return m_deque.empty();
+    }
+
+    virtual bool
+    full () const
+    {
+        return (m_deque.size() >= m_max_size);
     }
 
 public:
@@ -234,27 +232,27 @@ public:
     {
         assert(m_mutex && m_cond);
         if (INFINITE == _ms)
-            return m_mutex->wait();
+            return m_cond->wait();
         else
-            return m_cond->timedwait(_ms)
+            return m_cond->timedwait(_ms);
     }
 
     virtual bool
     signal ()
     {
         assert(m_mutex && m_cond);
-        m_cond->signal();
+        return m_cond->signal();
     }
  
     virtual bool
     broadcast ()
     {
         assert(m_mutex && m_cond);
-        m_cond->broadcast();
+        return m_cond->broadcast();
     }
 
 protected:
-    std::deque<__T *>      m_deque;
+    deque<__T *>           m_deque;
 
     mutex *                m_mutex;
 

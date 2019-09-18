@@ -13,7 +13,6 @@
 
 __NAMESPACE_BEGIN
 
-#define INFINITE     0xFFFFFFFF
 typedef int (*pthr_fn) (void *);
 
 class thread : public noncopyable {

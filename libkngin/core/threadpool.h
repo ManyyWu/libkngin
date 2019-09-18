@@ -12,6 +12,8 @@
 
 __NAMESPACE_BEGIN
 
+typedef sync_deque<task_base *> task_queue;
+
 class thread_pool {
 //join_all 无序 超时
 //cancel_all 无序 超时
