@@ -36,7 +36,7 @@ protected:
 
         if (m_cond) {
             _ret = pthread_cond_destroy(m_cond);
-            delete m_cond;
+            safe_release(m_cond);
         }
         assert(!_ret);
     }
@@ -50,21 +50,21 @@ public:
         int _ret = 0;
         cond *          _cond = NULL;
         pthread_cond_t *_cond_intr = NULL;
-        _cond_intr = new pthread_cond_t;
+        _cond_intr = new_nothrow(pthread_cond_t);
         if (!_cond_intr)
             goto fail;
         _ret = pthread_cond_init(_cond_intr, NULL);
         if (_ret)
             goto fail;
-        _cond = new cond(_mutex, _cond_intr);
+        _cond = new_nothrow(cond(_mutex, _cond_intr));
         if (!_cond)
             goto fail;
         return _cond;
 fail:
         if (_cond_intr)
             pthread_cond_destroy(_cond_intr);
-        delete _cond_intr;
-        delete _cond;
+        safe_release(_cond_intr);
+        safe_release(_cond);
         return NULL;
     }
 

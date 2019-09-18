@@ -61,14 +61,14 @@ int main()
 //    threadpool_test();
 
 //    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* dequeue_test                                   *\n");
+//    fprintf(stderr, "* deque_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    sync_deque_test();
 
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* queue_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
-    sync_queue_test();
+//    sync_queue_test();
 
 // others
     test();

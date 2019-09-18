@@ -1,12 +1,17 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#include <new>
 #include "define.h"
 #include "assert.h"
 
 #define __log_assert_format(__f) "****** %s[%s:%d] " __f " *******"
 
 __NAMESPACE_BEGIN
+
+using std::nothrow;
+#define new_nothrow(__t)  new(std::nothrow) __t
+#define safe_release(__p) do { delete (__p); (__p) = NULL; } while (false)
 
 //#ifndef NDEBUG
 //void

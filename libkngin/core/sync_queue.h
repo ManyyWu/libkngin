@@ -16,7 +16,7 @@ public:
     typedef size_t size_type;
 
 protected:
-    sync_queue (size_type _s = deque<__T *> max_size()) 
+    sync_queue (size_type _s = deque<__T *>::max_size())
         : m_mutex(NULL), m_cond(NULL), m_max_size(_s)
     {
         m_queue.clear();
@@ -37,7 +37,7 @@ public:
     static sync_queue<__T> *
     create (size_type _s, bool _sync)
     {
-        sync_queue<__T> *_q = new sync_queue(_s);
+        sync_queue<__T> *_q = new_nothrow(sync_queue(_s));
         assert(_q);
         if (!_q)
             return NULL;
@@ -58,7 +58,7 @@ public:
         _q->m_mutex->release();
         if (_q)
             _q->clear();
-        delete _q;
+        safe_release(_q);
         return NULL;
     }
 
@@ -182,7 +182,7 @@ public:
     }
  
     virtual bool
-    broadcaset ()
+    broadcast ()
     {
         assert(m_mutex && m_cond);
         return m_cond->broadcast();

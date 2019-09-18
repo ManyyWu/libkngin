@@ -50,8 +50,8 @@ logger ()
 // read log config from config file
     static log_mgr _logger;
     if (log_mgr::m_log_set.empty()) {
-        log *_log1 = new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
-        log *_log2 = new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
+        log *_log1 = new_nothrow(log(__LOG_FILE_SERVER, __LOG_MODE_BOTH));
+        log *_log2 = new_nothrow(log(__LOG_FILE_SERVER, __LOG_MODE_BOTH));
         assert(_log1);
         assert(_log2);
         _log1->init();

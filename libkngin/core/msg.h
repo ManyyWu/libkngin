@@ -3,37 +3,53 @@
 
 #include <cstdint>
 #include "define.h"
+#include "common.h"
 #include "noncopyable.h"
 
-#define MAX_MSG_SIZE      4096U
-#define MAX_MSG_TYPE      0x7fffffffU
-#define INVALID_MSG_TYPE  0x0U
+#define MAX_MSG_SIZE 4096U
+#define MAX_MSG      0x7fffffffU
+#define INVALID_MSG  0x0U
+#define MSG_BEGIN    0x1U
+#define MSG_END      MAX_MSG
 
 __NAMESPACE_BEGIN
 
 class msg : public noncopyable {
-protected:
+public:
     msg ();
 
+protected:
     virtual
     ~msg    ();
 
 public:
-    static msg *
+    virtual bool
     create  (uint32_t _type);
 
-    static msg *
+    virtual bool
     create  (const uint8_t *_buf, uint32_t _size, uint32_t _type);
 
-    static msg *
+    virtual bool
     create  (const msg *_msg);
 
     virtual void 
     release ();
 
-protected:
+public:
     virtual bool
     process ();
+
+    const uint8_t *
+    buf     ();
+
+    uint32_t
+    size    ();
+
+    uint32_t
+    type    ();
+
+    bool
+    send    ();
 
 protected:
     uint8_t *m_buf;
@@ -41,6 +57,8 @@ protected:
     uint32_t m_size;
 
     uint32_t m_type;
+
+    // port *m_port;
 };
 
 __NAMESPACE_END

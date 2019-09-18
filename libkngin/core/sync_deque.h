@@ -38,7 +38,7 @@ public:
     static sync_deque<__T> *
     create (size_type _s, bool _sync)
     {
-        sync_deque<__T> *_q = new sync_deque(_s);
+        sync_deque<__T> *_q = new_nothrow(sync_deque(_s));
         assert(_q);
         if (!_q)
             return NULL;
@@ -59,7 +59,7 @@ public:
         _q->m_mutex->release();
         if (_q)
             _q->clear();
-        delete _q;
+        safe_release(_q);
         return NULL;
 
     }
@@ -121,7 +121,7 @@ public:
     }
 
     virtual bool
-    pop_back (__T *_v)
+    pop_back ()
     {
         __T *_item = m_deque.empty() ? NULL : m_deque.back();
         m_deque.pop_back();
@@ -129,7 +129,7 @@ public:
     }
 
     virtual bool
-    pop_front (__T *_v)
+    pop_front ()
     {
         __T *_item = m_deque.empty() ? NULL : m_deque.front();
         m_deque.pop_front();

@@ -32,7 +32,7 @@ protected:
     {
         if (m_mutex) {
             pthread_mutex_destroy(m_mutex);
-            delete m_mutex;
+            safe_release(m_mutex);
         }
     }
 
@@ -43,22 +43,22 @@ public:
         int _ret = 0;
         mutex * _mutex = NULL;
         pthread_mutex_t *_mutex_intr = NULL;
-        _mutex_intr = new pthread_mutex_t;
+        _mutex_intr = new_nothrow(pthread_mutex_t);
         if (!_mutex_intr)
             return NULL;
         _ret = pthread_mutex_init(_mutex_intr, NULL);
         if (_ret)
             goto fail;
-        _mutex = new mutex(_mutex_intr);
+        _mutex = new_nothrow(mutex(_mutex_intr));
         if (!_mutex)
             goto fail;
         return _mutex;
     fail:
         if (_mutex_intr)
             pthread_mutex_destroy(_mutex_intr);
-        delete _mutex_intr;
+        safe_release(_mutex_intr);
         _mutex->m_mutex = NULL;
-        delete _mutex;
+        safe_release(_mutex);
         return NULL;
     }
 

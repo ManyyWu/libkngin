@@ -23,12 +23,8 @@ set(KNGIN_CORE_SRC
     "core/time.cpp"
     "core/thread.cpp"
     "core/logmgr.cpp"
-    "core/mutex.h"
-    "core/rwlock.h"
-    "core/cond.h"
     "core/msg.cpp"
     "core/threadpool.cpp"
-    "core/sync_queue.cpp"
     )
 
 set(KNGIN_SRC

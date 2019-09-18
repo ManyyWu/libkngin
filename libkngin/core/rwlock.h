@@ -32,7 +32,7 @@ protected:
     {
         if (m_rwlock)
             pthread_rwlock_destroy(m_rwlock);
-        delete m_rwlock;
+        safe_release(m_rwlock);
     }
 
 public:
@@ -43,22 +43,22 @@ public:
         rwlock * _rwlock = NULL;
         pthread_rwlock_t *_rwlock_intr = NULL;
 
-        _rwlock_intr = new pthread_rwlock_t;
+        _rwlock_intr = new_nothrow(pthread_rwlock_t);
         if (!_rwlock_intr)
             return NULL;
         _ret = pthread_rwlock_init(_rwlock_intr, NULL);
         if (_ret)
             goto fail;
-        _rwlock = new rwlock(_rwlock_intr);
+        _rwlock = new_nothrow(rwlock(_rwlock_intr));
         if (!_rwlock)
             goto fail;
         return _rwlock;
     fail:
         if (_rwlock_intr)
             pthread_rwlock_destroy(_rwlock_intr);
-        delete _rwlock_intr;
+        safe_release(_rwlock_intr);
         _rwlock->m_rwlock = NULL;
-        delete _rwlock;
+        safe_release(_rwlock);
         return NULL;
     }
 
@@ -66,7 +66,6 @@ public:
     release ()
     {
         assert(m_rwlock);
-
         delete this;
     }
 

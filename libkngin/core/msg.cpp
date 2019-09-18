@@ -1,87 +1,108 @@
 #include <cstdint>
 #include <cstring>
 #include <algorithm>
+#include "define.h"
+#include "common.h"
 #include "msg.h"
 
 __NAMESPACE_BEGIN
 
 msg::msg ()
-    : m_buf(NULL), m_size(0), m_type(INVALID_MSG_TYPE)
+    : m_buf(NULL), m_size(0), m_type(INVALID_MSG)
 {
 }
 
 msg::~msg ()
 {
-    delete m_buf;
+    safe_release(m_buf);
 }
 
-msg *
+bool
 msg::create (uint32_t _type)
 {
-    if (!_type || _type > MAX_MSG_TYPE)
+    if (!_type || _type > MAX_MSG)
         return false;
 
-    msg *_msg = new msg();
-    assert(_msg);
-    return _msg;
+    this->release();
+    m_type = _type;
+    return true;
 }
 
-msg *
+bool
 msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 {
-    if ((!_type || _type > MAX_MSG_TYPE) || (_size > MAX_MSG_SIZE))
+    if ((!_type|| _type > MAX_MSG) || (_size > MAX_MSG_SIZE))
         return false;
 
-    msg *_msg = new msg();
-    assert(_msg);
-    if (!_msg)
-        return NULL;
-
-    _msg->m_type = _type;
-    _msg->m_size = _size;
+    this->release();
     if (_size && _buf) {
-        _msg->m_buf = new uint8_t[_size];
-        if (!_msg->m_buf)
+        m_buf = new_nothrow(uint8_t[_size]);
+        assert(m_buf);
+        if (!m_buf)
             return false;
-        memcpy(_msg->m_buf, _buf, std::min(_size, MAX_MSG_SIZE));
+        memcpy(m_buf, _buf, std::min(_size, MAX_MSG_SIZE));
+        m_type = _type;
+        m_size = _size;
     } else {
-        _msg->m_buf = NULL;
-        _msg->m_size = 0;
+        m_buf = NULL;
+        m_size = 0;
     }
-
-    return _msg;
+    return true;
 }
 
-msg *
+bool
 msg::create (const msg *_msg)
 {
-    if ((!_msg->m_type || _msg->m_type > MAX_MSG_TYPE) || (_msg->m_size > MAX_MSG_SIZE))
-        return false;
-
-    msg *_new_msg = new msg();
-    assert(_new_msg);
-    if (!_new_msg)
+    if ((!_msg->m_type || _msg->m_type > MAX_MSG) || (_msg->m_size > MAX_MSG_SIZE))
         return NULL;
 
-    _new_msg->m_type = _msg->m_type;
-    _new_msg->m_size = _msg->m_size;
+    this->release();
     if (_msg->m_size && _msg->m_buf) {
-        _new_msg->m_buf = new uint8_t[_msg->m_size];
-        if (!_new_msg->m_buf)
-            return false;
-        memcpy(_new_msg->m_buf, _msg->m_buf, std::min(_msg->m_size, MAX_MSG_SIZE));
+        m_buf = new_nothrow(uint8_t[_msg->m_size]);
+        assert(m_buf);
+        if (!m_buf)
+            return NULL;
+        memcpy(m_buf, _msg->m_buf, std::min(_msg->m_size, MAX_MSG_SIZE));
+        m_type = _msg->m_type;
+        m_size = _msg->m_size;
     } else {
-        _new_msg->m_buf = NULL;
-        _new_msg->m_size = 0;
+        m_buf = NULL;
+        m_size = 0;
     }
+    return true;
+}
 
-    return _new_msg;
+void
+msg::release ()
+{
+    if (m_buf)
+        safe_release(m_buf);
+    m_type = INVALID_MSG;
+    m_size = 0;
 }
 
 bool
 msg::process ()
 {
     return true;
+}
+
+const uint8_t *
+msg::buf ()
+{
+    return m_buf;
+}
+
+uint32_t
+msg::size ()
+{
+    return m_size;
+}
+
+uint32_t
+msg::type ()
+{
+    return m_type;
 }
 
 __NAMESPACE_END
