@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cstdio>
 
 extern void
@@ -93,6 +92,7 @@ test ()
 {
 //#error "kassert log"
 // join ��ʱ
-}
+
+};
 
 ////////////////////// test //////////////////////

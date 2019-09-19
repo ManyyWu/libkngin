@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include "../libkngin/core/msg.h"
+#include "../libkngin/core/task_base.h"
 
 using namespace k;
 
@@ -21,12 +23,39 @@ struct msg_head {
 #define MSG_TYPE_TEST0 MSG_BEGIN + 0U
 
 class netmsg_test : public msg {
+public:
+    class task_test {
+    public:
+        void
+        process_msg (netmsg_test *_msg)
+        {
+            [this, _msg]() {
+                _msg->process();
+                netmsg_test *_new_msg = new netmsg_test();
+                _new_msg->create(_msg, );
+                this->send_msg();
+            }
+            _msg->release();
+        }
+
+        void
+        send_msg (msg *_msg)
+        {
+            printf("%s\n", _msg);
+            fflush(stderr);
+            _msg->release();
+        }
+    };
+
     class test_action {
     public:
-        test_action () = default;
-    
+        test_action (task_test *_task)
+            : m_task(_task)
+        {
+        }
+
         ~test_action () = default;
-    
+
     public:
         bool
         action0 (int _param)
@@ -35,9 +64,9 @@ class netmsg_test : public msg {
             if (!_msg)
                 return false;
             _msg->create(ACTION_0, _param * 1);
-    
+
         }
-    
+
         bool
         action1 (int _param)
         {
@@ -45,9 +74,9 @@ class netmsg_test : public msg {
             if (!_msg)
                 return false;
             _msg->create(ACTION_0, _param * 1);
-    
+
         }
-    
+
         bool
         action2 (int _param)
         {
@@ -55,9 +84,9 @@ class netmsg_test : public msg {
             if (!_msg)
                 return false;
             _msg->create(ACTION_0, _param * 1);
-    
+
         }
-    
+
         bool
         action3 (int _param)
         {
@@ -66,8 +95,11 @@ class netmsg_test : public msg {
                 return false;
             if (!_msg->create(ACTION_0, _param * 1))
                 return false;
-    
+
         }
+
+    protected:
+        task_test *m_task;
     };
 
 public:
@@ -84,11 +116,10 @@ protected:
 
 public:
     virtual bool
-    create (int action, int param)
+    create (ACTION _action, int _param)
     {
-        m_info.action = action;
-        m_info.param = param;
-        msg::create((uint8_t *)&m_info, sizeof(test_info), MSG_TYPE_TEST0);
+        m_info = new test_info{_action, _param};
+        return msg::create((uint8_t *)m_info, sizeof(test_info), MSG_TYPE_TEST0);
     }
 
 public:
@@ -96,20 +127,20 @@ public:
     process ()
     {
         bool _ret = false;
-        test_action _act;
+        test_action _act(m_task);
 
-        switch (m_info.action) {
+        switch (m_info->action) {
         case ACTION_0:
-            _ret = _act.action1(m_info.param);
+            _ret = _act.action1(m_info->param);
             break;
         case ACTION_1:
-            _ret = _act.action1(m_info.param);
+            _ret = _act.action1(m_info->param);
             break;
         case ACTION_2:
-            _ret = _act.action2(m_info.param);
+            _ret = _act.action2(m_info->param);
             break;
         case ACTION_3:
-            _ret = _act.action3(m_info.param);
+            _ret = _act.action3(m_info->param);
             break;
         default:
             assert(0);
@@ -125,5 +156,13 @@ protected:
     };
 #pragma pack(pop)
 
-    test_info m_info;
+    test_info *m_info;
+
+    task_test *m_task;
 };
+
+void
+msg_test ()
+{
+
+}

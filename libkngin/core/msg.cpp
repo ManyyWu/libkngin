@@ -79,6 +79,7 @@ msg::release ()
         safe_release(m_buf);
     m_type = INVALID_MSG;
     m_size = 0;
+    delete this;
 }
 
 bool
