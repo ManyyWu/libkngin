@@ -20,8 +20,56 @@ struct msg_head {
 
 #define MSG_TYPE_TEST0 MSG_BEGIN + 0U
 
-class test_action;
 class netmsg_test : public msg {
+    class test_action {
+    public:
+        test_action () = default;
+    
+        ~test_action () = default;
+    
+    public:
+        bool
+        action0 (int _param)
+        {
+            netmsg_test *_msg = new_nothrow(netmsg_test());
+            if (!_msg)
+                return false;
+            _msg->create(ACTION_0, _param * 1);
+    
+        }
+    
+        bool
+        action1 (int _param)
+        {
+            netmsg_test *_msg = new_nothrow(netmsg_test());
+            if (!_msg)
+                return false;
+            _msg->create(ACTION_0, _param * 1);
+    
+        }
+    
+        bool
+        action2 (int _param)
+        {
+            netmsg_test *_msg = new_nothrow(netmsg_test());
+            if (!_msg)
+                return false;
+            _msg->create(ACTION_0, _param * 1);
+    
+        }
+    
+        bool
+        action3 (int _param)
+        {
+            netmsg_test *_msg = new_nothrow(netmsg_test());
+            if (!_msg)
+                return false;
+            if (!_msg->create(ACTION_0, _param * 1))
+                return false;
+    
+        }
+    };
+
 public:
     netmsg_test ()
         : msg()
@@ -78,53 +126,4 @@ protected:
 #pragma pack(pop)
 
     test_info m_info;
-};
-
-class test_action {
-public:
-    test_action () = default;
-
-    ~test_action () = default;
-
-public:
-    bool
-    action0 (int _param)
-    {
-        netmsg_test *_msg = new_nothrow(netmsg_test());
-        if (!_msg)
-            return false;
-        _msg->create(ACTION_0, _param * 1);
-
-    }
-
-    bool
-    action1 (int _param)
-    {
-        netmsg_test *_msg = new_nothrow(netmsg_test());
-        if (!_msg)
-            return false;
-        _msg->create(ACTION_0, _param * 1);
-
-    }
-
-    bool
-    action2 (int _param)
-    {
-        netmsg_test *_msg = new_nothrow(netmsg_test());
-        if (!_msg)
-            return false;
-        _msg->create(ACTION_0, _param * 1);
-
-    }
-
-    bool
-    action3 (int _param)
-    {
-        netmsg_test *_msg = new_nothrow(netmsg_test());
-        if (!_msg)
-            return false;
-        if (!_msg->create(ACTION_0, _param * 1))
-            return false;
-
-    }
 };

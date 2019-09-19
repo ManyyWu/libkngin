@@ -67,8 +67,10 @@ public:
     virtual void
     release ()
     {
-        m_cond->release();
-        m_mutex->release();
+        if (m_cond)
+            m_cond->release();
+        if (m_mutex)
+            m_mutex->release();
         delete this;
     }
 

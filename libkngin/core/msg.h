@@ -14,6 +14,7 @@
 
 __NAMESPACE_BEGIN
 
+class task_base;
 class msg : public noncopyable {
 public:
     msg ();
@@ -52,13 +53,13 @@ public:
     send    ();
 
 protected:
-    uint8_t *m_buf;
+    uint8_t * m_buf;
 
-    uint32_t m_size;
+    uint32_t  m_size;
 
-    uint32_t m_type;
+    uint32_t  m_type;
 
-    // port *m_port;
+    task_base *m_task;
 };
 
 __NAMESPACE_END
