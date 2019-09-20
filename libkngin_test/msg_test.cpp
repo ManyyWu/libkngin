@@ -24,87 +24,47 @@ struct msg_head {
 
 class netmsg_test : public msg {
 public:
-    class task_test {
+    class task_test : public task_base {
     public:
-        void
-        process_msg (netmsg_test *_msg)
+        task_test (work_thread *_thread)
+            : task_base(_thread)
         {
-            [this, _msg]() {
-                _msg->process();
-                netmsg_test *_new_msg = new netmsg_test();
-                _new_msg->create(_msg, );
-                this->send_msg();
-            }
-            _msg->release();
         }
 
-        void
+        virtual 
+        ~task_test ()
+        {
+            if (m_msg)
+                m_msg->release();
+        }
+    public:
+        virtual bool
+        process ()
+        {
+            m_msg->process();
+            m_msg->release();
+            m_msg = NULL;
+            return true;
+        }
+
+        virtual bool
         send_msg (msg *_msg)
         {
+            // just test, the messages are typically send to clients 
+            // or handed over to thread pool for processin.
+            assert(_msg != m_msg);
             printf("%s\n", _msg);
             fflush(stderr);
             _msg->release();
-        }
-    };
-
-    class test_action {
-    public:
-        test_action (task_test *_task)
-            : m_task(_task)
-        {
+            return true;
         }
 
-        ~test_action () = default;
-
-    public:
-        bool
-        action0 (int _param)
-        {
-            netmsg_test *_msg = new_nothrow(netmsg_test());
-            if (!_msg)
-                return false;
-            _msg->create(ACTION_0, _param * 1);
-
-        }
-
-        bool
-        action1 (int _param)
-        {
-            netmsg_test *_msg = new_nothrow(netmsg_test());
-            if (!_msg)
-                return false;
-            _msg->create(ACTION_0, _param * 1);
-
-        }
-
-        bool
-        action2 (int _param)
-        {
-            netmsg_test *_msg = new_nothrow(netmsg_test());
-            if (!_msg)
-                return false;
-            _msg->create(ACTION_0, _param * 1);
-
-        }
-
-        bool
-        action3 (int _param)
-        {
-            netmsg_test *_msg = new_nothrow(netmsg_test());
-            if (!_msg)
-                return false;
-            if (!_msg->create(ACTION_0, _param * 1))
-                return false;
-
-        }
-
-    protected:
-        task_test *m_task;
+        msg *m_msg;
     };
 
 public:
-    netmsg_test ()
-        : msg()
+    netmsg_test (task_base *_task)
+        : msg(_task)
     {
     }
 
@@ -123,29 +83,65 @@ public:
     }
 
 public:
-    virtual bool
+    virtual void
     process ()
     {
-        bool _ret = false;
-        test_action _act(m_task);
+        [this] () mutable -> bool {
+            switch (this->m_info->action) {
+            case ACTION_0:
+                return [this] (int _param) -> bool {
+                    netmsg_test *_msg = new_nothrow(netmsg_test(this->task()));
+                    if (!_msg)
+                        return false;
+                    _msg->create(ACTION_0, _param * 1);
+                    this->task()->send_msg(_msg);
+                    _msg = NULL;
+                    return true;
+                }(this->m_info->param);
+                break;
+            case ACTION_1:
+                return [this] (int _param) -> bool {
+                    netmsg_test *_msg = new_nothrow(netmsg_test(this->task()));
+                    if (!_msg)
+                        return false;
+                    _msg->create(ACTION_1, _param * 1);
+                    this->task()->send_msg(_msg);
+                    _msg = NULL;
+                    return true;
+                }(this->m_info->param);
+                break;
+            case ACTION_2:
+                return [this] (int _param) -> bool {
+                    netmsg_test *_msg = new_nothrow(netmsg_test(this->task()));
+                    if (!_msg)
+                        return false;
+                    _msg->create(ACTION_2, _param * 1);
+                    this->task()->send_msg(_msg);
+                    _msg = NULL;
+                    return true;
+                }(this->m_info->param);
+                break;
+            case ACTION_3:
+                return [this] (int _param) -> bool {
+                    netmsg_test *_msg = new_nothrow(netmsg_test(this->task()));
+                    if (!_msg)
+                        return false;
+                    _msg->create(ACTION_3, _param * 1);
+                    this->task()->send_msg(_msg);
+                    _msg = NULL;
+                    return true;
+                }(this->m_info->param);
+                break;
+            default:
+                assert(0);
+            }
+        };
+    }
 
-        switch (m_info->action) {
-        case ACTION_0:
-            _ret = _act.action1(m_info->param);
-            break;
-        case ACTION_1:
-            _ret = _act.action1(m_info->param);
-            break;
-        case ACTION_2:
-            _ret = _act.action2(m_info->param);
-            break;
-        case ACTION_3:
-            _ret = _act.action3(m_info->param);
-            break;
-        default:
-            assert(0);
-        }
-        return _ret;
+    const uint8_t *
+    get_buf ()
+    {
+        return m_buf;
     }
 
 protected:
@@ -156,13 +152,30 @@ protected:
     };
 #pragma pack(pop)
 
-    test_info *m_info;
-
-    task_test *m_task;
+    struct test_info *m_info;
+     
+    task_base *       m_task;
 };
 
 void
 msg_test ()
 {
+    netmsg_test::task_test _task((work_thread *)1/* test */);
+    netmsg_test *_msg = new netmsg_test(&_task);
 
+    _task.create(_msg);
+    _msg->create(ACTION_0, 10);
+    _task.process();
+
+    _task.create(_msg);
+    _msg->create(ACTION_1, 10);
+    _task.process();
+
+    _task.create(_msg);
+    _msg->create(ACTION_2, 10);
+    _task.process();
+
+    _task.create(_msg);
+    _msg->create(ACTION_3, 10);
+    _task.process();
 }

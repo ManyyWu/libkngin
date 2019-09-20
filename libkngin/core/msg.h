@@ -17,7 +17,7 @@ __NAMESPACE_BEGIN
 class task_base;
 class msg : public noncopyable {
 public:
-    msg ();
+    msg (task_base *task);
 
 protected:
     virtual
@@ -37,7 +37,7 @@ public:
     release ();
 
 public:
-    virtual bool
+    virtual void
     process ();
 
     const uint8_t *
@@ -49,15 +49,15 @@ public:
     uint32_t
     type    ();
 
-    bool
-    send    ();
+    task_base *
+    task    ();
 
 protected:
-    uint8_t * m_buf;
+    uint8_t *  m_buf;
 
-    uint32_t  m_size;
+    uint32_t   m_size;
 
-    uint32_t  m_type;
+    uint32_t   m_type;
 
     task_base *m_task;
 };

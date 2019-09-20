@@ -11,10 +11,9 @@ __NAMESPACE_BEGIN
 class work_thread;
 class task_base : noncopyable {
 public:
-    task_base (msg *_msg, work_thread *_thread)
-        : m_msg (_msg), m_thread(_thread)
+    task_base (work_thread *_thread)
+        : m_thread(_thread)
     {
-        assert(_msg);
         assert(_thread);
     }
 
@@ -28,16 +27,27 @@ protected:
     }
 
 public:
-    virtual int
+    virtual bool
+    create (msg *_msg)
+    {
+        assert(_msg);
+
+        m_msg->release();
+        m_msg = NULL;
+        if (!_msg)
+            return false;
+        m_msg = _msg;
+    }
+
+public:
+    virtual bool
     process    () = 0;
 
     virtual bool
-    send_msg   () = 0;
+    send_msg   (msg *_msg) = 0;
 
 protected:
     msg         *m_msg;
-
-    task_base   *m_task;
 
     work_thread *m_thread;
 };

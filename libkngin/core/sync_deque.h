@@ -59,7 +59,7 @@ public:
         _q->m_mutex->release();
         if (_q)
             _q->clear();
-        safe_release(_q);
+        _q->release();
         return NULL;
 
     }

@@ -72,9 +72,7 @@ int main()
 // others
     test();
 
-#ifdef _WIN32
-    std::cin.get();
-#endif
+    getchar();
     return 0;
 }
 
