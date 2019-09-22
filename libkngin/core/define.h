@@ -6,6 +6,7 @@
 #endif
 
 #include <cassert>
+#include <cstdint>
 
 #define __LOG_MUTEX
 
@@ -13,7 +14,8 @@
 #define __NAMESPACE_END   };
 #define __USING_NAMESPACE using namespace k;
 
-#define INFINITE 0xFFFFFFFF
+#define QUEUE_MAX     (size_t)(SIZE_MAX)
+#define QUEUE_MIN     (size_t)10
 
 #ifdef _WIN32
 #pragma warning(disable: 4996)

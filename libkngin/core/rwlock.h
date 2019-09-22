@@ -23,15 +23,18 @@ protected:
     rwlock (pthread_rwlock_t *_rwlock_intr)
         : m_rwlock(_rwlock_intr)
     {
-        assert(_rwlock_intr);
+        kassert(_rwlock_intr);
     }
 
 protected:
     inline
     ~rwlock ()
     {
+        int _ret = 0;
         if (m_rwlock)
-            pthread_rwlock_destroy(m_rwlock);
+            _ret = pthread_rwlock_destroy(m_rwlock);
+        if_not (!_ret)
+            server_fatal("pthread_rwlock_destroy() retturn %d", _ret);
         safe_release(m_rwlock);
     }
 
@@ -44,20 +47,21 @@ public:
         pthread_rwlock_t *_rwlock_intr = NULL;
 
         _rwlock_intr = new_nothrow(pthread_rwlock_t);
-        if (!_rwlock_intr)
+        if_not (_rwlock_intr)
             return NULL;
         _ret = pthread_rwlock_init(_rwlock_intr, NULL);
-        if (_ret)
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_init() return %d", _ret);
             goto fail;
+        }
         _rwlock = new_nothrow(rwlock(_rwlock_intr));
-        if (!_rwlock)
+        if_not (_rwlock)
             goto fail;
         return _rwlock;
     fail:
         if (_rwlock_intr)
             pthread_rwlock_destroy(_rwlock_intr);
         safe_release(_rwlock_intr);
-        _rwlock->m_rwlock = NULL;
         safe_release(_rwlock);
         return NULL;
     }
@@ -65,7 +69,8 @@ public:
     inline void
     release ()
     {
-        assert(m_rwlock);
+        kassert(m_rwlock);
+
         delete this;
     }
 
@@ -73,109 +78,143 @@ public:
     inline bool
     rdlock ()
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
 
         int _ret = 0;
         _ret = pthread_rwlock_rdlock(m_rwlock);
-        assert(!_ret);
-        if (_ret)
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_rdlock() return %d", _ret);
             return false;
+        }
         return true;
     }
 
     inline bool
     wrlock ()
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
 
         int _ret = 0;
         _ret = pthread_rwlock_wrlock(m_rwlock);
-        assert(!_ret);
-        if (_ret)
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_wrlock() return %d", _ret);
             return false;
+        }
         return true;
     }
 
     inline bool
-    try_rdlock ()
+    tryrdlock ()
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
 
         int _ret = 0;
         _ret = pthread_rwlock_tryrdlock(m_rwlock);
-        assert(!_ret);
-        if (_ret == EBUSY)
+        if (EBUSY == _ret)
             return false;
+        if (!_ret) {
+            server_fatal("pthread_rwlock_tryrdlock() return %d", _ret);
+            return false;
+        }
         return true;
     }
 
     inline bool
-    try_wrlock ()
+    trywrlock ()
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
 
         int _ret = 0;
         _ret = pthread_rwlock_trywrlock(m_rwlock);
-        assert(!_ret);
-        if (_ret == EBUSY)
+        if (EBUSY == _ret)
             return false;
+        if (!_ret) {
+            server_fatal("pthread_rwlock_trywrlock() return %d", _ret);
+            return false;
+        }
+
         return true;
     }
 
     inline bool
-    timedrdlock (int _ms)
+    timedrdlock (time_t _ms)
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
+        kassert_r0(__time_valid(_ms));
+        if (!__time_valid(_ms))
+            return false;
 
         int _ret = 0;
         timespec _ts;
-        _ts.tv_sec = _ms / 1000;
-        _ts.tv_nsec = (_ms % 1000) * 1000000;
+        timespec_get(&_ts, TIME_UTC);
+        _ts.tv_sec += _ms / 1000;
+        _ts.tv_nsec += (_ms % 1000) * 1000000;
         _ret = pthread_rwlock_timedrdlock(m_rwlock, &_ts);
-        assert(!_ret);
-        if (_ret)
+        if (ETIMEDOUT == _ret)
             return false;
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_timedrdlock(), value = %ld, return %d", _ms, _ret);
+            return false;
+        }
+
         return true;
     }
 
     inline bool
-    timedwrlock (int _ms)
+    timedwrlock (time_t _ms)
     {
-        int _ret = 0;
-        assert(m_rwlock);
-        timespec _ts;
-        _ts.tv_sec = _ms / 1000;
-        _ts.tv_nsec = (_ms % 1000) * 1000000;
-        _ret = pthread_rwlock_timedwrlock(m_rwlock, &_ts);
-        assert(!_ret);
-        if (_ret)
+        kassert_r0(m_rwlock);
+        kassert_r0(__time_valid(_ms));
+        if (!__time_valid(_ms))
             return false;
+
+        int _ret = 0;
+        timespec _ts;
+        timespec_get(&_ts, TIME_UTC);
+        _ts.tv_sec += _ms / 1000;
+        _ts.tv_nsec += (_ms % 1000) * 1000000;
+        _ret = pthread_rwlock_timedwrlock(m_rwlock, &_ts);
+        if (ETIMEDOUT == _ret)
+            return false;
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_timedwrlock(), value = %ld, return %d", _ms, _ret);
+            return false;
+        }
+
         return true;
     }
 
     inline bool
     rdunlock ()
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
 
         int _ret = 0;
         _ret = pthread_rwlock_unlock(m_rwlock);
-        assert(!_ret);
-        if (_ret)
+        if (ETIMEDOUT == _ret)
             return false;
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_unlock() return %d", _ret);
+            return false;
+        }
+
         return true;
     }
 
     inline bool
     wrunlock ()
     {
-        assert(m_rwlock);
+        kassert_r0(m_rwlock);
 
         int _ret = 0;
         _ret = pthread_rwlock_unlock(m_rwlock);
-        assert(!_ret);
-        if (_ret)
+        if (ETIMEDOUT == _ret)
             return false;
+        if_not (!_ret) {
+            server_fatal("pthread_rwlock_unlock() return %d", _ret);
+            return false;
+        }
+
         return true;
     }
 

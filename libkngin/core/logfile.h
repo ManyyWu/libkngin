@@ -7,19 +7,20 @@
 #include "time.h"
 
 #define __make_log(__level, __level_str, __file_type, __fmt, ...)                         \
-        do {                                                                            \
-            time_t _t = time(NULL);                                                     \
-            tm _tm;                                                                     \
-            __localtime(&_tm, &_t);                                                     \
+        do {                                                                              \
+            time_t _t = time(NULL);                                                       \
+            struct tm __tm;                                                               \
+            __localtime(&__tm, &_t);                                                      \
             logger()[__file_type].__level(__log_format(__level_str, __fmt),               \
-                                         _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,   \
-                                         _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,        \
-                                         __FUNCTION__, __FILE__, __LINE__,              \
-                                         ##__VA_ARGS__                                  \
-                                         );                                             \
+                                          __tm.tm_year + 1900, __tm.tm_mon, __tm.tm_mday, \
+                                          __tm.tm_hour, __tm.tm_min, __tm.tm_sec, 0,      \
+                                          __FUNCTION__, __FILE__, __LINE__,               \
+                                          ##__VA_ARGS__                                   \
+                                          );                                              \
         } while (false)
 
 
+#define server_dump(__data, __len) logger()[k::__LOG_FILE_SERVER].write_data((__data), (__len))
 #define server_fatal(__fmt, ...)   __make_log(fatal,   "FATAL  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_error(__fmt, ...)   __make_log(error,   "ERROR  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_warning(__fmt, ...) __make_log(warning, "WARNING", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)

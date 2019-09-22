@@ -13,27 +13,28 @@
 
 __NAMESPACE_BEGIN
 
-typedef int (*pthr_fn) (void *);
+typedef int  (*pthr_fn)     (void *);
+typedef void (*pcleanup_fn) (void *);
 
 class thread : public noncopyable {
 public:
-    thread        (pthr_fn _pfn, void *_args);
+    thread        (pthr_fn _pfn, void *_args, const char *_name = "");
 
     virtual
     ~thread       ();
 
 public:
-    bool
+    virtual bool
     run           ();
 
     bool
-    join          (int *_err_code, int _ms = INFINITE);
+    join          (int *_err_code);
 
-    bool
+    virtual bool
     cancel        ();
 
     bool
-    is_running    () const;
+    running       () const;
 
     pthread_t
     get_interface () const;
@@ -41,18 +42,18 @@ public:
     int
     get_err_code  () const;
 
+    const char *
+    name          () const;
+
 public:
     static void
-    sleep         (int ms);
+    sleep         (time_t _ms);
 
     static void
     exit          (int _err_code);
 
     static pthread_t
     self          ();
-
-    static void
-    testcancel    ();
 
     void
     set_err_code  (int _err_code);
@@ -61,11 +62,17 @@ protected:
     static void *
     start         (void *_args);
 
+protected:
+    static void
+    cleanup       (void *_args);
+
 public:
     static int
     process       (void *_args);
 
 protected:
+    const char *      m_name;
+
     pthread_t         m_tid;
 
     pthr_fn           m_pfn;

@@ -1,7 +1,9 @@
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <algorithm>
 #include "define.h"
+#include "logfile.h"
 #include "task_base.h"
 #include "common.h"
 #include "msg.h"
@@ -11,6 +13,7 @@ __NAMESPACE_BEGIN
 msg::msg (task_base *_task)
     : m_buf(NULL), m_size(0), m_type(INVALID_MSG), m_task(_task)
 {
+    kassert(_task);
 }
 
 msg::~msg ()
@@ -21,8 +24,7 @@ msg::~msg ()
 bool
 msg::create (uint32_t _type)
 {
-    if (!_type || _type > MAX_MSG)
-        return false;
+    kassert_r0(__msg_valid(_type));
 
     if (m_buf)
         safe_release(m_buf);
@@ -33,15 +35,14 @@ msg::create (uint32_t _type)
 bool
 msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 {
-    if ((!_type|| _type > MAX_MSG) || (_size > MAX_MSG_SIZE))
-        return false;
+    kassert_r0(__msg_valid(_type));
+    kassert_r0(__both(_buf, _size));
 
     if (m_buf)
         safe_release(m_buf);
     if (_size && _buf) {
         m_buf = new_nothrow(uint8_t[_size]);
-        assert(m_buf);
-        if (!m_buf)
+        if_not (m_buf)
             return false;
         memcpy(m_buf, _buf, std::min(_size, MAX_MSG_SIZE));
         m_type = _type;
@@ -54,16 +55,37 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 }
 
 bool
+msg::create (uint8_t **_buf, uint32_t _size, uint32_t _type)
+{
+    kassert_r0(__msg_valid(_type));
+    kassert_r0(__both(*_buf, _size));
+
+    if (m_buf)
+        safe_release(m_buf);
+    m_buf = NULL;
+    if (_buf) {
+        m_buf = *_buf;
+        (*_buf) = NULL;
+    }
+    m_type = _type;
+    if (_size && *_buf)
+        m_size = _size;
+
+    return true;
+}
+
+bool
 msg::create (const msg *_msg)
 {
-    if ((!_msg->m_type || _msg->m_type > MAX_MSG) || (_msg->m_size > MAX_MSG_SIZE))
-        return NULL;
+    kassert_r0(_msg);
+    kassert_r0(__msg_valid(_msg->m_type));
+    kassert_r0(__both(_msg->m_buf, _msg->m_size));
 
     if (m_buf)
         safe_release(m_buf);
     if (_msg->m_size && _msg->m_buf) {
         m_buf = new_nothrow(uint8_t[_msg->m_size]);
-        assert(m_buf);
+        kassert_r0(m_buf);
         if (!m_buf)
             return NULL;
         memcpy(m_buf, _msg->m_buf, std::min(_msg->m_size, MAX_MSG_SIZE));
@@ -76,17 +98,37 @@ msg::create (const msg *_msg)
     return true;
 }
 
+bool
+msg::create (msg **_msg)
+{
+    kassert_r0(_msg);
+    kassert_r0(__msg_valid((*_msg)->m_type));
+    kassert_r0(__both((*_msg)->m_buf, (*_msg)->m_size));
+
+    if (m_buf)
+        safe_release(m_buf);
+    if (*_msg) {
+        m_buf = (*_msg)->m_buf;
+        (*_msg)->m_buf = NULL;
+        m_type = (*_msg)->m_type;
+        (*_msg)->m_type = INVALID_MSG;
+        m_size = (*_msg)->m_size;
+        (*_msg)->m_size = 0;
+        *_msg = NULL;
+    }
+
+    return true;
+}
+
 void
 msg::release ()
 {
-    if (m_buf)
-        safe_release(m_buf);
     m_type = INVALID_MSG;
     m_size = 0;
     delete this;
 }
 
-void
+bool
 msg::process ()
 {
 }
@@ -112,8 +154,34 @@ msg::type ()
 task_base *
 msg::task ()
 {
-    assert(m_task);
+    kassert_r0(m_task);
     return m_task;
+}
+
+void
+msg::dump ()
+{
+    int _len = 60;
+    _len += m_size * 2;
+    char *_buf = new_nothrow(char(m_size) + _len);
+    if_not (_buf) {
+        server_fatal("failed to dump msg, size = %#ux", m_size);
+        return;
+    }
+    snprintf(_buf, _len, "[dump msg]:\ntype: %#010d\nsize: %#010d\ndata: ",
+             m_type, m_size);
+    int _start = strnlen(_buf, 60);
+    _buf[_start] = '\0';
+    int i = 0;
+    for (; i < m_size * 2;) {
+        char _temp[3];
+        sprintf(_temp, "%02ux", (uint8_t)m_buf[i]);
+        _buf[_start + i++] = _temp[0];
+        _buf[_start + i++] = _temp[1];
+    }
+    _buf[_start + i++] = '\n';
+    _buf[_start + i] = '\0';
+    server_dump(_buf, strnlen(_buf, _len));
 }
 
 __NAMESPACE_END

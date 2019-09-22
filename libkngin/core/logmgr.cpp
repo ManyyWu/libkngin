@@ -22,24 +22,24 @@ log_mgr::~log_mgr ()
             delete _iter;
 }
 
-const log &
-log_mgr::operator [] (int _index) const
+log &
+log_mgr::operator [] (int _index)
 {
-    assert(_index >= 0 && _index < log_mgr::m_log_set.size());
+    kassert(_index >= 0 && _index < log_mgr::m_log_set.size());
     return *log_mgr::m_log_set.at(_index);
 }
 
-const log &
-log_mgr::at (int _index) const
+log &
+log_mgr::at (int _index)
 {
-    assert(_index >= 0 && _index < log_mgr::m_log_set.size());
+    kassert(_index >= 0 && _index < log_mgr::m_log_set.size());
     return *log_mgr::m_log_set.at(_index);
 }
 
 std::string &
-log_mgr::filename_at (int _index) const
+log_mgr::filename_at (int _index)
 {
-    assert(_index >= 0 && _index < log_mgr::m_log_set.size());
+    kassert(_index >= 0 && _index < log_mgr::m_log_set.size());
     return log_mgr::m_logfile_set.at(_index);
 }
 
@@ -52,16 +52,23 @@ logger ()
     if (log_mgr::m_log_set.empty()) {
         log *_log1 = new_nothrow(log(__LOG_FILE_SERVER, __LOG_MODE_BOTH));
         log *_log2 = new_nothrow(log(__LOG_FILE_SERVER, __LOG_MODE_BOTH));
-        assert(_log1);
-        assert(_log2);
-        _log1->init();
-        _log2->init();
+        if (!_log1 || !_log2) {
+            delete _log1;
+            delete _log2;
+            exit(1);
+        }
+        ;
+        if (!_log1->init() || !_log2->init()) {
+            delete _log1;
+            delete _log2;
+            exit(1);
+        }
         log_mgr::m_log_set.push_back(_log1);
         log_mgr::m_log_set.push_back(_log2);
     }
-///// test ///// 
 
     return _logger;
+///// test /////
 }
 
 __NAMESPACE_END

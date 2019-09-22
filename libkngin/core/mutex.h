@@ -23,7 +23,7 @@ protected:
     mutex (pthread_mutex_t *_mutex_intr)
         : m_mutex(_mutex_intr)
     {
-        assert(_mutex_intr);
+        kassert(_mutex_intr);
     }
 
 protected:
@@ -31,7 +31,10 @@ protected:
     ~mutex ()
     {
         if (m_mutex) {
-            pthread_mutex_destroy(m_mutex);
+            int _ret = 0;
+            _ret = pthread_mutex_destroy(m_mutex);
+            if_not (!_ret)
+                server_fatal("pthread_mutex_destroy() return %d", _ret);
             safe_release(m_mutex);
         }
     }
@@ -43,21 +46,23 @@ public:
         int _ret = 0;
         mutex * _mutex = NULL;
         pthread_mutex_t *_mutex_intr = NULL;
+
         _mutex_intr = new_nothrow(pthread_mutex_t);
-        if (!_mutex_intr)
+        if_not (_mutex_intr)
             return NULL;
         _ret = pthread_mutex_init(_mutex_intr, NULL);
-        if (_ret)
+        if_not (!_ret) {
+            server_fatal("pthread_mutex_init() return %d", _ret);
             goto fail;
+        }
         _mutex = new_nothrow(mutex(_mutex_intr));
-        if (!_mutex)
+        if_not (_mutex)
             goto fail;
         return _mutex;
     fail:
         if (_mutex_intr)
             pthread_mutex_destroy(_mutex_intr);
         safe_release(_mutex_intr);
-        _mutex->m_mutex = NULL;
         safe_release(_mutex);
         return NULL;
     }
@@ -65,7 +70,7 @@ public:
     inline void
     release ()
     {
-        assert(m_mutex);
+        kassert(m_mutex);
 
         delete this;
     }
@@ -74,56 +79,70 @@ public:
     inline bool
     lock ()
     {
-        assert(m_mutex);
+        kassert_r0(m_mutex);
 
         int _ret = 0;
         _ret = pthread_mutex_lock(m_mutex);
-        assert(!_ret);
-        if (_ret)
+        if_not (!_ret) {
+            server_fatal("pthread_mutex_lock() return %d", _ret);
             return false;
+        }
         return true;
     }
 
     inline bool
-    try_lock ()
+    trylock ()
     {
-        assert(m_mutex);
+        kassert_r0(m_mutex);
 
         int _ret = 0;
         _ret = pthread_mutex_trylock(m_mutex);
-        assert(!_ret);
-        if (_ret == EBUSY)
+        if (EBUSY == _ret)
             return false;
+        if_not (!_ret) {
+            server_fatal("pthread_mutex_trylock() return %d", _ret);
+            return false;
+        }
         return true;
     }
 
     inline bool
-    timedlock (int _ms)
+    timedlock (time_t _ms)
     {
-        assert(m_mutex);
+        kassert_r0(m_mutex);
+        kassert_r0(__time_valid(_ms));
+        if (!__time_valid(_ms))
+            return false;
 
         int _ret = 0;
         timespec _ts;
-        _ts.tv_sec = _ms / 1000;
-        _ts.tv_nsec = (_ms % 1000) * 1000000;
+        timespec_get(&_ts, TIME_UTC);
+        _ts.tv_sec += _ms / 1000;
+        _ts.tv_nsec += (_ms % 1000) * 1000000;
         _ret = pthread_mutex_timedlock(m_mutex, &_ts);
-        assert(!_ret);
-        if (_ret)
+        if (ETIMEDOUT == _ret)
             return false;
+        if_not (!_ret) {
+            server_fatal("pthread_mutex_timedlock(), value = %ld, return %d", _ms, _ret);
+            return false;
+        }
         return true;
     }
 
     inline bool
     unlock ()
     {
-        assert(m_mutex);
+        kassert_r0(m_mutex);
 
         int _ret = 0;
-        assert(m_mutex);
+        kassert_r0(m_mutex);
         _ret = pthread_mutex_unlock(m_mutex);
-        assert(!_ret);
-        if (_ret)
+        if (ETIMEDOUT == _ret)
             return false;
+        if_not (!_ret) {
+            server_fatal("pthread_mutex_unlock() return %d", _ret);
+            return false;
+        }
         return true;
     }
 

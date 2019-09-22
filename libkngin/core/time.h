@@ -1,8 +1,14 @@
 #ifndef _TIME_H_
 #define _TIME_H_
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/time.h>
+#endif
 #include <ctime>
 #include <cstdint>
+#include <limits>
 
 #ifdef _WIN32
 #define __localtime(__arg1, __arg2) localtime_s((__arg1), (__arg2))
@@ -11,6 +17,27 @@
 #endif
 
 __NAMESPACE_BEGIN
+
+#define TIME_INFINITE (time_t)(-1)
+#define TIME_MAX      (time_t)(std::numeric_limits<time_t>::max())
+
+#define __time_valid(_t) (TIME_INFINITE == (_t) || (_t) < TIME_MAX)
+
+#ifdef _WIN32
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+#define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#else
+#define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#endif
+
+struct timezone
+{
+    int  tz_minuteswest; /* minutes W of Greenwich */
+    int  tz_dsttime;     /* type of dst correction */
+};
+
+int gettimeofday (struct timeval *tv, struct timezone *tz);
+#endif
 
 //enum TIME_FMT {
 //    TIEM_FMT_YYMMDD = 0,

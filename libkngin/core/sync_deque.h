@@ -17,10 +17,9 @@ public:
     typedef size_t size_type;
 
 protected:
-    sync_deque (size_type _s = deque<__T *>::max_size())
+    sync_deque (size_type _s = QUEUE_MAX)
         : m_mutex(NULL), m_cond(NULL), m_max_size(_s)
     {
-        m_deque.clear();
     }
 
     virtual
@@ -30,7 +29,6 @@ protected:
             m_cond->release();
         if (m_mutex)
             m_mutex->release();
-        assert(!this->size());
         this->clear();
     }
 
@@ -39,26 +37,23 @@ public:
     create (size_type _s, bool _sync)
     {
         sync_deque<__T> *_q = new_nothrow(sync_deque(_s));
-        assert(_q);
-        if (!_q)
+        if_not (_q)
             return NULL;
         _q->m_deque.clear();
         if (_sync) {
             _q->m_mutex = mutex::create();
-            assert(_q->m_mutex);
-            if (!_q->m_mutex)
+            if_not (_q->m_mutex)
                 goto fail;
             _q->m_cond = cond::create(_q->m_mutex);
-            assert(_q->m_cond);
-            if (!_q->m_cond)
+            if_not (_q->m_cond)
                 goto fail;
         }
         return _q;
     fail:
-        _q->m_cond->release();
-        _q->m_mutex->release();
-        if (_q)
-            _q->clear();
+        if (_q->m_cond)
+            _q->m_cond->release();
+        if (_q->m_mutex)
+            _q->m_mutex->release();
         _q->release();
         return NULL;
 
@@ -67,10 +62,6 @@ public:
     virtual void
     release ()
     {
-        if (m_cond)
-            m_cond->release();
-        if (m_mutex)
-            m_mutex->release();
         delete this;
     }
 
@@ -78,86 +69,108 @@ public:
     virtual __T *
     at (size_type _n)
     {
-        assert(_n >= 0 && _n < m_deque.size());
+        kassert_r0(_n >= 0 && _n < m_deque.size());
         return (m_deque.empty() ? NULL : m_deque.at(_n));
     }
 
     virtual __T *
     front ()
     {
+        kassert_r0(m_deque.size());
         return (m_deque.empty() ? NULL : m_deque.front());
     }
 
     virtual __T *
     back ()
     {
+        kassert_r0(m_deque.size());
         return (m_deque.empty() ? NULL : m_deque.back());
     }
 
     virtual __T *
     operator [] (size_type _n)
     {
-        assert(_n >= 0 && _n < m_deque.size());
+        kassert_r0(_n >= 0 && _n < m_deque.size());
         return (m_deque.empty() ? NULL : m_deque.at(_n));
     }
 
 public:
     virtual bool
-    push_back (__T *_v)
+    push_back (__T **_v)
     {
-        assert(_v);
+        kassert_r0(_v);
+        kassert_r0(*_v);
         if (m_deque.size() > m_max_size)
             return false;
-        m_deque.push_back(_v);
+        m_deque.push_back(*_v);
+        *_v = NULL;
         return true;
     }
 
     virtual bool
-    push_front (__T *_v)
+    push_front (__T **_v)
     {
-        assert(_v);
+        kassert_r0(_v);
         if (m_deque.size() > m_max_size)
             return false;
-        m_deque.push_front(_v);
+
+        m_deque.push_front(*_v);
+        *_v = NULL;
         return true;
     }
 
     virtual bool
     pop_back ()
     {
-        __T *_item = m_deque.empty() ? NULL : m_deque.back();
+        kassert_r0(m_deque.size());
+
         m_deque.pop_back();
-        return _item;
+        return true;
     }
 
     virtual bool
     pop_front ()
     {
-        __T *_item = m_deque.empty() ? NULL : m_deque.front();
+        kassert_r0(m_deque.size());
+
         m_deque.pop_front();
-        return _item;
+        return true;
     }
 
     virtual bool
-    insert (size_type _n, __T *_v)
+    insert (size_type _n, __T **_v) // insert before _n
     {
-        assert(_v);
-        if (m_deque.size() > max_size())
+        kassert_r0(_v);
+        kassert_r0(_n >= 0 && _n < m_deque.size());
+        if (m_deque.size() > m_max_size)
             return false;
+
+        auto iter = m_deque.begin();
+        kassert_r0(iter != m_deque.end());
+        for (int i = 0; i < _n; i++) {
+            kassert_r0(iter++ == m_deque.end());
+            ++iter; // ++iter is more efficient
+        }
+        m_deque.insert(iter, *_v);
+        *_v = NULL;
         return true;
     }
 
     virtual bool
     erase (size_type _n)
     {
-        assert(_n >= 0 && _n < m_deque.size());
+        kassert_r0(_n >= 0 && _n < m_deque.size());
         if (m_deque.empty())
             return false;
-        typename deque<__T *>::iterator iter;
-        for (iter = m_deque.begin(); iter != m_deque.end(); ++iter) {
-            m_deque.erase(iter);
-            return true;
+
+        auto iter = m_deque.begin();
+        kassert_r0(iter != m_deque.end());
+        for (int i = 0; i < _n; i++) {
+            kassert_r0(iter == m_deque.end());
+            ++iter; // ++iter is more efficient
         }
+        m_deque.erase(iter);
+        return true;
         return false;
     }
     
@@ -171,7 +184,8 @@ public:
     virtual void
     clear ()
     {
-        m_deque.clear();
+        deque<__T *> _deque;
+        m_deque.swap(_deque);
     }
 
     virtual size_type
@@ -206,34 +220,39 @@ public:
 
 public:
     virtual bool
-    lock (int _ms = INFINITE)
+    lock (time_t _ms = TIME_INFINITE)
     {
-        assert(m_mutex && m_cond);
-        if (INFINITE == _ms)
+        kassert_r0(m_mutex && m_cond);
+
+        if (TIME_INFINITE == _ms)
             return m_mutex->lock();
         else
             return m_mutex->timedlock(_ms);
     }
 
     virtual bool
-    trylock (int _ms = INFINITE)
+    trylock ()
     {
-        assert(m_mutex && m_cond);
-        return m_mutex->lock();
+        kassert_r0(m_mutex && m_cond);
+
+        return m_mutex->trylock();
     }
 
     virtual bool
     unlock ()
     {
-        assert(m_mutex && m_cond);
+        kassert_r0(m_mutex && m_cond);
+
         return m_mutex->unlock();
     }
 
     virtual bool
-    wait (int _ms = INFINITE)
+    wait (time_t _ms = TIME_INFINITE)
     {
-        assert(m_mutex && m_cond);
-        if (INFINITE == _ms)
+        kassert_r0(m_mutex && m_cond);
+        kassert_r0(__time_valid(_ms));
+
+        if (TIME_INFINITE == _ms)
             return m_cond->wait();
         else
             return m_cond->timedwait(_ms);
@@ -242,14 +261,16 @@ public:
     virtual bool
     signal ()
     {
-        assert(m_mutex && m_cond);
+        kassert_r0(m_mutex && m_cond);
+
         return m_cond->signal();
     }
  
     virtual bool
     broadcast ()
     {
-        assert(m_mutex && m_cond);
+        kassert_r0(m_mutex && m_cond);
+
         return m_cond->broadcast();
     }
 

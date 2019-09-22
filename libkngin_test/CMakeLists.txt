@@ -9,9 +9,9 @@ add_executable(libkngin_test
                rwlock_test.cpp
                cond_test.cpp
                threadpoll_test.cpp
-               msg_test.cpp
                sync_queue_test.cpp
                sync_deque_test.cpp
+               work_thread_test.cpp
                main.cpp)
 
 target_link_libraries(libkngin_test

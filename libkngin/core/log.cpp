@@ -37,16 +37,18 @@ log::init ()
 {
 #ifdef __LOG_MUTEX
     m_mutex = mutex::create();
-    if (m_mutex)
+    if_not (m_mutex) {
+        write_stderr2(LOG_LEVEL_FATAL, "mutex create failed");
         return false;
+    }
 #endif
     return true;
 }
 
 bool
-log::fatal (const char *_fmt, ...) const
+log::fatal (const char *_fmt, ...)
 {
-    assert(_fmt);
+    kassert_r0(_fmt);
 
     va_list _vl;
     char _buf[__LOG_BUF_SIZE + 1] = {0};
@@ -65,9 +67,9 @@ log::fatal (const char *_fmt, ...) const
 }
 
 bool
-log::error (const char *_fmt, ...) const
+log::error (const char *_fmt, ...)
 {
-    assert(_fmt);
+    kassert_r0(_fmt);
 
     va_list _vl;
     char _buf[__LOG_BUF_SIZE + 1] = {0};
@@ -85,9 +87,9 @@ log::error (const char *_fmt, ...) const
 }
 
 bool
-log::warning (const char *_fmt, ...) const
+log::warning (const char *_fmt, ...)
 {
-    assert(_fmt);
+    kassert_r0(_fmt);
 
     va_list _vl;
     char _buf[__LOG_BUF_SIZE + 1] = {0};
@@ -104,9 +106,9 @@ log::warning (const char *_fmt, ...) const
 }
 
 bool
-log::info (const char *_fmt, ...) const
+log::info (const char *_fmt, ...)
 {
-    assert(_fmt);
+    kassert_r0(_fmt);
 
     va_list _vl;
     char _buf[__LOG_BUF_SIZE + 1] = {0};
@@ -123,9 +125,9 @@ log::info (const char *_fmt, ...) const
 }
 
 bool
-log::debug (const char *_fmt, ...) const
+log::debug (const char *_fmt, ...)
 {
-    assert(_fmt);
+    kassert_r0(_fmt);
 
     va_list _vl;
     char _buf[__LOG_BUF_SIZE + 1] = {0};
@@ -143,11 +145,23 @@ log::debug (const char *_fmt, ...) const
 }
 
 bool
-log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _len) const
+log::write_data (const char *_data, int _len)
 {
-    assert(_str);
+    kassert_r0(_data && _len);
+
+    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
+        if (!this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len))
+            return false;
+    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
+        this->write_stderr(LOG_LEVEL_DEBUG, _data, _len);
+}
+
+bool
+log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _len)
+{
+    kassert_r0(_str);
 #ifdef __LOG_MUTEX
-    assert(m_mutex);
+    kassert_r0(m_mutex);
     m_mutex->lock();
 #endif
 
@@ -237,12 +251,12 @@ fail:
 }
 
 void
-log::write_stderr (LOG_LEVEL _level, const char *_str, int _len) const
+log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
 {
-    assert(_str);
+    kassert_r(_str);
 
 #ifdef __LOG_MUTEX
-    assert(m_mutex);
+    kassert_r(m_mutex);
     m_mutex->lock();
 #endif
 
@@ -276,10 +290,6 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len) const
 #endif
     fputc('\n', stderr);
     fflush(stderr);
-    if (_ret < 0) {
-        assert(!"write_stderr() error!");
-        goto fail;
-    }
 
 fail:
 #ifdef __LOG_MUTEX
@@ -289,12 +299,12 @@ fail:
 }
 
 void
-log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...) const
+log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
 {
-    assert(_fmt);
+    kassert_r(_fmt);
 
 #ifdef __LOG_MUTEX
-    assert(m_mutex);
+    kassert_r(m_mutex);
     m_mutex->lock();
 #endif
 
@@ -334,17 +344,12 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...) const
 #endif
     fputc('\n', stderr);
     fflush(stderr);
-    if (_ret < 0) {
-        assert(!"write_stderr() error!");
-        goto fail;
-    }
     va_end(_vl);
 
 fail:
 #ifdef __LOG_MUTEX
     m_mutex->unlock();
 #endif
-    return;
 }
 
 __NAMESPACE_END

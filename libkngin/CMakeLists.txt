@@ -25,7 +25,10 @@ set(KNGIN_CORE_SRC
     "core/logmgr.cpp"
     "core/msg.cpp"
     "core/threadpool.cpp"
-    )
+    "core/task_base.cpp"
+    "core/work_task.cpp"
+    "core/work_thread.cpp"
+)
 
 set(KNGIN_SRC
     ${KNGIN_CORE_SRC}

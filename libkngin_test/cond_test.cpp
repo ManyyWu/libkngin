@@ -26,13 +26,13 @@ process1 (void *_args)
 static int
 process2 (void *_args)
 {
-    thread::sleep(2000);
+    thread::sleep(100);
     g_mutex->lock();
     fputs("process2\n", stderr);
     fflush(stderr);
     g_mutex->unlock();
     g_cond->signal();
-    thread::sleep(2000);
+    thread::sleep(100);
     g_mutex->lock();
     fputs("process2\n", stderr);
     fflush(stderr);

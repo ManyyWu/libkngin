@@ -16,12 +16,12 @@ thread::thread (pthr_fn _pfn, void *_args)
     : m_pfn(_pfn), m_args(_args), m_retptr(NULL), 
       m_tid(pthread_t{NULL, 0}), m_running(false)
 #else
-thread::thread (pthr_fn _pfn, void *_args)
+thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
     : m_pfn(_pfn), m_args(_args), m_retptr(NULL),
-      m_tid(0), m_running(false)
+      m_tid(0), m_running(false), m_name(_name ? _name : "")
 #endif
 {
-    assert(_pfn);
+    kassert(_pfn);
 }
 
 thread::~thread ()
@@ -33,45 +33,49 @@ thread::~thread ()
     if (m_tid)
 #endif
         _ret = pthread_detach(m_tid);
-    assert(!_ret);
+    if_not (!_ret)
+        server_fatal("pthread_detach() return %d", _ret);
 }
 
 bool
 thread::run ()
 {
 #ifdef _WIN32
-    assert(!m_tid.p);
+    kassert_r0(!m_tid.p);
 #else
-    assert(!m_tid);
+    kassert_r0(!m_tid);
 #endif
 
     int _ret = 0;
     _ret = pthread_create(&m_tid, NULL, thread::start, this);
+    if_not (!_ret) {
+        server_fatal("pthread_create(), name = \"%s\", return %d", m_name, _ret);
+    }
 #ifdef _WIN32
     if (m_tid.p)
 #else
     if (m_tid) 
 #endif
-    m_running.store(true);
+        m_running.store(true);
     return !_ret;
 }
 
 bool
-thread::join (int *_err_code, int _ms /* = INFINITE */)
+thread::join (int *_err_code)
 {
 #ifdef _WIN32
-    assert(m_tid.p);
+    kassert_r0(m_tid.p);
 #else
-    assert(m_tid);
+    kassert_r0(m_tid);
 #endif
+    kassert_r0(!pthread_equal(m_tid, pthread_self()));
 
     int _ret = 0;
-    assert(_ms);
-    assert(!pthread_equal(m_tid, pthread_self()));
     _ret = pthread_join(m_tid, &m_retptr);
-    assert(!_ret);
-    if (_ret)
+    if_not (!_ret) {
+        server_fatal("pthread_join(), name = \"%s\"return %d", m_name, _ret);
         return false;
+    }
     if (_err_code)
         *_err_code = (int)(long long)m_retptr;
 #ifdef _WIN32
@@ -87,22 +91,23 @@ bool
 thread::cancel ()
 {
 #ifdef _WIN32
-    assert(m_tid.p);
+    kassert_r0(m_tid.p);
 #else
-    assert(m_tid);
+    kassert_r0(m_tid);
 #endif
+    kassert_r0(!pthread_equal(m_tid, pthread_self()));
 
     int _ret = 0;
-    assert(!pthread_equal(m_tid, pthread_self()));
     _ret = pthread_cancel(m_tid);
-    assert(!_ret);
-    if (_ret)
+    if_not (!_ret) {
+        server_fatal("pthread_cancel(), name = \"%s\"return %d", m_name, _ret);
         return false;
-    return join(NULL, INFINITE);
+    }
+    return true;
 }
 
 bool
-thread::is_running () const
+thread::running () const
 {
     return m_running.load();
 }
@@ -110,24 +115,33 @@ thread::is_running () const
 pthread_t
 thread::get_interface () const
 {
-    assert(m_running.load());
+    kassert_r0(m_running.load());
+
     return m_tid;
 }
 
 int
 thread::get_err_code  () const
 {
-    assert(m_running.load());
+    kassert_r0(m_running.load());
+
     return (int)(long long)m_retptr;
 }
 
-void
-thread::sleep (int _ms)
+const char *
+thread::name () const
 {
+    return m_name;
+}
+
+void
+thread::sleep (time_t _ms)
+{
+    kassert_r(__time_valid(_ms));
 #ifdef _WIN32
     Sleep(_ms);
 #else
-    usleep(_ms * 1000);
+    usleep(std::abs(_ms) * 1000);
 #endif
 }
 
@@ -145,12 +159,6 @@ thread::self ()
 }
 
 void
-thread::testcancel ()
-{
-    pthread_testcancel();
-}
-
-void
 thread::set_err_code (int _err_code)
 {
     m_retptr = (void *)(long long)_err_code;
@@ -159,13 +167,24 @@ thread::set_err_code (int _err_code)
 void *
 thread::start (void *_args)
 {
-    assert(_args);
+    kassert_r0(_args);
 
     thread *_p = (thread *)_args;
+    pthread_cleanup_push(thread::cleanup, _args);
 
     _p->set_err_code((*_p->m_pfn)(_p->m_args));
-    _p->m_running.store(false);
+
+    pthread_cleanup_pop(1);
     return _p->m_retptr;
+}
+
+void
+thread::cleanup (void *_args)
+{
+    kassert_r(_args);
+
+    thread *_p = (thread *)_args;
+    _p->m_running.store(false);
 }
 
 int

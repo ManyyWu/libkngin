@@ -68,29 +68,32 @@ public:
 public:
 
     bool
-    fatal         (const char *_fmt, ...) const;
+    fatal         (const char *_fmt, ...);
 
     bool
-    error         (const char *_fmt, ...) const;
+    error         (const char *_fmt, ...);
 
     bool
-    warning       (const char *_fmt, ...) const;
+    warning       (const char *_fmt, ...);
 
     bool
-    info          (const char *_fmt, ...) const;
+    info          (const char *_fmt, ...);
 
     bool
-    debug         (const char *_fmt, ...) const;
+    debug         (const char *_fmt, ...);
+
+    bool
+    write_data    (const char *_data, int _len);
 
 private:
     bool
-    write_logfile (LOG_LEVEL _level, const char *_file, const char *_fmt, int _len) const;
+    write_logfile (LOG_LEVEL _level, const char *_file, const char *_fmt, int _len);
 
     void
-    write_stderr  (LOG_LEVEL _level, const char *_str, int _len) const;
+    write_stderr  (LOG_LEVEL _level, const char *_str, int _len);
 
     void
-    write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...) const;
+    write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...);
 
 
 private:
@@ -108,11 +111,11 @@ private:
     friend log_mgr &
     logger                  ();
 
-//    friend void
-//    __log_assert            (const char *_fmt, ...);
-//
-//    friend void
-//    __log_assert_dump_stack (const char *_fmt, ...);
+    friend void
+    __log_assert            (const char *_fmt, ...);
+
+    friend void
+    __log_assert_dump_stack (const char *_fmt, ...);
 };
 
 __NAMESPACE_END

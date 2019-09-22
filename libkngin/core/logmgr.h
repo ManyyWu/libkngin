@@ -20,14 +20,14 @@ private:
     ~log_mgr    ();
 
 public:
-    const log &
-    operator [] (int _index) const;
+    log &
+    operator [] (int _index);
 
-    const log &
-    at          (int _index) const;
+    log &
+    at          (int _index);
 
     std::string &
-    filename_at (int _index) const;
+    filename_at (int _index);
 
 protected:
     static __log_set     m_log_set;

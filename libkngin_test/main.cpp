@@ -24,6 +24,12 @@ sync_queue_test ();
 extern void
 threadpool_test ();
 
+extern void
+msg_test ();
+
+extern void
+work_thread_test ();
+
 void
 test ();
 
@@ -33,46 +39,53 @@ int main()
 //    fprintf(stderr, "* log_test                                       *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    log_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* thread_test                                    *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    thread_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* mutex_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    mutex_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* rwlock_test                                    *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    rwlock_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* cond_test                                      *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    cond_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* threadpool_test                                *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    threadpool_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* deque_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    sync_deque_test();
-
+//
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* queue_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    sync_queue_test();
+//
+//    fprintf(stderr, "**************************************************\n");
+//    fprintf(stderr, "* work_thread_test                               *\n");
+//    fprintf(stderr, "**************************************************\n");
+    work_thread_test();
 
 // others
     test();
 
+#ifdef _WIN32
     getchar();
+#endif
     return 0;
 }
 
@@ -88,9 +101,8 @@ using namespace k;
 void
 test ()
 {
-//#error "kassert log"
-// join ��ʱ
-
+// 队列，**
+// search comments
 };
 
 ////////////////////// test //////////////////////

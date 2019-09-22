@@ -11,45 +11,42 @@ __NAMESPACE_BEGIN
 class work_thread;
 class task_base : noncopyable {
 public:
-    task_base (work_thread *_thread)
-        : m_thread(_thread)
-    {
-        assert(_thread);
-    }
+    task_base      (work_thread *_thread, msg *_msg, int _priority = 0);
 
 protected:
     virtual
-    ~task_base ()
-    {
-        if (m_msg)
-            m_msg->release();
-        m_thread = NULL;
-    }
+    ~task_base     ();
 
 public:
     virtual bool
-    create (msg *_msg)
-    {
-        assert(_msg);
+    create         (msg **_msg);
 
-        m_msg->release();
-        m_msg = NULL;
-        if (!_msg)
-            return false;
-        m_msg = _msg;
-    }
+    virtual void
+    release        ();
 
 public:
     virtual bool
-    process    () = 0;
+    process        () = 0;
 
     virtual bool
-    send_msg   (msg *_msg) = 0;
+    recv_reply_msg (msg **_msg) = 0;
+
+    virtual msg *
+    send_reply_msg () = 0;
+
+public:
+    int
+    priority       () const;
+
+    void
+    set_priority   (int _priority);
 
 protected:
-    msg         *m_msg;
+    msg *        m_msg;
 
     work_thread *m_thread;
+
+    int          m_priority;
 };
 
 __NAMESPACE_END

@@ -4,30 +4,56 @@
 #include "define.h"
 #include "thread.h"
 #include "msg.h"
-#include "task_base.h"
+#include "work_task.h"
+#include "mutex.h"
+#include "cond.h"
 
 __NAMESPACE_BEGIN
 
-class work_thread : thread {
+class work_thread : public thread {
 public:
-    work_thread ();
+    work_thread (const char *_name = "work_thread");
 
-    virtual 
+    virtual
     ~work_thread ();
 
 public:
-    virtual msg *
-    send_msg (); // return msg to pool, and set m_ret_msg as NULL
+    virtual bool
+    run          ();
 
-    virtual int
-    process  (void *); // release task
+    virtual bool
+    cancel       ();
+
+public:
+    bool
+    task_done    () const;
+
+    bool
+    recv_task    (work_task **_task); // call by thread pool main thread
+
+    msg *
+    send_msg     (); // call by thread pool main thread
+
+protected:
+    static void
+    cleanup_lock (void *_args);
+
+public:
+    static int
+    process      (void *_args);
 
 protected:
     std::atomic<bool>  m_done; // idle and maybe have msg to send
 
-    msg *              m_ret_msg;
+    std::atomic<bool>  m_new_task;
 
-    task_base *        m_task;
+    std::atomic<bool>  m_stop_thread;
+
+    work_task *        m_task;
+
+    mutex *            m_mutex;
+
+    cond *             m_cond;
 };
 
 __NAMESPACE_END

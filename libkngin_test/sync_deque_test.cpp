@@ -15,7 +15,9 @@ producer (void *_args)
         sprintf(_buf, "%d", i);
         while (_q->full())
             _q->wait();
-        assert(!_q->full() && _q->push_front(new_nothrow(string(_buf))));
+        string *_str = new_nothrow(string(_buf));
+        kassert(_str);
+        kassert(!_q->full() && _q->push_front(&_str));
         fprintf(stderr, "-----producer[%ld] put, len: %ld\n",
                 thread::self(),
                 _q->size());
@@ -24,7 +26,9 @@ producer (void *_args)
         _q->broadcast();
     }
     _q->lock();
-    _q->push_front(new_nothrow(string("")));
+    string *_str = new_nothrow(string(""));
+    kassert(_str);
+    _q->push_front(&_str);
     _q->unlock();
     _q->broadcast();
     return 0;
@@ -34,21 +38,23 @@ static int
 comsumer (void *_args)
 {
     sync_deque<string> *_q = (sync_deque<string> *)_args;
-    while (true) {
+    bool _done = false;
+    while (!_done) {
         _q->lock();
         while (_q->empty())
             _q->wait();
         string *_s = _q->back();
+        kassert(_s);
         _q->pop_back();
         fprintf(stderr, "comsumer[%ld] get \"%s\", len: %ld\n",
                 thread::self(),
                 _s->c_str(), _q->size());
         fflush(stderr);
+        if ("" == *_s)
+            _done = true;
         safe_release(_s);
         _q->unlock();
         _q->broadcast();
-        if (*_s == "")
-            break;
     }
     return 0;
 }
