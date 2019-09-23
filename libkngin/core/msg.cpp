@@ -18,7 +18,7 @@ msg::msg (task_base *_task)
 
 msg::~msg ()
 {
-    safe_release(m_buf);
+    safe_release_array(m_buf);
 }
 
 bool
@@ -41,7 +41,7 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
     if (m_buf)
         safe_release(m_buf);
     if (_size && _buf) {
-        m_buf = new_nothrow(uint8_t[_size]);
+        m_buf = new_nothrow_array(uint8_t[_size]);
         if_not (m_buf)
             return false;
         memcpy(m_buf, _buf, (std::min)(_size, MAX_MSG_SIZE));
@@ -84,7 +84,7 @@ msg::create (const msg *_msg)
     if (m_buf)
         safe_release(m_buf);
     if (_msg->m_size && _msg->m_buf) {
-        m_buf = new_nothrow(uint8_t[_msg->m_size]);
+        m_buf = new_nothrow_array(uint8_t[_msg->m_size]);
         kassert_r0(m_buf);
         if (!m_buf)
             return NULL;
@@ -162,16 +162,17 @@ msg::task ()
 void
 msg::dump ()
 {
-    int _len = 60;
+    int _len = 80;
     _len += m_size * 2;
-    char *_buf = new_nothrow(char(m_size) + _len);
+    char *_buf = new_nothrow(char[(m_size) + _len]);
     if_not (_buf) {
         server_fatal("failed to dump msg, size = %#ux", m_size);
+        delete[] _buf;
         return;
     }
-    snprintf(_buf, _len, "[dump msg]:\ntype: %#010d\nsize: %#010d\ndata: ",
+    snprintf(_buf, _len, "*** [dump msg]:\n*** [type]: %#010d\n*** [size]: %#010d\n*** [data]: ",
              m_type, m_size);
-    int _start = strnlen(_buf, 60);
+    int _start = strnlen(_buf, 80);
     _buf[_start] = '\0';
     int i = 0;
     for (; i < m_size * 2;) {
@@ -180,9 +181,9 @@ msg::dump ()
         _buf[_start + i++] = _temp[0];
         _buf[_start + i++] = _temp[1];
     }
-    _buf[_start + i++] = '\n';
     _buf[_start + i] = '\0';
     server_dump(_buf, strnlen(_buf, _len));
+    delete[] _buf;
 }
 
 __NAMESPACE_END

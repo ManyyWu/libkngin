@@ -84,8 +84,7 @@ work_thread::cancel ()
 bool
 work_thread::task_done () const
 {
-    if (m_running.load())
-        return false;
+    kassert_r0(m_running.load());
 
     return m_done.load();
 }

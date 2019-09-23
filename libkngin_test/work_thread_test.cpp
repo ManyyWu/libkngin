@@ -8,7 +8,7 @@ process (void *_args)
 {
     work_thread *_c = (work_thread *)_args;
 
-    for (int i = 0; i < 100000; i++)
+    for (int i = 0; i < 100; i++)
     {
         work_task *_wt = new work_task(_c);
         kassert(_wt);

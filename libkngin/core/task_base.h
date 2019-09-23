@@ -42,11 +42,13 @@ public:
     set_priority   (int _priority);
 
 protected:
-    msg *        m_msg;
+    msg *                 m_msg;
 
-    work_thread *m_thread;
+    work_thread *         m_thread;
 
-    int          m_priority;
+    int                   m_priority;
+
+    std::atomic<uint64_t> m_serial;
 };
 
 __NAMESPACE_END

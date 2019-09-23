@@ -52,10 +52,7 @@ bool
 work_task::recv_reply_msg (msg **_msg)
 {
     kassert_r0(_msg);
-    if (_msg)
-        return false;
-    if (!_msg)
-        return false;
+    kassert_r0(!m_msg);
 
     m_msg = *_msg;
     *_msg = NULL;

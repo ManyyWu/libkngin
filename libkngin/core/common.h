@@ -10,8 +10,10 @@
 __NAMESPACE_BEGIN
 
 using std::nothrow;
-#define new_nothrow(__t)  new(std::nothrow) __t
-#define safe_release(__p) do { delete (__p); (__p) = NULL; } while (false)
+#define new_nothrow(__t)        new(std::nothrow) __t
+#define safe_release(__p)       do { delete (__p); (__p) = NULL; } while (false)
+#define new_nothrow_array(__t)  new(std::nothrow) __t
+#define safe_release_array(__p) do { delete[] (__p); (__p) = NULL; } while (false)
 
 #ifndef NDEBUG
 void

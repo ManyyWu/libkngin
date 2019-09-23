@@ -19,7 +19,6 @@
                                           );                                              \
         } while (false)
 
-
 #define server_dump(__data, __len) logger()[k::__LOG_FILE_SERVER].write_data((__data), (__len))
 #define server_fatal(__fmt, ...)   __make_log(fatal,   "FATAL  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_error(__fmt, ...)   __make_log(error,   "ERROR  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
