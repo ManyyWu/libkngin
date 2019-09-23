@@ -12,9 +12,9 @@
 __NAMESPACE_BEGIN
 
 #ifdef _WIN32
-thread::thread (pthr_fn _pfn, void *_args)
+thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
     : m_pfn(_pfn), m_args(_args), m_retptr(NULL), 
-      m_tid(pthread_t{NULL, 0}), m_running(false)
+      m_tid(pthread_t{NULL, 0}), m_running(false), m_name(_name ? _name : "")
 #else
 thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
     : m_pfn(_pfn), m_args(_args), m_retptr(NULL),
@@ -115,7 +115,7 @@ thread::running () const
 pthread_t
 thread::get_interface () const
 {
-    kassert_r0(m_running.load());
+    kassert(m_running.load());
 
     return m_tid;
 }

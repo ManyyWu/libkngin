@@ -22,13 +22,10 @@ extern void
 sync_queue_test ();
 
 extern void
-threadpool_test ();
-
-extern void
-msg_test ();
-
-extern void
 work_thread_test ();
+
+extern void
+threadpool_test ();
 
 void
 test ();
@@ -61,11 +58,6 @@ int main()
 //    cond_test();
 //
 //    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* threadpool_test                                *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    threadpool_test();
-//
-//    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* deque_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    sync_deque_test();
@@ -74,11 +66,16 @@ int main()
 //    fprintf(stderr, "* queue_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    sync_queue_test();
-//
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* work_thread_test                               *\n");
-//    fprintf(stderr, "**************************************************\n");
+
+    fprintf(stderr, "**************************************************\n");
+    fprintf(stderr, "* work_thread_test                               *\n");
+    fprintf(stderr, "**************************************************\n");
     work_thread_test();
+
+    fprintf(stderr, "**************************************************\n");
+    fprintf(stderr, "* threadpool_test                                *\n");
+    fprintf(stderr, "**************************************************\n");
+    threadpool_test();
 
 // others
     test();

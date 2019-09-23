@@ -44,7 +44,7 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
         m_buf = new_nothrow(uint8_t[_size]);
         if_not (m_buf)
             return false;
-        memcpy(m_buf, _buf, std::min(_size, MAX_MSG_SIZE));
+        memcpy(m_buf, _buf, (std::min)(_size, MAX_MSG_SIZE));
         m_type = _type;
         m_size = _size;
     } else {
@@ -88,7 +88,7 @@ msg::create (const msg *_msg)
         kassert_r0(m_buf);
         if (!m_buf)
             return NULL;
-        memcpy(m_buf, _msg->m_buf, std::min(_msg->m_size, MAX_MSG_SIZE));
+        memcpy(m_buf, _msg->m_buf, (std::min)(_msg->m_size, MAX_MSG_SIZE));
         m_type = _msg->m_type;
         m_size = _msg->m_size;
     } else {
@@ -131,6 +131,7 @@ msg::release ()
 bool
 msg::process ()
 {
+    return true;
 }
 
 const uint8_t *

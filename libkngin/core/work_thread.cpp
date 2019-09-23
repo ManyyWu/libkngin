@@ -168,6 +168,7 @@ work_thread::process (void *_args)
                 server_error("task process failed");
             }
             pthread_testcancel();
+            return true;
         }(_p->m_task);
 
         _p->m_mutex->unlock();

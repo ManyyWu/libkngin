@@ -9,6 +9,9 @@
 #include <ctime>
 #include <cstdint>
 #include <limits>
+#include "define.h"
+
+__NAMESPACE_BEGIN
 
 #ifdef _WIN32
 #define __localtime(__arg1, __arg2) localtime_s((__arg1), (__arg2))
@@ -16,10 +19,8 @@
 #define __localtime(__arg1, __arg2) localtime_r((__arg2), (__arg1))
 #endif
 
-__NAMESPACE_BEGIN
-
 #define TIME_INFINITE (time_t)(-1)
-#define TIME_MAX      (time_t)(std::numeric_limits<time_t>::max())
+#define TIME_MAX      (time_t)(std::numeric_limits<time_t>::max)()
 
 #define __time_valid(_t) (TIME_INFINITE == (_t) || (_t) < TIME_MAX)
 

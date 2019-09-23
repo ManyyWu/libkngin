@@ -9,7 +9,7 @@ static int
 producer (void *_args)
 {
     sync_deque<string> *_q = (sync_deque<string> *)_args;
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 100; i++) {
         _q->lock();
         char _buf[20];
         sprintf(_buf, "%d", i);
@@ -18,8 +18,7 @@ producer (void *_args)
         string *_str = new_nothrow(string(_buf));
         kassert(_str);
         kassert(!_q->full() && _q->push_front(&_str));
-        fprintf(stderr, "-----producer[%ld] put, len: %ld\n",
-                thread::self(),
+        fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         fflush(stderr);
         _q->unlock();
@@ -46,8 +45,7 @@ comsumer (void *_args)
         string *_s = _q->back();
         kassert(_s);
         _q->pop_back();
-        fprintf(stderr, "comsumer[%ld] get \"%s\", len: %ld\n",
-                thread::self(),
+        fprintf(stderr, "comsumer get \"%s\", len: %ld\n",
                 _s->c_str(), _q->size());
         fflush(stderr);
         if ("" == *_s)

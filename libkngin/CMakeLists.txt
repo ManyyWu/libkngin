@@ -36,7 +36,7 @@ set(KNGIN_SRC
     )
 
 # library
-set(CMAKE_PREFIX_PATH "../pthreads_win32/cmake" ${CMAKE_PREFIX_PATH})
+set(CMAKE_PREFIX_PATH "../pthreads_win32" ${CMAKE_PREFIX_PATH})
 
 if(WIN32)
     find_package(PTHREADW32 REQUIRED)

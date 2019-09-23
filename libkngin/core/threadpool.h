@@ -37,7 +37,7 @@ public:
     void
     clear         ();
 
-    bool
+    error_t
     commit        (task_base **_task, time_t _ms = TIME_INFINITE);
 
     msg *
@@ -48,7 +48,7 @@ public:
     running       () const;
 
     int
-    max           () const;
+    (max)         () const;
 
     void
     set_max       (int _max);

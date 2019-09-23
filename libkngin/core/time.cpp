@@ -2,6 +2,7 @@
 #include <windows.h>
 #endif
 #include <ctime>
+#include "time.h"
 #include "define.h"
 
 __NAMESPACE_BEGIN
@@ -41,6 +42,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 
     return 0;
 }
-#endif
 
 __NAMESPACE_END
+
+#endif

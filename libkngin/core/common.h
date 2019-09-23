@@ -41,9 +41,9 @@ __log_assert_dump_stack (const char *_fmt, ...);
                true)                                  \
             : false                                   \
         )
-#define kassert(__e)    do { if_not(__e); } while (false)
-#define kassert_r(__e)  if_not(__e) { return; }
-#define kassert_r0(__e) if_not(__e) { return 0; }
+#define kassert(__e)    do { if_not(__e) (void)0; } while (false)
+#define kassert_r(__e)  if_not(__e) return;
+#define kassert_r0(__e) if_not(__e) return 0;
 
 //#define kassert(__e)                                    \
 //        do {                                            \

@@ -101,28 +101,38 @@ thread_pool::stop ()
     kassert_r0(m_pool_thread);
 
     // stop manager thread
+    bool _ret = true;
     if (m_pool_thread && m_pool_thread->running()) {
-        if_not (m_pool_thread->cancel())
+        if_not (m_pool_thread->cancel()) {
             server_fatal("pool manager thread cancel failed");
-        if_not (m_pool_thread->join(NULL))
+            _ret = false;
+        }
+        if_not (m_pool_thread->join(NULL)) {
             server_fatal("pool manager thread join failed");
+            _ret = false;
+        }
     }
     safe_release(m_pool_thread);
 
     // stop thread pool
     for (auto iter : m_pool) {
         if (iter && iter->running()) {
-            if_not (iter->cancel())
+            if_not (iter->cancel()) {
                 server_fatal("pool thread cancel failed");
-            if_not (iter->join(NULL))
+                _ret = false;
+            }
+            if_not (iter->join(NULL)) {
                 server_fatal("pool thread join failed");
+                _ret = false;
+            }
             delete iter;
         }
     }
     pool_vector _v;
     m_pool.swap(_v);
 
-    server_fatal("thread pool stopped");
+    server_info("thread pool stopped");
+    return _ret;
 }
 
 void
@@ -143,23 +153,21 @@ thread_pool::clear ()
     server_info("message qeueu are cleared up");
 }
 
-bool
+error_t
 thread_pool::commit (task_base **_task, time_t _ms /* = TIME_INFINITE */)
 {
-    kassert_r0(_task);
-    kassert_r0(*_task);
-    if (!_task || !*_task)
+    if_not (!_task || !*_task)
         return E_INVAL;
-    kassert_r0(__time_valid(_ms));
-    if (!__time_valid(_ms))
-        return false;
-    kassert_r0(m_task_queue);
-    if (!m_task_queue->lock(_ms))
+    if_not (__time_valid(_ms))
+        return E_INVAL;
+    if (m_task_queue->lock(_ms))
         return E_TIMEDOUT;
 
     // check size
-    if (m_task_queue->size() > m_maxthread)
+    if (m_task_queue->size() > m_maxthread) {
+        m_task_queue->unlock();
         return E_QUEUE_FULL;
+    }
 
     // push
     m_task_queue->push_front(_task);
@@ -170,10 +178,9 @@ thread_pool::commit (task_base **_task, time_t _ms /* = TIME_INFINITE */)
 }
 
 msg *
-thread_pool::get_msg (time_t _ms /* = INFINITE */)
+thread_pool::get_msg (time_t _ms /* = TIME_INFINITE */)
 {
-    kassert_r0(__time_valid(_ms));
-    if (!__time_valid(_ms))
+    if_not (__time_valid(_ms))
         return NULL;
 }
 
@@ -184,7 +191,7 @@ thread_pool::running () const
 }
 
 int
-thread_pool::max () const
+(thread_pool::max) () const
 {
     return m_maxthread;
 }
@@ -193,7 +200,7 @@ void
 thread_pool::set_max(int _max)
 {
     // log info
-    m_maxthread = std::min(std::max(_max, 1), THREAD_NUM_MAX);
+    m_maxthread = (std::min)((std::max)(_max, 1), THREAD_NUM_MAX);
 }
 
 size_t
@@ -206,7 +213,7 @@ void
 thread_pool::set_queue_max(size_t _max)
 {
     // log info
-    m_queue_size.store(std::min(std::max(_max, QUEUE_MIN), QUEUE_MAX));
+    m_queue_size.store((std::min)((std::max)(_max, QUEUE_MIN), QUEUE_MAX));
 }
 
 int
@@ -217,7 +224,7 @@ thread_pool::process (void *_args)
     _pool->m_running.store(true);
 
     // alive time
-    if (!_pool->m_alive);
+    if (!_pool->m_alive){}
     // max thread
     // testcancel
 
