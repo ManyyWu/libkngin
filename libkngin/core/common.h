@@ -9,10 +9,50 @@
 __NAMESPACE_BEGIN
 
 using std::nothrow;
+
+#ifdef NDEBUG
+template <typename __T>
+__T *
+new_deubg (size_t _n = 1)
+{
+    static std::atomic<uint64_t> _serial(0);
+
+    __T *_mem = NULL;
+    if (1 == _n)
+        _mem = std::new(std::nothrow) __T;
+    else
+        _mem = std::new(std::nothrow) __T[_n];
+    assert(_mem);
+    if (_mem)
+        ++_serial;
+    
+    return _mem;
+}
+
+template <typename __T>
+void
+delete_debug ()
+{
+
+}
+
+template <typename __T>
+void
+delete_array_debug ()
+{
+
+}
+
+#define new_nothrow(__t)        
+#define safe_release(__p)       do { delete (__p); (__p) = NULL; } while (false)
+#define new_nothrow_array(__t)  new(std::nothrow) __t
+#define safe_release_array(__p) do { delete[] (__p); (__p) = NULL; } while (false)
+#else
 #define new_nothrow(__t)        new(std::nothrow) __t
 #define safe_release(__p)       do { delete (__p); (__p) = NULL; } while (false)
 #define new_nothrow_array(__t)  new(std::nothrow) __t
 #define safe_release_array(__p) do { delete[] (__p); (__p) = NULL; } while (false)
+#endif
 
 /*
  * Log for assert

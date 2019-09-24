@@ -110,6 +110,7 @@ log::log_data (const char *_data, int _len)
             return false;
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
         this->write_stderr(LOG_LEVEL_DEBUG, _data, _len);
+    return true;
 }
 
 bool

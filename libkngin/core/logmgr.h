@@ -9,25 +9,25 @@
 
 __NAMESPACE_BEGIN
 
-typedef std::vector<log *>       __log_set;
-
-typedef std::vector<std::string> __logfile_set;
-
 class log_mgr : public noncopyable {
+public:
+    typedef std::vector<log *>       __log_set;
+    typedef std::vector<std::string> __logfile_set;
+
 private:
     log_mgr     ();
 
     ~log_mgr    ();
 
 public:
-    log &
-    operator [] (int _index);
+    log *
+    operator [] (size_t _index);
 
-    log &
-    at          (int _index);
+    log *
+    at          (size_t _index);
 
     std::string &
-    filename_at (int _index);
+    filename_at (size_t _index);
 
 protected:
     static __log_set     m_log_set;
@@ -36,7 +36,7 @@ protected:
 
 private:
     friend log_mgr &
-    logger      ();
+    logger ();
 };
 
 log_mgr &

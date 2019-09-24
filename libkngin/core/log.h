@@ -38,7 +38,8 @@ __NAMESPACE_BEGIN
  * Type of log file
  */
 enum __LOG_FILE {
-    __LOG_FILE_SERVER = 0,
+    __LOG_FILE_MEMORY = 0,
+    __LOG_FILE_SERVER,
     __LOG_FILE_HTTP,
     __LOG_FILE_MAX
 };
