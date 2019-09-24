@@ -156,6 +156,7 @@ work_thread::process (void *_args)
             pthread_testcancel();
         }
         _p->m_new_task.store(false);
+        _p->m_new_task.store(false);
 
         work_task *_task = _p->m_task;
         kassert_r0(_task);

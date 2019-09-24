@@ -166,7 +166,7 @@ msg::dump ()
     _len += m_size * 2;
     char *_buf = new_nothrow(char[(m_size) + _len]);
     if_not (_buf) {
-        server_fatal("failed to dump msg, size = %#ux", m_size);
+        server_fatal("failed to dump msg, size = %#x", m_size);
         delete[] _buf;
         return;
     }
@@ -177,13 +177,13 @@ msg::dump ()
     int i = 0;
     for (; i < m_size * 2;) {
         char _temp[3];
-        sprintf(_temp, "%02ux", (uint8_t)m_buf[i]);
+        sprintf(_temp, "%02x", (uint8_t)m_buf[i]);
         _buf[_start + i++] = _temp[0];
         _buf[_start + i++] = _temp[1];
     }
     _buf[_start + i] = '\0';
     server_dump(_buf, strnlen(_buf, _len));
-    delete[] _buf;
+    safe_release_array(_buf);
 }
 
 __NAMESPACE_END
