@@ -145,6 +145,7 @@ work_thread::process (void *_args)
 
     work_thread *_p = (work_thread *)_args;
     pthread_cleanup_push(cleanup_lock, _args);
+    int _ret = 0;
 
     while (!_p->m_stop_thread.load()) {
         // wait for new task
@@ -163,7 +164,7 @@ work_thread::process (void *_args)
         work_task *_task = _p->m_task;
         if_not (_task)
             goto unlock;
-        int _ret = [_p] (work_task *_task) mutable -> bool {
+        _ret = [_p] (work_task *_task) mutable -> bool {
             bool _ret = false;
             pthread_testcancel();
             _ret = _task->process();

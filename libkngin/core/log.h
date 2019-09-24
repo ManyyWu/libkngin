@@ -1,6 +1,7 @@
 #ifndef _K_LOG_H_
 #define _K_LOG_H_
 
+#include <cstdarg>
 #include "define.h"
 #include "noncopyable.h"
 

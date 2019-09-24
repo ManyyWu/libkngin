@@ -47,8 +47,6 @@ protected:
     work_thread *         m_thread;
 
     int                   m_priority;
-
-    std::atomic<uint64_t> m_serial;
 };
 
 __NAMESPACE_END

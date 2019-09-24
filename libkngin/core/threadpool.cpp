@@ -50,7 +50,7 @@ thread_pool::run (int _num)
     for (int i = 0; i < _num; i++) {
         snprintf(_name, sizeof(_name), 
                  "work_thread[%10d-%19lld]", // format: work_thread[pid: serial]
-                 getpid(), (std::min)(m_serial++, ULLONG_MAX));
+                 getpid(), (std::min)(m_serial++, SIZE_MAX));
         work_thread *_thr = new_nothrow(work_thread(_name));
         if_not (_thr)
             goto fail;

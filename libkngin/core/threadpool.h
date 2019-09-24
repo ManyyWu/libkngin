@@ -72,7 +72,7 @@ protected:
 
     std::atomic<size_t>   m_queue_size;
 
-    std::atomic<uint64_t> m_serial;
+    std::atomic<size_t>   m_serial;
 
     time_t                m_alive;
 

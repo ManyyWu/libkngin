@@ -21,6 +21,11 @@ class cond : noncopyable {
 public:
     cond () = delete;
 
+    cond (cond &&_cond)
+    {
+        m_mutex = _cond.m_mutex;
+        m_mutex = _cond.m_mutex;
+    }
 protected:
     inline
     cond (mutex *_mutex, pthread_cond_t *_cond_intr)
@@ -153,6 +158,7 @@ public:
 
 protected:
     pthread_cond_t *m_cond;
+
     mutex *         m_mutex;
 };
 
