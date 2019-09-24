@@ -48,106 +48,62 @@ log::init ()
 bool
 log::fatal (const char *_fmt, ...)
 {
-    kassert_r0(_fmt);
-
     va_list _vl;
-    char _buf[__LOG_BUF_SIZE + 1] = {0};
-
     va_start(_vl, _fmt);
-    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
+    bool _ret = this->write_log(LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
-    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(LOG_LEVEL_FATAL, logger().filename_at(m_filetype).c_str(), _buf, _len))
-            return false;
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(LOG_LEVEL_FATAL, _buf, _len);
 
-    return true;
+    return _ret;
 }
 
 bool
 log::error (const char *_fmt, ...)
 {
-    kassert_r0(_fmt);
-
     va_list _vl;
-    char _buf[__LOG_BUF_SIZE + 1] = {0};
     va_start(_vl, _fmt);
-    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
+    bool _ret = this->write_log(LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
-    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(LOG_LEVEL_ERROR, logger().filename_at(m_filetype).c_str(), _buf, _len))
-            return false;
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(LOG_LEVEL_ERROR, _buf, _len);
 
-    return true;
+    return _ret;
 }
 
 bool
 log::warning (const char *_fmt, ...)
 {
-    kassert_r0(_fmt);
-
     va_list _vl;
-    char _buf[__LOG_BUF_SIZE + 1] = {0};
     va_start(_vl, _fmt);
-    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
+    bool _ret = this->write_log(LOG_LEVEL_WARNING, _fmt, _vl);
     va_end(_vl);
-    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(LOG_LEVEL_WARNING, logger().filename_at(m_filetype).c_str(), _buf, _len))
-            return false;
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(LOG_LEVEL_WARNING, _buf, _len);
-    return true;
+
+    return _ret;
 }
 
 bool
 log::info (const char *_fmt, ...)
 {
-    kassert_r0(_fmt);
-
     va_list _vl;
-    char _buf[__LOG_BUF_SIZE + 1] = {0};
     va_start(_vl, _fmt);
-    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
+    bool _ret = this->write_log(LOG_LEVEL_INFO, _fmt, _vl);
     va_end(_vl);
-    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(LOG_LEVEL_INFO, logger().filename_at(m_filetype).c_str(), _buf, _len))
-            return false;
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(LOG_LEVEL_INFO, _buf, _len);
-    return true;
+
+    return _ret;
 }
 
 bool
 log::debug (const char *_fmt, ...)
 {
-    kassert_r0(_fmt);
-
     va_list _vl;
-    char _buf[__LOG_BUF_SIZE + 1] = {0};
     va_start(_vl, _fmt);
-    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
+    bool _ret = this->write_log(LOG_LEVEL_DEBUG, _fmt, _vl);
     va_end(_vl);
-    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _buf, _len))
-            return false;
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(LOG_LEVEL_DEBUG, _buf, _len);
 
-    return true;
+    return _ret;
 }
 
 bool
-log::write_data (const char *_data, int _len)
+log::log_data (const char *_data, int _len)
 {
-    kassert_r0(_data && _len);
+    assert(_data && _len);
 
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         if (!this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len))
@@ -157,11 +113,42 @@ log::write_data (const char *_data, int _len)
 }
 
 bool
+log::log_assert (const char *_func, const char *_file, int _line, const char *_exp)
+{
+    time_t _t = time(NULL);
+    struct tm _tm;
+    __localtime(&_tm, &_t);
+    return this->fatal(__log_assert_format, 
+                       _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
+                       _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,
+                       _func, _file, _line, _exp);
+}
+
+bool
+log::write_log (LOG_LEVEL _level, const char *_fmt, va_list _vl)
+{
+    assert(_fmt);
+
+    char _buf[__LOG_BUF_SIZE + 1];
+    _buf[__LOG_BUF_SIZE] = '\0';
+
+    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
+    int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
+    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
+        if (!this->write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len))
+            return false;
+    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
+        this->write_stderr(_level, _buf, _len);
+
+    return true;
+}
+
+bool
 log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _len)
 {
-    kassert_r0(_str);
+    assert(_str);
 #ifdef __LOG_MUTEX
-    kassert_r0(m_mutex);
+    assert(m_mutex);
     m_mutex->lock();
 #endif
 
@@ -253,10 +240,10 @@ fail:
 void
 log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
 {
-    kassert_r(_str);
+    assert(_str);
 
 #ifdef __LOG_MUTEX
-    kassert_r(m_mutex);
+    assert(m_mutex);
     m_mutex->lock();
 #endif
 
@@ -301,10 +288,10 @@ fail:
 void
 log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
 {
-    kassert_r(_fmt);
+    assert(_fmt);
 
 #ifdef __LOG_MUTEX
-    kassert_r(m_mutex);
+    assert(m_mutex);
     m_mutex->lock();
 #endif
 

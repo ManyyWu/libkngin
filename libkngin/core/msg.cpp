@@ -162,8 +162,10 @@ msg::task ()
 void
 msg::dump ()
 {
-    int _len = 80;
-    _len += m_size * 2;
+    uint32_t _len = 80;
+    _len += 2 * m_size;
+    _len = (std::min)(_len, (uint32_t)__LOG_BUF_SIZE); // max: 4096
+
     char *_buf = new_nothrow(char[(m_size) + _len]);
     if_not (_buf) {
         server_fatal("failed to dump msg, size = %#x", m_size);
@@ -172,9 +174,9 @@ msg::dump ()
     }
     snprintf(_buf, _len, "*** [dump msg]:\n*** [type]: %#010d\n*** [size]: %#010d\n*** [data]: ",
              m_type, m_size);
-    int _start = strnlen(_buf, 80);
+    uint32_t _start = (uint32_t )strnlen(_buf, 80);
     _buf[_start] = '\0';
-    int i = 0;
+    uint32_t i = 0;
     for (; i < m_size * 2;) {
         char _temp[3];
         sprintf(_temp, "%02x", (uint8_t)m_buf[i]);
@@ -182,7 +184,7 @@ msg::dump ()
         _buf[_start + i++] = _temp[1];
     }
     _buf[_start + i] = '\0';
-    server_dump(_buf, strnlen(_buf, _len));
+    server_dump(_buf, (uint32_t)strnlen(_buf, _len));
     safe_release_array(_buf);
 }
 

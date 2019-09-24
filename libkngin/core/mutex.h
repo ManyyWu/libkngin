@@ -135,7 +135,6 @@ public:
         kassert_r0(m_mutex);
 
         int _ret = 0;
-        kassert_r0(m_mutex);
         _ret = pthread_mutex_unlock(m_mutex);
         if (ETIMEDOUT == _ret)
             return false;

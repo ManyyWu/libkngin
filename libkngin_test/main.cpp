@@ -32,11 +32,11 @@ test ();
 
 int main()
 {
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* log_test                                       *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    log_test();
-//
+    fprintf(stderr, "**************************************************\n");
+    fprintf(stderr, "* log_test                                       *\n");
+    fprintf(stderr, "**************************************************\n");
+    log_test();
+
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* thread_test                                    *\n");
 //    fprintf(stderr, "**************************************************\n");
@@ -66,11 +66,11 @@ int main()
 //    fprintf(stderr, "* queue_test                                     *\n");
 //    fprintf(stderr, "**************************************************\n");
 //    sync_queue_test();
-
-    fprintf(stderr, "**************************************************\n");
-    fprintf(stderr, "* work_thread_test                               *\n");
-    fprintf(stderr, "**************************************************\n");
-    work_thread_test();
+//
+//    fprintf(stderr, "**************************************************\n");
+//    fprintf(stderr, "* work_thread_test                               *\n");
+//    fprintf(stderr, "**************************************************\n");
+//    work_thread_test();
 
     fprintf(stderr, "**************************************************\n");
     fprintf(stderr, "* threadpool_test                                *\n");

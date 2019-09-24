@@ -8,12 +8,16 @@
 #include <cassert>
 #include <cstdint>
 
+// compile options
 #define __LOG_MUTEX
+//#define __DUMP_ERROR_MSG 
 
+// namespace
 #define __NAMESPACE_BEGIN namespace k {
 #define __NAMESPACE_END   };
 #define __USING_NAMESPACE using namespace k;
 
+// queue
 #define QUEUE_MAX     (size_t)(SIZE_MAX)
 #define QUEUE_MIN     (size_t)10
 

@@ -28,6 +28,7 @@ task_base::create (msg **_msg)
         m_msg->release();
     m_msg = *_msg;
     *_msg = NULL;
+    return true;
 }
 
 void

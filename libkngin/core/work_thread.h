@@ -12,7 +12,7 @@ __NAMESPACE_BEGIN
 
 class work_thread : public thread {
 public:
-    work_thread (const char *_name = "work_thread");
+    work_thread (const char *_name);
 
     virtual
     ~work_thread ();

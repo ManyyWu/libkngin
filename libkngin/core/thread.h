@@ -27,7 +27,7 @@ public:
     virtual bool
     run           ();
 
-    bool
+    virtual bool
     join          (int *_err_code);
 
     virtual bool

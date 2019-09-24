@@ -23,8 +23,10 @@ work_task::process ()
     msg *_msg = m_msg;
     m_msg = NULL;
     bool _ret = _msg->process();
+#ifdef __DUMP_ERROR_MSG 
     if (!_ret)
         _msg->dump();
+#endif /* __DUMP_ERROR_MSG */
     _msg->release();
     _msg = NULL;
     return _ret;
@@ -61,7 +63,6 @@ work_task::recv_reply_msg (msg **_msg)
 msg *
 work_task::send_reply_msg ()
 {
-    // kassert_r0(m_msg);
     msg *_msg = m_msg;
     m_msg = NULL;
     return _msg;

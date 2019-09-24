@@ -15,7 +15,7 @@ process (void *_args)
         work_task *_wt = new work_task(_c);
         kassert(_wt);
         netmsg_test *_msg = new netmsg_test(_wt);
-        kassert(_msg->create((ACTION)(rand() % 4), i * rand()));
+        kassert(_msg->create((ACTION)(rand() % 10), i * rand()));
         kassert(_msg);
         kassert(_wt->create((msg **)&_msg));
         kassert(_c->recv_task(&_wt));
@@ -39,7 +39,7 @@ process (void *_args)
 void
 work_thread_test ()
 {
-    work_thread wt;
+    work_thread wt("work_thread_test");
     thread t1(process, &wt);
     wt.run();
     while (!wt.running());

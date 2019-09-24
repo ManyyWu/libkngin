@@ -43,12 +43,10 @@ public:
         _q->m_queue.clear();
         if (_sync) {
             _q->m_mutex = mutex::create();
-            kassert_r0(_q->m_mutex); // log
-            if (!_q->m_mutex)
+            if_not (_q->m_mutex)
                 goto fail;
             _q->m_cond = cond::create(_q->m_mutex);
-            kassert_r0(_q->m_cond); // log
-            if (!_q->m_cond)
+            if_not (_q->m_cond)
                 goto fail;
         }
         return _q;

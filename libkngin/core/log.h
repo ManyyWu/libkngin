@@ -2,7 +2,6 @@
 #define _K_LOG_H_
 
 #include "define.h"
-#include "common.h"
 #include "noncopyable.h"
 
 #define __LOG_FILE_DATE_LEN 19
@@ -10,10 +9,16 @@
 #define __LOG_FILE_MAX_SIZE 20 * 1024 * 1024 // 20M
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | func[file:line] | fmt \n"
-#define __log_format(__t, __f) "%04d/%02d/%02d %02d:%02d:%02d.%03d | " __t " | %s[%s:%d] | " __f
+#define __log_format(__t, __f)        "%04d/%02d/%02d %02d:%02d:%02d.%03d | " __t " | %s[%s:%d] | " __f
+
+// "YYYY/MM/DD hh:mm:ss.ms | type | fmt \n"
+#define __log_format_noline(__t, __f) "%04d/%02d/%02d %02d:%02d:%02d.%03d | " __t " | " __f
 
 // "YYYY-MM-DD"
 #define __log_filename_format  "%s_%04d-%02d-%02d.log"
+
+// "****** func[file:line] ******"
+#define __log_assert_format "%04d/%02d/%02d %02d:%02d:%02d.%03d | ASSERT  | %s[%s:%d] | ****** %s *******"
 
 // color
 #ifdef _WIN32
@@ -83,9 +88,15 @@ public:
     debug         (const char *_fmt, ...);
 
     bool
-    write_data    (const char *_data, int _len);
+    log_data    (const char *_data, int _len);
+
+    bool
+    log_assert (const char *_func, const char *_file, int _line, const char *_exp);
 
 private:
+    bool
+    write_log     (LOG_LEVEL _level, const char *_fmt, va_list _vl);
+
     bool
     write_logfile (LOG_LEVEL _level, const char *_file, const char *_fmt, int _len);
 
@@ -110,12 +121,6 @@ private:
 
     friend log_mgr &
     logger                  ();
-
-    friend void
-    __log_assert            (const char *_fmt, ...);
-
-    friend void
-    __log_assert_dump_stack (const char *_fmt, ...);
 };
 
 __NAMESPACE_END

@@ -12,7 +12,7 @@
 
 __NAMESPACE_BEGIN
 
-work_thread::work_thread (const char *_name /* = "work_thread" */)
+work_thread::work_thread (const char *_name)
     : thread(work_thread::process, this, _name ? _name : "work_thread"),
       m_done(true), m_new_task(false),
       m_stop_thread(false), m_task(NULL),
@@ -138,7 +138,7 @@ work_thread::cleanup_lock (void *_args)
     _p->m_cond->broadcast();
 }
 
-    int
+int
 work_thread::process (void *_args)
 {
     kassert_r0(_args);
@@ -147,6 +147,7 @@ work_thread::process (void *_args)
     pthread_cleanup_push(cleanup_lock, _args);
 
     while (!_p->m_stop_thread.load()) {
+        // wait for new task
         pthread_testcancel();
         _p->m_mutex->lock();
         while (!_p->m_new_task.load()) {
@@ -158,8 +159,10 @@ work_thread::process (void *_args)
         _p->m_new_task.store(false);
         _p->m_new_task.store(false);
 
+        // process task
         work_task *_task = _p->m_task;
-        kassert_r0(_task);
+        if_not (_task)
+            goto unlock;
         int _ret = [_p] (work_task *_task) mutable -> bool {
             bool _ret = false;
             pthread_testcancel();
@@ -171,6 +174,7 @@ work_thread::process (void *_args)
             return true;
         }(_p->m_task);
 
+unlock:
         _p->m_mutex->unlock();
         _p->m_done.store(true);
         _p->m_cond->broadcast();

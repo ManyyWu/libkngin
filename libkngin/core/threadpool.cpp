@@ -1,3 +1,8 @@
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
 #include <algorithm>
 #include "define.h"
 #include "error.h"
@@ -11,7 +16,7 @@ thread_pool::thread_pool (size_t _qsize, int _thr_max, time_t _alive)
     : m_running(false), m_stop(true),
       m_queue_size(_qsize), m_maxthread(_thr_max), m_alive(_alive),
       m_task_queue(NULL), m_msg_queue(NULL),
-      m_pool_thread(NULL)
+      m_pool_thread(NULL), m_serial(0)
 {
     kassert(_thr_max > 0 && _thr_max <= THREAD_NUM_MAX);
 }
@@ -27,9 +32,14 @@ thread_pool::run (int _num)
 {
     kassert_r0(m_stop.load());
     kassert_r0(!m_running.load());
+    char _name[50];
 
     // create manager thread
-    m_pool_thread = new_nothrow(thread(thread_pool::process, this, "thread_pool_manager"));
+
+    snprintf(_name, sizeof(_name), 
+             "thread_pool_manager[%10d]", // format: thread_pool_manager[pid]
+             getpid());
+    m_pool_thread = new_nothrow(thread(thread_pool::process, this, _name));
     if_not (m_pool_thread)
         return false;
     bool _ret = m_pool_thread->run();
@@ -38,7 +48,10 @@ thread_pool::run (int _num)
 
     // create thread pool
     for (int i = 0; i < _num; i++) {
-        work_thread *_thr = new_nothrow(work_thread);
+        snprintf(_name, sizeof(_name), 
+                 "work_thread[%10d-%19lld]", // format: work_thread[pid: serial]
+                 getpid(), (std::min)(m_serial++, ULLONG_MAX));
+        work_thread *_thr = new_nothrow(work_thread(_name));
         if_not (_thr)
             goto fail;
         _ret = _thr->run();

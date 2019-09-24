@@ -28,13 +28,16 @@ thread::~thread ()
 {
     int _ret = 0;
 #ifdef _WIN32
-    if (m_tid.p)
+    if (m_tid.p) {
 #else
-    if (m_tid)
+    if (m_tid) {
 #endif
         _ret = pthread_detach(m_tid);
-    if_not (!_ret)
-        server_fatal("pthread_detach() return %d", _ret);
+        if_not (!_ret)
+            server_fatal("pthread_detach(), name = \"%s\", return %d", m_name, _ret);
+        else
+            server_info("thread \"%s\" detached", m_name);
+    }
 }
 
 bool
@@ -48,15 +51,10 @@ thread::run ()
 
     int _ret = 0;
     _ret = pthread_create(&m_tid, NULL, thread::start, this);
-    if_not (!_ret) {
+    if_not (!_ret)
         server_fatal("pthread_create(), name = \"%s\", return %d", m_name, _ret);
-    }
-#ifdef _WIN32
-    if (m_tid.p)
-#else
-    if (m_tid) 
-#endif
-        m_running.store(true);
+    m_running.store(true);
+    server_info("thread \"%s\" running", m_name);
     return !_ret;
 }
 
@@ -84,6 +82,7 @@ thread::join (int *_err_code)
     m_tid = 0;
 #endif
     m_running.store(false);
+    server_info("thread \"%s\" joined with code: %u", m_name, (long)(long long)m_retptr);
     return true;
 }
 
@@ -103,6 +102,7 @@ thread::cancel ()
         server_fatal("pthread_cancel(), name = \"%s\"return %d", m_name, _ret);
         return false;
     }
+    server_info("thread \"%s\" cancel", m_name);
     return true;
 }
 
@@ -139,7 +139,7 @@ thread::sleep (time_t _ms)
 {
     kassert_r(__time_valid(_ms));
 #ifdef _WIN32
-    Sleep(_ms);
+    Sleep((DWORD)_ms);
 #else
     usleep(std::abs(_ms) * 1000);
 #endif
@@ -148,7 +148,6 @@ thread::sleep (time_t _ms)
 void
 thread::exit (int _err_code)
 {
-    pthread_t _tid = pthread_self();
     pthread_exit((void *)(long long)_err_code);
 }
 
@@ -200,7 +199,7 @@ thread::process (void *_args)
     fflush(stderr);
 
     // pthread_cleanup_pop()
-    return 0 ;
+    return 0;
 }
 
 __NAMESPACE_END

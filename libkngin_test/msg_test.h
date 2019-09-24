@@ -93,7 +93,8 @@ public:
                 }(this->m_info->param);
                 break;
             default:
-                break;//kassert_r0(0);
+                server_error("invalid message type");
+                break;
             }
             return false;
         }();

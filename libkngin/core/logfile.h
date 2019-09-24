@@ -8,9 +8,9 @@
 
 #define __make_log(__level, __level_str, __file_type, __fmt, ...)                         \
         do {                                                                              \
-            time_t _t = time(NULL);                                                       \
+            time_t __t = time(NULL);                                                      \
             struct tm __tm;                                                               \
-            __localtime(&__tm, &_t);                                                      \
+            __localtime(&__tm, &__t);                                                     \
             logger()[__file_type].__level(__log_format(__level_str, __fmt),               \
                                           __tm.tm_year + 1900, __tm.tm_mon, __tm.tm_mday, \
                                           __tm.tm_hour, __tm.tm_min, __tm.tm_sec, 0,      \
@@ -19,16 +19,29 @@
                                           );                                              \
         } while (false)
 
-#define server_dump(__data, __len) logger()[k::__LOG_FILE_SERVER].write_data((__data), (__len))
+#define __make_log_noline(__level, __level_str, __file_type, __fmt, ...)                  \
+        do {                                                                              \
+            time_t __t = time(NULL);                                                      \
+            struct tm __tm;                                                               \
+            __localtime(&__tm, &__t);                                                     \
+            logger()[__file_type].__level(__log_format_noline(__level_str, __fmt),        \
+                                          __tm.tm_year + 1900, __tm.tm_mon, __tm.tm_mday, \
+                                          __tm.tm_hour, __tm.tm_min, __tm.tm_sec, 0,      \
+                                          ##__VA_ARGS__                                   \
+                                          );                                              \
+        } while (false)
+
+#define server_dump(__data, __len) logger()[k::__LOG_FILE_SERVER].log_data((__data), (__len))
+#define assert_log(__exp)          logger()[k::__LOG_FILE_SERVER].log_assert(__FUNCTION__, __FILE__, __LINE__, #__exp)
 #define server_fatal(__fmt, ...)   __make_log(fatal,   "FATAL  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_error(__fmt, ...)   __make_log(error,   "ERROR  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
-#define server_warning(__fmt, ...) __make_log(warning, "WARNING", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
-#define server_info(__fmt, ...)    __make_log(info,    "INFO   ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
+#define server_warning(__fmt, ...) __make_log_noline(warning, "WARNING", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
+#define server_info(__fmt, ...)    __make_log_noline(info,    "INFO   ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_debug(__fmt, ...)   __make_log(debug,   "DEBUG  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define http_fatal(__fmt, ...)     __make_log(fatal,   "FATAL  ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
 #define http_error(__fmt, ...)     __make_log(error,   "ERROR  ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
-#define http_warning(__fmt, ...)   __make_log(warning, "WARNING", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
-#define http_info(__fmt, ...)      __make_log(info,    "INFO   ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
+#define http_warning(__fmt, ...)   __make_log_noline(warning, "WARNING", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
+#define http_info(__fmt, ...)      __make_log_noline(info,    "INFO   ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
 #define http_debug(__fmt, ...)     __make_log(debug,   "DEBUG  ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
 
 __NAMESPACE_BEGIN

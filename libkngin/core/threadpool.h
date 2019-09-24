@@ -23,7 +23,7 @@ typedef std::vector<thread *> pool_vector;
 
 class thread_pool : noncopyable {
 public:
-    thread_pool  (size_t _qsize, int _thr_max, time_t _alive); //options
+    thread_pool  (size_t _qsize, int _thr_max, time_t _alive); // options
 
     ~thread_pool ();
 
@@ -64,23 +64,25 @@ public:
     process       (void *_args);
 
 protected:
-    std::atomic<bool>   m_running;
+    std::atomic<bool>     m_running;
 
-    std::atomic<bool>   m_stop;
+    std::atomic<bool>     m_stop;
 
-    std::atomic<int>    m_maxthread;
+    std::atomic<int>      m_maxthread;
 
-    std::atomic<size_t> m_queue_size;
+    std::atomic<size_t>   m_queue_size;
 
-    time_t              m_alive;
+    std::atomic<uint64_t> m_serial;
 
-    pool_vector         m_pool;
+    time_t                m_alive;
 
-    task_queue *        m_task_queue;
+    pool_vector           m_pool;
 
-    msg_queue *         m_msg_queue;
+    task_queue *          m_task_queue;
 
-    thread *            m_pool_thread;
+    msg_queue *           m_msg_queue;
+
+    thread *              m_pool_thread;
 };
 
 __NAMESPACE_END
