@@ -39,7 +39,7 @@ thread_pool::run (int _num)
     snprintf(_name, sizeof(_name), 
              "thread_pool_manager[%10d]", // format: thread_pool_manager[pid]
              getpid());
-    m_pool_thread = new_nothrow(thread(thread_pool::process, this, _name));
+    m_pool_thread = knew(thread, (thread_pool::process, this, _name));
     if_not (m_pool_thread)
         return false;
     bool _ret = m_pool_thread->run();
@@ -51,7 +51,7 @@ thread_pool::run (int _num)
         snprintf(_name, sizeof(_name), 
                  "work_thread[%10d-%19lld]", // format: work_thread[pid: serial]
                  getpid(), (std::min)(m_serial++, SIZE_MAX));
-        work_thread *_thr = new_nothrow(work_thread(_name));
+        work_thread *_thr = knew(work_thread, (_name));
         if_not (_thr)
             goto fail;
         _ret = _thr->run();
@@ -81,7 +81,7 @@ fail:
         m_pool_thread->join(NULL);
         // log error
     }
-    safe_release(m_pool_thread);
+    kdelete(m_pool_thread);
 
     if (m_pool.size()) {
         for (auto iter : m_pool) {
@@ -125,7 +125,7 @@ thread_pool::stop ()
             _ret = false;
         }
     }
-    safe_release(m_pool_thread);
+    kdelete(m_pool_thread);
 
     // stop thread pool
     for (auto iter : m_pool) {

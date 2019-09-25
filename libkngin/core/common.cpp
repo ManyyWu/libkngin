@@ -7,4 +7,8 @@
 
 __NAMESPACE_BEGIN
 
+size_t     __memory_debug_total = 0;
+void *     __memory_debug_addr  = NULL;
+std::mutex __memory_debug_mutex;
+
 __NAMESPACE_END

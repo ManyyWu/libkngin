@@ -2,6 +2,7 @@
 #define _COMMON_H_
 
 #include <new>
+#include <mutex>
 #include "logfile.h"
 #include "define.h"
 #include "assert.h"
@@ -10,53 +11,72 @@ __NAMESPACE_BEGIN
 
 using std::nothrow;
 
-#ifdef NDEBUG
-template <typename __T>
-__T *
-new_debug (size_t _n = 1)
-{
-    static std::atomic<size_t> _serial(0);
+#ifndef NDEBUG
 
-    __T *_mem = NULL;
-    if (1 == _n) {
-        _mem = new(std::nothrow) __T;
-        memory_debug("serial: %16lx, new(std::nothrow) %s, size: %ldByte",
-                     typeid(__T), sizeof(__T) * _n, _serial);
-    } else {
-        _mem = new(std::nothrow) __T[_n];
-        memory_debug("serial: %16ld, new(std::nothrow) %s[%d], size: %ldByte",
-                     typeid(__T), _n, sizeof(__T) * _n, _serial);
-    }
-    assert(_mem);
-    if (_mem)
-        ++_serial;
+extern size_t     __memory_debug_total;
+extern void *     __memory_debug_addr;
+extern std::mutex __memory_debug_mutex;
 
-    return _mem;
-}
+#define __new_debug_array(__t, __n)                                                                                         \
+            (                                                                                                               \
+             __memory_debug_mutex.lock(),                                                                                   \
+             __memory_debug_addr = new(std::nothrow) __t[__n],                                                              \
+             logger()[k::__LOG_FILE_MEMORY]                                                                                 \
+                 ->debug("new    addr: %#016lx, total: %#016lxByte, size: %#016lxByte, new(std::nothrow) %s[%d], %s[%s:%d]",\
+                         __memory_debug_addr,                                                                               \
+                         (__memory_debug_total += sizeof(__t) * (__n)),                                                     \
+                         sizeof(__t) * (__n), #__t, (__n),                                                                  \
+                         __FUNCTION__, __FILE__, __LINE__),                                                                 \
+             __memory_debug_mutex.unlock(),                                                                                 \
+             (__t *)__memory_debug_addr                                                                                     \
+             )
 
-template <typename __T>
-void
-delete_debug ()
-{
+#define __new_debug(__t, __e)                                                                                               \
+            (                                                                                                               \
+             __memory_debug_mutex.lock(),                                                                                   \
+             __memory_debug_addr = new(std::nothrow) __t __e,                                                              \
+             logger()[k::__LOG_FILE_MEMORY]                                                                                 \
+                 ->debug("new    addr: %#016lx, total: %#016lxByte, size: %016lxByte, new(std::nothrow) %s(%s), %s[%s:%d]", \
+                         __memory_debug_addr,                                                                               \
+                         (__memory_debug_total += sizeof(__t)), sizeof(__t), #__t, #__e,                                    \
+                         __FUNCTION__, __FILE__, __LINE__),                                                                 \
+             __memory_debug_mutex.unlock(),                                                                                 \
+             (__t *)__memory_debug_addr                                                                                     \
+             )
 
-}
+#define __delete_debug_array(__p)                              \
+            do {                                               \
+                __memory_debug_mutex.lock();                   \
+                logger()[k::__LOG_FILE_MEMORY]                 \
+                    ->debug("delete addr: %#016lx, %s[%s:%d]", \
+                            __memory_debug_addr,               \
+                            __FUNCTION__, __FILE__, __LINE__), \
+                delete __p;                                    \
+                __p = NULL;                                    \
+                __memory_debug_mutex.unlock();                 \
+            } while (false)
 
-template <typename __T>
-void
-delete_array_debug ()
-{
+#define __delete_debug(__p)                                    \
+            do {                                               \
+                __memory_debug_mutex.lock();                   \
+                logger()[k::__LOG_FILE_MEMORY]                 \
+                    ->debug("delete addr: %#016lx, %s[%s:%d]", \
+                            __memory_debug_addr,               \
+                            __FUNCTION__, __FILE__, __LINE__), \
+                delete __p;                                    \
+                __p = NULL;                                    \
+                __memory_debug_mutex.unlock();                 \
+            } while (false)
 
-}
-
-#define new_nothrow(__t, __n)   new_debug((__t), (__n))
-#define safe_release(__p)       do { delete (__p); (__p) = NULL; } while (false)
-#define new_nothrow_array(__t)  new(std::nothrow) __t
-#define safe_release_array(__p) do { delete[] (__p); (__p) = NULL; } while (false)
+#define knew          __new_debug
+#define kdelete       __delete_debug
+#define knew_array    __new_debug_array
+#define kdelete_array __delete_debug_array
 #else
-#define new_nothrow(__t)        new(std::nothrow) __t
-#define safe_release(__p)       do { delete (__p); (__p) = NULL; } while (false)
-#define new_nothrow_array(__t)  new(std::nothrow) __t
-#define safe_release_array(__p) do { delete[] (__p); (__p) = NULL; } while (false)
+#define knew(__t, __e)       new(std::nothrow) __t(__e)
+#define kdelete(__p)         do { delete (__p); (__p) = NULL; } while (false)
+#define knew_array(__t, __n) new(std::nothrow) __t[__n]
+#define kdelete_array(__p)   do { delete[] (__p); (__p) = NULL; } while (false)
 #endif
 
 /*

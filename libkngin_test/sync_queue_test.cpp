@@ -15,7 +15,7 @@ producer (void *_args)
         sprintf(_buf, "%d", i);
         while (_q->full())
             _q->wait();
-        string *_str = new_nothrow(string(_buf));
+        string *_str = knew(string, (_buf));
         kassert(_str);
         kassert(!_q->full() && _q->push(&_str));
         fprintf(stderr, "-----producer put, len: %ld\n",
@@ -25,7 +25,7 @@ producer (void *_args)
         _q->broadcast();
     }
     _q->lock();
-    string *_str = new_nothrow(string(""));
+    string *_str = knew(string, (""));
     kassert(_str);
     _q->push(&_str);
     _q->unlock();
@@ -48,7 +48,7 @@ comsumer (void *_args)
         fflush(stderr);
         if ("" == *_s)
             _done = true;
-        safe_release(_s);
+        kdelete(_s);
         _q->unlock();
         _q->broadcast();
     }

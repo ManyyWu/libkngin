@@ -57,13 +57,13 @@ mutex_test ()
     g_mutex = mutex::create();
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i] = new_nothrow(thread(process_mutex, NULL));
+        thrs[i] = knew(thread, (process_mutex, NULL));
         thrs[i]->run();
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(NULL);
-        safe_release(thrs[i]);
+        kdelete(thrs[i]);
     }
     g_mutex->release();
 
@@ -77,13 +77,13 @@ mutex_test ()
     timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i] = new_nothrow(thread(process_std_mutex, NULL));
+        thrs[i] = knew(thread, (process_std_mutex, NULL));
         thrs[i]->run();
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(NULL);
-        safe_release(thrs[i]);
+        kdelete(thrs[i]);
     }
 
     timespec_get(&ts2, TIME_UTC);
@@ -95,14 +95,14 @@ mutex_test ()
     timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i] = new_nothrow(thread(process_atomic, NULL));
+        thrs[i] = knew(thread, (process_atomic, NULL));
         thrs[i]->run();
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(NULL);
-        safe_release(thrs[i]);
-        safe_release(thrs[i]);
+        kdelete(thrs[i]);
+        kdelete(thrs[i]);
     }
 
     timespec_get(&ts2, TIME_UTC);

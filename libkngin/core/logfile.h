@@ -33,7 +33,6 @@
 
 #define server_dump(__data, __len) logger()[k::__LOG_FILE_SERVER]->log_data((__data), (__len))
 #define assert_log(__exp)          logger()[k::__LOG_FILE_SERVER]->log_assert(__FUNCTION__, __FILE__, __LINE__, #__exp)
-#define memory_debug(__fmt, ...)  __make_log(fatal,   "DEBUG  ", k::__LOG_FILE_MEMORY, __fmt, ##__VA_ARGS__)
 
 #define server_fatal(__fmt, ...)   __make_log(fatal,   "FATAL  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_error(__fmt, ...)   __make_log(error,   "ERROR  ", k::__LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)

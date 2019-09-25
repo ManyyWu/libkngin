@@ -11,7 +11,7 @@
 
 // compile options
 #define __LOG_MUTEX
-#define __DUMP_ERROR_MSG
+//#define __DUMP_ERROR_MSG
 
 // namespace
 #define __NAMESPACE_BEGIN namespace k {

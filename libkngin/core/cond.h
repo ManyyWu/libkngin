@@ -44,7 +44,7 @@ protected:
             _ret = pthread_cond_destroy(m_cond);
             if_not (!_ret)
                 server_fatal("pthread_cond_destroy() return %d", _ret);
-            safe_release(m_cond);
+            kdelete(m_cond);
         }
     }
 
@@ -57,7 +57,7 @@ public:
         int _ret = 0;
         cond *          _cond = NULL;
         pthread_cond_t *_cond_intr = NULL;
-        _cond_intr = new_nothrow(pthread_cond_t);
+        _cond_intr = knew(pthread_cond_t, ());
         if_not (_cond_intr)
             goto fail;
         _ret = pthread_cond_init(_cond_intr, NULL);
@@ -65,15 +65,15 @@ public:
             server_fatal("pthread_cond_init() return %d", _ret);
             goto fail;
         }
-        _cond = new_nothrow(cond(_mutex, _cond_intr));
+        _cond = knew(cond, (_mutex, _cond_intr));
         if_not (_cond)
             goto fail;
         return _cond;
 fail:
         if (_cond_intr)
             pthread_cond_destroy(_cond_intr);
-        safe_release(_cond_intr);
-        safe_release(_cond);
+        kdelete(_cond_intr);
+        kdelete(_cond);
         return NULL;
     }
 

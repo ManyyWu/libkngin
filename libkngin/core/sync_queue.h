@@ -36,7 +36,7 @@ public:
     static sync_queue<__T> *
     create (size_type _s, bool _sync)
     {
-        sync_queue<__T> *_q = new_nothrow(sync_queue(_s));
+        sync_queue<__T> *_q = knew(sync_queue, (_s));
         kassert_r0(_q);
         if (!_q)
             return NULL;

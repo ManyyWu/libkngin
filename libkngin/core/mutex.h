@@ -35,7 +35,7 @@ protected:
             _ret = pthread_mutex_destroy(m_mutex);
             if_not (!_ret)
                 server_fatal("pthread_mutex_destroy() return %d", _ret);
-            safe_release(m_mutex);
+            kdelete(m_mutex);
         }
     }
 
@@ -47,7 +47,7 @@ public:
         mutex * _mutex = NULL;
         pthread_mutex_t *_mutex_intr = NULL;
 
-        _mutex_intr = new_nothrow(pthread_mutex_t);
+        _mutex_intr = knew(pthread_mutex_t, ());
         if_not (_mutex_intr)
             return NULL;
         _ret = pthread_mutex_init(_mutex_intr, NULL);
@@ -55,15 +55,15 @@ public:
             server_fatal("pthread_mutex_init() return %d", _ret);
             goto fail;
         }
-        _mutex = new_nothrow(mutex(_mutex_intr));
+        _mutex = knew(mutex, (_mutex_intr));
         if_not (_mutex)
             goto fail;
         return _mutex;
     fail:
         if (_mutex_intr)
             pthread_mutex_destroy(_mutex_intr);
-        safe_release(_mutex_intr);
-        safe_release(_mutex);
+        kdelete(_mutex_intr);
+        kdelete(_mutex);
         return NULL;
     }
 

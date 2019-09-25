@@ -235,6 +235,9 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
 #endif
     return true;
 fail:
+#ifdef __LOG_MUTEX
+    m_mutex->unlock();
+#endif
     return false;
 }
 
@@ -338,6 +341,7 @@ fail:
 #ifdef __LOG_MUTEX
     m_mutex->unlock();
 #endif
+    return;
 }
 
 __NAMESPACE_END
