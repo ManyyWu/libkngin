@@ -33,13 +33,15 @@ protected:
     virtual
     ~netmsg_test ()
     {
+        kdelete_array(m_info);
     }
 
 public:
     virtual bool
     create (ACTION _action, int _param)
     {
-        m_info = new test_info{_action, _param};
+        //knew(m_info, test_info, ({_action, _param}));
+        knew(m_info, test_info, ({_action, _param}));
         kassert_r0(m_info);
         if (!m_info)
             return false;

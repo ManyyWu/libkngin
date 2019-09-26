@@ -19,142 +19,39 @@ __NAMESPACE_BEGIN
 
 class cond : noncopyable {
 public:
-    cond () = delete;
+    cond          () = delete;
 
-    cond (cond &&_cond)
-    {
-        m_mutex = _cond.m_mutex;
-        m_mutex = _cond.m_mutex;
-    }
-protected:
-    inline
-    cond (mutex *_mutex, pthread_cond_t *_cond_intr)
-        : m_mutex(_mutex), m_cond(_cond_intr)
-    {
-        kassert(_mutex);
-        kassert(_cond_intr);
-    }
+    cond          (cond &&_cond);
 
 protected:
-    inline
-    ~cond ()
-    {
-        if (m_cond) {
-            int _ret = 0;
-            _ret = pthread_cond_destroy(m_cond);
-            if_not (!_ret)
-                server_fatal("pthread_cond_destroy() return %d", _ret);
-            kdelete(m_cond);
-        }
-    }
+    cond          (mutex *_mutex, pthread_cond_t *_cond_intr);
+
+protected:
+    ~cond         ();
 
 public:
-    inline static cond *
-    create (mutex *_mutex)
-    {
-        kassert_r0(_mutex);
+    static cond *
+    create        (mutex *_mutex);
 
-        int _ret = 0;
-        cond *          _cond = NULL;
-        pthread_cond_t *_cond_intr = NULL;
-        knew(_cond_intr, pthread_cond_t, ());
-        if_not (_cond_intr)
-            goto fail;
-        _ret = pthread_cond_init(_cond_intr, NULL);
-        if_not (!_ret) {
-            server_fatal("pthread_cond_init() return %d", _ret);
-            goto fail;
-        }
-        knew(_cond, cond, (_mutex, _cond_intr));
-        if_not (_cond)
-            goto fail;
-        return _cond;
-fail:
-        if (_cond_intr)
-            pthread_cond_destroy(_cond_intr);
-        kdelete(_cond_intr);
-        kdelete(_cond);
-        return NULL;
-    }
-
-    inline void
-    release ()
-    {
-        kassert(m_cond);
-
-        kdelete_this(this);
-    }
+    void
+    release       ();
 
 public:
-    inline bool
-    wait ()
-    {
-        kassert_r0(m_cond);
+    bool
+    wait          ();
 
-        int _ret = 0;
-        _ret = pthread_cond_wait(m_cond, m_mutex->m_mutex);
-        if_not (!_ret) {
-            server_fatal("pthread_cond_wait() return %d", _ret);
-            return false;
-        }
-        return true;
-    }
+    bool
+    timedwait     (time_t _ms);
 
-    inline bool
-    timedwait (time_t _ms)
-    {
-        kassert_r0(m_cond);
-        kassert_r0(__time_valid(_ms));
+    bool
+    signal        ();
 
-        int _ret = 0;
-        timespec _ts;
-        timespec_get(&_ts, TIME_UTC);
-        _ts.tv_sec += _ms / 1000;
-        _ts.tv_nsec += (_ms % 1000) * 1000000;
-        _ret = pthread_cond_timedwait(m_cond, m_mutex->m_mutex, &_ts);
-        if (ETIMEDOUT == _ret)
-            return false;
-        if_not (!_ret) {
-            server_fatal("pthread_cond_timedwait() return %d", _ret);
-            return false;
-        }
-        return true;
-    }
+    bool
+    broadcast     ();
 
-    inline bool
-    signal ()
-    {
-        kassert_r0(m_cond);
-
-        int _ret = 0;
-        _ret = pthread_cond_signal(m_cond);
-        if_not (!_ret) {
-            server_fatal("pthread_cond_signal() return %d", _ret);
-            return false;
-        }
-        return true;
-    }
-
-
-    inline bool
-    broadcast ()
-    {
-        kassert_r0(m_cond);
-
-        int _ret = 0;
-        _ret = pthread_cond_broadcast(m_cond);
-        if_not (!_ret) {
-            server_fatal("pthread_cond_broadcast() return %d", _ret);
-            return false;
-        }
-        return true;
-    }
 public:
-    inline pthread_cond_t *
-    get_interface () const
-    {
-        return m_cond;
-    }
+    pthread_cond_t *
+    get_interface () const;
 
 protected:
     pthread_cond_t *m_cond;

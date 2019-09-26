@@ -12,9 +12,11 @@ process (void *_args)
     srand((unsigned int)time(NULL));
     for (int i = 0; i < 100; i++)
     {
-        work_task *_wt = new work_task(_c);
+        work_task *_wt = NULL;
+        knew(_wt, work_task, (_c));
         kassert(_wt);
-        netmsg_test *_msg = new netmsg_test(_wt);
+        netmsg_test *_msg = NULL;
+        knew(_msg, netmsg_test, (_wt));
         kassert(_msg->create((ACTION)(rand() % 10), i * rand()));
         kassert(_msg);
         kassert(_wt->create((msg **)&_msg));
@@ -29,6 +31,7 @@ process (void *_args)
                 printf("index: %d, action: %d, result: %d\n",
                        i, ((int *)_reply_msg->buf())[0], ((int *)_reply_msg->buf())[1]);
                 _reply_msg->release(); // commonly call by msg filter
+                _reply_msg = NULL;
             }
         }
     }

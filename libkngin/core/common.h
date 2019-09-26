@@ -22,8 +22,8 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 size_t __memory_debug_total = (__g_memory_debug_total += sizeof(__t) * (__n));                                     \
                 if (logger()[k::__LOG_FILE_MEMORY])                                                                                \
                     logger()[k::__LOG_FILE_MEMORY]                                                                                 \
-                        ->debug("new    addr: %#016lx, total: %#016lxByte, size: %#016lxByte, new(std::nothrow) %s[%l], %s[%s:%d]",\
-                                (__p), __memory_debug_total, sizeof(__t) * (__n), #__t, (__n),                                     \
+                        ->debug("new    addr: %#016lx, total: %#016lxByte, size: %#016lxByte, new(std::nothrow) %s[%d], %s[%s:%d]",\
+                                (__p), __memory_debug_total, sizeof(__t) * (__n), #__t, ((int)__n),                                \
                                 __FUNCTION__, __FILE__, __LINE__);                                                                 \
             } while (false)
 
@@ -33,7 +33,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 size_t __memory_debug_total = (__g_memory_debug_total += sizeof(__t));                                             \
                 if (logger()[k::__LOG_FILE_MEMORY])                                                                                \
                     logger()[k::__LOG_FILE_MEMORY]                                                                                 \
-                        ->debug("new    addr: %#016lx, total: %#016lxByte, size: %016lxByte, new(std::nothrow) %s%s, %s[%s:%d]",   \
+                        ->debug("new    addr: %#016lx, total: %#016lxByte, size: %#016lxByte, new(std::nothrow) %s%s, %s[%s:%d]",  \
                                 (__p), __memory_debug_total , sizeof(__t), #__t, #__e,                                             \
                                 __FUNCTION__, __FILE__, __LINE__);                                                                 \
             } while (false)

@@ -90,7 +90,7 @@ fail:
                 iter->cancel();
                 iter->join(NULL);
             }
-            delete iter;
+            kdelete(iter);
         }
         pool_vector _v;
         m_pool.swap(_v);
@@ -139,7 +139,7 @@ thread_pool::stop ()
                 server_fatal("pool thread join failed");
                 _ret = false;
             }
-            delete iter;
+            kdelete(iter);
         }
     }
     pool_vector _v;

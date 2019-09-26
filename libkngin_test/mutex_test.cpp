@@ -102,7 +102,6 @@ mutex_test ()
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(NULL);
         kdelete(thrs[i]);
-        kdelete(thrs[i]);
     }
 
     timespec_get(&ts2, TIME_UTC);

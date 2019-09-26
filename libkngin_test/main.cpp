@@ -75,7 +75,7 @@ int main()
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* threadpool_test                                *\n");
 //    fprintf(stderr, "**************************************************\n");
-//    threadpool_test();
+    threadpool_test();
 //
 //    fprintf(stderr, "**************************************************\n");
 //    fprintf(stderr, "* test                                           *\n");
@@ -102,9 +102,6 @@ using namespace k;
 void
 test ()
 {
-    int *p = NULL;
-    knew(p, int, (10));
-    kdelete(p);
 // 队列，**
 // search comments
 };

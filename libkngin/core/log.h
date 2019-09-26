@@ -3,6 +3,7 @@
 
 #include <cstdarg>
 #include "define.h"
+#include "mutex.h"
 #include "noncopyable.h"
 
 #define __LOG_FILE_DATE_LEN 19
@@ -60,7 +61,6 @@ enum LOG_LEVEL {
     LOG_LEVEL_MAX
 };
 
-class mutex;
 class log_mgr;
 class log : public noncopyable {
 private:

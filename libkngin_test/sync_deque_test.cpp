@@ -79,4 +79,5 @@ sync_deque_test ()
     t3.join(NULL);
     t4.join(NULL);
     t5.join(NULL);
+    _q->release();
 }

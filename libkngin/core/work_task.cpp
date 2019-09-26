@@ -13,6 +13,8 @@ work_task::work_task(work_thread *_thread)
 
 work_task::~work_task()
 {
+    if (m_msg)
+        m_msg->release();
 }
 
 bool
