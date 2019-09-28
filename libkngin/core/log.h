@@ -58,7 +58,6 @@ enum LOG_LEVEL {
     LOG_LEVEL_WARNING,
     LOG_LEVEL_INFO,
     LOG_LEVEL_DEBUG,
-    LOG_LEVEL_MAX
 };
 
 class log_mgr;

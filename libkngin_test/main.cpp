@@ -1,4 +1,6 @@
-#include <cstdio>
+#include <iostream>
+
+using namespace std;
 
 extern void
 log_test ();
@@ -32,55 +34,61 @@ test ();
 
 int main()
 {
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* log_test                                       *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    log_test();
+    try {
+//        cerr << "**************************************************\n";
+//        cerr << "* log_test                                       *\n";
+//        cerr << "**************************************************\n";
+//        log_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* thread_test                                    *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    thread_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* thread_test                                    *\n";
+//        cerr << "**************************************************\n";
+//        thread_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* mutex_test                                     *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    mutex_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* mutex_test                                     *\n";
+//        cerr << "**************************************************\n";
+//        mutex_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* rwlock_test                                    *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    rwlock_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* rwlock_test                                    *\n";
+//        cerr << "**************************************************\n";
+//        rwlock_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* cond_test                                      *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    cond_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* cond_test                                      *\n";
+//        cerr << "**************************************************\n";
+//        cond_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* deque_test                                     *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    sync_deque_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* deque_test                                     *\n";
+//        cerr << "**************************************************\n";
+//        sync_deque_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* queue_test                                     *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    sync_queue_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* queue_test                                     *\n";
+//        cerr << "**************************************************\n";
+//        sync_queue_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* work_thread_test                               *\n");
-//    fprintf(stderr, "**************************************************\n");
-//    work_thread_test();
+//        cerr << "**************************************************\n";
+//        cerr << "* work_thread_test                               *\n";
+//        cerr << "**************************************************\n";
+//        work_thread_test();
 //
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* threadpool_test                                *\n");
-//    fprintf(stderr, "**************************************************\n");
-    threadpool_test();
-//
-//    fprintf(stderr, "**************************************************\n");
-//    fprintf(stderr, "* test                                           *\n");
-//    fprintf(stderr, "**************************************************\n");
-    test();
+//        cerr << "**************************************************\n";
+//        cerr << "* threadpool_test                                *\n";
+//        cerr << "**************************************************\n";
+//        threadpool_test();
+
+        cerr << "**************************************************\n";
+        cerr << "* test                                           *\n";
+        cerr << "**************************************************\n";
+        test();
+
+    } catch (...) {
+        cout << "crash!\n";
+        exit(1);
+    }
 
 #ifdef _WIN32
     getchar();
@@ -92,7 +100,12 @@ int main()
 
 #include <atomic>
 #include <typeinfo>
-#include <mutex>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
+#include <string>
+#include <memory>
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
@@ -102,8 +115,6 @@ using namespace k;
 void
 test ()
 {
-// 队列，**
-// search comments
 };
 
 ////////////////////// test //////////////////////

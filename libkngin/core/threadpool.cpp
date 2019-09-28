@@ -34,9 +34,11 @@ thread_pool::run (int _num)
     kassert_r0(!m_running.load());
     char _name[50];
 
-    // create manager thread
+    m_stop.store(false);
+    m_running.store(false);
 
-    snprintf(_name, sizeof(_name), 
+    // create manager thread
+    snprintf(_name, sizeof(_name),
              "thread_pool_manager[%10d]", // format: thread_pool_manager[pid]
              getpid());
     knew(m_pool_thread, thread, (thread_pool::process, this, _name));
@@ -69,9 +71,6 @@ thread_pool::run (int _num)
     m_msg_queue = msg_queue::create(m_queue_size, true);
     if_not (m_msg_queue)
         goto fail;
-
-    m_stop.store(false);
-    m_running.store(false);
 
     server_info("thread pool was created successfully");
     return true;

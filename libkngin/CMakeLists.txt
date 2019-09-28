@@ -19,6 +19,7 @@ set(KNGIN_INC_DIR
 set(KNGIN_CORE_SRC
     "core/common.cpp"
     "core/error.cpp"
+    "core/buffer.cpp"
     "core/log.cpp"
     "core/time.cpp"
     "core/thread.cpp"
