@@ -87,7 +87,6 @@ int main()
 
     } catch (...) {
         cout << "crash!\n";
-        exit(1);
     }
 
 #ifdef _WIN32
@@ -109,12 +108,16 @@ int main()
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
+#include "../libkngin/core/memory.h"
 
 using namespace k;
 
 void
 test ()
 {
-};
+    uint8_uptr p = make_shared<uint8_t[]>(100);
+    shared_ptr<uint8_t> p1 = make_shared<uint8_t>(10);
+    cerr << sizeof(uint8_uptr) << ',' << sizeof(p1) << endl;
+}
 
 ////////////////////// test //////////////////////

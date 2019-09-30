@@ -49,6 +49,14 @@
 #define http_info(__fmt, ...)      __make_log_noline(info,    "INFO   ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
 #define http_debug(__fmt, ...)     __make_log(debug,   "DEBUG  ", k::__LOG_FILE_HTTP, __fmt, ##__VA_ARGS__)
 
+// default log
+#define log_fatal(__fmt, ...)   __make_log(fatal,   "FATAL  ", 0, __fmt, ##__VA_ARGS__)
+#define log_error(__fmt, ...)   __make_log(error,   "ERROR  ", 0, __fmt, ##__VA_ARGS__)
+#define log_warning(__fmt, ...) __make_log_noline(warning, "WARNING", 0, __fmt, ##__VA_ARGS__)
+#define log_info(__fmt, ...)    __make_log_noline(info,    "INFO   ", 0, __fmt, ##__VA_ARGS__)
+#define log_debug(__fmt, ...)   __make_log(debug,   "DEBUG  ", 0, __fmt, ##__VA_ARGS__)
+
+
 __NAMESPACE_BEGIN
 
 __NAMESPACE_END

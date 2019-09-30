@@ -1,6 +1,9 @@
 #ifndef _DEFINE_H_
 #define _DEFINE_H_
 
+#include <string>
+#include <memory>
+
 #if __cplusplus < 201103L
 //#error c++ version is too low, please build the project using c++11 standard.
 #endif
@@ -25,5 +28,8 @@
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
+
+// types
+typedef std::shared_ptr<uint8_t[]> uint8_uptr;
 
 #endif /* _DEFINE_H_ */

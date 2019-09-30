@@ -12,7 +12,7 @@ __NAMESPACE_BEGIN
 
 using std::nothrow;
 
-#ifndef NDEBUG
+#ifdef NDEBUG
 
 extern std::atomic<size_t> __g_memory_debug_total;
 
@@ -23,7 +23,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 if (logger()[k::__LOG_FILE_MEMORY])                                                                                \
                     logger()[k::__LOG_FILE_MEMORY]                                                                                 \
                         ->debug("new    addr: %#016lx, total: %#016lxByte, size: %#016lxByte, new(std::nothrow) %s[%d], %s[%s:%d]",\
-                                (__p), __memory_debug_total, sizeof(__t) * (__n), #__t, ((int)__n),                                \
+                                (unsigned long)__p, __memory_debug_total, sizeof(__t) * (__n), #__t, ((int)__n),                            \
                                 __FUNCTION__, __FILE__, __LINE__);                                                                 \
             } while (false)
 
@@ -34,7 +34,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 if (logger()[k::__LOG_FILE_MEMORY])                                                                                \
                     logger()[k::__LOG_FILE_MEMORY]                                                                                 \
                         ->debug("new    addr: %#016lx, total: %#016lxByte, size: %#016lxByte, new(std::nothrow) %s%s, %s[%s:%d]",  \
-                                (__p), __memory_debug_total , sizeof(__t), #__t, #__e,                                             \
+                                (unsigned long)__p, __memory_debug_total , sizeof(__t), #__t, #__e,                                         \
                                 __FUNCTION__, __FILE__, __LINE__);                                                                 \
             } while (false)
 
@@ -43,11 +43,11 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 if (logger()[k::__LOG_FILE_MEMORY]) {                     \
                     logger()[k::__LOG_FILE_MEMORY]                        \
                         ->debug("delete addr: %#016lx, %s[%s:%d]",        \
-                                (__p), __FUNCTION__, __FILE__, __LINE__); \
+                                (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 } else {                                                  \
                     fprintf(stderr, "logger uninted, unrecorded log: "    \
                             "\"delete addr: %#016lx, %s[%s:%d]\"\n",      \
-                            (__p), __FUNCTION__, __FILE__, __LINE__);     \
+                            (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 }                                                         \
                 delete (__p);                                             \
                 (__p) = NULL;                                             \
@@ -58,11 +58,11 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 if (logger()[k::__LOG_FILE_MEMORY]) {                     \
                     logger()[k::__LOG_FILE_MEMORY]                        \
                         ->debug("delete addr: %#016lx, %s[%s:%d]",        \
-                                (__p), __FUNCTION__, __FILE__, __LINE__); \
+                                (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 } else {                                                  \
                     fprintf(stderr, "logger uninted, unrecorded log: "    \
                             "\"delete addr: %#016lx, %s[%s:%d]\"\n",      \
-                            (__p), __FUNCTION__, __FILE__, __LINE__);     \
+                            (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 }                                                         \
                 delete (__p);                                             \
                 (__p) = NULL;                                             \
@@ -73,25 +73,26 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 if (logger()[k::__LOG_FILE_MEMORY]) {                     \
                     logger()[k::__LOG_FILE_MEMORY]                        \
                         ->debug("delete addr: %#016lx, %s[%s:%d]",        \
-                                (__p), __FUNCTION__, __FILE__, __LINE__); \
+                                (unsigned) __p, __FUNCTION__, __FILE__, __LINE__); \
                 } else {                                                  \
                     fprintf(stderr, "logger uninted, unrecorded log: "    \
                             "\"delete addr: %#016lx, %s[%s:%d]\"\n",      \
-                            (__p), __FUNCTION__, __FILE__, __LINE__);     \
+                            (unsigned) __p, __FUNCTION__, __FILE__, __LINE__);     \
                 }                                                         \
                 delete (__p);                                             \
             } while (false)
-
+// 直接输出到stderr
 #define knew          __new_debug
 #define kdelete       __delete_debug
 #define kdelete_this  __delete_debug_this
 #define knew_array    __new_debug_array
 #define kdelete_array __delete_debug_array
 #else
-#define knew(__t, __e)       new(std::nothrow) __t __e
-#define kdelete(__p)         do { delete (__p); (__p) = NULL; } while (false)
-#define knew_array(__t, __n) new(std::nothrow) __t[__n]
-#define kdelete_array(__p)   do { delete[] (__p); (__p) = NULL; } while (false)
+#define knew(__p, __t, __e)       (__p) = new(std::nothrow) __t __e
+#define kdelete(__p)              do { delete (__p); (__p) = NULL; } while (false)
+#define knew_array(__p, __t, __n) (__p) = new(std::nothrow) __t[__n]
+#define kdelete_array(__p)        do { delete[] (__p); (__p) = NULL; } while (false)
+#define kdelete_this(__p)         delete (this)
 #endif
 
 /*

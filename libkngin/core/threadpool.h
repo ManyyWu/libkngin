@@ -37,7 +37,7 @@ public:
     void
     clear         ();
 
-    error_t
+    sys_err
     commit        (task_base **_task, time_t _ms = TIME_INFINITE);
 
     msg *

@@ -60,7 +60,7 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    if_not (_msg->create(ACTION_0, _param * 1)); {
+                    if_not (_msg->create(ACTION_0, _param * 1)) {
                         kdelete(_msg);
                         return false;
                     }
@@ -74,7 +74,7 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    if_not (_msg->create(ACTION_1, _param * 2)); {
+                    if_not (_msg->create(ACTION_1, _param * 2)) {
                         kdelete(_msg);
                         return false;
                     }
@@ -88,7 +88,7 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    if_not (_msg->create(ACTION_2, _param * 3)); {
+                    if_not (_msg->create(ACTION_2, _param * 3)) {
                         kdelete(_msg);
                         return false;
                     }
@@ -102,7 +102,7 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    if_not (_msg->create(ACTION_3, _param * 3)); {
+                    if_not (_msg->create(ACTION_3, _param * 3)) {
                         kdelete(_msg);
                         return false;
                     }

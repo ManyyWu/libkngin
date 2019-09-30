@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #endif
+#include <exception>
 #include "thread.h"
 #include "logfile.h"
 #include "error.h"
@@ -172,7 +173,11 @@ thread::start (void *_args)
     thread *_p = (thread *)_args;
     pthread_cleanup_push(thread::cleanup, _args);
 
-    _p->set_err_code((*_p->m_pfn)(_p->m_args));
+    try {
+        _p->set_err_code((*_p->m_pfn)(_p->m_args));
+    } catch (const std::exception &e){
+        // log
+    }
 
     pthread_cleanup_pop(1);
     return _p->m_retptr;

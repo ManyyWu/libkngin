@@ -74,7 +74,8 @@ logger ()
     static bool _init = true;
     if (log_mgr::m_log_set.empty() && _init) {
         _init = false;
-        log *_log1 = new(std::nothrow) log(__LOG_FILE_MEMORY, __LOG_MODE_BOTH);
+        // first is default log file
+        log *_log1 = new(std::nothrow) log(__LOG_FILE_MEMORY, __LOG_MODE_BOTH); // move to construct, RAII
         log *_log2 = new(std::nothrow) log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
         log *_log3 = new(std::nothrow) log(__LOG_FILE_HTTP, __LOG_MODE_BOTH);
         if (!_log1 || !_log2 || !_log3) {
@@ -100,6 +101,7 @@ fail:
         log_mgr::m_inited.store(true);
         // log
     }
+    assert(log_mgr::m_log_set.size());
 
     return _logger;
 ///// test /////

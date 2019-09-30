@@ -11,7 +11,7 @@
 8. release对象前先判断指针是否为空
 9. std::string代替char *
 10. 队列push pop 右值引用代替指针???
-11. using std::string
+11. 外部命名空间不使用using
 
 ### 缩进
 1. 使用空格代替TAB, 缩进使用4个空格

@@ -33,7 +33,13 @@ enum __ERROR_CODE {
 #define __ERR_CODE_NUM      (E_MAX - __ERR_CODE_BEGIN)
 #define USER_ERR_CODE_BEGIN (E_MAX + 1)
 
-typedef uint32_t error_t;
+#define __EXP   noexcept(false)
+#define __NOEXP noexcept(true)
+
+class __sys_err {
+    enum {};
+    const char *what () const {}
+};
 
 #define __make_err_code(e) (-(e))
 
@@ -41,6 +47,8 @@ struct __err_info {
     __ERROR_CODE  _code;
     const char *  _str;
 };
+
+#define sys_err int // test
 
 extern const __err_info __err_code_entry[__ERR_CODE_NUM];
 
