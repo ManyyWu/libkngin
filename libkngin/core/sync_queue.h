@@ -25,7 +25,8 @@ public:
     virtual
     ~sync_queue ()
     {
-        this->clear();
+        for (auto _iter : m_queue)
+            delete _iter;
     }
 
 public:
