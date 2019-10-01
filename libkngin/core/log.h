@@ -89,10 +89,10 @@ public:
     debug         (const char *_fmt, ...);
 
     bool
-    log_data    (const char *_data, int _len);
+    log_data      (const char *_data, int _len);
 
     bool
-    log_assert (const char *_func, const char *_file, int _line, const char *_exp);
+    log_assert    (const char *_func, const char *_file, int _line, const char *_exp);
 
 private:
     bool
@@ -121,7 +121,7 @@ private:
     friend class log_mgr;
 
     friend log_mgr &
-    logger                  ();
+    logger ();
 };
 
 __NAMESPACE_END

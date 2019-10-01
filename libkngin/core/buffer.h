@@ -2,28 +2,26 @@
 #define _BUFFER_H_
 
 #include <string>
-#include <exception>
 #include <cstdint>
 #include <memory>
 #include "define.h"
+#include "exception.h"
 #include "error.h"
-#include "copyable.h"
+#include "noncopyable.h"
 
 __NAMESPACE_BEGIN
 
-class buffer : public copyable {
+class basic_buffer : noncopyable {
+protected:
+    basic_buffer   (uint8_uarr &_arr, size_t _s) __EXP;
+
+    basic_buffer   (uint8_uarr &&_arr, size_t _s) __EXP;
+
+    ~basic_buffer  () __NOEXP = default;
+
 public:
-    buffer         () __NOEXP;
-
-    buffer         (uint8_t *_buf, size_t _n) __NOEXP;
-
-    buffer         (uint8_t **_buf, size_t _n) __NOEXP;
-
-    buffer         (buffer &_buf) __NOEXP;
-
-    buffer         (buffer &&_buf) __NOEXP;
-
-    ~buffer        () __NOEXP;
+    const uint8_uarr &
+    get            () __EXP;
 
 public:
     uint8_t
@@ -50,26 +48,77 @@ public:
     int64_t
     read_int64     () __EXP;
 
-    sys_err
+    void
     read_bytes     (uint8_t *_p, size_t _n) __EXP;
+
+    void
+    write_uint8    (uint8_t _val) __EXP;
+
+    void
+    write_int8     (int8_t _val) __EXP;
+
+    void
+    write_uint16   (uint16_t _val) __EXP;
+
+    void
+    write_int16    (int16_t _val) __EXP;
+
+    void
+    write_uint32   (uint32_t _val) __EXP;
+
+    void
+    write_int32    (int32_t _val) __EXP;
+
+    void
+    write_uint64   (uint64_t _val) __EXP;
+
+    void
+    write_int64    (int64_t _val) __EXP;
+
+    void
+    write_bytes    (const uint8_t *_p, size_t _n) __EXP;
 
 public:
     size_t
-    size           ();
+    size           () const __NOEXP;
 
     size_t
-    next           ();
+    next           () const __NOEXP;
 
     void
-    clear          ();
+    reset          (size_t _idx) __NOEXP;
 
+public:
     void
-    swap           (buffer &_buf);
+    dump           (std::string &_str) __EXP;
 
 protected:
-    uint8_uptr m_buf;
+    uint8_uarr m_arr;
 
-    size_t     m_max;
+    size_t     m_size;
+
+    size_t     m_index;
+};
+
+
+class buffer : public basic_buffer {
+public:
+    buffer         (size_t _s) __EXP;
+
+    buffer         (uint8_uarr &_arr, size_t _s) __EXP;
+
+    buffer         (uint8_uarr &&_arr, size_t _s) __EXP;
+
+    buffer         (buffer &_buf) __EXP;
+
+    buffer         (buffer &&_buf) __EXP;
+
+    ~buffer        () __NOEXP;
+
+public:
+
+    void
+    swap           (buffer &_buf) __NOEXP;
 };
 
 __NAMESPACE_END

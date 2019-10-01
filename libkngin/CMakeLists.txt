@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
+set(CMAKE_CXX_STANDARD 14)
+
 # head files
 set(KNGIN_CORE_INC_DIR
     "core/"
@@ -32,6 +34,7 @@ set(KNGIN_CORE_SRC
     "core/task_base.cpp"
     "core/work_task.cpp"
     "core/work_thread.cpp"
+    "core/exception.cpp"
 )
 
 set(KNGIN_SRC

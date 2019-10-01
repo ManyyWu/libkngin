@@ -33,9 +33,6 @@ enum __ERROR_CODE {
 #define __ERR_CODE_NUM      (E_MAX - __ERR_CODE_BEGIN)
 #define USER_ERR_CODE_BEGIN (E_MAX + 1)
 
-#define __EXP   noexcept(false)
-#define __NOEXP noexcept(true)
-
 class __sys_err {
     enum {};
     const char *what () const {}
