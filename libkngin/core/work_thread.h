@@ -51,9 +51,9 @@ protected:
 
     work_task *        m_task;
 
-    mutex *            m_mutex;
+    mutex              m_mutex;
 
-    cond *             m_cond;
+    cond               m_cond;
 };
 
 __NAMESPACE_END

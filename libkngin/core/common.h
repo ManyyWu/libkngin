@@ -81,7 +81,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                 }                                                         \
                 delete (__p);                                             \
             } while (false)
-// Ö±½ÓÊä³öµ½stderr
+// Ã–Â±Â½Ã“ÃŠÃ¤Â³Ã¶ÂµÂ½stderr
 #define knew          __new_debug
 #define kdelete       __delete_debug
 #define kdelete_this  __delete_debug_this

@@ -13,42 +13,31 @@ __NAMESPACE_BEGIN
 
 class mutex : noncopyable {
 public:
-    mutex     () = delete;
+    mutex         ();
 
-    mutex     (pthread_mutex_t *_mutex_intr);
-
-protected:
-    ~mutex    ();
+    ~mutex        ();
 
 public:
-    static mutex *
-    create    ();
+    void
+    lock          ();
 
     void
-    release   ();
-
-public:
-    bool
-    lock      ();
+    unlock        ();
 
     bool
-    trylock   ();
+    trylock       ();
 
     bool
-    timedlock (time_t _ms);
+    timedlock     (time_t _ms);
 
-    bool
-    unlock    ();
-
-public:
-    const pthread_mutex_t *
-    get_interface () const;
+    pthread_mutex_t *
+    get_interface ();
 
 protected:
-    pthread_mutex_t *m_mutex;
+    pthread_mutex_t m_mutex;
 
 protected:
-    friend class     cond;
+    friend class cond;
 };
 
 __NAMESPACE_END

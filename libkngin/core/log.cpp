@@ -13,36 +13,17 @@
 
 __NAMESPACE_BEGIN
 
-#ifdef __LOG_MUTEX
 log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE */)
-    : m_filetype(_filetype), m_mutex(NULL), m_mode(_mode)
-#else
-log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE*/)
     : m_filetype(_filetype), m_mode(_mode)
-#endif
 {
-    m_mode = __LOG_MODE_BOTH;
+}
+
+log::log (log &&_log)
+{
 }
 
 log::~log ()
 {
-#ifdef __LOG_MUTEX
-    if (m_mutex)
-        m_mutex->release();
-#endif
-}
-
-bool
-log::init ()
-{
-#ifdef __LOG_MUTEX
-    m_mutex = mutex::create();
-    if_not (m_mutex) {
-        write_stderr2(LOG_LEVEL_FATAL, "mutex create failed");
-        return false;
-    }
-#endif
-    return true;
 }
 
 bool
@@ -116,13 +97,21 @@ log::log_data (const char *_data, int _len)
 bool
 log::log_assert (const char *_func, const char *_file, int _line, const char *_exp)
 {
+    return this->fatal(__log_assert_format, _func, _file, _line, _exp);
+}
+
+const char *
+log::get_datetime ()
+{
     time_t _t = time(NULL);
     struct tm _tm;
     __localtime(&_tm, &_t);
-    return this->fatal(__log_assert_format, 
-                       _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-                       _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,
-                       _func, _file, _line, _exp);
+    ::snprintf(m_datetime, __LOG_DATETIME_LEN + 1,
+               __log_datetime_format,
+               _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
+               _tm.tm_hour, _tm.tm_min, _tm.tm_sec);
+    m_datetime[__LOG_DATETIME_LEN] = '\0';
+    return m_datetime;
 }
 
 bool
@@ -132,9 +121,10 @@ log::write_log (LOG_LEVEL _level, const char *_fmt, va_list _vl)
 
     bool _ret = true;
     char _buf[__LOG_BUF_SIZE + 1];
+    strncpy(_buf, this->get_datetime(), __LOG_DATETIME_LEN + 1);
+    vsnprintf(_buf + __LOG_DATETIME_LEN, __LOG_BUF_SIZE - __LOG_DATETIME_LEN, _fmt, _vl);
     _buf[__LOG_BUF_SIZE] = '\0';
 
-    vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
         _ret = this->write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
@@ -150,18 +140,18 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     assert(_str);
 #ifdef __LOG_MUTEX
     if (logger().inited()) {
-        assert(m_mutex);
-        m_mutex->lock();
+        m_mutex.lock();
     }
 #endif
 
-    bool    _fail = false;
-    int     _ret = 0;
-    char    _buf[__LOG_BUF_SIZE + 1] = {0};
-    char    _filename[FILENAME_MAX + 1];
-    tm      _tm;
-    time_t  _t = time(NULL);
-    FILE *  _fplog = NULL;
+    bool         _fail = false;
+    int          _ret = 0;
+    char         _buf[__LOG_BUF_SIZE + 1] = {0};
+    char         _filename[FILENAME_MAX + 1];
+    tm           _tm;
+    time_t       _t = time(NULL);
+    FILE *       _fplog = NULL;
+    const char * _datetime = this->get_datetime();
 
     __localtime(&_tm, &_t);
     snprintf(_filename, FILENAME_MAX, __log_filename_format, _file,
@@ -170,12 +160,8 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     if (!_fplog) {
         this->write_stderr2(LOG_LEVEL_FATAL,
                             __log_format("FATAL", "failed to open \"%s\" - %s[%#x]"),
-                            _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-                            _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,
-                            __FUNCTION__, __FILE__, __LINE__,
-                            _filename,
-                            strerror(errno),
-                            errno);
+                            _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
+                            strerror(errno), errno);
         goto fail;
     }
 
@@ -183,23 +169,17 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     if (0 == ftell(_fplog)) {
         // write head info
         snprintf(_buf, __LOG_BUF_SIZE,
-                 "=========================================================\n" \
-                 "current time: %04d/%02d/%02d %02d:%02d:%02d\n"               \
+                 "=========================================================\n"
+                 "current time: %s\n"
                  "=========================================================\n",
-                 _tm.tm_year, _tm.tm_mon, _tm.tm_mday,
-                 _tm.tm_hour, _tm.tm_min, _tm.tm_sec
-                 );
+                 _datetime);
         size_t _str_len = strnlen(_buf, __LOG_BUF_SIZE);
         _ret = (int)fwrite(_buf, 1, _str_len , _fplog);
         if (_ret < 0) {
             this->write_stderr2(LOG_LEVEL_FATAL,
                                 __log_format("FATAL", "failed to write log to \"%s\" - %s[%#x]"),
-                                _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-                                _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,
-                                __FUNCTION__, __FILE__, __LINE__,
-                                _filename,
-                                strerror(errno),
-                                errno);
+                                _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
+                                strerror(errno), errno);
             fclose(_fplog);
             goto fail;
         } else if (_ret != _str_len) {
@@ -207,10 +187,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                                  __log_format("ERROR", 
                                               "the content been writen to \"%s\" are too short, "
                                               "and the disk space may be insufficient"),
-                                 _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-                                 _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,
-                                 __FUNCTION__, __FILE__, __LINE__,
-                                 _filename);
+                                 _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
             fclose(_fplog);
             goto fail;
         }
@@ -220,12 +197,8 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     if (_ret < 0) {
         this->write_stderr2(LOG_LEVEL_FATAL,
                             __log_format("FATAL", "failed to write log to \"%s\" - write %s[%#x]"),
-                            _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-                            _tm.tm_hour, _tm.tm_min, _tm.tm_sec, 0,
-                            __FUNCTION__, __FILE__, __LINE__,
-                            _filename,
-                            strerror(errno),
-                            errno);
+                            _datetime, __FUNCTION__, __FILE__, __LINE__,
+                            _filename, strerror(errno), errno);
         fclose(_fplog);
         goto fail;
     }
@@ -237,7 +210,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
 fail:
 #ifdef __LOG_MUTEX
     if (logger().inited())
-        m_mutex->unlock();
+        m_mutex.unlock();
 #endif
     return _fail;
 }
@@ -249,8 +222,7 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
 
 #ifdef __LOG_MUTEX
     if (logger().inited()) {
-        assert(m_mutex);
-        m_mutex->lock();
+        m_mutex.lock();
     }
 #endif
 
@@ -287,7 +259,7 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
 fail:
 #ifdef __LOG_MUTEX
     if (logger().inited())
-        m_mutex->unlock();
+        m_mutex.unlock();
 #endif
     return;
 }
@@ -299,8 +271,7 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
 
 #ifdef __LOG_MUTEX
     if (logger().inited()) {
-        assert(m_mutex);
-        m_mutex->lock();
+        m_mutex.lock();
     }
 #endif
 
@@ -344,7 +315,7 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
 fail:
 #ifdef __LOG_MUTEX
     if (logger().inited())
-        m_mutex->unlock();
+        m_mutex.unlock();
 #endif
     return;
 }

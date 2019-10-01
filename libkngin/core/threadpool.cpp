@@ -72,7 +72,7 @@ thread_pool::run (int _num)
     if_not (m_msg_queue)
         goto fail;
 
-    server_info("thread pool was created successfully");
+    log_info("thread pool was created successfully");
     return true;
 fail:
     // log error
@@ -104,7 +104,7 @@ fail:
         m_msg_queue = NULL;
     }
 
-    server_fatal("thread pool create failed");
+    log_fatal("thread pool create failed");
     return _ret;
 }
 
@@ -117,11 +117,11 @@ thread_pool::stop ()
     bool _ret = true;
     if (m_pool_thread && m_pool_thread->running()) {
         if_not (m_pool_thread->cancel()) {
-            server_fatal("pool manager thread cancel failed");
+            log_fatal("pool manager thread cancel failed");
             _ret = false;
         }
         if_not (m_pool_thread->join(NULL)) {
-            server_fatal("pool manager thread join failed");
+            log_fatal("pool manager thread join failed");
             _ret = false;
         }
     }
@@ -131,11 +131,11 @@ thread_pool::stop ()
     for (auto iter : m_pool) {
         if (iter && iter->running()) {
             if_not (iter->cancel()) {
-                server_fatal("pool thread cancel failed");
+                log_fatal("pool thread cancel failed");
                 _ret = false;
             }
             if_not (iter->join(NULL)) {
-                server_fatal("pool thread join failed");
+                log_fatal("pool thread join failed");
                 _ret = false;
             }
             kdelete(iter);
@@ -144,7 +144,7 @@ thread_pool::stop ()
     pool_vector _v;
     m_pool.swap(_v);
 
-    server_info("thread pool stopped");
+    log_info("thread pool stopped");
     return _ret;
 }
 
@@ -157,13 +157,13 @@ thread_pool::clear ()
         m_task_queue->clear();
         m_task_queue->unlock();
     }
-    server_info("task queue are cleared up");
+    log_info("task queue are cleared up");
     if (m_msg_queue) {
         m_msg_queue->lock();
         m_msg_queue->clear();
         m_msg_queue->unlock();
     }
-    server_info("message qeueu are cleared up");
+    log_info("message qeueu are cleared up");
 }
 
 sys_err

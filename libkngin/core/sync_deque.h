@@ -2,6 +2,7 @@
 #define _SYNC_DEQUE_H_
 
 #include <deque>
+#include <memory>
 #include "define.h"
 #include "noncopyable.h"
 #include "lock.h"
@@ -16,54 +17,15 @@ class sync_deque : public noncopyable {
 public:
     typedef size_t size_type;
 
-protected:
+public:
     sync_deque (size_type _s = QUEUE_MAX)
-        : m_mutex(NULL), m_cond(NULL), m_max_size(_s)
+        : m_deque(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
     {
     }
 
     virtual
     ~sync_deque ()
     {
-        if (m_cond)
-            m_cond->release();
-        if (m_mutex)
-            m_mutex->release();
-        this->clear();
-    }
-
-public:
-    static sync_deque<__T> *
-    create (size_type _s, bool _sync)
-    {
-        sync_deque<__T> *_q = NULL;
-        knew(_q, sync_deque, (_s));
-        if_not (_q)
-            return NULL;
-        _q->m_deque.clear();
-        if (_sync) {
-            _q->m_mutex = mutex::create();
-            if_not (_q->m_mutex)
-                goto fail;
-            _q->m_cond = cond::create(_q->m_mutex);
-            if_not (_q->m_cond)
-                goto fail;
-        }
-        return _q;
-    fail:
-        if (_q->m_cond)
-            _q->m_cond->release();
-        if (_q->m_mutex)
-            _q->m_mutex->release();
-        _q->release();
-        return NULL;
-
-    }
-
-    virtual void
-    release ()
-    {
-        kdelete_this(this);
     }
 
 public:
@@ -223,64 +185,55 @@ public:
     virtual bool
     lock (time_t _ms = TIME_INFINITE)
     {
-        kassert_r0(m_mutex && m_cond);
-
         if (TIME_INFINITE == _ms)
-            return m_mutex->lock();
+            m_mutex.lock();
         else
-            return m_mutex->timedlock(_ms);
+            return m_mutex.timedlock(_ms);
+        return true;
     }
 
     virtual bool
     trylock ()
     {
-        kassert_r0(m_mutex && m_cond);
-
-        return m_mutex->trylock();
+        return m_mutex.trylock();
     }
 
-    virtual bool
+    virtual void
     unlock ()
     {
-        kassert_r0(m_mutex && m_cond);
-
-        return m_mutex->unlock();
+        m_mutex.unlock();
     }
 
     virtual bool
     wait (time_t _ms = TIME_INFINITE)
     {
-        kassert_r0(m_mutex && m_cond);
         kassert_r0(__time_valid(_ms));
 
         if (TIME_INFINITE == _ms)
-            return m_cond->wait();
+            m_cond.wait();
         else
-            return m_cond->timedwait(_ms);
+            return m_cond.timedwait(_ms);
+        return true;
     }
 
-    virtual bool
+    virtual void
     signal ()
     {
-        kassert_r0(m_mutex && m_cond);
-
-        return m_cond->signal();
+        m_cond.signal();
     }
  
-    virtual bool
+    virtual void
     broadcast ()
     {
-        kassert_r0(m_mutex && m_cond);
-
-        return m_cond->broadcast();
+        m_cond.broadcast();
     }
 
 protected:
-    deque<__T *>           m_deque;
+    std::deque<__T *>      m_deque;
 
-    mutex *                m_mutex;
+    mutex                  m_mutex;
 
-    cond *                 m_cond;
+    cond                   m_cond;
 
     std::atomic<size_type> m_max_size;
 };

@@ -19,44 +19,30 @@ __NAMESPACE_BEGIN
 
 class cond : noncopyable {
 public:
-    cond          () = delete;
+    cond           (mutex *_m);
 
-    cond          (cond &&_cond);
-
-protected:
-    cond          (mutex *_mutex, pthread_cond_t *_cond_intr);
-
-protected:
-    ~cond         ();
+    ~cond          ();
 
 public:
-    static cond *
-    create        (mutex *_mutex);
+    void
+    wait           ();
+
+    bool
+    timedwait      (time_t _ms);
 
     void
-    release       ();
+    signal         ();
 
-public:
-    bool
-    wait          ();
+    void
+    broadcast      ();
 
-    bool
-    timedwait     (time_t _ms);
-
-    bool
-    signal        ();
-
-    bool
-    broadcast     ();
-
-public:
     pthread_cond_t *
-    get_interface () const;
+    get_interface  ();
 
 protected:
-    pthread_cond_t *m_cond;
+    pthread_cond_t m_cond;
 
-    mutex *         m_mutex;
+    mutex *        m_mutex;
 };
 
 __NAMESPACE_END

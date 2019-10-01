@@ -36,9 +36,9 @@ thread::~thread ()
 #endif
         _ret = pthread_detach(m_tid);
         if_not (!_ret)
-            server_fatal("pthread_detach(), name = \"%s\", return %d", m_name.c_str(), _ret);
+            log_fatal("pthread_detach(), name = \"%s\", return %d", m_name.c_str(), _ret);
         else
-            server_info("thread \"%s\" detached", m_name.c_str());
+            log_info("thread \"%s\" detached", m_name.c_str());
     }
 }
 
@@ -54,9 +54,9 @@ thread::run ()
     int _ret = 0;
     _ret = pthread_create(&m_tid, NULL, thread::start, this);
     if_not (!_ret)
-        server_fatal("pthread_create(), name = \"%s\", return %d", m_name.c_str(), _ret);
+        log_fatal("pthread_create(), name = \"%s\", return %d", m_name.c_str(), _ret);
     m_running.store(true);
-    server_info("thread \"%s\" running", m_name.c_str());
+    log_info("thread \"%s\" running", m_name.c_str());
     return !_ret;
 }
 
@@ -73,7 +73,7 @@ thread::join (int *_err_code)
     int _ret = 0;
     _ret = pthread_join(m_tid, &m_retptr);
     if_not (!_ret) {
-        server_fatal("pthread_join(), name = \"%s\"return %d", m_name.c_str(), _ret);
+        log_fatal("pthread_join(), name = \"%s\"return %d", m_name.c_str(), _ret);
         return false;
     }
     if (_err_code)
@@ -84,7 +84,7 @@ thread::join (int *_err_code)
     m_tid = 0;
 #endif
     m_running.store(false);
-    server_info("thread \"%s\" joined with code: %u", m_name.c_str(), (long)(long long)m_retptr);
+    log_info("thread \"%s\" joined with code: %u", m_name.c_str(), (long)(long long)m_retptr);
     return true;
 }
 
@@ -101,10 +101,10 @@ thread::cancel ()
     int _ret = 0;
     _ret = pthread_cancel(m_tid);
     if_not (!_ret) {
-        server_fatal("pthread_cancel(), name = \"%s\"return %d", m_name.c_str(), _ret);
+        log_fatal("pthread_cancel(), name = \"%s\"return %d", m_name.c_str(), _ret);
         return false;
     }
-    server_info("thread \"%s\" cancel", m_name.c_str());
+    log_info("thread \"%s\" cancel", m_name.c_str());
     return true;
 }
 

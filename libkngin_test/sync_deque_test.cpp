@@ -60,13 +60,13 @@ comsumer (void *_args)
 void
 sync_deque_test ()
 {
-    sync_deque<string> *_q = sync_deque<string>::create(100000, true);
-    k::thread t0(producer, _q);
-    k::thread t1(producer, _q);
-    k::thread t2(producer, _q);
-    k::thread t3(comsumer, _q);
-    k::thread t4(comsumer, _q);
-    k::thread t5(comsumer, _q);
+    sync_deque<string> _q;
+    k::thread t0(producer, &_q);
+    k::thread t1(producer, &_q);
+    k::thread t2(producer, &_q);
+    k::thread t3(comsumer, &_q);
+    k::thread t4(comsumer, &_q);
+    k::thread t5(comsumer, &_q);
     t0.run();
     t1.run();
     t2.run();
@@ -79,5 +79,4 @@ sync_deque_test ()
     t3.join(NULL);
     t4.join(NULL);
     t5.join(NULL);
-    _q->release();
 }

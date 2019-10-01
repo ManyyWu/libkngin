@@ -10,17 +10,21 @@
 #define __LOG_BUF_SIZE      4096
 #define __LOG_FILE_MAX_SIZE 20 * 1024 * 1024 // 20M
 
+// "YYYY/MM/DD hh:mm:ss"
+#define __log_datetime_format         "%04d/%02d/%02d %02d:%02d:%02d"
+#define __LOG_DATETIME_LEN 19
+
 // "YYYY/MM/DD hh:mm:ss.ms | type | func[file:line] | fmt \n"
-#define __log_format(__t, __f)        "%04d/%02d/%02d %02d:%02d:%02d.%03d | " __t " | %s[%s:%d] | " __f
+#define __log_format(__t, __f)        " | " __t " | %s[%s:%d] | " __f
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | fmt \n"
-#define __log_format_noline(__t, __f) "%04d/%02d/%02d %02d:%02d:%02d.%03d | " __t " | " __f
+#define __log_format_noline(__t, __f) " | " __t " | " __f
 
 // "YYYY-MM-DD"
-#define __log_filename_format  "%s_%04d-%02d-%02d.log"
+#define __log_filename_format         "%s_%04d-%02d-%02d.log"
 
 // "****** func[file:line] ******"
-#define __log_assert_format "%04d/%02d/%02d %02d:%02d:%02d.%03d | ASSERT  | %s[%s:%d] | ****** %s *******"
+#define __log_assert_format           " | ASSERT  | %s[%s:%d] | ****** %s *******"
 
 // color
 #ifdef _WIN32
@@ -39,11 +43,9 @@ __NAMESPACE_BEGIN
 /*
  * Type of log file
  */
-enum __LOG_FILE {
-    __LOG_FILE_MEMORY = 0,
-    __LOG_FILE_SERVER,
-    __LOG_FILE_HTTP,
-    __LOG_FILE_MAX
+enum __LOG_FILE {          // reserved type
+    __LOG_FILE_MEMORY = 0, // for debugging
+    __LOG_FILE_SERVER,     // default
 };
 
 enum __LOG_MODE {
@@ -65,14 +67,11 @@ class log : public noncopyable {
 private:
     log           (__LOG_FILE _filetype, __LOG_MODE _mode = __LOG_MODE_FILE);
 
+    log           (log &&_log);
+
     ~log          ();
 
 public:
-    bool 
-    init          ();
-
-public:
-
     bool
     fatal         (const char *_fmt, ...);
 
@@ -94,6 +93,10 @@ public:
     bool
     log_assert    (const char *_func, const char *_file, int _line, const char *_exp);
 
+public:
+    const char *
+    get_datetime  ();
+
 private:
     bool
     write_log     (LOG_LEVEL _level, const char *_fmt, va_list _vl);
@@ -107,15 +110,16 @@ private:
     void
     write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...);
 
-
 private:
 #ifdef __LOG_MUTEX
-    mutex *    m_mutex;
+    mutex      m_mutex;
 #endif
 
     __LOG_MODE m_mode;
 
     __LOG_FILE m_filetype;
+
+    char       m_datetime[__LOG_DATETIME_LEN + 1];
 
 private:
     friend class log_mgr;

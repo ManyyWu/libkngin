@@ -169,7 +169,7 @@ msg::dump ()
     char *_buf = NULL;
     knew_array(_buf, char, ((m_size) + _len));
     if_not (_buf) {
-        server_fatal("failed to dump msg, size = %#x", m_size);
+        log_fatal("failed to dump msg, size = %#x", m_size);
         delete[] _buf;
         return;
     }

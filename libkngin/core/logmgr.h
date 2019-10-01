@@ -6,6 +6,7 @@
 #include <atomic>
 #include "log.h"
 #include "define.h"
+#include "exception.h"
 #include "noncopyable.h"
 
 __NAMESPACE_BEGIN
@@ -20,11 +21,11 @@ private:
     ~log_mgr    ();
 
 public:
-    log *
+    log &
     operator [] (size_t _index);
 
-    log *
-    at          (size_t _index);
+    int
+    add         (const std::string &_filename, __LOG_MODE _mode);
 
     std::string &
     filename_at (size_t _index);

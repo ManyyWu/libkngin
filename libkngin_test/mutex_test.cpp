@@ -12,16 +12,16 @@ using namespace k;
 static int              g_num1(0);
 static int              g_num2(0);
 static std::atomic<int> g_num3(0);
-static mutex *          g_mutex = NULL;
+static mutex            g_mutex;
 static std::mutex       g_std_mutex;
 
 static int
 process_mutex (void *_args)
 {
     for (int i = 0; i < 1000000; i++) {
-        g_mutex->lock();
+        g_mutex.lock();
         g_num1 += 1;
-        g_mutex->unlock();
+        g_mutex.unlock();
     }
     return 0;
 }
@@ -54,7 +54,6 @@ mutex_test ()
     thread * thrs[THR_NUM];
     timespec ts1;
     timespec_get(&ts1, TIME_UTC);
-    g_mutex = mutex::create();
 
     for (int i = 0; i < THR_NUM; ++i) {
         knew(thrs[i], thread, (process_mutex, NULL));
@@ -65,7 +64,6 @@ mutex_test ()
         thrs[i]->join(NULL);
         kdelete(thrs[i]);
     }
-    g_mutex->release();
 
     timespec ts2;
     timespec_get(&ts2, TIME_UTC);

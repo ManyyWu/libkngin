@@ -14,25 +14,15 @@ __NAMESPACE_BEGIN
 
 class rwlock : noncopyable {
 public:
-    rwlock        () = delete;
+    rwlock        ();
 
-    rwlock        (pthread_rwlock_t *_rwlock_intr);
-
-protected:
     ~rwlock       ();
 
 public:
-    static rwlock *
-    create        ();
-
     void
-    release       ();
-
-public:
-    bool
     rdlock        ();
 
-    bool
+    void
     wrlock        ();
 
     bool
@@ -47,18 +37,15 @@ public:
     bool
     timedwrlock   (time_t _ms);
 
-    bool
-    rdunlock      ();
-
-    bool
-    wrunlock      ();
+    void
+    unlock      ();
 
 public:
-    const pthread_rwlock_t *
-    get_interface () const;
+    pthread_rwlock_t *
+    get_interface ();
 
 protected:
-    pthread_rwlock_t *m_rwlock;
+    pthread_rwlock_t m_rwlock;
 };
 
 __NAMESPACE_END

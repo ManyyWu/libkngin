@@ -12,21 +12,21 @@ __NAMESPACE_BEGIN
 
 class logic_exception : public std::logic_error {
 public:
-    logic_exception  (std::string _what, const char *_file, int _line) __EXP;
+    logic_exception  (std::string _what, const char *_file, int _line);
 
     virtual
-    ~logic_exception () __NOEXP;
+    ~logic_exception ();
 
 public:
-    const char *
+    virtual const char *
     what             () const __NOEXP;
 
     const char *
-    dump             () const __NOEXP;
+    dump             () const;
 
 protected:
     void
-    dump_stack       () __EXP;
+    dump_stack       ();
 
 protected:
     std::string m_dump_str;

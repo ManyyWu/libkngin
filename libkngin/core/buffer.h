@@ -11,86 +11,90 @@
 
 __NAMESPACE_BEGIN
 
-class basic_buffer : noncopyable {
+class basic_buffer {
 protected:
-    basic_buffer   (uint8_uarr &_arr, size_t _s) __EXP;
+    basic_buffer   (const uint8_uarr &_arr, size_t _s);
 
-    basic_buffer   (uint8_uarr &&_arr, size_t _s) __EXP;
+    basic_buffer   (uint8_uarr &&_arr, size_t _s);
 
-    ~basic_buffer  () __NOEXP = default;
+    ~basic_buffer  () = default;
 
 public:
     const uint8_uarr &
-    get            () __EXP;
+    get            ();
 
 public:
     uint8_t
-    read_uint8     () __EXP;
+    read_uint8     ();
 
     int8_t
-    read_int8      () __EXP;
+    read_int8      ();
 
     uint16_t
-    read_uint16    () __EXP;
+    read_uint16    ();
 
     int16_t
-    read_int16     () __EXP;
+    read_int16     ();
 
     uint32_t
-    read_uint32    () __EXP;
+    read_uint32    ();
 
     int32_t
-    read_int32     () __EXP;
+    read_int32     ();
 
     uint64_t
-    read_uint64    () __EXP;
+    read_uint64    ();
 
     int64_t
-    read_int64     () __EXP;
+    read_int64     ();
 
     void
-    read_bytes     (uint8_t *_p, size_t _n) __EXP;
+    read_bytes     (uint8_t *_p, size_t _n);
 
     void
-    write_uint8    (uint8_t _val) __EXP;
+    write_uint8    (uint8_t _val);
 
     void
-    write_int8     (int8_t _val) __EXP;
+    write_int8     (int8_t _val);
 
     void
-    write_uint16   (uint16_t _val) __EXP;
+    write_uint16   (uint16_t _val);
 
     void
-    write_int16    (int16_t _val) __EXP;
+    write_int16    (int16_t _val);
 
     void
-    write_uint32   (uint32_t _val) __EXP;
+    write_uint32   (uint32_t _val);
 
     void
-    write_int32    (int32_t _val) __EXP;
+    write_int32    (int32_t _val);
 
     void
-    write_uint64   (uint64_t _val) __EXP;
+    write_uint64   (uint64_t _val);
 
     void
-    write_int64    (int64_t _val) __EXP;
+    write_int64    (int64_t _val);
 
     void
-    write_bytes    (const uint8_t *_p, size_t _n) __EXP;
+    write_bytes    (const uint8_t *_p, size_t _n);
 
 public:
     size_t
-    size           () const __NOEXP;
+    size           () const;
 
     size_t
-    next           () const __NOEXP;
+    next           () const;
 
     void
-    reset          (size_t _idx) __NOEXP;
+    reset          (size_t _idx);
 
 public:
     void
-    dump           (std::string &_str) __EXP;
+    dump           (std::string &_str);
+
+public:
+    void
+    operator =     (const basic_buffer &) = delete;
 
 protected:
     uint8_uarr m_arr;
@@ -103,22 +107,24 @@ protected:
 
 class buffer : public basic_buffer {
 public:
-    buffer         (size_t _s) __EXP;
+    buffer         (size_t _s);
 
-    buffer         (uint8_uarr &_arr, size_t _s) __EXP;
+    buffer         (const uint8_uarr &_arr, size_t _s);
 
-    buffer         (uint8_uarr &&_arr, size_t _s) __EXP;
+    buffer         (uint8_uarr &&_arr, size_t _s);
 
-    buffer         (buffer &_buf) __EXP;
+    buffer         (const buffer &_buf);
 
-    buffer         (buffer &&_buf) __EXP;
+    buffer         (buffer &&_buf);
 
-    ~buffer        () __NOEXP;
+    ~buffer        ();
 
 public:
+    void
+    operator =     (const buffer &) = delete;
 
     void
-    swap           (buffer &_buf) __NOEXP;
+    swap           (buffer &_buf);
 };
 
 __NAMESPACE_END

@@ -111,7 +111,7 @@ public:
                 }(this->m_info->param);
                 break;
             default:
-                server_error("invalid message type");
+                log_error("invalid message type");
                 break;
             }
             return false;
