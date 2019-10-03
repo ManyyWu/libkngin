@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include "../libkngin/core/work_thread.h"
-#include "../libkngin/core/work_task.h"
+#include "../libkngin/net/work_thread.h"
+#include "../libkngin/net/work_task.h"
 #include "msg_test.h"
 
 static int

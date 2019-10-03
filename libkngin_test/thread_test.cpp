@@ -6,8 +6,8 @@ using namespace k;
 
 class mythread : public thread {
 public:
-    mythread (pthr_fn _pfn)
-        : thread(_pfn, this)
+    mythread (thr_fn _fn)
+        : thread(_fn)
     {
     }
 

@@ -61,12 +61,12 @@ void
 sync_deque_test ()
 {
     sync_deque<string> _q;
-    k::thread t0(producer, &_q);
-    k::thread t1(producer, &_q);
-    k::thread t2(producer, &_q);
-    k::thread t3(comsumer, &_q);
-    k::thread t4(comsumer, &_q);
-    k::thread t5(comsumer, &_q);
+    k::thread t0(std::bind(producer, &_q));
+    k::thread t1(std::bind(producer, &_q));
+    k::thread t2(std::bind(producer, &_q));
+    k::thread t3(std::bind(comsumer, &_q));
+    k::thread t4(std::bind(comsumer, &_q));
+    k::thread t5(std::bind(comsumer, &_q));
     t0.run();
     t1.run();
     t2.run();

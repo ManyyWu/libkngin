@@ -4,7 +4,7 @@
 #include <atomic>
 #include "define.h"
 #include "noncopyable.h"
-#include "msg.h"
+#include "../net/msg.h"
 
 __NAMESPACE_BEGIN
 

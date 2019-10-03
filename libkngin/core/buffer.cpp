@@ -1,7 +1,8 @@
-#include "exception.h"
 #include <memory>
+#include <string>
 #include <cstring>
 #include "define.h"
+#include "exception.h"
 #include "common.h"
 #include "logfile.h"
 #include "buffer.h"
@@ -9,22 +10,19 @@
 
 __NAMESPACE_BEGIN
 
-basic_buffer::basic_buffer (const uint8_uarr &_arr, size_t _s)
-    : m_arr(make_uint8_uarray(_s)), m_size(_s), m_index(0)
+basic_buffer::basic_buffer (const uint8_arr &_arr, size_t _reserve /* = 0 */)
+    : m_arr(_arr), m_idx(0)
 {
-    assert(_arr && _s && _arr.get());
-    ::memcpy(m_arr.get(), _arr.get(), _s);
+    m_arr.resize(std::max(_reserve, _arr.size()));
 }
 
-basic_buffer::basic_buffer (uint8_uarr &&_arr, size_t _s)
-    : m_arr(std::move(_arr)),
-      m_size(_s),
-      m_index(0)
+basic_buffer::basic_buffer (uint8_arr &&_arr, size_t _reserve /* = 0 */)
+    : m_arr(std::move(_arr)), m_idx(0)
 {
-    assert(m_arr && m_size && m_arr.get());
+    m_arr.resize(std::max(_reserve, m_arr.size()));
 }
 
-const uint8_uarr &
+const uint8_arr&
 basic_buffer::get ()
 {
     return m_arr;
@@ -33,226 +31,250 @@ basic_buffer::get ()
 uint8_t
 basic_buffer::read_uint8 ()
 {
-    if (m_size - m_index < 1)
+    if (m_arr.size() - m_idx < sizeof(uint8_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    return m_arr[m_index++];
+    return (uint8_t)m_arr[m_idx++];
 }
 
 int8_t
 basic_buffer::read_int8 ()
 {
-    if (m_size - m_index < 1)
+    if (m_arr.size() - m_idx < sizeof(int8_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    return (int8_t)m_arr[m_index++];
+    return m_arr[m_idx++];
 }
 
 uint16_t
 basic_buffer::read_uint16 ()
 {
-    if (m_size - m_index < 2)
+    if (m_arr.size() - m_idx < sizeof(uint16_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    uint16_t _ret = *(uint16_t *)&m_arr[m_index];
-    m_index += 2;
+    uint16_t _ret = *(uint16_t *)(m_arr.data() + m_idx);
+    m_idx += sizeof(uint16_t);
     return _ret;
 }
 
 int16_t
 basic_buffer::read_int16 ()
 {
-    if (m_size - m_index < 2)
+    if (m_arr.size() - m_idx < sizeof(int16_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    int16_t _ret = *(int16_t *)&m_arr[m_index];
-    m_index += 2;
+    int16_t _ret = *(int16_t *)(m_arr.data() + m_idx);
+    m_idx += sizeof(int16_t);
     return _ret;
 }
 
 uint32_t
 basic_buffer::read_uint32 ()
 {
-    if (m_size - m_index < 4)
+    if (m_arr.size() - m_idx < sizeof(uint32_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    uint32_t _ret = *(uint32_t *)&m_arr[m_index];
-    m_index += 4;
+    uint32_t _ret = *(uint32_t *)(m_arr.data() + m_idx);
+    m_idx += sizeof(uint32_t);
     return _ret;
 }
 
 int32_t
 basic_buffer::read_int32 ()
 {
-    if (m_size - m_index < 4)
+    if (m_arr.size() - m_idx < sizeof(int32_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    int32_t _ret = *(int32_t *)&m_arr[m_index];
-    m_index += 4;
+    int32_t _ret = *(int32_t *)(m_arr.data() + m_idx);
+    m_idx += sizeof(int32_t);
     return _ret;
 }
 
 uint64_t
 basic_buffer::read_uint64 ()
 {
-    if (m_size - m_index < 8)
+    if (m_arr.size() - m_idx < sizeof(uint64_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    uint64_t _ret = *(uint64_t *)&m_arr[m_index];
-    m_index += 8;
+    uint64_t _ret = *(uint64_t *)(m_arr.data() + m_idx);
+    m_idx += sizeof(uint64_t);
     return _ret;
 }
 
 int64_t
 basic_buffer::read_int64 ()
 {
-    if (m_size - m_index < 8)
+    if (m_arr.size() - m_idx < sizeof(int64_t))
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    int64_t _ret = *(int64_t *)&m_arr[m_index];
-    m_index += 8;
+    int64_t _ret = *(int64_t *)(m_arr.data() + m_idx);
+    m_idx += sizeof(int64_t);
     return _ret;
 }
 
-void
+size_t
 basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 {
     kassert(_p);
-    if (m_size - m_index < _n)
+    if (m_arr.size() - m_idx < _n)
         throw logic_exception("no enough data", __FILE__, __LINE__);
-    ::memcpy(_p, &m_arr[m_index], _n);
-    m_index += _n;
+    ::memcpy(_p, m_arr.data() + m_idx, _n);
+    m_idx += _n;
+    return _n;
 }
 
-void
+size_t
 basic_buffer::write_uint8 (uint8_t _val)
 {
-    if (m_size - m_index < 1)
+    if (m_arr.size() - m_idx < sizeof(uint8_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    m_arr[m_index++] = _val;
+    m_arr[m_idx++] = (uint8_t)_val;
+    return sizeof(uint8_t);
 }
 
-void
+size_t
 basic_buffer::write_int8 (int8_t _val)
 {
-    if (m_size - m_index < 1)
+    if (m_arr.size() - m_idx < sizeof(uint8_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    m_arr[m_index++] = (uint8_t)_val;
+    m_arr[m_idx++] = _val;
+    return sizeof(uint8_t);
 }
 
-void
+size_t
 basic_buffer::write_uint16 (uint16_t _val)
 {
-    if (m_size - m_index < 2)
+    if (m_arr.size() - m_idx < sizeof(uint16_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    *(uint16_t *)&m_arr[m_index] = (uint16_t)_val;
-    m_index += 2;
+    *(uint16_t *)(m_arr.data() + m_idx) = _val;
+    m_idx += sizeof(uint16_t);
+    return sizeof(uint16_t);
 }
 
-void
+size_t
 basic_buffer::write_int16 (int16_t _val)
 {
-    if (m_size - m_index < 2)
+    if (m_arr.size() - m_idx < sizeof(int16_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    *(int16_t *)&m_arr[m_index] = (int16_t)_val;
-    m_index += 2;
+    *(int16_t *)(m_arr.data() + m_idx) = _val;
+    m_idx += sizeof(int16_t);
+    return sizeof(int16_t);
 }
 
-void
+size_t
 basic_buffer::write_uint32 (uint32_t _val)
 {
-    if (m_size - m_index < 4)
+    if (m_arr.size() - m_idx < sizeof(uint32_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    *(uint32_t *)&m_arr[m_index] = (uint32_t)_val;
-    m_index += 4;
+    *(uint32_t *)(m_arr.data() + m_idx) = _val;
+    m_idx += sizeof(uint32_t);
+    return sizeof(uint32_t);
 }
 
-void
+size_t
 basic_buffer::write_int32 (int32_t _val)
 {
-    if (m_size - m_index < 4)
+    if (m_arr.size() - m_idx < sizeof(int32_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    *(int32_t *)&m_arr[m_index] = (int32_t)_val;
-    m_index += 4;
+    *(int32_t *)(m_arr.data() + m_idx) = _val;
+    m_idx += sizeof(int32_t);
+    return sizeof(int32_t);
 }
 
-void
+size_t
 basic_buffer::write_uint64 (uint64_t _val)
 {
-    if (m_size - m_index < 8)
+    if (m_arr.size() - m_idx < sizeof(uint64_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    *(uint64_t *)&m_arr[m_index] = (uint64_t)_val;
-    m_index += 8;
+    *(uint64_t *)(m_arr.data() + m_idx) = _val;
+    m_idx += sizeof(uint64_t);
+    return sizeof(uint64_t);
 }
 
-void
+size_t
 basic_buffer::write_int64 (int64_t _val)
 {
-    if (m_size - m_index < 8)
+    if (m_arr.size() - m_idx < sizeof(int64_t))
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    *(int64_t *)&m_arr[m_index] = (int64_t)_val;
-    m_index += 8;
+    *(int64_t *)(m_arr.data() + m_idx) = _val;
+    m_idx += sizeof(int64_t);
+    return sizeof(int64_t);
 }
 
-void
+size_t
 basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
 {
     kassert(_p);
-    if (m_size - m_index < _n)
+    if (m_arr.size() - m_idx < _n)
         throw logic_exception("no enough space", __FILE__, __LINE__);
-    ::memcpy(&m_arr[m_index], _p, _n);
-    m_index += _n;
+    ::memcpy((void *)(m_arr.data() + m_idx), _p, _n);
+    m_idx += _n;
+    return _n;
 }
 
 size_t
 basic_buffer::size () const
 {
-    return m_size;
+    return m_arr.size();
+}
+
+void
+basic_buffer::resize (size_t _s)
+{
+    m_arr.resize(_s);
+}
+
+void
+basic_buffer::shrink()
+{
+    m_arr.shrink_to_fit();
 }
 
 size_t
 basic_buffer::next () const
 {
-    return (m_size - m_index);
+    return (m_arr.size() - m_idx);
 }
 
 void
 basic_buffer::reset (size_t _idx)
 {
-    assert(_idx < m_size);
-    m_index = std::min(_idx, m_size - 1);
+    assert(_idx < m_arr.size());
+    m_idx = std::min(_idx, m_arr.size() - 1);
 }
 
-void
+std::string &
 basic_buffer::dump (std::string &_str)
 {
     _str.clear();
-    _str.reserve(m_size * 2 + 1);
-    for (int i = 0; i < m_size; ++i) {
+    _str.reserve(m_arr.size() * 2 + 1);
+    for (int i = 0; i < m_arr.size(); ++i) {
         char _tmp[3] = {0};
         snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
         _str += _tmp;
     }
+    return _str;
 }
 
-buffer::buffer (size_t _s)
-    : basic_buffer(std::move(make_uint8_uarray(_s)), _s)
+buffer::buffer ()
+    : basic_buffer(uint8_arr())
+{
+
+}
+buffer::buffer (size_t _reserve)
+    : basic_buffer(uint8_arr(), _reserve)
 {
 }
 
-buffer::buffer (const uint8_uarr &_arr, size_t _s)
-    : basic_buffer(_arr, _s)
+buffer::buffer (const uint8_arr &_arr, size_t _reserve /* = 0 */)
+    : basic_buffer(_arr, _reserve)
 {
 }
 
-buffer::buffer (uint8_uarr &&_arr, size_t _s)
-    : basic_buffer(std::move(_arr), _s)
+buffer::buffer (uint8_arr &&_arr, size_t _reserve /* = 0 */)
+    : basic_buffer(std::move(_arr), _reserve)
 {
 }
 
 buffer::buffer (const buffer &_buf)
-    : basic_buffer(_buf.m_arr, _buf.m_size)
+    : basic_buffer(_buf.m_arr, _buf.m_arr.size())
 {
 }
 
 buffer::buffer (buffer &&_buf)
-    : basic_buffer(std::move(_buf.m_arr), _buf.m_size)
-{
-}
-
-buffer::~buffer ()
+    : basic_buffer(std::move(_buf.m_arr), _buf.m_arr.size())
 {
 }
 
@@ -260,8 +282,7 @@ void
 buffer::swap (buffer &_buf)
 {
     std::swap(m_arr, _buf.m_arr);
-    std::swap(m_size, _buf.m_size);
-    std::swap(m_index, _buf.m_index);
+    std::swap(m_idx, _buf.m_idx);
 }
 
 __NAMESPACE_END

@@ -13,12 +13,11 @@
 
 __NAMESPACE_BEGIN
 
-typedef int  (*pthr_fn)     (void *);
-typedef void (*pcleanup_fn) (void *);
+typedef std::function<int (void *)> thr_fn;
 
 class thread : public noncopyable {
 public:
-    thread        (pthr_fn _pfn, void *_args, const char *_name = "");
+    thread        (thr_fn _fn, const char *_name = "");
 
     virtual
     ~thread       ();
@@ -75,7 +74,7 @@ protected:
 
     pthread_t         m_tid;
 
-    pthr_fn           m_pfn;
+    thr_fn            m_fn;
 
     void *            m_args;
 

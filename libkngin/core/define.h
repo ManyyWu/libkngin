@@ -30,9 +30,9 @@
 #endif
 
 // auto ptr
-typedef std::unique_ptr<uint8_t[]> uint8_uarr;
-typedef std::shared_ptr<uint8_t>   uint8_sarr;
-#define make_uint8_uarray std::make_unique<uint8_t[]>
-#define make_uint8_sarray std::make_shared<uint8_t>
+//typedef std::unique_ptr<uint8_t[]> uint8_uarr;
+//typedef std::shared_ptr<uint8_t>   uint8_sarr;
+//#define make_uint8_uarray std::make_unique<uint8_t[]>
+//#define make_uint8_sarray std::make_shared<uint8_t>
 
 #endif /* _DEFINE_H_ */

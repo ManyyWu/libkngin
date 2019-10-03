@@ -27,14 +27,14 @@ set(KNGIN_CORE_SRC
     "core/time.cpp"
     "core/thread.cpp"
     "core/logmgr.cpp"
-#    "core/msg.cpp"
     "core/mutex.cpp"
     "core/rwlock.cpp"
     "core/cond.cpp"
 #    "core/threadpool.cpp"
 #    "core/task_base.cpp"
-#    "core/work_task.cpp"
-#    "core/work_thread.cpp"
+#    "net/msg.cpp"
+#    "net/work_task.cpp"
+#    "net/work_thread.cpp"
 )
 
 set(KNGIN_SRC

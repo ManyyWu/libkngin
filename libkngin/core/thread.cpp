@@ -17,12 +17,11 @@ thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
     : m_pfn(_pfn), m_args(_args), m_retptr(NULL), 
       m_tid(pthread_t{NULL, 0}), m_running(false), m_name(_name ? _name : "")
 #else
-thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
-    : m_pfn(_pfn), m_args(_args), m_retptr(NULL),
-      m_tid(0), m_running(false), m_name(_name ? _name : "")
+thread::thread (thr_fn _fn, const char *_name /* = "" */)
+    : m_fn(_fn), m_retptr(NULL), m_tid(0), m_running(false),
+      m_name(_name ? _name : "")
 #endif
 {
-    kassert(_pfn);
 }
 
 thread::~thread ()
@@ -171,15 +170,17 @@ thread::start (void *_args)
     kassert_r0(_args);
 
     thread *_p = (thread *)_args;
-    pthread_cleanup_push(thread::cleanup, _args);
 
     try {
-        _p->set_err_code((*_p->m_pfn)(_p->m_args));
+        pthread_cleanup_push(thread::cleanup, _args);
+
+        _p->set_err_code(_p->m_fn(_p->m_args));
+
+        pthread_cleanup_pop(1);
     } catch (const std::exception &e){
         // log
     }
 
-    pthread_cleanup_pop(1);
     return _p->m_retptr;
 }
 

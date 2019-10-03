@@ -6,8 +6,8 @@
 #include <algorithm>
 #include "define.h"
 #include "error.h"
-#include "work_thread.h"
-#include "work_task.h"
+#include "../net/work_thread.h"
+#include "../net/work_task.h"
 #include "threadpool.h"
 
 __NAMESPACE_BEGIN

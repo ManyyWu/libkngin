@@ -1,7 +1,7 @@
 #include "define.h"
 #include "task_base.h"
-#include "msg.h"
-#include "work_thread.h"
+#include "../net/msg.h"
+#include "../net/work_thread.h"
 
 __NAMESPACE_BEGIN
 

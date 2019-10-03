@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "../libkngin/core/buffer.h"
 
 using namespace std;
@@ -8,8 +9,9 @@ void
 buffer_test ()
 {
     try {
-        uint8_uarr p = make_uint8_uarray(100);
-        buffer b1(std::move(p), 100);
+        uint8_arr p;
+        p.resize(100);
+        buffer b1(std::move(p));
         cerr << b1.size() << endl;
         for (int i = 0; i < 100; ++i)
             b1.write_uint8(i);

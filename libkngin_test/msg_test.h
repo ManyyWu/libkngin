@@ -1,4 +1,4 @@
-#include "../libkngin/core/msg.h"
+#include "../libkngin/net/msg.h"
 
 using namespace k;
 

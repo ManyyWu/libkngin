@@ -1,7 +1,7 @@
-#include "define.h"
-#include "logfile.h"
+#include "../core/define.h"
+#include "../core/logfile.h"
 #include "work_task.h"
-#include "thread.h"
+#include "../core/thread.h"
 #include "msg.h"
 
 __NAMESPACE_BEGIN

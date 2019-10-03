@@ -1,12 +1,12 @@
 #ifndef _WORK_THREAD_
 #define _WORK_THREAD_
 
-#include "define.h"
-#include "thread.h"
+#include "../core/define.h"
+#include "../core/thread.h"
 #include "msg.h"
 #include "work_task.h"
-#include "mutex.h"
-#include "cond.h"
+#include "../core/mutex.h"
+#include "../core/cond.h"
 
 __NAMESPACE_BEGIN
 

@@ -2,7 +2,7 @@
 #define _BUFFER_H_
 
 #include <string>
-#include <cstdint>
+#include <vector>
 #include <memory>
 #include "define.h"
 #include "exception.h"
@@ -11,16 +11,18 @@
 
 __NAMESPACE_BEGIN
 
+typedef std::vector<uint8_t> uint8_arr;
+
 class basic_buffer {
 protected:
-    basic_buffer   (const uint8_uarr &_arr, size_t _s);
+    basic_buffer   (const uint8_arr &_arr, size_t _reserve = 0);
 
-    basic_buffer   (uint8_uarr &&_arr, size_t _s);
+    basic_buffer   (uint8_arr &&_arr, size_t _reserve = 0);
 
     ~basic_buffer  () = default;
 
 public:
-    const uint8_uarr &
+    const uint8_arr&
     get            ();
 
 public:
@@ -48,39 +50,45 @@ public:
     int64_t
     read_int64     ();
 
-    void
+    size_t
     read_bytes     (uint8_t *_p, size_t _n);
 
-    void
+    size_t
     write_uint8    (uint8_t _val);
 
-    void
+    size_t
     write_int8     (int8_t _val);
 
-    void
+    size_t
     write_uint16   (uint16_t _val);
 
-    void
+    size_t
     write_int16    (int16_t _val);
 
-    void
+    size_t
     write_uint32   (uint32_t _val);
 
-    void
+    size_t
     write_int32    (int32_t _val);
 
-    void
+    size_t
     write_uint64   (uint64_t _val);
 
-    void
+    size_t
     write_int64    (int64_t _val);
 
-    void
+    size_t
     write_bytes    (const uint8_t *_p, size_t _n);
 
 public:
     size_t
     size           () const;
+
+    void
+    resize         (size_t _s);
+
+    void
+    shrink         ();
 
     size_t
     next           () const;
@@ -89,7 +97,7 @@ public:
     reset          (size_t _idx);
 
 public:
-    void
+    std::string &
     dump           (std::string &_str);
 
 public:
@@ -97,27 +105,27 @@ public:
     operator =     (const basic_buffer &) = delete;
 
 protected:
-    uint8_uarr m_arr;
+    uint8_arr m_arr;
 
-    size_t     m_size;
-
-    size_t     m_index;
+    size_t    m_idx;
 };
 
 
 class buffer : public basic_buffer {
 public:
-    buffer         (size_t _s);
+    buffer         ();
 
-    buffer         (const uint8_uarr &_arr, size_t _s);
+    buffer         (size_t _reserve);
 
-    buffer         (uint8_uarr &&_arr, size_t _s);
+    buffer         (const uint8_arr &_arr, size_t _reserve = 0);
+
+    buffer         (uint8_arr &&_arr, size_t _reserve = 0);
 
     buffer         (const buffer &_buf);
 
     buffer         (buffer &&_buf);
 
-    ~buffer        ();
+    ~buffer        () = default;
 
 public:
     void

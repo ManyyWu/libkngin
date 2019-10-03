@@ -1,9 +1,9 @@
 #ifndef _WORK_TASK_H_
 #define _WORK_TASK_H_
 
-#include "define.h"
-#include "task_base.h"
-#include "thread.h"
+#include "../core/define.h"
+#include "../core/task_base.h"
+#include "../core/thread.h"
 #include "msg.h"
 
 __NAMESPACE_BEGIN

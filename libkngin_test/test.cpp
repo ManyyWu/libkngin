@@ -1,6 +1,7 @@
 #include <atomic>
 #include <typeinfo>
 #include <string>
+#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <ctime>
@@ -13,13 +14,16 @@
 #include "../libkngin/core/memory.h"
 #include "../libkngin/core/buffer.h"
 
-#include <unistd.h>
-#include <sys/epoll.h>
-
 using namespace k;
+using namespace std;
+using namespace std::placeholders;
+
+int f (int a, int b, int c)
+{
+    cerr << a << ", " << b << ", " << c << endl;
+}
 
 void
 test ()
 {
-
 }
