@@ -6,6 +6,7 @@
 #else
 #include <pthread.h>
 #endif
+#include "timestamp.h"
 #include "define.h"
 #include "noncopyable.h"
 

@@ -19,6 +19,7 @@ thread_pool::thread_pool (size_t _qsize, int _thr_max, time_t _alive)
       m_pool_thread(NULL), m_serial(0)
 {
     kassert(_thr_max > 0 && _thr_max <= THREAD_NUM_MAX);
+    // log, throw
 }
 
 thread_pool::~thread_pool()

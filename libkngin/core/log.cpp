@@ -9,7 +9,7 @@
 #include "common.h"
 #include "define.h"
 #include "mutex.h"
-#include "time.h"
+#include "timestamp.h"
 
 __NAMESPACE_BEGIN
 

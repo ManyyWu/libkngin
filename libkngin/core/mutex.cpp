@@ -14,8 +14,10 @@ mutex::mutex ()
     : m_mutex(PTHREAD_MUTEX_INITIALIZER)
 {
     int _ret = pthread_mutex_init(&m_mutex, NULL);
-    if_not (!_ret)
+    if_not (!_ret) {
         log_fatal("pthread_mutex_init() return %d", _ret);
+        throw exception("mutex::mutex() error");
+    }
 }
 
 mutex::~mutex ()

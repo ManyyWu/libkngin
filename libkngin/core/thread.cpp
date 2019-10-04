@@ -5,7 +5,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #endif
-#include <exception>
+#include <cstring>
+#include "exception.h"
 #include "thread.h"
 #include "logfile.h"
 #include "error.h"
@@ -35,7 +36,7 @@ thread::~thread ()
 #endif
         _ret = pthread_detach(m_tid);
         if_not (!_ret)
-            log_fatal("pthread_detach(), name = \"%s\", return %d", m_name.c_str(), _ret);
+            log_fatal("pthread_detach(), name = \"%s\", return %d:%s", m_name.c_str(), _ret, strerror(_ret));
         else
             log_info("thread \"%s\" detached", m_name.c_str());
     }
@@ -53,7 +54,7 @@ thread::run ()
     int _ret = 0;
     _ret = pthread_create(&m_tid, NULL, thread::start, this);
     if_not (!_ret)
-        log_fatal("pthread_create(), name = \"%s\", return %d", m_name.c_str(), _ret);
+        log_fatal("pthread_create(), name = \"%s\", return %d:%s", m_name.c_str(), _ret, strerror(_ret));
     m_running.store(true);
     log_info("thread \"%s\" running", m_name.c_str());
     return !_ret;
@@ -72,7 +73,7 @@ thread::join (int *_err_code)
     int _ret = 0;
     _ret = pthread_join(m_tid, &m_retptr);
     if_not (!_ret) {
-        log_fatal("pthread_join(), name = \"%s\"return %d", m_name.c_str(), _ret);
+        log_fatal("pthread_join(), name = \"%s\"return %d:%s", m_name.c_str(), _ret, strerror(_ret));
         return false;
     }
     if (_err_code)
@@ -83,7 +84,7 @@ thread::join (int *_err_code)
     m_tid = 0;
 #endif
     m_running.store(false);
-    log_info("thread \"%s\" joined with code: %u", m_name.c_str(), (long)(long long)m_retptr);
+    log_info("thread \"%s\" joined with code: %u", m_name.c_str(), (int)(long long)m_retptr);
     return true;
 }
 
@@ -100,7 +101,7 @@ thread::cancel ()
     int _ret = 0;
     _ret = pthread_cancel(m_tid);
     if_not (!_ret) {
-        log_fatal("pthread_cancel(), name = \"%s\"return %d", m_name.c_str(), _ret);
+        log_fatal("pthread_cancel(), name = \"%s\"return %d:%s", m_name.c_str(), _ret, strerror(_ret));
         return false;
     }
     log_info("thread \"%s\" cancel", m_name.c_str());
@@ -177,8 +178,9 @@ thread::start (void *_args)
         _p->set_err_code(_p->m_fn(_p->m_args));
 
         pthread_cleanup_pop(1);
-    } catch (const std::exception &e){
-        // log
+    } catch (const k::exception &e){
+        log_fatal("caught an exception: %s\n%s\n",
+                  e.what().c_str(), e.dump().c_str());
     }
 
     return _p->m_retptr;
@@ -201,9 +203,6 @@ thread::process (void *_args)
     // pthread_setcancelstate()
     // pthread_setcanceltype()
     // pthread testcancel()
-
-    fprintf(stderr, "thread::process()\n");
-
     // pthread_cleanup_pop()
     return 0;
 }

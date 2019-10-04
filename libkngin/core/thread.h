@@ -7,6 +7,7 @@
 #include <pthread.h>
 #endif
 #include <atomic>
+#include <functional>
 #include "define.h"
 #include "common.h"
 #include "noncopyable.h"

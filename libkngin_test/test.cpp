@@ -18,11 +18,6 @@ using namespace k;
 using namespace std;
 using namespace std::placeholders;
 
-int f (int a, int b, int c)
-{
-    cerr << a << ", " << b << ", " << c << endl;
-}
-
 void
 test ()
 {

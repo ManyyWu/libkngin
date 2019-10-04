@@ -6,7 +6,7 @@
 #else
 #include <pthread.h>
 #endif
-#include "time.h"
+#include "timestamp.h"
 #include "error.h"
 #include "define.h"
 #include "logfile.h"

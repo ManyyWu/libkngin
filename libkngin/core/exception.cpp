@@ -6,32 +6,33 @@
 
 __NAMESPACE_BEGIN
 
-logic_exception::logic_exception (std::string _what, const char *_file, int _line)
-    : std::logic_error(std::string("[") +  _file + ":" + std::to_string(_line) + "] " + _what)
+exception::exception (const char *_what)
+    : m_str(_what)
 {
     // dump
     this->dump_stack();
 }
 
-logic_exception::~logic_exception ()
+exception::~exception ()
 {
 }
 
-const char*
-logic_exception::what () const __NOEXP
+const std::string &
+exception::what () const
 {
-    return logic_error::what();
+    return m_str;
 }
 
-const char *
-logic_exception::dump () const
+const std::string &
+exception::dump () const
 {
-    return m_dump_str.c_str();
+    return m_dump_str;
 }
 
 void
-logic_exception::dump_stack ()
+exception::dump_stack ()
 {
+    m_dump_str += "dump: ";
 }
 
 __NAMESPACE_END

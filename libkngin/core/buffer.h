@@ -98,16 +98,25 @@ public:
 
 public:
     std::string &
-    dump           (std::string &_str);
+    dump           ();
 
 public:
     void
     operator =     (const basic_buffer &) = delete;
 
 protected:
-    uint8_arr m_arr;
+    bool
+    readable       (size_t _n);
 
-    size_t    m_idx;
+    bool
+    writeable      (size_t _n);
+
+protected:
+    uint8_arr   m_arr;
+
+    size_t      m_idx;
+
+    std::string m_dump_str;
 };
 
 
@@ -128,6 +137,12 @@ public:
     ~buffer        () = default;
 
 public:
+    buffer &
+    append         (const buffer &_buf);
+
+    buffer &
+    operator +     (const buffer &_buf);
+
     void
     operator =     (const buffer &) = delete;
 

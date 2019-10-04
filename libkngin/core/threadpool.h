@@ -11,7 +11,7 @@
 #include "error.h"
 #include "../net/msg.h"
 #include "lock.h"
-#include "time.h"
+#include "timestamp.h"
 
 __NAMESPACE_BEGIN
 

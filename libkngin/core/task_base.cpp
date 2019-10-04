@@ -9,6 +9,7 @@ task_base::task_base (work_thread *_thread, msg *_msg, int _priority /* = 0 */)
     : m_thread(_thread), m_msg(_msg), m_priority(_priority)
 {
     kassert(_thread);
+    // log, throw
 }
 
 task_base::~task_base ()

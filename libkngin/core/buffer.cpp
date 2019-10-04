@@ -1,4 +1,5 @@
 #include <memory>
+#include <vector>
 #include <string>
 #include <cstring>
 #include "define.h"
@@ -31,24 +32,21 @@ basic_buffer::get ()
 uint8_t
 basic_buffer::read_uint8 ()
 {
-    if (m_arr.size() - m_idx < sizeof(uint8_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(uint8_t));
     return (uint8_t)m_arr[m_idx++];
 }
 
 int8_t
 basic_buffer::read_int8 ()
 {
-    if (m_arr.size() - m_idx < sizeof(int8_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(int8_t));
     return m_arr[m_idx++];
 }
 
 uint16_t
 basic_buffer::read_uint16 ()
 {
-    if (m_arr.size() - m_idx < sizeof(uint16_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(uint16_t));
     uint16_t _ret = *(uint16_t *)(m_arr.data() + m_idx);
     m_idx += sizeof(uint16_t);
     return _ret;
@@ -57,8 +55,7 @@ basic_buffer::read_uint16 ()
 int16_t
 basic_buffer::read_int16 ()
 {
-    if (m_arr.size() - m_idx < sizeof(int16_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(int16_t));
     int16_t _ret = *(int16_t *)(m_arr.data() + m_idx);
     m_idx += sizeof(int16_t);
     return _ret;
@@ -67,8 +64,7 @@ basic_buffer::read_int16 ()
 uint32_t
 basic_buffer::read_uint32 ()
 {
-    if (m_arr.size() - m_idx < sizeof(uint32_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(uint32_t));
     uint32_t _ret = *(uint32_t *)(m_arr.data() + m_idx);
     m_idx += sizeof(uint32_t);
     return _ret;
@@ -77,8 +73,7 @@ basic_buffer::read_uint32 ()
 int32_t
 basic_buffer::read_int32 ()
 {
-    if (m_arr.size() - m_idx < sizeof(int32_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(int32_t));
     int32_t _ret = *(int32_t *)(m_arr.data() + m_idx);
     m_idx += sizeof(int32_t);
     return _ret;
@@ -87,8 +82,7 @@ basic_buffer::read_int32 ()
 uint64_t
 basic_buffer::read_uint64 ()
 {
-    if (m_arr.size() - m_idx < sizeof(uint64_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(uint64_t));
     uint64_t _ret = *(uint64_t *)(m_arr.data() + m_idx);
     m_idx += sizeof(uint64_t);
     return _ret;
@@ -97,8 +91,7 @@ basic_buffer::read_uint64 ()
 int64_t
 basic_buffer::read_int64 ()
 {
-    if (m_arr.size() - m_idx < sizeof(int64_t))
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(int64_t));
     int64_t _ret = *(int64_t *)(m_arr.data() + m_idx);
     m_idx += sizeof(int64_t);
     return _ret;
@@ -108,8 +101,7 @@ size_t
 basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 {
     kassert(_p);
-    if (m_arr.size() - m_idx < _n)
-        throw logic_exception("no enough data", __FILE__, __LINE__);
+    readable(sizeof(_n));
     ::memcpy(_p, m_arr.data() + m_idx, _n);
     m_idx += _n;
     return _n;
@@ -118,8 +110,7 @@ basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 size_t
 basic_buffer::write_uint8 (uint8_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(uint8_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(uint8_t));
     m_arr[m_idx++] = (uint8_t)_val;
     return sizeof(uint8_t);
 }
@@ -127,8 +118,7 @@ basic_buffer::write_uint8 (uint8_t _val)
 size_t
 basic_buffer::write_int8 (int8_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(uint8_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(int8_t));
     m_arr[m_idx++] = _val;
     return sizeof(uint8_t);
 }
@@ -136,8 +126,7 @@ basic_buffer::write_int8 (int8_t _val)
 size_t
 basic_buffer::write_uint16 (uint16_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(uint16_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(uint16_t));
     *(uint16_t *)(m_arr.data() + m_idx) = _val;
     m_idx += sizeof(uint16_t);
     return sizeof(uint16_t);
@@ -146,8 +135,7 @@ basic_buffer::write_uint16 (uint16_t _val)
 size_t
 basic_buffer::write_int16 (int16_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(int16_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(int16_t));
     *(int16_t *)(m_arr.data() + m_idx) = _val;
     m_idx += sizeof(int16_t);
     return sizeof(int16_t);
@@ -156,8 +144,7 @@ basic_buffer::write_int16 (int16_t _val)
 size_t
 basic_buffer::write_uint32 (uint32_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(uint32_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(uint32_t));
     *(uint32_t *)(m_arr.data() + m_idx) = _val;
     m_idx += sizeof(uint32_t);
     return sizeof(uint32_t);
@@ -166,8 +153,7 @@ basic_buffer::write_uint32 (uint32_t _val)
 size_t
 basic_buffer::write_int32 (int32_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(int32_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(int32_t));
     *(int32_t *)(m_arr.data() + m_idx) = _val;
     m_idx += sizeof(int32_t);
     return sizeof(int32_t);
@@ -176,8 +162,7 @@ basic_buffer::write_int32 (int32_t _val)
 size_t
 basic_buffer::write_uint64 (uint64_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(uint64_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(uint64_t));
     *(uint64_t *)(m_arr.data() + m_idx) = _val;
     m_idx += sizeof(uint64_t);
     return sizeof(uint64_t);
@@ -186,8 +171,7 @@ basic_buffer::write_uint64 (uint64_t _val)
 size_t
 basic_buffer::write_int64 (int64_t _val)
 {
-    if (m_arr.size() - m_idx < sizeof(int64_t))
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(int64_t));
     *(int64_t *)(m_arr.data() + m_idx) = _val;
     m_idx += sizeof(int64_t);
     return sizeof(int64_t);
@@ -197,8 +181,7 @@ size_t
 basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
 {
     kassert(_p);
-    if (m_arr.size() - m_idx < _n)
-        throw logic_exception("no enough space", __FILE__, __LINE__);
+    writeable(sizeof(_n));
     ::memcpy((void *)(m_arr.data() + m_idx), _p, _n);
     m_idx += _n;
     return _n;
@@ -214,6 +197,7 @@ void
 basic_buffer::resize (size_t _s)
 {
     m_arr.resize(_s);
+    m_arr.shrink_to_fit();
 }
 
 void
@@ -236,16 +220,36 @@ basic_buffer::reset (size_t _idx)
 }
 
 std::string &
-basic_buffer::dump (std::string &_str)
+basic_buffer::dump ()
 {
-    _str.clear();
-    _str.reserve(m_arr.size() * 2 + 1);
+    m_dump_str.clear();
+    m_dump_str.reserve(m_arr.size() * 1);
     for (int i = 0; i < m_arr.size(); ++i) {
         char _tmp[3] = {0};
         snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
-        _str += _tmp;
+        m_dump_str += _tmp;
     }
-    return _str;
+    return m_dump_str;
+}
+
+bool
+basic_buffer::readable (size_t _n)
+{
+    if (m_arr.size() - m_idx < _n)
+        throw std::out_of_range(std::string("basic_buffer::readable: size is ")
+                                + std::to_string(m_arr.size()) + ", index is"
+                                + std::to_string(m_idx));
+    return (m_arr.size() - m_idx >= _n);
+}
+
+bool
+basic_buffer::writeable (size_t _n)
+{
+    if (m_arr.size() - m_idx < _n)
+        throw std::out_of_range(std::string("basic_buffer::writeable: size is ")
+                                + std::to_string(m_arr.size()) + ", index is"
+                                + std::to_string(m_idx));
+    return (m_arr.size() - m_idx >= _n);
 }
 
 buffer::buffer ()
@@ -276,6 +280,21 @@ buffer::buffer (const buffer &_buf)
 buffer::buffer (buffer &&_buf)
     : basic_buffer(std::move(_buf.m_arr), _buf.m_arr.size())
 {
+}
+
+buffer &
+buffer::append (const buffer &_buf)
+{
+    const uint8_arr &_arr = _buf.m_arr;
+    m_arr.reserve(_arr.size());
+    m_arr.insert(m_arr.end(), _arr.begin(), _arr.end());
+    return *this;
+}
+
+buffer &
+buffer::operator + (const buffer &_buf)
+{
+    return append(_buf);
 }
 
 void

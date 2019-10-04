@@ -4,7 +4,7 @@
 #include <cstdio>
 #include "log.h"
 #include "logmgr.h"
-#include "time.h"
+#include "timestamp.h"
 
 #define __make_log(__level, __level_str, __file_type, __fmt, ...) \
         do {                                                      \

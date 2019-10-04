@@ -185,7 +185,7 @@ msg::dump ()
         _buf[_start + i++] = _temp[1];
     }
     _buf[_start + i] = '\0';
-    server_dump(_buf, (uint32_t)strnlen(_buf, _len));
+    log_dump(_buf, (uint32_t)strnlen(_buf, _len));
     kdelete_array(_buf);
 }
 

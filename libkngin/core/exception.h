@@ -1,6 +1,7 @@
 #ifndef _EXCEPTION_H_
 #define _EXCEPTION_H_
 
+#include <string>
 #include <exception>
 #include <stdexcept>
 #include "define.h"
@@ -10,26 +11,27 @@
 
 __NAMESPACE_BEGIN
 
-class logic_exception : public std::logic_error {
+class exception {
 public:
-    logic_exception  (std::string _what, const char *_file, int _line);
+    exception  (const char *_what);
 
-    virtual
-    ~logic_exception ();
+    ~exception ();
 
 public:
-    virtual const char *
-    what             () const __NOEXP;
+    const std::string &
+    what       () const;
 
-    const char *
-    dump             () const;
+    const std::string &
+    dump       () const;
 
 protected:
     void
-    dump_stack       ();
+    dump_stack ();
 
 protected:
     std::string m_dump_str;
+
+    std::string m_str;
 };
 
 __NAMESPACE_END
