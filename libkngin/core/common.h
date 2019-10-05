@@ -45,7 +45,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                         ->debug("delete addr: %#016lx, %s[%s:%d]",        \
                                 (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 } else {                                                  \
-                    fprintf(stderr, "logger uninted, unrecorded log: "    \
+                    ::fprintf(stderr, "logger uninted, unrecorded log: "    \
                             "\"delete addr: %#016lx, %s[%s:%d]\"\n",      \
                             (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 }                                                         \
@@ -60,7 +60,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                         ->debug("delete addr: %#016lx, %s[%s:%d]",        \
                                 (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 } else {                                                  \
-                    fprintf(stderr, "logger uninted, unrecorded log: "    \
+                    ::fprintf(stderr, "logger uninted, unrecorded log: "    \
                             "\"delete addr: %#016lx, %s[%s:%d]\"\n",      \
                             (unsigned long)__p, __FUNCTION__, __FILE__, __LINE__); \
                 }                                                         \
@@ -75,7 +75,7 @@ extern std::atomic<size_t> __g_memory_debug_total;
                         ->debug("delete addr: %#016lx, %s[%s:%d]",        \
                                 (unsigned) __p, __FUNCTION__, __FILE__, __LINE__); \
                 } else {                                                  \
-                    fprintf(stderr, "logger uninted, unrecorded log: "    \
+                    ::fprintf(stderr, "logger uninted, unrecorded log: "    \
                             "\"delete addr: %#016lx, %s[%s:%d]\"\n",      \
                             (unsigned) __p, __FUNCTION__, __FILE__, __LINE__);     \
                 }                                                         \

@@ -13,6 +13,7 @@
 #include "../libkngin/core/lock.h"
 #include "../libkngin/core/memory.h"
 #include "../libkngin/core/buffer.h"
+#include "../libkngin/net/epoller.h"
 
 using namespace k;
 using namespace std;
@@ -21,4 +22,5 @@ using namespace std::placeholders;
 void
 test ()
 {
+    epoller ep(NULL);
 }

@@ -49,11 +49,11 @@ process_atomic (void *_args)
 void
 mutex_test ()
 {
-    printf("waiting...\n");
+    ::fprintf(stderr, "waiting...\n");
     /* lock */
     thread * thrs[THR_NUM];
     timespec ts1;
-    timespec_get(&ts1, TIME_UTC);
+    ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
         knew(thrs[i], thread, (process_mutex, NULL));
@@ -66,13 +66,13 @@ mutex_test ()
     }
 
     timespec ts2;
-    timespec_get(&ts2, TIME_UTC);
-    printf("--- k::mutex ---\n time use: %lfms, result = %d\n",
+    ::timespec_get(&ts2, TIME_UTC);
+    ::fprintf(stderr, "--- k::mutex ---\n time use: %lfms, result = %d\n",
            (ts2.tv_sec - ts1.tv_sec ) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
            g_num1);
 
     /* std::mutex */
-    timespec_get(&ts1, TIME_UTC);
+    ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
         knew(thrs[i], thread, (process_std_mutex, NULL));
@@ -84,13 +84,13 @@ mutex_test ()
         kdelete(thrs[i]);
     }
 
-    timespec_get(&ts2, TIME_UTC);
-    printf("--- std::mutex ---\n time use: %lfms, result = %d\n",
+    ::timespec_get(&ts2, TIME_UTC);
+    ::fprintf(stderr, "--- std::mutex ---\n time use: %lfms, result = %d\n",
            (ts2.tv_sec - ts1.tv_sec) * 1000 +  (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
            g_num2);
 
     /* atomic */
-    timespec_get(&ts1, TIME_UTC);
+    ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
         knew(thrs[i], thread, (process_atomic, NULL));
@@ -102,8 +102,8 @@ mutex_test ()
         kdelete(thrs[i]);
     }
 
-    timespec_get(&ts2, TIME_UTC);
-    printf("--- atomic ---\n time use: %lfms, result = %d\n",
+    ::timespec_get(&ts2, TIME_UTC);
+    ::fprintf(stderr, "--- atomic ---\n time use: %lfms, result = %d\n",
            (ts2.tv_sec - ts1.tv_sec) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
            g_num3.load());
 }

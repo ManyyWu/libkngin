@@ -26,9 +26,9 @@ process (void *_args)
             // then _msg is NULL
             msg *_reply_msg = _c->send_msg();
             if (!_reply_msg)
-                printf("index: %d, no reply, error occured!\n", i);
+                ::fprintf(stderr, "index: %d, no reply, error occured!\n", i);
             else {
-                printf("index: %d, action: %d, result: %d\n",
+                ::fprintf(stderr, "index: %d, action: %d, result: %d\n",
                        i, ((int *)_reply_msg->buf())[0], ((int *)_reply_msg->buf())[1]);
                 _reply_msg->release(); // commonly call by msg filter
                 _reply_msg = NULL;

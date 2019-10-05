@@ -44,7 +44,7 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
         knew_array(m_buf, uint8_t, _size);
         if_not (m_buf)
             return false;
-        memcpy(m_buf, _buf, (std::min)(_size, MAX_MSG_SIZE));
+        ::memcpy(m_buf, _buf, (std::min)(_size, MAX_MSG_SIZE));
         m_type = _type;
         m_size = _size;
     } else {
@@ -88,7 +88,7 @@ msg::create (const msg *_msg)
         kassert_r0(m_buf);
         if (!m_buf)
             return NULL;
-        memcpy(m_buf, _msg->m_buf, (std::min)(_msg->m_size, MAX_MSG_SIZE));
+        ::memcpy(m_buf, _msg->m_buf, (std::min)(_msg->m_size, MAX_MSG_SIZE));
         m_type = _msg->m_type;
         m_size = _msg->m_size;
     } else {
@@ -173,19 +173,19 @@ msg::dump ()
         delete[] _buf;
         return;
     }
-    snprintf(_buf, _len, "*** [dump msg]:\n*** [type]: %#010d\n*** [size]: %#010d\n*** [data]: ",
+    ::snprintf(_buf, _len, "*** [dump msg]:\n*** [type]: %#010d\n*** [size]: %#010d\n*** [data]: ",
              m_type, m_size);
-    uint32_t _start = (uint32_t )strnlen(_buf, 80);
+    uint32_t _start = (uint32_t)::strnlen(_buf, 80);
     _buf[_start] = '\0';
     uint32_t i = 0;
     for (; i < m_size * 2;) {
         char _temp[3];
-        sprintf(_temp, "%02x", (uint8_t)m_buf[i]);
+        ::snprintf(_temp, 3, "%02x", (uint8_t)m_buf[i]);
         _buf[_start + i++] = _temp[0];
         _buf[_start + i++] = _temp[1];
     }
     _buf[_start + i] = '\0';
-    log_dump(_buf, (uint32_t)strnlen(_buf, _len));
+    log_dump(_buf, (uint32_t)::strnlen(_buf, _len));
     kdelete_array(_buf);
 }
 

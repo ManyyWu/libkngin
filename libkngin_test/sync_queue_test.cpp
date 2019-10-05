@@ -12,14 +12,14 @@ producer (void *_args)
     for (int i = 0; i < 100; i++) {
         _q->lock();
         char _buf[20];
-        sprintf(_buf, "%d", i);
+        ::sprintf(_buf, "%d", i);
         while (_q->full())
             _q->wait();
         string *_str = NULL;
         knew(_str, string, (_buf));
         kassert(_str);
         kassert(!_q->full() && _q->push(&_str));
-        fprintf(stderr, "-----producer put, len: %ld\n",
+        ::fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         _q->unlock();
         _q->broadcast();
@@ -44,7 +44,7 @@ comsumer (void *_args)
         while (_q->empty())
             _q->wait();
         string *_s = _q->pop();
-        fprintf(stderr, "comsumer get \"%s\", len: %ldd\n",
+        ::fprintf(stderr, "comsumer get \"%s\", len: %ldd\n",
                 _s->c_str(), _q->size());
         if ("" == *_s)
             _done = true;

@@ -11,8 +11,11 @@ class socket {
 public:
     socket(); //: ::socket() {};
 
-protected:
-    int fd;
+    int
+    fd    ();
+
+public:
+    int m_fd;
 };
 
 __NAMESPACE_END

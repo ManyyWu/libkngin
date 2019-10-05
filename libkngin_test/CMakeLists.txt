@@ -16,7 +16,8 @@ add_executable(libkngin_test
 #               work_thread_test.cpp
                buffer_test.cpp
                test.cpp
-               main.cpp)
+               main.cpp
+               )
 
 target_link_libraries(libkngin_test
                       libkngin)

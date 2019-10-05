@@ -35,7 +35,7 @@ enum __ERROR_CODE {
 
 class __sys_err {
     enum {};
-    const char *what () const {}
+//    const char *what () const {}
 };
 
 #define __make_err_code(e) (-(e))

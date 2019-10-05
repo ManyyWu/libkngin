@@ -12,7 +12,7 @@ static mutex            g_mutex;
 
 #define print_err(_fmt, ...) do {        \
     g_mutex.lock();                     \
-    fprintf(stderr, _fmt, ##__VA_ARGS__);\
+    ::fprintf(stderr, _fmt, ##__VA_ARGS__);\
     g_mutex.unlock();                   \
 } while (false)
 

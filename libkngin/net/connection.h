@@ -3,7 +3,7 @@
 
 #include "define.h"
 #include "noncopyable.h"
-#include "epoll_event.h"
+#include "epoller_event.h"
 #include "socket.h"
 
 __NAMESPACE_BEGIN
@@ -13,13 +13,13 @@ public:
     virtual socket *
     get_socket      ();
 
-    virtual epoll_event *
-    get_epoll_event ();
+    virtual epoller_event *
+    get_epoller_event ();
 
 protected:
     socket m_socket;
 
-    epoll_event  m_event;
+    epoller_event  m_event;
 };
 
 __NAMESPACE_END

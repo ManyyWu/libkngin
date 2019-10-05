@@ -226,7 +226,7 @@ basic_buffer::dump ()
     m_dump_str.reserve(m_arr.size() * 1);
     for (int i = 0; i < m_arr.size(); ++i) {
         char _tmp[3] = {0};
-        snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
+        ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
         m_dump_str += _tmp;
     }
     return m_dump_str;

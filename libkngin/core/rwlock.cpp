@@ -14,44 +14,44 @@ __NAMESPACE_BEGIN
 rwlock::rwlock ()
     : m_rwlock(PTHREAD_RWLOCK_INITIALIZER)
 {
-    int _ret = pthread_rwlock_init(&m_rwlock, NULL);
+    int _ret = ::pthread_rwlock_init(&m_rwlock, NULL);
     if_not (!_ret) {
-        log_fatal("pthread_rwlock_init() return %d", _ret);
+        log_fatal("::pthread_rwlock_init() return %d", _ret);
         throw exception("rwlock::rwlock() error");
     }
 }
 
 rwlock::~rwlock ()
 {
-    int _ret = pthread_rwlock_destroy(&m_rwlock);
+    int _ret = ::pthread_rwlock_destroy(&m_rwlock);
     if_not (!_ret)
-        log_fatal("pthread_rwlock_destroy() retturn %d", _ret);
+        log_fatal("::pthread_rwlock_destroy() retturn %d", _ret);
 }
 
 void
 rwlock::rdlock ()
 {
-    int _ret = pthread_rwlock_rdlock(&m_rwlock);
+    int _ret = ::pthread_rwlock_rdlock(&m_rwlock);
     if_not (!_ret)
-        log_fatal("pthread_rwlock_rdlock() return %d", _ret);
+        log_fatal("::pthread_rwlock_rdlock() return %d", _ret);
 }
 
 void
 rwlock::wrlock ()
 {
-    int _ret = pthread_rwlock_wrlock(&m_rwlock);
+    int _ret = ::pthread_rwlock_wrlock(&m_rwlock);
     if_not (!_ret)
-        log_fatal("pthread_rwlock_wrlock() return %d", _ret);
+        log_fatal("::pthread_rwlock_wrlock() return %d", _ret);
 }
 
 bool
 rwlock::tryrdlock ()
 {
-    int _ret = pthread_rwlock_tryrdlock(&m_rwlock);
+    int _ret = ::pthread_rwlock_tryrdlock(&m_rwlock);
     if (EBUSY == _ret)
         return false;
     if_not (!_ret) {
-        log_fatal("pthread_rwlock_tryrdlock() return %d", _ret);
+        log_fatal("::pthread_rwlock_tryrdlock() return %d", _ret);
         return false;
     }
     return true;
@@ -60,11 +60,11 @@ rwlock::tryrdlock ()
 bool
 rwlock::trywrlock ()
 {
-    int _ret = pthread_rwlock_trywrlock(&m_rwlock);
+    int _ret = ::pthread_rwlock_trywrlock(&m_rwlock);
     if (EBUSY == _ret)
         return false;
     if_not (!_ret) {
-        log_fatal("pthread_rwlock_trywrlock() return %d", _ret);
+        log_fatal("::pthread_rwlock_trywrlock() return %d", _ret);
         return false;
     }
     return true;
@@ -77,14 +77,14 @@ rwlock::timedrdlock (time_t _ms)
         return false;
 
     timespec _ts;
-    timespec_get(&_ts, TIME_UTC);
+    ::timespec_get(&_ts, TIME_UTC);
     _ts.tv_sec += _ms / 1000;
     _ts.tv_nsec += (_ms % 1000) * 1000000;
-    int _ret = pthread_rwlock_timedrdlock(&m_rwlock, &_ts);
+    int _ret = ::pthread_rwlock_timedrdlock(&m_rwlock, &_ts);
     if (ETIMEDOUT == _ret)
         return false;
     if_not (!_ret) {
-        log_fatal("pthread_rwlock_timedrdlock(), value = %ld, return %d", _ms, _ret);
+        log_fatal("::pthread_rwlock_timedrdlock(), value = %ld, return %d", _ms, _ret);
         return false;
     }
 
@@ -98,14 +98,14 @@ rwlock::timedwrlock (time_t _ms)
         return false;
 
     timespec _ts;
-    timespec_get(&_ts, TIME_UTC);
+    ::timespec_get(&_ts, TIME_UTC);
     _ts.tv_sec += _ms / 1000;
     _ts.tv_nsec += (_ms % 1000) * 1000000;
-    int _ret = pthread_rwlock_timedwrlock(&m_rwlock, &_ts);
+    int _ret = ::pthread_rwlock_timedwrlock(&m_rwlock, &_ts);
     if (ETIMEDOUT == _ret)
         return false;
     if_not (!_ret) {
-        log_fatal("pthread_rwlock_timedwrlock(), value = %ld, return %d", _ms, _ret);
+        log_fatal("::pthread_rwlock_timedwrlock(), value = %ld, return %d", _ms, _ret);
         return false;
     }
 
@@ -115,9 +115,9 @@ rwlock::timedwrlock (time_t _ms)
 void
 rwlock::unlock ()
 {
-    int _ret = pthread_rwlock_unlock(&m_rwlock);
+    int _ret = ::pthread_rwlock_unlock(&m_rwlock);
     if_not (!_ret)
-        log_fatal("pthread_rwlock_unlock() return %d", _ret);
+        log_fatal("::pthread_rwlock_unlock() return %d", _ret);
 }
 
 pthread_rwlock_t *

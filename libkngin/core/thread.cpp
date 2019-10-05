@@ -34,9 +34,9 @@ thread::~thread ()
 #else
     if (m_tid) {
 #endif
-        _ret = pthread_detach(m_tid);
+        _ret = ::pthread_detach(m_tid);
         if_not (!_ret)
-            log_fatal("pthread_detach(), name = \"%s\", return %d:%s", m_name.c_str(), _ret, strerror(_ret));
+            log_fatal("::pthread_detach(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         else
             log_info("thread \"%s\" detached", m_name.c_str());
     }
@@ -52,9 +52,9 @@ thread::run ()
 #endif
 
     int _ret = 0;
-    _ret = pthread_create(&m_tid, NULL, thread::start, this);
+    _ret = ::pthread_create(&m_tid, NULL, thread::start, this);
     if_not (!_ret)
-        log_fatal("pthread_create(), name = \"%s\", return %d:%s", m_name.c_str(), _ret, strerror(_ret));
+        log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
     m_running.store(true);
     log_info("thread \"%s\" running", m_name.c_str());
     return !_ret;
@@ -68,12 +68,12 @@ thread::join (int *_err_code)
 #else
     kassert_r0(m_tid);
 #endif
-    kassert_r0(!pthread_equal(m_tid, pthread_self()));
+    kassert_r0(!::pthread_equal(m_tid, pthread_self()));
 
     int _ret = 0;
-    _ret = pthread_join(m_tid, &m_retptr);
+    _ret = ::pthread_join(m_tid, &m_retptr);
     if_not (!_ret) {
-        log_fatal("pthread_join(), name = \"%s\"return %d:%s", m_name.c_str(), _ret, strerror(_ret));
+        log_fatal("::pthread_join(), name = \"%s\"return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         return false;
     }
     if (_err_code)
@@ -99,9 +99,9 @@ thread::cancel ()
     kassert_r0(!pthread_equal(m_tid, pthread_self()));
 
     int _ret = 0;
-    _ret = pthread_cancel(m_tid);
+    _ret = ::pthread_cancel(m_tid);
     if_not (!_ret) {
-        log_fatal("pthread_cancel(), name = \"%s\"return %d:%s", m_name.c_str(), _ret, strerror(_ret));
+        log_fatal("::pthread_cancel(), name = \"%s\"return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         return false;
     }
     log_info("thread \"%s\" cancel", m_name.c_str());
@@ -141,22 +141,22 @@ thread::sleep (time_t _ms)
 {
     kassert_r(__time_valid(_ms));
 #ifdef _WIN32
-    Sleep((DWORD)_ms);
+    ::Sleep((DWORD)_ms);
 #else
-    usleep(std::abs(_ms) * 1000);
+    ::usleep(std::abs(_ms) * 1000);
 #endif
 }
 
 void
 thread::exit (int _err_code)
 {
-    pthread_exit((void *)(long long)_err_code);
+    ::pthread_exit((void *)(long long)_err_code);
 }
 
 pthread_t
 thread::self ()
 {
-    return pthread_self();
+    return ::pthread_self();
 }
 
 void

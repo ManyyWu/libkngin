@@ -21,7 +21,7 @@ public:
     process1 (void *_args)
     {
         mythread *_p = (mythread *)_args;
-        fprintf(stderr, "process1\n");
+        ::fprintf(stderr, "process1\n");
 
         return 0;
     }
@@ -30,7 +30,7 @@ public:
     process2 (void *_args)
     {
         mythread *_p = (mythread *)_args;
-        fprintf(stderr, "process1\n");
+        ::fprintf(stderr, "process1\n");
 
         return 0;
     }
@@ -44,12 +44,12 @@ thread_test ()
     thread t1(thread::process, NULL);
     t1.run();
     t1.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
+    ::fprintf(stderr, "join: %d\n", ret);
 
     thread t2(thread::process, NULL);
     t2.run();
     t2.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
+    ::fprintf(stderr, "join: %d\n", ret);
 
     mythread thr1(mythread::process1);
     mythread thr2(mythread::process2);
@@ -57,7 +57,7 @@ thread_test ()
     thr2.run();
 
     thr1.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
+    ::fprintf(stderr, "join: %d\n", ret);
     thr2.join(&ret);
-    fprintf(stderr, "join: %d\n", ret);
+    ::fprintf(stderr, "join: %d\n", ret);
 }

@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <limits>
 #include "define.h"
+#include "copyable.h"
 
 __NAMESPACE_BEGIN
 
@@ -39,6 +40,18 @@ struct timezone
 
 int gettimeofday (struct timeval *tv, struct timezone *tz);
 #endif
+
+class timestamp : copyable {
+public:
+    timestamp ();
+
+public:
+    uint64_t
+    value     ();
+
+    int
+    value_int ();
+};
 
 //enum TIME_FMT {
 //    TIEM_FMT_YYMMDD = 0,

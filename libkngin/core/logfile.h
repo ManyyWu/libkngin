@@ -36,7 +36,9 @@
 #define log_error   server_error
 #define log_warning server_warning
 #define log_info    server_info
+#ifndef NDEBUG
 #define log_debug   server_debug
+#endif
 
 
 __NAMESPACE_BEGIN

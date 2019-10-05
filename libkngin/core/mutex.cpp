@@ -13,32 +13,32 @@ __NAMESPACE_BEGIN
 mutex::mutex ()
     : m_mutex(PTHREAD_MUTEX_INITIALIZER)
 {
-    int _ret = pthread_mutex_init(&m_mutex, NULL);
+    int _ret = ::pthread_mutex_init(&m_mutex, NULL);
     if_not (!_ret) {
-        log_fatal("pthread_mutex_init() return %d", _ret);
+        log_fatal("::pthread_mutex_init() return %d", _ret);
         throw exception("mutex::mutex() error");
     }
 }
 
 mutex::~mutex ()
 {
-    int _ret = pthread_mutex_destroy(&m_mutex);
+    int _ret = ::pthread_mutex_destroy(&m_mutex);
     if_not (!_ret)
-        log_fatal("pthread_mutex_destroy() return %d", _ret);
+        log_fatal("::pthread_mutex_destroy() return %d", _ret);
 }
 
 void
 mutex::lock ()
 {
-    int _ret = pthread_mutex_lock(&m_mutex);
+    int _ret = ::pthread_mutex_lock(&m_mutex);
     if_not (!_ret)
-        log_fatal("pthread_mutex_lock() return %d", _ret);
+        log_fatal("::pthread_mutex_lock() return %d", _ret);
 }
 
 bool
 mutex::trylock ()
 {
-    int _ret = pthread_mutex_trylock(&m_mutex);
+    int _ret = ::pthread_mutex_trylock(&m_mutex);
     if (EBUSY == _ret)
         return false;
     if_not (!_ret) {
@@ -55,14 +55,14 @@ mutex::timedlock (time_t _ms)
         return false;
 
     timespec _ts;
-    timespec_get(&_ts, TIME_UTC);
+    ::timespec_get(&_ts, TIME_UTC);
     _ts.tv_sec += _ms / 1000;
     _ts.tv_nsec += (_ms % 1000) * 1000000;
-    int _ret = pthread_mutex_timedlock(&m_mutex, &_ts);
+    int _ret = ::pthread_mutex_timedlock(&m_mutex, &_ts);
     if (ETIMEDOUT == _ret)
         return false;
     if_not (!_ret) {
-        log_fatal("pthread_mutex_timedlock(), value = %ld, return %d", _ms, _ret);
+        log_fatal("::pthread_mutex_timedlock(), value = %ld, return %d", _ms, _ret);
         return false;
     }
     return true;
@@ -71,9 +71,9 @@ mutex::timedlock (time_t _ms)
 void
 mutex::unlock ()
 {
-    int _ret = pthread_mutex_unlock(&m_mutex);
+    int _ret = ::pthread_mutex_unlock(&m_mutex);
     if_not (!_ret)
-        log_fatal("pthread_mutex_unlock() return %d", _ret);
+        log_fatal("::pthread_mutex_unlock() return %d", _ret);
 }
 
 pthread_mutex_t *

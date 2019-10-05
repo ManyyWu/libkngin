@@ -1,170 +1,170 @@
-#ifdef _WIN32
-#include "pthread.h"
-#else
-#include <pthread.h>
-#endif
-#include <cstdio>
-#include "../core/define.h"
-#include "work_thread.h"
-#include "work_task.h"
-#include "../core/thread.h"
-#include "msg.h"
-
-__NAMESPACE_BEGIN
-
-work_thread::work_thread (const char *_name)
-    : thread(work_thread::process, this, _name ? _name : "work_thread"),
-      m_done(true), m_new_task(false),
-      m_stop_thread(false), m_task(NULL)
-{
-}
-
-work_thread::~work_thread ()
-{
-    if (m_task)
-        m_task->release();
-    log_info("work_thread \"%s\" closed", m_name.c_str());
-}
-
-bool
-work_thread::run ()
-{
-    kassert_r0(!m_running.load());
-
-    bool _ret = true;
-    _ret = this->thread::run();
-    if_not (_ret) {
-fail:
-        if (this->thread::running()) {
-            _ret = this->cancel();
-            _ret = this->join(NULL);
-        }
-        log_fatal("thread::run() error, name = \"%s\"", m_name.c_str());
-        return false;
-    }
-    log_info("work thread \"%s\" running", m_name.c_str());
-    return true;
-}
-
-bool
-work_thread::cancel ()
-{
-    kassert_r0(m_mutex && m_cond);
-
-    m_stop_thread.store(true);
-    m_new_task.store(false);
-    m_done.store(true);
-    bool _ret = this->thread::cancel();
-    if_not (_ret)
-        log_fatal("thread::cancel() error, name = \"%s\"", m_name.c_str());
-    m_cond.broadcast();
-
-    log_info("work thread \"%s\" canceled", m_name.c_str());
-    return _ret;
-}
-
-bool
-work_thread::task_done () const
-{
-    kassert_r0(m_running.load());
-
-    return m_done.load();
-}
-
-bool
-work_thread::recv_task (work_task **_task)
-{
-    kassert_r0(_task);
-    kassert_r0(*_task);
-    kassert_r0(!m_task);
-    kassert_r0(m_mutex && m_cond);
-    kassert_r0(m_running.load() && m_done.load());
-
-    if (!m_mutex.trylock())
-        return false;
-    m_task = *_task;
-    *_task = NULL;
-    m_done.store(false);
-    m_new_task.store(true);
-    m_mutex.unlock();
-    m_cond.broadcast();
-
-    return true;
-}
-
-msg *
-work_thread::send_msg ()
-{
-    kassert_r0(m_task);
-    kassert_r0(m_mutex && m_cond);
-    kassert_r0(m_running.load() && m_done.load())
-
-    m_mutex.lock();
-    msg *_ret = m_task->send_reply_msg();
-    m_task->release();
-    m_task = NULL;
-    m_mutex.unlock();
-    m_cond.broadcast();
-
-    return _ret;
-}
-
-void
-work_thread::cleanup_lock (void *_args)
-{
-    kassert_r(_args);
-    work_thread *_p = (work_thread *)_args;
-    kassert_r(_p->m_mutex && _p->m_cond);
-
-    _p->m_done.store(true);
-    _p->m_mutex.unlock();
-    _p->m_cond.broadcast();
-}
-
-int
-work_thread::process (void *_args)
-{
-    kassert_r0(_args);
-
-    work_thread *_p = (work_thread *)_args;
-    pthread_cleanup_push(cleanup_lock, _args);
-    int _ret = 0;
-
-    while (!_p->m_stop_thread.load()) {
-        // wait for new task
-        pthread_testcancel();
-        _p->m_mutex.lock();
-        while (!_p->m_new_task.load()) {
-            pthread_testcancel();
-            if (!_p->m_new_task.load())
-                _p->m_cond.wait();
-            pthread_testcancel();
-        }
-        _p->m_new_task.store(false);
-
-        // process task
-        work_task *_task = _p->m_task;
-        if_not (_task)
-            goto unlock;
-        _ret = [_p] (work_task *_task) mutable -> bool {
-            bool _ret = false;
-            pthread_testcancel();
-            _ret = _task->process();
-            if (!_ret) {
-                log_error("task process failed");
-            }
-            pthread_testcancel();
-            return true;
-        }(_p->m_task);
-
-unlock:
-        _p->m_mutex.unlock();
-        _p->m_done.store(true);
-        _p->m_cond.broadcast();
-    }
-
-    pthread_cleanup_pop(0);
-    return 0;
-}
-
-__NAMESPACE_END
+//#ifdef _WIN32
+//#include "pthread.h"
+//#else
+//#include <pthread.h>
+//#endif
+//#include <cstdio>
+//#include "../core/define.h"
+//#include "work_thread.h"
+//#include "work_task.h"
+//#include "../core/thread.h"
+//#include "msg.h"
+//
+//__NAMESPACE_BEGIN
+//
+//work_thread::work_thread (const char *_name)
+//    : thread(work_thread::process, this, _name ? _name : "work_thread"),
+//      m_done(true), m_new_task(false),
+//      m_stop_thread(false), m_task(NULL)
+//{
+//}
+//
+//work_thread::~work_thread ()
+//{
+//    if (m_task)
+//        m_task->release();
+//    log_info("work_thread \"%s\" closed", m_name.c_str());
+//}
+//
+//bool
+//work_thread::run ()
+//{
+//    kassert_r0(!m_running.load());
+//
+//    bool _ret = true;
+//    _ret = this->thread::run();
+//    if_not (_ret) {
+//fail:
+//        if (this->thread::running()) {
+//            _ret = this->cancel();
+//            _ret = this->join(NULL);
+//        }
+//        log_fatal("::thread::run() error, name = \"%s\"", m_name.c_str());
+//        return false;
+//    }
+//    log_info("work thread \"%s\" running", m_name.c_str());
+//    return true;
+//}
+//
+//bool
+//work_thread::cancel ()
+//{
+//    kassert_r0(m_mutex && m_cond);
+//
+//    m_stop_thread.store(true);
+//    m_new_task.store(false);
+//    m_done.store(true);
+//    bool _ret = this->thread::cancel();
+//    if_not (_ret)
+//        log_fatal("::thread::cancel() error, name = \"%s\"", m_name.c_str());
+//    m_cond.broadcast();
+//
+//    log_info("work thread \"%s\" canceled", m_name.c_str());
+//    return _ret;
+//}
+//
+//bool
+//work_thread::task_done () const
+//{
+//    kassert_r0(m_running.load());
+//
+//    return m_done.load();
+//}
+//
+//bool
+//work_thread::recv_task (work_task **_task)
+//{
+//    kassert_r0(_task);
+//    kassert_r0(*_task);
+//    kassert_r0(!m_task);
+//    kassert_r0(m_mutex && m_cond);
+//    kassert_r0(m_running.load() && m_done.load());
+//
+//    if (!m_mutex.trylock())
+//        return false;
+//    m_task = *_task;
+//    *_task = NULL;
+//    m_done.store(false);
+//    m_new_task.store(true);
+//    m_mutex.unlock();
+//    m_cond.broadcast();
+//
+//    return true;
+//}
+//
+//msg *
+//work_thread::send_msg ()
+//{
+//    kassert_r0(m_task);
+//    kassert_r0(m_mutex && m_cond);
+//    kassert_r0(m_running.load() && m_done.load())
+//
+//    m_mutex.lock();
+//    msg *_ret = m_task->send_reply_msg();
+//    m_task->release();
+//    m_task = NULL;
+//    m_mutex.unlock();
+//    m_cond.broadcast();
+//
+//    return _ret;
+//}
+//
+//void
+//work_thread::cleanup_lock (void *_args)
+//{
+//    kassert_r(_args);
+//    work_thread *_p = (work_thread *)_args;
+//    kassert_r(_p->m_mutex && _p->m_cond);
+//
+//    _p->m_done.store(true);
+//    _p->m_mutex.unlock();
+//    _p->m_cond.broadcast();
+//}
+//
+//int
+//work_thread::process (void *_args)
+//{
+//    kassert_r0(_args);
+//
+//    work_thread *_p = (work_thread *)_args;
+//    pthread_cleanup_push(cleanup_lock, _args);
+//    int _ret = 0;
+//
+//    while (!_p->m_stop_thread.load()) {
+//        // wait for new task
+//        pthread_testcancel();
+//        _p->m_mutex.lock();
+//        while (!_p->m_new_task.load()) {
+//            pthread_testcancel();
+//            if (!_p->m_new_task.load())
+//                _p->m_cond.wait();
+//            pthread_testcancel();
+//        }
+//        _p->m_new_task.store(false);
+//
+//        // process task
+//        work_task *_task = _p->m_task;
+//        if_not (_task)
+//            goto unlock;
+//        _ret = [_p] (work_task *_task) mutable -> bool {
+//            bool _ret = false;
+//            pthread_testcancel();
+//            _ret = _task->process();
+//            if (!_ret) {
+//                log_error("task process failed");
+//            }
+//            pthread_testcancel();
+//            return true;
+//        }(_p->m_task);
+//
+//unlock:
+//        _p->m_mutex.unlock();
+//        _p->m_done.store(true);
+//        _p->m_cond.broadcast();
+//    }
+//
+//    pthread_cleanup_pop(0);
+//    return 0;
+//}
+//
+//__NAMESPACE_END
