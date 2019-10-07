@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "../libkngin/core/sync_queue.h"
-#include "../libkngin/core/thread.h"
+#include "sync_queue.h"
+#include "thread.h"
 
 using namespace k;
 using namespace std;

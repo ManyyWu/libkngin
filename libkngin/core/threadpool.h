@@ -6,10 +6,10 @@
 #include <atomic>
 #include "sync_queue.h"
 #include "sync_deque.h"
-#include "../net/work_thread.h"
+#include "work_thread.h"
 #include "task_base.h"
 #include "error.h"
-#include "../net/msg.h"
+#include "msg.h"
 #include "lock.h"
 #include "timestamp.h"
 

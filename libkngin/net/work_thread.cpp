@@ -4,10 +4,10 @@
 //#include <pthread.h>
 //#endif
 //#include <cstdio>
-//#include "../core/define.h"
+//#include "define.h"
 //#include "work_thread.h"
 //#include "work_task.h"
-//#include "../core/thread.h"
+//#include "thread.h"
 //#include "msg.h"
 //
 //__NAMESPACE_BEGIN

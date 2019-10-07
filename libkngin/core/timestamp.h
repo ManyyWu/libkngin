@@ -43,14 +43,14 @@ int gettimeofday (struct timeval *tv, struct timezone *tz);
 
 class timestamp : copyable {
 public:
-    timestamp ();
+    timestamp (){};
 
 public:
     uint64_t
-    value     ();
+    value     () {return 0;}
 
     int
-    value_int ();
+    value_int () {return (int)(0);}
 };
 
 //enum TIME_FMT {

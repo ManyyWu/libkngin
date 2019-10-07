@@ -9,10 +9,10 @@ __NAMESPACE_BEGIN
 
 class socket {
 public:
-    socket(); //: ::socket() {};
+    socket() {}//: ::socket() {};
 
     int
-    fd    ();
+    fd    () {return m_fd;}
 
 public:
     int m_fd;

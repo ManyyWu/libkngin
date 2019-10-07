@@ -2,8 +2,8 @@
 #include <ctime>
 #include <atomic>
 #include <mutex>
-#include "../libkngin/core/thread.h"
-#include "../libkngin/core/lock.h"
+#include "thread.h"
+#include "lock.h"
 
 using namespace k;
 

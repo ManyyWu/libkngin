@@ -2,10 +2,10 @@
 #include <cstdint>
 #include <cstring>
 #include <algorithm>
-#include "../core/define.h"
-#include "../core/logfile.h"
-#include "../core/task_base.h"
-#include "../core/common.h"
+#include "define.h"
+#include "logfile.h"
+#include "task_base.h"
+#include "common.h"
 #include "msg.h"
 
 __NAMESPACE_BEGIN

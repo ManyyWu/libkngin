@@ -13,7 +13,7 @@
 #include "../libkngin/core/lock.h"
 #include "../libkngin/core/memory.h"
 #include "../libkngin/core/buffer.h"
-#include "../libkngin/net/epoller.h"
+#include "epoller.h"
 
 using namespace k;
 using namespace std;

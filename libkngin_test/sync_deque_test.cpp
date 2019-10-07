@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "../libkngin/core/sync_deque.h"
-#include "../libkngin/core/thread.h"
+#include "sync_deque.h"
+#include "thread.h"
 
 using namespace k;
 using namespace std;

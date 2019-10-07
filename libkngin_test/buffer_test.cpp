@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "../libkngin/core/buffer.h"
+#include "buffer.h"
 
 using namespace std;
 using namespace k;

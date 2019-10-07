@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "../libkngin/core/threadpool.h"
+#include "threadpool.h"
 
 extern void
 threadpool_test ()
