@@ -36,10 +36,9 @@ public:
     static sync_queue<__T> *
     create (size_type _s, bool _sync)
     {
-        sync_queue<__T> *_q = knew(sync_queue, (_s));
+        sync_queue<__T> *_q = NULL;
+        knew(_q, sync_queue, (_s));
         kassert_r0(_q);
-        if (!_q)
-            return NULL;
         _q->m_queue.clear();
         if (_sync) {
             _q->m_mutex = mutex::create();
@@ -62,7 +61,7 @@ public:
     virtual void
     release ()
     {
-        delete this;
+        kdelete_this(this);
     }
 
 public:

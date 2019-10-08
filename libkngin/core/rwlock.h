@@ -46,7 +46,7 @@ public:
         rwlock * _rwlock = NULL;
         pthread_rwlock_t *_rwlock_intr = NULL;
 
-        _rwlock_intr = knew(pthread_rwlock_t, ());
+        knew(_rwlock_intr, pthread_rwlock_t, ());
         if_not (_rwlock_intr)
             return NULL;
         _ret = pthread_rwlock_init(_rwlock_intr, NULL);
@@ -54,7 +54,7 @@ public:
             server_fatal("pthread_rwlock_init() return %d", _ret);
             goto fail;
         }
-        _rwlock = knew(rwlock, (_rwlock_intr));
+        knew(_rwlock, rwlock, (_rwlock_intr));
         if_not (_rwlock)
             goto fail;
         return _rwlock;
@@ -71,7 +71,7 @@ public:
     {
         kassert(m_rwlock);
 
-        delete this;
+        kdelete_this(this);
     }
 
 public:

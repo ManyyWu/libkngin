@@ -13,7 +13,6 @@ static mutex  *         g_mutex = NULL;
 #define print_err(_fmt, ...) do {        \
     g_mutex->lock();                     \
     fprintf(stderr, _fmt, ##__VA_ARGS__);\
-    fflush(stderr);                      \
     g_mutex->unlock();                   \
 } while (false)
 

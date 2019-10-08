@@ -27,6 +27,7 @@ thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
 thread::~thread ()
 {
     int _ret = 0;
+    
 #ifdef _WIN32
     if (m_tid.p) {
 #else
@@ -34,9 +35,9 @@ thread::~thread ()
 #endif
         _ret = pthread_detach(m_tid);
         if_not (!_ret)
-            server_fatal("pthread_detach(), name = \"%s\", return %d", m_name, _ret);
+            server_fatal("pthread_detach(), name = \"%s\", return %d", m_name.c_str(), _ret);
         else
-            server_info("thread \"%s\" detached", m_name);
+            server_info("thread \"%s\" detached", m_name.c_str());
     }
 }
 
@@ -52,9 +53,9 @@ thread::run ()
     int _ret = 0;
     _ret = pthread_create(&m_tid, NULL, thread::start, this);
     if_not (!_ret)
-        server_fatal("pthread_create(), name = \"%s\", return %d", m_name, _ret);
+        server_fatal("pthread_create(), name = \"%s\", return %d", m_name.c_str(), _ret);
     m_running.store(true);
-    server_info("thread \"%s\" running", m_name);
+    server_info("thread \"%s\" running", m_name.c_str());
     return !_ret;
 }
 
@@ -71,7 +72,7 @@ thread::join (int *_err_code)
     int _ret = 0;
     _ret = pthread_join(m_tid, &m_retptr);
     if_not (!_ret) {
-        server_fatal("pthread_join(), name = \"%s\"return %d", m_name, _ret);
+        server_fatal("pthread_join(), name = \"%s\"return %d", m_name.c_str(), _ret);
         return false;
     }
     if (_err_code)
@@ -82,7 +83,7 @@ thread::join (int *_err_code)
     m_tid = 0;
 #endif
     m_running.store(false);
-    server_info("thread \"%s\" joined with code: %u", m_name, (long)(long long)m_retptr);
+    server_info("thread \"%s\" joined with code: %u", m_name.c_str(), (long)(long long)m_retptr);
     return true;
 }
 
@@ -99,10 +100,10 @@ thread::cancel ()
     int _ret = 0;
     _ret = pthread_cancel(m_tid);
     if_not (!_ret) {
-        server_fatal("pthread_cancel(), name = \"%s\"return %d", m_name, _ret);
+        server_fatal("pthread_cancel(), name = \"%s\"return %d", m_name.c_str(), _ret);
         return false;
     }
-    server_info("thread \"%s\" cancel", m_name);
+    server_info("thread \"%s\" cancel", m_name.c_str());
     return true;
 }
 
@@ -131,7 +132,7 @@ thread::get_err_code  () const
 const char *
 thread::name () const
 {
-    return m_name;
+    return m_name.c_str();
 }
 
 void
@@ -196,7 +197,6 @@ thread::process (void *_args)
     // pthread testcancel()
 
     fprintf(stderr, "thread::process()\n");
-    fflush(stderr);
 
     // pthread_cleanup_pop()
     return 0;

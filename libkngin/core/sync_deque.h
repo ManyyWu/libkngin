@@ -36,7 +36,8 @@ public:
     static sync_deque<__T> *
     create (size_type _s, bool _sync)
     {
-        sync_deque<__T> *_q = knew(sync_deque, (_s));
+        sync_deque<__T> *_q = NULL;
+        knew(_q, sync_deque, (_s));
         if_not (_q)
             return NULL;
         _q->m_deque.clear();
@@ -62,7 +63,7 @@ public:
     virtual void
     release ()
     {
-        delete this;
+        kdelete_this(this);
     }
 
 public:

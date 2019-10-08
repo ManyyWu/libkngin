@@ -15,17 +15,18 @@ producer (void *_args)
         sprintf(_buf, "%d", i);
         while (_q->full())
             _q->wait();
-        string *_str = knew(string, (_buf));
+        string *_str = NULL;
+        knew(_str, string, (_buf));
         kassert(_str);
         kassert(!_q->full() && _q->push(&_str));
-        fprintf(stderr, "-----producer put, len: %ld\n",
+        fprintf(stderr, "-----producer put, len: %Zu\n",
                 _q->size());
-        fflush(stderr);
         _q->unlock();
         _q->broadcast();
     }
     _q->lock();
-    string *_str = knew(string, (""));
+    string *_str = NULL;
+    knew(_str, string, (""));
     kassert(_str);
     _q->push(&_str);
     _q->unlock();
@@ -43,9 +44,8 @@ comsumer (void *_args)
         while (_q->empty())
             _q->wait();
         string *_s = _q->pop();
-        fprintf(stderr, "comsumer get \"%s\", len: %ld\n",
+        fprintf(stderr, "comsumer get \"%s\", len: %Zud\n",
                 _s->c_str(), _q->size());
-        fflush(stderr);
         if ("" == *_s)
             _done = true;
         kdelete(_s);
@@ -59,12 +59,12 @@ void
 sync_queue_test ()
 {
     sync_queue<string> *_q = sync_queue<string>::create(100000, true);
-    thread t0(producer, _q);
-    thread t1(producer, _q);
-    thread t2(producer, _q);
-    thread t3(comsumer, _q);
-    thread t4(comsumer, _q);
-    thread t5(comsumer, _q);
+    k::thread t0(producer, _q);
+    k::thread t1(producer, _q);
+    k::thread t2(producer, _q);
+    k::thread t3(comsumer, _q);
+    k::thread t4(comsumer, _q);
+    k::thread t5(comsumer, _q);
     t0.run();
     t1.run();
     t2.run();

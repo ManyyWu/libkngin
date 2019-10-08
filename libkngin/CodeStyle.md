@@ -4,7 +4,7 @@
 1. 代码中不出现任何中文
 2. 代码文件的编码使用UTF-8(无BOM)
 3. 不能在构造函数中new，堆上分配对象使用new_nothrow，释放内存使用safe_release
-4. 除release函数中使用delete this;，其他任何地方不允许使用delete
+4. 除release函数中使用kdelete_this(this);，其他任何地方不允许使用delete
 5. 传入队列的对象必须为对应类型的指针，不允许传入栈上分配的对象
 6. 除析构函数外，其他任务地方使用release后必须将指针置空
 7. 派生类构造函数先初始化基类再初始化其他成员

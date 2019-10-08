@@ -9,7 +9,7 @@ static int
 process (void *_args)
 {
     work_thread *_c = (work_thread *)_args;
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     for (int i = 0; i < 100; i++)
     {
         work_task *_wt = new work_task(_c);

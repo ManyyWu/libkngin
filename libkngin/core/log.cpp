@@ -105,12 +105,12 @@ log::log_data (const char *_data, int _len)
 {
     assert(_data && _len);
 
+    bool _ret = true;
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len))
-            return false;
+        _ret = this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
         this->write_stderr(LOG_LEVEL_DEBUG, _data, _len);
-    return true;
+    return _ret;
 }
 
 bool
@@ -130,18 +130,18 @@ log::write_log (LOG_LEVEL _level, const char *_fmt, va_list _vl)
 {
     assert(_fmt);
 
+    bool _ret = true;
     char _buf[__LOG_BUF_SIZE + 1];
     _buf[__LOG_BUF_SIZE] = '\0';
 
     vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
     int _len = (int)strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        if (!this->write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len))
-            return false;
+        _ret = this->write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
         this->write_stderr(_level, _buf, _len);
 
-    return true;
+    return _ret;
 }
 
 bool
@@ -149,10 +149,13 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
 {
     assert(_str);
 #ifdef __LOG_MUTEX
-    assert(m_mutex);
-    m_mutex->lock();
+    if (logger().inited()) {
+        assert(m_mutex);
+        m_mutex->lock();
+    }
 #endif
 
+    bool    _fail = false;
     int     _ret = 0;
     char    _buf[__LOG_BUF_SIZE + 1] = {0};
     char    _filename[FILENAME_MAX + 1];
@@ -230,15 +233,13 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     fflush(_fplog);
     fclose(_fplog);
 
-#ifdef __LOG_MUTEX
-    m_mutex->unlock();
-#endif
-    return true;
+    _fail = true;
 fail:
 #ifdef __LOG_MUTEX
-    m_mutex->unlock();
+    if (logger().inited())
+        m_mutex->unlock();
 #endif
-    return false;
+    return _fail;
 }
 
 void
@@ -247,8 +248,10 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
     assert(_str);
 
 #ifdef __LOG_MUTEX
-    assert(m_mutex);
-    m_mutex->lock();
+    if (logger().inited()) {
+        assert(m_mutex);
+        m_mutex->lock();
+    }
 #endif
 
 #ifdef _WIN32
@@ -280,11 +283,11 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
     fputs(__COLOR_NONE, stderr);
 #endif
     fputc('\n', stderr);
-    fflush(stderr);
 
 fail:
 #ifdef __LOG_MUTEX
-    m_mutex->unlock();
+    if (logger().inited())
+        m_mutex->unlock();
 #endif
     return;
 }
@@ -295,8 +298,10 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
     assert(_fmt);
 
 #ifdef __LOG_MUTEX
-    assert(m_mutex);
-    m_mutex->lock();
+    if (logger().inited()) {
+        assert(m_mutex);
+        m_mutex->lock();
+    }
 #endif
 
     va_list _vl;
@@ -334,12 +339,12 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
     fputs(__COLOR_NONE, stderr);
 #endif
     fputc('\n', stderr);
-    fflush(stderr);
     va_end(_vl);
 
 fail:
 #ifdef __LOG_MUTEX
-    m_mutex->unlock();
+    if (logger().inited())
+        m_mutex->unlock();
 #endif
     return;
 }

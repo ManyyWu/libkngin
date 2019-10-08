@@ -47,7 +47,7 @@ public:
         mutex * _mutex = NULL;
         pthread_mutex_t *_mutex_intr = NULL;
 
-        _mutex_intr = knew(pthread_mutex_t, ());
+        knew(_mutex_intr, pthread_mutex_t, ());
         if_not (_mutex_intr)
             return NULL;
         _ret = pthread_mutex_init(_mutex_intr, NULL);
@@ -55,7 +55,7 @@ public:
             server_fatal("pthread_mutex_init() return %d", _ret);
             goto fail;
         }
-        _mutex = knew(mutex, (_mutex_intr));
+        knew(_mutex, mutex, (_mutex_intr));
         if_not (_mutex)
             goto fail;
         return _mutex;
@@ -72,7 +72,7 @@ public:
     {
         kassert(m_mutex);
 
-        delete this;
+        kdelete_this(this);
     }
 
 public:

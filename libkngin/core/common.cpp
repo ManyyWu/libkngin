@@ -1,5 +1,4 @@
-#include <cstdarg>
-#include <cstring>
+#include <atomic>
 #include "common.h"
 #include "logfile.h"
 #include "log.h"
@@ -7,8 +6,6 @@
 
 __NAMESPACE_BEGIN
 
-size_t     __memory_debug_total = 0;
-void *     __memory_debug_addr  = NULL;
-std::mutex __memory_debug_mutex;
+std::atomic<size_t> __g_memory_debug_total = 0;
 
 __NAMESPACE_END

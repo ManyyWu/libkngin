@@ -22,7 +22,6 @@ public:
     {
         mythread *_p = (mythread *)_args;
         fprintf(stderr, "process1\n");
-        fflush(stderr);
 
         return 0;
     }
@@ -32,7 +31,6 @@ public:
     {
         mythread *_p = (mythread *)_args;
         fprintf(stderr, "process1\n");
-        fflush(stderr);
 
         return 0;
     }
@@ -47,13 +45,11 @@ thread_test ()
     t1.run();
     t1.join(&ret);
     fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
 
     thread t2(thread::process, NULL);
     t2.run();
     t2.join(&ret);
     fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
 
     mythread thr1(mythread::process1);
     mythread thr2(mythread::process2);
@@ -62,8 +58,6 @@ thread_test ()
 
     thr1.join(&ret);
     fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
     thr2.join(&ret);
     fprintf(stderr, "join: %d\n", ret);
-    fflush(stderr);
 }

@@ -3,17 +3,17 @@
 
 #include <vector>
 #include <string>
+#include <atomic>
 #include "log.h"
 #include "define.h"
 #include "noncopyable.h"
 
 __NAMESPACE_BEGIN
 
-class log_mgr : public noncopyable {
-public:
-    typedef std::vector<log *>       __log_set;
-    typedef std::vector<std::string> __logfile_set;
+typedef std::vector<log *>       __log_set;
+typedef std::vector<std::string> __logfile_set;
 
+class log_mgr : public noncopyable {
 private:
     log_mgr     ();
 
@@ -29,10 +29,16 @@ public:
     std::string &
     filename_at (size_t _index);
 
-protected:
-    static __log_set     m_log_set;
+public:
+    bool
+    inited      () const;
 
-    static __logfile_set m_logfile_set;
+protected:
+    static __log_set         m_log_set;
+
+    static __logfile_set     m_logfile_set;
+
+    static std::atomic<bool> m_inited;
 
 private:
     friend log_mgr &

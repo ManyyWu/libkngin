@@ -34,7 +34,7 @@ task_base::create (msg **_msg)
 void
 task_base::release()
 {
-    delete this;
+    kdelete_this(this);
 }
 
 int

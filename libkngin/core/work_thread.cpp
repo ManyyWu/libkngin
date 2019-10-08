@@ -28,7 +28,7 @@ work_thread::~work_thread ()
         m_mutex->release();
     if (m_cond)
         m_cond->release();
-    server_info("work_thread \"%s\" closed", m_name);
+    server_info("work_thread \"%s\" closed", m_name.c_str());
 }
 
 bool
@@ -56,10 +56,10 @@ fail:
             _ret = this->cancel();
             _ret = this->join(NULL);
         }
-        server_fatal("thread::run() error, name = \"%s\"", m_name);
+        server_fatal("thread::run() error, name = \"%s\"", m_name.c_str());
         return false;
     }
-    server_info("work thread \"%s\" running", m_name);
+    server_info("work thread \"%s\" running", m_name.c_str());
     return true;
 }
 
@@ -74,10 +74,10 @@ work_thread::cancel ()
 
     bool _ret = this->thread::cancel();
     if_not (_ret)
-        server_fatal("thread::cancel() error, name = \"%s\"", m_name);
+        server_fatal("thread::cancel() error, name = \"%s\"", m_name.c_str());
     m_cond->broadcast();
 
-    server_info("work thread \"%s\" canceled", m_name);
+    server_info("work thread \"%s\" canceled", m_name.c_str());
     return _ret;
 }
 

@@ -13,12 +13,10 @@ process1 (void *_args)
     g_mutex->lock();
     g_cond->wait();
     fputs("process1\n", stderr);
-    fflush(stderr);
     g_mutex->unlock();
     g_mutex->lock();
     g_cond->wait();
     fputs("process1\n", stderr);
-    fflush(stderr);
     g_mutex->unlock();
     return 0;
 }
@@ -29,13 +27,11 @@ process2 (void *_args)
     thread::sleep(100);
     g_mutex->lock();
     fputs("process2\n", stderr);
-    fflush(stderr);
     g_mutex->unlock();
     g_cond->signal();
     thread::sleep(100);
     g_mutex->lock();
     fputs("process2\n", stderr);
-    fflush(stderr);
     g_mutex->unlock();
     g_cond->signal();
     return 0;

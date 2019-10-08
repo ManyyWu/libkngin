@@ -47,7 +47,7 @@ work_task::create (msg **_msg)
 void
 work_task::release ()
 {
-    delete this;
+    kdelete_this(this);
 }
 
 bool

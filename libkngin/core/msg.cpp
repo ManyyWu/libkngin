@@ -41,7 +41,7 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
     if (m_buf)
         kdelete_array(m_buf);
     if (_size && _buf) {
-        m_buf = knew_array(uint8_t, _size);
+        knew_array(m_buf, uint8_t, _size);
         if_not (m_buf)
             return false;
         memcpy(m_buf, _buf, (std::min)(_size, MAX_MSG_SIZE));
@@ -84,7 +84,7 @@ msg::create (const msg *_msg)
     if (m_buf)
         kdelete_array(m_buf);
     if (_msg->m_size && _msg->m_buf) {
-        m_buf = knew_array(uint8_t, _msg->m_size);
+        knew_array(m_buf, uint8_t, _msg->m_size);
         kassert_r0(m_buf);
         if (!m_buf)
             return NULL;
@@ -125,7 +125,7 @@ msg::release ()
 {
     m_type = INVALID_MSG;
     m_size = 0;
-    delete this;
+    kdelete_this(this);
 }
 
 bool
@@ -166,7 +166,8 @@ msg::dump ()
     _len += 2 * m_size;
     _len = (std::min)(_len, (uint32_t)__LOG_BUF_SIZE); // max: 4096
 
-    char *_buf = knew_array(char, ((m_size) + _len));
+    char *_buf = NULL;
+    knew_array(_buf, char, ((m_size) + _len));
     if_not (_buf) {
         server_fatal("failed to dump msg, size = %#x", m_size);
         delete[] _buf;

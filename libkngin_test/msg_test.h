@@ -54,7 +54,8 @@ public:
             switch (this->m_info->action) {
             case ACTION_0:
                 return [this] (int _param) -> bool {
-                    netmsg_test *_msg = knew(netmsg_test, (this->task()));
+                    netmsg_test *_msg = NULL; 
+                    knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
                     _msg->create(ACTION_0, _param * 1);
@@ -64,7 +65,8 @@ public:
                 break;
             case ACTION_1:
                 return [this] (int _param) -> bool {
-                    netmsg_test *_msg = knew(netmsg_test, (this->task()));
+                    netmsg_test *_msg = NULL; 
+                    knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
                     _msg->create(ACTION_1, _param * 2);
@@ -74,7 +76,8 @@ public:
                 break;
             case ACTION_2:
                 return [this] (int _param) -> bool {
-                    netmsg_test *_msg = knew(netmsg_test, (this->task()));
+                    netmsg_test *_msg = NULL; 
+                    knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
                     _msg->create(ACTION_2, _param * 3);
@@ -84,7 +87,8 @@ public:
                 break;
             case ACTION_3:
                 return [this] (int _param) -> bool {
-                    netmsg_test *_msg = knew(netmsg_test, (this->task()));
+                    netmsg_test *_msg = NULL; 
+                    knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
                     _msg->create(ACTION_3, _param * 4);

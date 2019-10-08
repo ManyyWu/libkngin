@@ -71,7 +71,7 @@ public:
     process       (void *_args);
 
 protected:
-    const char *      m_name;
+    const std::string m_name;
 
     pthread_t         m_tid;
 
