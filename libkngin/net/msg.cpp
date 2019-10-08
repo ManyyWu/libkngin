@@ -173,8 +173,8 @@ msg::dump ()
         delete[] _buf;
         return;
     }
-    ::snprintf(_buf, _len, "*** [dump msg]:\n*** [type]: %#010d\n*** [size]: %#010d\n*** [data]: ",
-             m_type, m_size);
+    ::snprintf(_buf, _len, "*** [dump msg]:\n*** [type]: %#010x\n*** [size]: %#010x\n*** [data]: ",
+               m_type, m_size);
     uint32_t _start = (uint32_t)::strnlen(_buf, 80);
     _buf[_start] = '\0';
     uint32_t i = 0;

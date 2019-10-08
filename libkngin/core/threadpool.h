@@ -17,11 +17,14 @@ __NAMESPACE_BEGIN
 
 #define THREAD_NUM_MAX 65535
 
-typedef sync_deque<task_base> task_queue;
-typedef sync_deque<msg>       msg_queue;
-typedef std::vector<thread *> pool_vector;
-
 class thread_pool : noncopyable {
+public:
+    typedef sync_deque<task_base> task_queue;
+
+    typedef sync_deque<msg>       msg_queue;
+
+    typedef std::vector<thread *> pool_vector;
+
 public:
     thread_pool  (size_t _qsize, int _thr_max, time_t _alive);
 

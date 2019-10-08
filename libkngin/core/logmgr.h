@@ -11,10 +11,12 @@
 
 __NAMESPACE_BEGIN
 
-typedef std::vector<log *>       __log_set;
-typedef std::vector<std::string> __logfile_set;
-
 class log_mgr : public noncopyable {
+public:
+    typedef std::vector<log *>       __log_set;
+
+    typedef std::vector<std::string> __logfile_set;
+
 private:
     log_mgr     ();
 

@@ -14,13 +14,13 @@
 __NAMESPACE_BEGIN
 
 #ifdef _WIN32
-thread::thread (pthr_fn _pfn, void *_args, const char *_name /* = "" */)
-    : m_pfn(_pfn), m_args(_args), m_retptr(NULL), 
-      m_tid(pthread_t{NULL, 0}), m_running(false), m_name(_name ? _name : "")
+thread::thread (thr_fn _fn, const char *_name /* = "" */)
+    : m_name(_name ? _name : ""), m_tid(pthread_t{NULL, 0}), m_fn(_fn),
+      m_retptr(NULL), m_running(false)
 #else
 thread::thread (thr_fn _fn, const char *_name /* = "" */)
-    : m_fn(_fn), m_retptr(NULL), m_tid(0), m_running(false),
-      m_name(_name ? _name : "")
+    : m_name(_name ? _name : ""), m_tid(0), m_fn(_fn),
+      m_retptr(NULL), m_running(false)
 #endif
 {
 }
@@ -179,8 +179,12 @@ thread::start (void *_args)
 
         pthread_cleanup_pop(1);
     } catch (const k::exception &e){
-        log_fatal("caught an exception: %s\n%s\n",
+        log_fatal("caught an k::exception: %s\n%s\n",
                   e.what().c_str(), e.dump().c_str());
+    } catch (const std::exception &e) {
+        log_fatal("caught an std::exception: %s", e.what());
+    } catch (...) {
+        log_fatal("caught an undefined exception");
     }
 
     return _p->m_retptr;

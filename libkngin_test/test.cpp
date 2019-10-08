@@ -22,5 +22,4 @@ using namespace std::placeholders;
 void
 test ()
 {
-    epoller ep(NULL);
 }

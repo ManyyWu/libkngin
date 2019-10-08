@@ -20,7 +20,6 @@ public:
     static int
     process1 (void *_args)
     {
-        mythread *_p = (mythread *)_args;
         ::fprintf(stderr, "process1\n");
 
         return 0;
@@ -29,7 +28,6 @@ public:
     static int
     process2 (void *_args)
     {
-        mythread *_p = (mythread *)_args;
         ::fprintf(stderr, "process1\n");
 
         return 0;

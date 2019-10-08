@@ -14,9 +14,10 @@
 
 __NAMESPACE_BEGIN
 
-typedef std::function<int (void *)> thr_fn;
-
 class thread : public noncopyable {
+public:
+    typedef std::function<int (void *)> thr_fn;
+
 public:
     thread        (thr_fn _fn, const char *_name = "");
 

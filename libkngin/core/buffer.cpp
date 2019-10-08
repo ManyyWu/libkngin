@@ -23,7 +23,7 @@ basic_buffer::basic_buffer (uint8_arr &&_arr, size_t _reserve /* = 0 */)
     m_arr.resize(std::max(_reserve, m_arr.size()));
 }
 
-const uint8_arr&
+const buffer::uint8_arr &
 basic_buffer::get ()
 {
     return m_arr;

@@ -1,5 +1,5 @@
-#ifndef _epoller_event_H_
-#define _epoller_event_H_
+#ifndef _EPOLLER_EVENT_H_
+#define _EPOLLER_EVENT_H_
 
 #include <functional>
 #include "define.h"
@@ -8,13 +8,13 @@
 
 __NAMESPACE_BEGIN
 
-typedef int epollfd;
-
 class epoller;
 class event_loop;
 class epoller_event : noncopyable {
 public:
     typedef std::function<void (socket *)> epoller_event_cb;
+
+    typedef int                            epollfd;
 
 public:
     epoller_event  (event_loop *_loop, socket *_s);
@@ -107,4 +107,4 @@ protected:
 
 __NAMESPACE_END
 
-#endif /* _epoller_event_H_ */
+#endif /* _EPOLLER_EVENT_H_ */

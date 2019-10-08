@@ -13,13 +13,13 @@ __NAMESPACE_BEGIN
 
 epoller::epoller (event_loop *_loop)
     try
-    : m_loop(_loop),
-      m_set(RESERVE_EPOLLELR_EVENT),
-      m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
+    :
 #ifndef NDEBUG
-      ,
-      m_fd_set()
+      m_fd_set(),
 #endif
+      m_set(RESERVE_EPOLLELR_EVENT),
+      m_loop(_loop),
+      m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
     kassert(_loop);
     if (m_epollfd < 0) {
@@ -80,6 +80,10 @@ epoller::modify_event (epoller_event *_e)
 void
 epoller::close ()
 {
+#ifndef NDEBUG
+    if (!m_fd_set.empty())
+        log_warning("there are still have %d undeleted fd in epoller", m_fd_set.size());
+#endif
     if (m_epollfd >= 0) {
         if (::close(m_epollfd) < 0)
             log_error("::close() error - %s:%d", strerror(errno), errno);
@@ -109,12 +113,16 @@ epoller::update_event (int _opt, epoller_event *_e)
     int _fd = _e->m_socket->fd();
 #ifndef NDEBUG
     auto _iter = m_fd_set.find(_fd);
-    if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt)
+    if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt) {
         kassert(_iter != m_fd_set.end());
-    else if (EPOLL_CTL_ADD ==  _opt)
+        if (EPOLL_CTL_DEL ==  _opt)
+            m_fd_set.erase(_fd);
+    } else if (EPOLL_CTL_ADD ==  _opt) {
         kassert(_iter == m_fd_set.end());
-    else
+        m_fd_set.insert(_fd);
+    } else {
         kassert(!"invalid epoll_ctl option");
+    }
 #endif
 
     epoll_event _epe = {_epe.events = _e->m_flags, _epe.data.ptr = _e};

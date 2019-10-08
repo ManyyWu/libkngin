@@ -11,9 +11,10 @@
 
 __NAMESPACE_BEGIN
 
-typedef std::vector<uint8_t> uint8_arr;
-
 class basic_buffer {
+public:
+    typedef std::vector<uint8_t> uint8_arr;
+
 protected:
     basic_buffer   (const uint8_arr &_arr, size_t _reserve = 0);
 

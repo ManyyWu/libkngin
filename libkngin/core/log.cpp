@@ -14,7 +14,7 @@
 __NAMESPACE_BEGIN
 
 log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE */)
-    : m_filetype(_filetype), m_mode(_mode)
+    : m_mutex(), m_mode(_mode), m_filetype(_filetype)
 {
 }
 
@@ -176,7 +176,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
                                 ::strerror(errno), errno);
             ::fclose(_fplog);
             goto fail;
-        } else if (_ret != _str_len) {
+        } else if ((size_t)_ret != _str_len) {
              this->write_stderr2(LOG_LEVEL_FATAL,
                                  __log_format("ERROR", "the content been writen to \"%s\" are too short, "
                                               "and the disk space may be insufficient"),
@@ -242,19 +242,17 @@ log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
         break;
     }
 #endif
-    size_t _ret = ::fwrite(_str, 1, _len, stderr);
+    ::fwrite(_str, 1, _len, stderr);
 #ifdef _WIN32
 #else
     ::fputs(__COLOR_NONE, stderr);
 #endif
     ::fputc('\n', stderr);
 
-fail:
 #ifdef __LOG_MUTEX
     if (logger().inited())
         m_mutex.unlock();
 #endif
-    return;
 }
 
 void
@@ -296,8 +294,7 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
 #endif
     va_start(_vl, _fmt);
     ::vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
-    size_t _len = ::strnlen(_buf, __LOG_BUF_SIZE);
-    size_t _ret = ::fwrite(_buf, 1, _len, stderr);
+    ::fwrite(_buf, 1, ::strnlen(_buf, __LOG_BUF_SIZE), stderr);
 #ifdef _WIN32
 #else
     ::fputs(__COLOR_NONE, stderr);
@@ -305,12 +302,10 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
     ::fputc('\n', stderr);
     va_end(_vl);
 
-fail:
 #ifdef __LOG_MUTEX
     if (logger().inited())
         m_mutex.unlock();
 #endif
-    return;
 }
 
 __NAMESPACE_END

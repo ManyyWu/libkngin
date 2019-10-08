@@ -112,7 +112,7 @@ public:
 
         auto iter = m_deque.begin();
         kassert_r0(iter != m_deque.end());
-        for (int i = 0; i < _n; i++) {
+        for (size_type i = 0; i < _n; i++) {
             kassert_r0(iter++ == m_deque.end());
             ++iter; // ++iter is more efficient
         }
@@ -130,7 +130,7 @@ public:
 
         auto iter = m_deque.begin();
         kassert_r0(iter != m_deque.end());
-        for (int i = 0; i < _n; i++) {
+        for (size_type i = 0; i < _n; i++) {
             kassert_r0(iter == m_deque.end());
             ++iter; // ++iter is more efficient
         }

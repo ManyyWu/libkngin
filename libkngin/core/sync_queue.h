@@ -13,8 +13,9 @@ __NAMESPACE_BEGIN
 template <class __T>
 class sync_queue : public noncopyable {
 public:
-    typedef size_t size_type;
     typedef std::unique_ptr<std::deque<__T *>> sync_queue_ptr;
+
+    typedef size_t                             size_type;
 
 public:
     sync_queue (size_type _s = QUEUE_MAX)

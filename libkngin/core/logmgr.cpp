@@ -9,9 +9,11 @@
 
 __NAMESPACE_BEGIN
 
-std::atomic<bool> log_mgr::m_inited(false);
-__log_set         log_mgr::m_log_set;
-__logfile_set     log_mgr::m_logfile_set = {
+std::atomic<bool>       log_mgr::m_inited(false);
+
+log_mgr::__log_set     log_mgr::m_log_set;
+
+log_mgr::__logfile_set log_mgr::m_logfile_set = {
     "kngin_memory",
     "kngin_server", // default
 };

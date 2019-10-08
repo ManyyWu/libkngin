@@ -7,7 +7,7 @@
 
 __NAMESPACE_BEGIN
 
-epoller_event::epoller_event(k::event_loop *_loop, k::socket *_s)
+epoller_event::epoller_event(event_loop *_loop, socket *_s)
     : m_loop(_loop), m_socket(_s), m_flags(0)
 {
     kassert(_loop && _s);
