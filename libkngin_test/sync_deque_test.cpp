@@ -19,7 +19,7 @@ producer (void *_args)
         knew(_str, string, (_buf));
         kassert(_str);
         kassert(!_q->full() && _q->push_front(&_str));
-        fprintf(stderr, "-----producer put, len: %Zu\n",
+        fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         _q->unlock();
         _q->broadcast();
@@ -46,7 +46,7 @@ comsumer (void *_args)
         string *_s = _q->back();
         kassert(_s);
         _q->pop_back();
-        fprintf(stderr, "comsumer get \"%s\", len: %Zu\n",
+        fprintf(stderr, "comsumer get \"%s\", len: %ld\n",
                 _s->c_str(), _q->size());
         if ("" == *_s)
             _done = true;

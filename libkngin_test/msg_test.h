@@ -60,7 +60,10 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    _msg->create(ACTION_0, _param * 1);
+                    if_not (_msg->create(ACTION_0, _param * 1)); {
+                        kdelete(_msg);
+                        return false;
+                    }
                     this->task()->recv_reply_msg((msg **)&_msg);
                     return true;
                 }(this->m_info->param);
@@ -71,7 +74,10 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    _msg->create(ACTION_1, _param * 2);
+                    if_not (_msg->create(ACTION_1, _param * 2)); {
+                        kdelete(_msg);
+                        return false;
+                    }
                     this->task()->recv_reply_msg((msg **)&_msg);
                     return true;
                 }(this->m_info->param);
@@ -82,7 +88,10 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    _msg->create(ACTION_2, _param * 3);
+                    if_not (_msg->create(ACTION_2, _param * 3)); {
+                        kdelete(_msg);
+                        return false;
+                    }
                     this->task()->recv_reply_msg((msg **)&_msg);
                     return true;
                 }(this->m_info->param);
@@ -93,7 +102,10 @@ public:
                     knew(_msg, netmsg_test, (this->task()));
                     if (!_msg)
                         return false;
-                    _msg->create(ACTION_3, _param * 4);
+                    if_not (_msg->create(ACTION_3, _param * 3)); {
+                        kdelete(_msg);
+                        return false;
+                    }
                     this->task()->recv_reply_msg((msg **)&_msg);
                     return true;
                 }(this->m_info->param);

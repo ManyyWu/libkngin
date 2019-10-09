@@ -11,11 +11,11 @@ __NAMESPACE_BEGIN
 enum __ERROR_CODE {
     E_SUCCESS               = 0x00000000, // success
     
-    // application error code                                  [0x00000001 - 0x000000FF]
+    // application error code                                  [0x00000001, 0x000000FF]
     E_SERVER_INIT_FAIL      = 0x00000001, // failed
     E_SERVER_NOMEM          = 0x00000002, // no memory 
 
-    // common                                                  [0x00001001 - 0x0000FFFF]
+    // common                                                  [0x00001001, 0x0000FFFF]
     E_FAILED                = 0x00001001, // failed, undefined error
     E_INVAL                 = 0x00001002, // invalid arguments
     E_NOMEM                 = 0x00001003, // no memory
@@ -24,7 +24,7 @@ enum __ERROR_CODE {
     E_BUSY                  = 0x00001102, // busy, try again
     E_QUEUE_FULL            = 0x00001103, // the queue is full
 
-    // for user                                                [0x00010000 - 0xFFFFFFFF]
+    // for user                                                [0x00010000, 0xFFFFFFFF]
 
     E_MAX
 };

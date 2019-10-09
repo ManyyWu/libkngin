@@ -6,7 +6,7 @@
 #include "common.h"
 #include "noncopyable.h"
 
-#define MAX_MSG_SIZE      4096U
+#define MAX_MSG_SIZE      8192U
 #define MAX_MSG           0x7fffffffU
 #define INVALID_MSG       0x0U
 #define MSG_BEGIN         0x1U

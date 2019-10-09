@@ -23,7 +23,7 @@ typedef std::vector<thread *> pool_vector;
 
 class thread_pool : noncopyable {
 public:
-    thread_pool  (size_t _qsize, int _thr_max, time_t _alive); // options
+    thread_pool  (size_t _qsize, int _thr_max, time_t _alive);
 
     ~thread_pool ();
 

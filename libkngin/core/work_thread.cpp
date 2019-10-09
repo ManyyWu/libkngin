@@ -71,7 +71,6 @@ work_thread::cancel ()
     m_stop_thread.store(true);
     m_new_task.store(false);
     m_done.store(true);
-
     bool _ret = this->thread::cancel();
     if_not (_ret)
         server_fatal("thread::cancel() error, name = \"%s\"", m_name.c_str());
@@ -98,7 +97,8 @@ work_thread::recv_task (work_task **_task)
     kassert_r0(m_mutex && m_cond);
     kassert_r0(m_running.load() && m_done.load());
 
-    m_mutex->lock();
+    if (!m_mutex->trylock())
+        return false;
     m_task = *_task;
     *_task = NULL;
     m_done.store(false);
@@ -157,7 +157,6 @@ work_thread::process (void *_args)
                 _p->m_cond->wait();
             pthread_testcancel();
         }
-        _p->m_new_task.store(false);
         _p->m_new_task.store(false);
 
         // process task
