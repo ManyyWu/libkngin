@@ -8,6 +8,7 @@
 #include "exception.h"
 #include "logfile.h"
 #include "epoller.h"
+#include "file.h"
 
 __NAMESPACE_BEGIN
 
@@ -21,13 +22,12 @@ epoller::epoller (event_loop *_loop)
       m_loop(_loop),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
-    kassert(_loop);
-    if (m_epollfd < 0) {
+    if (__fd_invalid(m_epollfd)) {
         log_fatal("::epoll_create1() error - %s:%d", m_epollfd, strerror(errno), errno);
         throw exception("epoller::epoller() error");
     }
 } catch (...) {
-    if (m_epollfd >= 0)
+    if (__fd_valid(m_epollfd))
         ::close(m_epollfd);
     throw;
 }

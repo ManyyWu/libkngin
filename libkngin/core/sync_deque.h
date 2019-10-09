@@ -19,8 +19,12 @@ public:
 
 public:
     sync_deque (size_type _s = QUEUE_MAX)
+        try
         : m_deque(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
     {
+    } catch (...) {
+        log_fatal("sync_deque::sync_deque() error");
+        throw;
     }
 
     virtual

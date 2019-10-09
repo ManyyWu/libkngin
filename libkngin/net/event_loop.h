@@ -12,20 +12,33 @@ __NAMESPACE_BEGIN
 
 class event_loop : noncopyable {
 public:
-    event_loop ();
+    typedef int waker;
+
+public:
+    event_loop (thread *_thr);
 
     ~event_loop ();
 
 public:
     void
-    update_event (epoller_event *_e) {};
+    update_event  (epoller_event *_e) {};
+
+    static event_loop::waker
+    loop          (void *_args);
 
 protected:
-    epoller_event  m_wakeup_fd;
+    static event_loop::waker
+    create_waker  ();
 
-    thread         m_thr;
+    static void
+    destroy_waker (event_loop::waker _waker);
 
-    mutex          m_mutex;
+protected:
+    waker         m_waker_fd;
+
+    thread *      m_thr;
+
+    mutex         m_mutex;
 };
 
 __NAMESPACE_END

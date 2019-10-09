@@ -19,8 +19,12 @@ public:
 
 public:
     sync_queue (size_type _s = QUEUE_MAX)
+        try
         : m_queue(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
     {
+    } catch (...) {
+        log_fatal("sync_queue::sync_queue() error");
+        throw;
     }
 
     virtual

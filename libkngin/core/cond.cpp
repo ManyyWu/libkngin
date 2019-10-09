@@ -20,7 +20,7 @@ cond::cond (mutex *_mutex)
 {
     kassert(_mutex);
     int _ret = ::pthread_cond_init(&m_cond, NULL);
-    if_not (!_ret) {
+    if (_ret) {
         log_fatal("::pthread_cond_init() return %d", _ret);
         throw exception("cond::cond() error");
     }

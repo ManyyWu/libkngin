@@ -8,6 +8,8 @@
 #include <string>
 #include <memory>
 #include <cstring>
+#include <unistd.h>
+#include <sys/eventfd.h>
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
@@ -22,4 +24,5 @@ using namespace std::placeholders;
 void
 test ()
 {
+
 }

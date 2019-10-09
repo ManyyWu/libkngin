@@ -14,11 +14,14 @@
 __NAMESPACE_BEGIN
 
 log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE */)
+    try
     : m_mutex(), m_mode(_mode), m_filetype(_filetype)
 {
+} catch (...) {
+    throw;
 }
 
-log::log (log &&_log)
+    log::log (log &&_log)
 {
 }
 
