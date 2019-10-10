@@ -9,13 +9,13 @@
 #include "define.h"
 #include "noncopyable.h"
 #include "timestamp.h"
-#include "event_loop.h"
 #include "epoller_event.h"
 
 #define RESERVE_EPOLLELR_EVENT 32
 
 __NAMESPACE_BEGIN
 
+class event_loop;
 class epoller : public noncopyable {
 public:
     typedef std::vector<struct epoll_event> __epoll_event_set;
@@ -52,7 +52,6 @@ public:
     void
     close          ();
 
-protected:
     bool
     update_event   (int _opt, epoller_event *_e);
 

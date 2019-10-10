@@ -4,41 +4,47 @@
 #include <functional>
 #include "define.h"
 #include "noncopyable.h"
+#include "epoller.h"
 #include "epoller_event.h"
 #include "mutex.h"
 #include "thread.h"
+#include "event.h"
 
 __NAMESPACE_BEGIN
 
 class event_loop : noncopyable {
 public:
-    typedef int waker;
+    typedef event waker;
 
 public:
-    event_loop (thread *_thr);
+    event_loop    (thread *_thr);
 
-    ~event_loop ();
+    ~event_loop   ();
 
 public:
     void
-    update_event  (epoller_event *_e) {};
+    update_event  (epoller_event *_e);
 
-    static event_loop::waker
+    static int
     loop          (void *_args);
 
 protected:
-    static event_loop::waker
-    create_waker  ();
+    void
+    wakeup        ();
 
-    static void
-    destroy_waker (event_loop::waker _waker);
+    void
+    handle_wakeup ();
 
 protected:
-    waker         m_waker_fd;
+    waker         m_waker;
+
+    epoller_event m_waker_event;
 
     thread *      m_thr;
 
     mutex         m_mutex;
+
+    epoller       m_epoller;
 };
 
 __NAMESPACE_END

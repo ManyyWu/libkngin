@@ -4,11 +4,14 @@
 #include "event_loop.h"
 #include "logfile.h"
 #include "common.h"
+#include "filefd.h"
 
 __NAMESPACE_BEGIN
 
-epoller_event::epoller_event(event_loop *_loop, socket *_s)
-    : m_loop(_loop), m_socket(_s), m_flags(0)
+epoller_event::epoller_event(event_loop *_loop, filefd *_s)
+    : m_loop(_loop), m_filefd(_s), m_flags(0),
+      m_incb(nullptr), m_outcb(nullptr), m_errcb(nullptr),
+      m_pricb(nullptr), m_closecb(nullptr)
 {
     kassert(_loop && _s);
 }
@@ -23,46 +26,55 @@ epoller_event::set_flags (int flags)
     m_flags = flags;
 }
 
-void
-epoller_event::set_pollin (bool _en)
+int
+epoller_event::flags () const
 {
-    m_flags = _en ? m_flags | EPOLLIN : m_flags & ~EPOLLIN;
-    update();
+    return m_flags;
 }
 
 void
-epoller_event::set_pollout (bool _en)
+epoller_event::enable_once ()
 {
-    m_flags = _en ? m_flags | EPOLLOUT : m_flags & ~EPOLLOUT;
-    update();
+    m_flags = m_flags & ~EPOLLONESHOT;
 }
 
 void
-epoller_event::set_pollerr (bool _en)
+epoller_event::disable_read ()
 {
-    m_flags = _en ? m_flags | EPOLLERR : m_flags & ~EPOLLERR;
-    update();
+    m_flags = m_flags & ~EPOLLIN;
+    m_incb = nullptr;
 }
 
 void
-epoller_event::set_pollpri (bool _en)
+epoller_event::disable_write ()
 {
-    m_flags = _en ? m_flags | EPOLLPRI : m_flags & ~EPOLLPRI;
-    update();
+    m_flags = m_flags & ~EPOLLOUT;
+    m_outcb = nullptr;
 }
 
 void
-epoller_event::set_pollhup (bool _en)
+epoller_event::disable_error ()
 {
-    m_flags = _en ? m_flags | EPOLLHUP : m_flags & ~EPOLLHUP;
-    update();
+    m_errcb = nullptr;
 }
 
 void
-epoller_event::set_pollonce (bool _en)
+epoller_event::disable_ergent ()
 {
-    m_flags = _en ? m_flags | EPOLLONESHOT : m_flags & ~EPOLLONESHOT;
-    update();
+    m_flags = m_flags & ~EPOLLPRI;
+    m_pricb = nullptr;
+}
+
+void
+epoller_event::disable_once ()
+{
+    m_flags = m_flags & ~EPOLLONESHOT;
+}
+
+void
+epoller_event::disable_close ()
+{
+    m_closecb = nullptr;
 }
 
 bool
@@ -78,27 +90,21 @@ epoller_event::pollout () const
 }
 
 bool
-epoller_event::pollerr () const
-{
-    return (m_flags & EPOLLERR);
-}
-
-bool
 epoller_event::pollpri () const
 {
     return (m_flags & EPOLLPRI);
 }
 
 bool
-epoller_event::pollhup () const
-{
-    return (m_flags & EPOLLHUP);
-}
-
-bool
 epoller_event::pollonce () const
 {
     return (m_flags & EPOLLONESHOT);
+}
+
+bool
+epoller_event::pollhup () const
+{
+    return (m_flags & EPOLLHUP);
 }
 
 void
@@ -112,30 +118,35 @@ void
 epoller_event::set_read_cb (epoller_event_cb _fn)
 {
     m_incb = std::move(_fn);
+    m_flags |= EPOLLIN;
 }
 
 void
 epoller_event::set_write_cb (epoller_event_cb _fn)
 {
     m_outcb = std::move(_fn);
+    m_flags |= EPOLLOUT;
 }
 
 void
 epoller_event::set_error_cb (epoller_event_cb _fn)
 {
     m_errcb = std::move(_fn);
+    m_flags |= EPOLLERR;
 }
 
 void
 epoller_event::set_ergent_cb (epoller_event_cb _fn)
 {
     m_pricb = std::move(_fn);
+    m_flags |= EPOLLPRI;
 }
 
 void
 epoller_event::set_close_cb (epoller_event_cb _fn)
 {
     m_closecb = std::move(_fn);
+    m_flags |= EPOLLHUP;
 }
 
 void
@@ -145,18 +156,18 @@ epoller_event::handle_events ()
 
     if (EPOLLHUP & m_flags) // RST
     {
-        log_warning("event POLLHUP happend in fd %d", m_socket->fd());
-        m_closecb(m_socket);
+        log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
+        m_closecb(m_filefd);
         return;
     }
-    if (EPOLLERR & m_flags)
-        m_closecb(m_socket);
-    if (EPOLLIN & m_flags)
-        m_incb(m_socket);
-    if (EPOLLOUT & m_flags)
-        m_outcb(m_socket);
-    if (EPOLLPRI & m_flags)
-        m_pricb(m_socket);
+    if (EPOLLERR & m_flags && m_errcb)
+        m_errcb(m_filefd);
+    if (EPOLLIN & m_flags && m_incb)
+        m_incb(m_filefd);
+    if (EPOLLOUT & m_flags && m_outcb)
+        m_outcb(m_filefd);
+    if (EPOLLPRI & m_flags && m_pricb)
+        m_pricb(m_filefd);
 }
 
 __NAMESPACE_END

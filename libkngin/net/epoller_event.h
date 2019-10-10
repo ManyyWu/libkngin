@@ -4,90 +4,92 @@
 #include <functional>
 #include "define.h"
 #include "noncopyable.h"
-#include "socket.h"
+#include "filefd.h"
 
 __NAMESPACE_BEGIN
 
-class epoller;
 class event_loop;
 class epoller_event : noncopyable {
 public:
-    typedef std::function<void (socket *)> epoller_event_cb;
+    typedef std::function<void (filefd *)> epoller_event_cb;
 
     typedef int                            epollfd;
 
 public:
-    epoller_event  (event_loop *_loop, socket *_s);
+    epoller_event  (event_loop *_loop, filefd *_s);
 
-    ~epoller_event ();
-
-public:
-    void
-    set_flags      (int flags);
-
-    void
-    set_pollin     (bool _en);
-
-    void
-    set_pollout    (bool _en);
-
-    void
-    set_pollerr    (bool _en);
-
-    void
-    set_pollpri    (bool _en);
-
-    void
-    set_pollhup    (bool _en);
-
-    void
-    set_pollonce   (bool _en);
-
-    bool
-    pollin         () const;
-
-    bool
-    pollout        () const;
-
-    bool
-    pollerr        () const;
-
-    bool
-    pollpri        () const;
-
-    bool
-    pollhup        () const;
-
-    bool
-    pollonce       () const;
-
-    void
-    update         ();
+    ~epoller_event   ();
 
 public:
     void
-    set_read_cb    (epoller_event_cb _fn);
+    set_flags        (int flags);
+
+    int
+    flags            () const;
 
     void
-    set_write_cb   (epoller_event_cb _fn);
+    enable_once      (); // for EPOLLONCE
 
     void
-    set_error_cb   (epoller_event_cb _fn);
+    disable_read     (); // for EPOLLIN
 
     void
-    set_ergent_cb  (epoller_event_cb _fn);
+    disable_write    (); // for EPOLLOUT
 
     void
-    set_close_cb   (epoller_event_cb _fn);
+    disable_error    (); // for EPOLLERR
+
+    void
+    disable_ergent   (); // for EPOLLPRI
+
+    void
+    disable_once     (); // for EPOLLONCE
+
+    void
+    disable_close    (); // for EPOLLHUP
+
+    bool
+    pollin           () const;
+
+    bool
+    pollout          () const;
+
+    bool
+    pollpri          () const;
+
+    bool
+    pollonce         () const;
+
+    bool
+    pollhup          () const;
+
+    void
+    update           ();
 
 public:
     void
-    handle_events  ();
+    set_read_cb      (epoller_event_cb _fn); // for EPOLLIN
+
+    void
+    set_write_cb     (epoller_event_cb _fn); // for EPOLLOUT
+
+    void
+    set_error_cb     (epoller_event_cb _fn); // for EPOLLPRI
+
+    void
+    set_ergent_cb    (epoller_event_cb _fn); // for EPOLLONCE
+
+    void
+    set_close_cb     (epoller_event_cb _fn); // for EPOLLHUP
+
+public:
+    void
+    handle_events    ();
 
 protected:
     event_loop *     m_loop;
 
-    socket *         m_socket;
+    filefd *         m_filefd;
 
     int              m_flags;
 

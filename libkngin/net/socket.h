@@ -3,16 +3,17 @@
 
 #include <sys/socket.h>
 #include "define.h"
+#include "filefd.h"
 #include "noncopyable.h"
 
 __NAMESPACE_BEGIN
 
-class socket {
+class socket : filefd {
 public:
-    socket() {}//: ::socket() {};
+    socket (int _sockfd);
 
-    int
-    fd    () {return m_fd;}
+    virtual
+    ~socket ();
 
 public:
     int m_fd;

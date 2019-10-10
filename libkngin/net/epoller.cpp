@@ -8,7 +8,7 @@
 #include "exception.h"
 #include "logfile.h"
 #include "epoller.h"
-#include "file.h"
+#include "filefd.h"
 
 __NAMESPACE_BEGIN
 
@@ -110,7 +110,7 @@ epoller::update_event (int _opt, epoller_event *_e)
     */
     kassert(_e);
 
-    int _fd = _e->m_socket->fd();
+    int _fd = _e->m_filefd->fd();
 #ifndef NDEBUG
     auto _iter = m_fd_set.find(_fd);
     if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt) {
