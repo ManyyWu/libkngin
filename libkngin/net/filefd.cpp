@@ -37,4 +37,11 @@ filefd::read (void *_buf, size_t _nbytes)
     return ::read(m_fd, _buf, _nbytes);
 }
 
+void
+filefd::close ()
+{
+    kassert(__fd_valid(m_fd));
+    ::close(m_fd);
+}
+
 __NAMESPACE_END

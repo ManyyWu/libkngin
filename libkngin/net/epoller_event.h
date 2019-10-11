@@ -16,7 +16,7 @@ public:
     typedef int                            epollfd;
 
 public:
-    epoller_event  (event_loop *_loop, filefd *_s);
+    epoller_event    (event_loop *_loop, filefd *_s);
 
     ~epoller_event   ();
 

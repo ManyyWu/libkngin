@@ -7,7 +7,7 @@
 
 __NAMESPACE_BEGIN
 
-timer::timer (timestamp _ms)
+timer::timer ()
     : filefd(::timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC | TFD_NONBLOCK))
 {
     if_not (__fd_valid(m_fd)) {
@@ -20,5 +20,28 @@ timer::~timer ()
 {
 }
 
+void
+set_time (const timestamp &_ms, bool _abs /* = false */)
+{
+
+}
+
+void
+set_time (const timestamp &&_ms, bool _abs /* = false */)
+{
+
+}
+
+void
+set_interval (const timestamp &_ms)
+{
+
+}
+
+void
+set_interval (const timestamp &&_ms)
+{
+
+}
 
 __NAMESPACE_END

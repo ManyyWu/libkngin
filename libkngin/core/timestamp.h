@@ -4,9 +4,9 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-//#include <sys/time.h>
+#include <sys/time.h>
 #endif
-#include </usr/include/time.h>
+#include <time.h>
 #include <cstdint>
 #include <limits>
 #include "define.h"
@@ -25,8 +25,54 @@ __NAMESPACE_BEGIN
 
 #define __time_valid(_t) (TIME_INFINITE == (_t) || (_t) < TIME_MAX)
 
+class timestamp : copyable {
+public:
+    timestamp    (uint64_t _ms);
+
+    timestamp    (const timestamp &_t);
+
+    timestamp    (const timeval &_tv);
+
+    timestamp    (const timespec &_ts);
+
+public:
+    timestamp
+    operator =   (timestamp _t);
+
+    timestamp
+    operator =   (uint64_t _t);
+
+    timestamp
+    operator =   (timeval _tv);
+
+    timestamp
+    operator =   (timespec _ts);
+
+public:
+    uint64_t
+    value        ();
+
+    int
+    value_int    ();
+
+    void
+    to_timeval   (timeval &_tv);
+
+    void
+    to_timespec  (timespec &_ts);
+
+protected:
+    uint64_t m_ms;
+};
+
+timestamp
+timediff (const timeval &_tvl, const timeval &_tvr);
+
+timestamp
+timediff (const timespec &_tsl, const timespec &_tsr);
+
 #ifdef _WIN32
-#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+    #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
 #else
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
@@ -40,77 +86,6 @@ struct timezone
 
 int gettimeofday (struct timeval *tv, struct timezone *tz);
 #endif
-
-class timestamp : copyable {
-public:
-    timestamp (){};
-
-public:
-    uint64_t
-    value     () {return 0;}
-
-    int
-    value_int () {return (int)(0);}
-};
-
-//enum TIME_FMT {
-//    TIEM_FMT_YYMMDD = 0,
-//    TIME_FMT_YYYYMMDD,
-//    TIME_FMT_YYYYMMDDHHmm,
-//    TIME_FMT_YYYYMMDDHHmmSS,
-//    TIME_FMT_YYYYMMDDHHmmSSms,
-//    TIME_FMT_HHmm,
-//    TIME_FMT_HHmmSS,
-//    TIME_FMT_HHmmSSms,
-//    TIME_FMT_SECONDS,
-//    TIME_FMT_WEEKS,
-//};
-//
-//enum US_TIME_FMT {
-//    US_TIME_FMT_SSmsus = 0,
-//    US_TIME_FMT_SSms,
-//    US_TIME_FMT_ms,
-//};
-//
-//class time {
-//public:
-//    static tm
-//    localtime    ();
-//
-//    static timeval
-//    localustime  ();
-//
-//public:
-//    static uint16_t
-//    year         (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint8_t
-//    month        (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint8_t
-//    day          (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint8_t
-//    hour         (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint8_t
-//    minute       (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint8_t
-//    second       (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint16_t
-//    ms           (TIME_FMT _fmt, int64_t _t);
-//
-//    static uint8_t
-//    second       (US_TIME_FMT _fmt, int64_t _t);
-//
-//    static uint16_t
-//    ms           (US_TIME_FMT _fmt, int64_t _t);
-//
-//    static uint16_t
-//    us           (US_TIME_FMT _fmt, int64_t _t);
-//};
 
 __NAMESPACE_END
 

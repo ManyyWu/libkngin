@@ -7,10 +7,12 @@
 __NAMESPACE_BEGIN
 
 class local_lock {
+public:
     local_lock  (mutex &_m);
 
     ~local_lock ();
 
+protected:
     mutex &m_mutex;
 };
 

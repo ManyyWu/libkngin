@@ -26,6 +26,9 @@ public:
     ssize_t
     read    (void *_buf, size_t _nbytes);
 
+    void
+    close   ();
+
 protected:
     int m_fd;
 };

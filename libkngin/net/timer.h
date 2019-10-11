@@ -10,10 +10,23 @@ public:
     typedef std::function<void (timestamp)> timer_cb;
 
 public:
-    timer  (timestamp _ms);
+    timer        ();
 
     virtual
-    ~timer ();
+    ~timer       ();
+
+public:
+    void
+    set_time     (const timestamp &_ms, bool _abs = false);
+
+    void
+    set_time     (const timestamp &&_ms, bool _abs = false);
+
+    void
+    set_interval (const timestamp &_ms);
+
+    void
+    set_interval (const timestamp &&_ms);
 };
 
 __NAMESPACE_END
