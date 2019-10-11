@@ -23,10 +23,12 @@ public:
     ~buffer  ();
 
 public:
-
+    
 
 protected:
-    std::string _s;
+    std::string m_buf;
+
+    size_t      m_max;
 };
 
 __NAMESPACE_END
