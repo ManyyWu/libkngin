@@ -1,20 +1,16 @@
 #ifndef _DEFINE_H_
 #define _DEFINE_H_
 
-#include <string>
-#include <memory>
-
 #if __cplusplus < 201103L
 //#error c++ version is too low, please build the project using c++11 standard.
 #endif
 
-#include <cassert>
 #include <cstdint>
 #include <climits>
 
 // compile options
 #define __LOG_MUTEX
-//#define __DUMP_ERROR_MSG
+#define __DUMP_ERROR_MSG
 
 // namespace
 #define __NAMESPACE_BEGIN namespace k {

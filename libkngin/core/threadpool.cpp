@@ -29,12 +29,12 @@
 //bool
 //thread_pool::run (int _num)
 //{
-//    kassert_r0(m_stop.load());
-//    kassert_r0(!m_running.load());
+//    kassert_r0(m_stop);
+//    kassert_r0(!m_running);
 //    char _name[50];
 //
-//    m_stop.store(false);
-//    m_running.store(false);
+//    m_stop = false;
+//    m_running = false;
 //
 //    // create manager thread
 //    ::snprintf(_name, sizeof(_name),
@@ -199,7 +199,7 @@
 //bool
 //thread_pool::running () const
 //{
-//    return m_running.load();
+//    return m_running;
 //}
 //
 //int
@@ -218,14 +218,14 @@
 //size_t
 //thread_pool::queue_max () const
 //{
-//    return m_queue_size.load();
+//    return m_queue_size;
 //}
 //
 //void
 //thread_pool::set_queue_max(size_t _max)
 //{
 //    // log info
-//    m_queue_size.store((std::min)((std::max)(_max, QUEUE_MIN), QUEUE_MAX));
+//    m_queue_size = (std::min)((std::max)(_max, QUEUE_MIN), QUEUE_MAX);
 //}
 //
 //int
@@ -233,14 +233,14 @@
 //{
 //    kassert_r0(_args);
 //    thread_pool *_pool = (thread_pool *)_args;
-//    _pool->m_running.store(true);
+//    _pool->m_running = true;
 //
 //    // alive time
 //    if (!_pool->m_alive){}
 //    // max thread
 //    // testcancel
 //
-//    _pool->m_running.store(false);
+//    _pool->m_running = false;
 //    return 0;
 //}
 //

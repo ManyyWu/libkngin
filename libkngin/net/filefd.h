@@ -4,8 +4,8 @@
 #include "define.h"
 #include "noncopyable.h"
 
-#define __fd_valid(_fd)   (_fd >= 0)
-#define __fd_invalid(_fd) (_fd < 0)
+#define __fd_valid(__fd)   (__fd >= 0)
+#define __fd_invalid(__fd) (__fd < 0)
 
 __NAMESPACE_BEGIN
 

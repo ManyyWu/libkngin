@@ -11,8 +11,8 @@
 #define INVALID_MSG       0x0U
 #define MSG_BEGIN         0x1U
 #define MSG_END           MAX_MSG
-#define __msg_valid(_msg) ((_msg) >= MSG_BEGIN && (_msg) <= MSG_END)
-#define __both(_a, _b)    (((_a) && (_b)) || (!(_a) || !(_b)))
+#define __msg_valid(__msg) ((__msg) >= MSG_BEGIN && (__msg) <= MSG_END)
+#define __both(__a, __b)    (((__a) && (__b)) || (!(__a) || !(__b)))
 
 __NAMESPACE_BEGIN
 

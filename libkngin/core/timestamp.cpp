@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #endif
 #include <time.h>
+#include <algorithm>
 #include "timestamp.h"
 #include "define.h"
 
@@ -66,14 +67,14 @@ timestamp::value_int ()
 }
 
 void
-timestamp::to_timeval (timeval &_tv)
+timestamp::to_timeval (timeval &_tv) const
 {
     _tv.tv_sec = m_ms / 1000;
     _tv.tv_usec = 1000 * (m_ms % 1000);
 }
 
 void
-timestamp::to_timespec (timespec &_ts)
+timestamp::to_timespec (timespec &_ts) const
 {
     _ts.tv_sec = m_ms / 1000;
     _ts.tv_nsec = 1000000 * (m_ms % 1000);

@@ -166,13 +166,13 @@ public:
     virtual size_type
     max_size () const
     {
-        return m_max_size.load();
+        return m_max_size;
     }
 
     virtual void
     set_max_size (size_type _s)
     {
-        m_max_size.store(_s);
+        m_max_size = _s;
     }
 
     virtual bool

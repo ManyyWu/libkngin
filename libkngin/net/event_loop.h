@@ -9,6 +9,9 @@
 #include "mutex.h"
 #include "thread.h"
 #include "event.h"
+#include "timer.h"
+
+#define EPOLLER_TIMEOUT 3000
 
 __NAMESPACE_BEGIN
 
@@ -17,34 +20,56 @@ public:
     typedef event waker;
 
 public:
-    event_loop    (thread *_thr);
+    event_loop     (thread *_thr);
 
-    ~event_loop   ();
+    ~event_loop    ();
 
 public:
-    void
-    update_event  (epoller_event *_e);
+    int
+    loop           (void *_args);
 
-    static int
-    loop          (void *_args);
+    void
+    stop           ();
+
+    bool
+    looping        ();
+
+public:
+    bool
+    add_event      (epoller_event *_e);
+
+    bool
+    remove_event   (epoller_event *_e);
+
+    bool
+    update_event   (epoller_event *_e);
 
 protected:
     void
-    wakeup        ();
+    check_thread   ();
 
-    void
-    handle_wakeup ();
+    bool
+    in_loop_thread ();
 
 protected:
-    waker         m_waker;
+    void
+    wakeup         ();
 
-    epoller_event m_waker_event;
+    void
+    handle_wakeup  ();
 
-    thread *      m_thr;
+protected:
+    waker             m_waker;
 
-    mutex         m_mutex;
+    thread *          m_thr;
 
-    epoller       m_epoller;
+    mutex             m_mutex;
+
+    epoller           m_epoller;
+
+    std::atomic<bool> m_looping;
+
+    std::atomic<bool> m_stop;
 };
 
 __NAMESPACE_END

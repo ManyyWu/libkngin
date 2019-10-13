@@ -29,7 +29,7 @@
 //bool
 //work_thread::run ()
 //{
-//    kassert_r0(!m_running.load());
+//    kassert_r0(!m_running);
 //
 //    bool _ret = true;
 //    _ret = this->thread::run();
@@ -51,9 +51,9 @@
 //{
 //    kassert_r0(m_mutex && m_cond);
 //
-//    m_stop_thread.store(true);
-//    m_new_task.store(false);
-//    m_done.store(true);
+//    m_stop_thread = true;
+//    m_new_task = false;
+//    m_done = true;
 //    bool _ret = this->thread::cancel();
 //    if_not (_ret)
 //        log_fatal("::thread::cancel() error, name = \"%s\"", m_name.c_str());
@@ -66,9 +66,9 @@
 //bool
 //work_thread::task_done () const
 //{
-//    kassert_r0(m_running.load());
+//    kassert_r0(m_running);
 //
-//    return m_done.load();
+//    return m_done;
 //}
 //
 //bool
@@ -78,14 +78,14 @@
 //    kassert_r0(*_task);
 //    kassert_r0(!m_task);
 //    kassert_r0(m_mutex && m_cond);
-//    kassert_r0(m_running.load() && m_done.load());
+//    kassert_r0(m_running && m_done);
 //
 //    if (!m_mutex.trylock())
 //        return false;
 //    m_task = *_task;
 //    *_task = NULL;
-//    m_done.store(false);
-//    m_new_task.store(true);
+//    m_done = false;
+//    m_new_task = true;
 //    m_mutex.unlock();
 //    m_cond.broadcast();
 //
@@ -97,7 +97,7 @@
 //{
 //    kassert_r0(m_task);
 //    kassert_r0(m_mutex && m_cond);
-//    kassert_r0(m_running.load() && m_done.load())
+//    kassert_r0(m_running && m_done)
 //
 //    m_mutex.lock();
 //    msg *_ret = m_task->send_reply_msg();
@@ -116,7 +116,7 @@
 //    work_thread *_p = (work_thread *)_args;
 //    kassert_r(_p->m_mutex && _p->m_cond);
 //
-//    _p->m_done.store(true);
+//    _p->m_done = true;
 //    _p->m_mutex.unlock();
 //    _p->m_cond.broadcast();
 //}
@@ -130,17 +130,17 @@
 //    pthread_cleanup_push(cleanup_lock, _args);
 //    int _ret = 0;
 //
-//    while (!_p->m_stop_thread.load()) {
+//    while (!_p->m_stop_thread) {
 //        // wait for new task
 //        pthread_testcancel();
 //        _p->m_mutex.lock();
-//        while (!_p->m_new_task.load()) {
+//        while (!_p->m_new_task) {
 //            pthread_testcancel();
-//            if (!_p->m_new_task.load())
+//            if (!_p->m_new_task)
 //                _p->m_cond.wait();
 //            pthread_testcancel();
 //        }
-//        _p->m_new_task.store(false);
+//        _p->m_new_task = false;
 //
 //        // process task
 //        work_task *_task = _p->m_task;
@@ -159,7 +159,7 @@
 //
 //unlock:
 //        _p->m_mutex.unlock();
-//        _p->m_done.store(true);
+//        _p->m_done = true;
 //        _p->m_cond.broadcast();
 //    }
 //

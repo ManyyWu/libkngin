@@ -23,7 +23,7 @@ __NAMESPACE_BEGIN
 #define TIME_INFINITE (time_t)(-1)
 #define TIME_MAX      (time_t)(std::numeric_limits<time_t>::max)()
 
-#define __time_valid(_t) (TIME_INFINITE == (_t) || (_t) < TIME_MAX)
+#define __time_valid(__t) (TIME_INFINITE == (__t) || (__t) < TIME_MAX)
 
 class timestamp : copyable {
 public:
@@ -56,10 +56,10 @@ public:
     value_int    ();
 
     void
-    to_timeval   (timeval &_tv);
+    to_timeval   (timeval &_tv) const;
 
     void
-    to_timespec  (timespec &_ts);
+    to_timespec  (timespec &_ts) const;
 
 protected:
     uint64_t m_ms;

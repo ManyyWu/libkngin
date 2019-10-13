@@ -15,11 +15,11 @@ __NAMESPACE_BEGIN
 
 #ifdef _WIN32
 thread::thread (thr_fn _fn, const char *_name /* = "" */)
-    : m_name(_name ? _name : ""), m_tid(pthread_t{NULL, 0}), m_fn(_fn),
+    : m_name(_name ? _name : ""), m_thr(pthread_t{NULL, 0}), m_fn(_fn),
       m_retptr(NULL), m_running(false)
 #else
 thread::thread (thr_fn _fn, const char *_name /* = "" */)
-    : m_name(_name ? _name : ""), m_tid(0), m_fn(_fn),
+    : m_name(_name ? _name : ""), m_thr(0), m_fn(_fn),
       m_retptr(NULL), m_running(false)
 #endif
 {
@@ -30,11 +30,11 @@ thread::~thread ()
     int _ret = 0;
     
 #ifdef _WIN32
-    if (m_tid.p) {
+    if (m_thr.p) {
 #else
-    if (m_tid) {
+    if (m_thr) {
 #endif
-        _ret = ::pthread_detach(m_tid);
+        _ret = ::pthread_detach(m_thr);
         if_not (!_ret)
             log_fatal("::pthread_detach(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         else
@@ -46,16 +46,16 @@ bool
 thread::run ()
 {
 #ifdef _WIN32
-    kassert_r0(!m_tid.p);
+    kassert_r0(!m_thr.p);
 #else
-    kassert_r0(!m_tid);
+    kassert_r0(!m_thr);
 #endif
 
     int _ret = 0;
-    _ret = ::pthread_create(&m_tid, NULL, thread::start, this);
+    _ret = ::pthread_create(&m_thr, NULL, thread::start, this);
     if_not (!_ret)
         log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
-    m_running.store(true);
+    m_running = true;
     log_info("thread \"%s\" running", m_name.c_str());
     return !_ret;
 }
@@ -64,14 +64,14 @@ bool
 thread::join (int *_err_code)
 {
 #ifdef _WIN32
-    kassert_r0(m_tid.p);
+    kassert_r0(m_thr.p);
 #else
-    kassert_r0(m_tid);
+    kassert_r0(m_thr);
 #endif
-    kassert_r0(!::pthread_equal(m_tid, pthread_self()));
+    kassert_r0(!::pthread_equal(m_thr, pthread_self()));
 
     int _ret = 0;
-    _ret = ::pthread_join(m_tid, &m_retptr);
+    _ret = ::pthread_join(m_thr, &m_retptr);
     if_not (!_ret) {
         log_fatal("::pthread_join(), name = \"%s\"return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         return false;
@@ -79,11 +79,11 @@ thread::join (int *_err_code)
     if (_err_code)
         *_err_code = (int)(long long)m_retptr;
 #ifdef _WIN32
-    m_tid = pthread_t{NULL, 0};
+    m_thr = pthread_t{NULL, 0};
 #else
-    m_tid = 0;
+    m_thr = 0;
 #endif
-    m_running.store(false);
+    m_running = false;
     log_info("thread \"%s\" joined with code: %u", m_name.c_str(), (int)(long long)m_retptr);
     return true;
 }
@@ -92,14 +92,14 @@ bool
 thread::cancel ()
 {
 #ifdef _WIN32
-    kassert_r0(m_tid.p);
+    kassert_r0(m_thr.p);
 #else
-    kassert_r0(m_tid);
+    kassert_r0(m_thr);
 #endif
-    kassert_r0(!pthread_equal(m_tid, pthread_self()));
+    kassert_r0(!pthread_equal(m_thr, pthread_self()));
 
     int _ret = 0;
-    _ret = ::pthread_cancel(m_tid);
+    _ret = ::pthread_cancel(m_thr);
     if_not (!_ret) {
         log_fatal("::pthread_cancel(), name = \"%s\"return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         return false;
@@ -111,23 +111,33 @@ thread::cancel ()
 bool
 thread::running () const
 {
-    return m_running.load();
+    return m_running;
 }
 
 pthread_t
 thread::get_interface () const
 {
-    kassert(m_running.load());
+    kassert(m_running);
 
-    return m_tid;
+    return m_thr;
 }
 
 int
 thread::get_err_code  () const
 {
-    kassert_r0(m_running.load());
+    kassert_r0(m_running);
 
     return (int)(long long)m_retptr;
+}
+
+uint64_t
+thread::get_tid ()
+{
+#ifdef _WIN32
+    return ::GetCurrentThreadId();
+#else
+    return ::getpid();
+#endif
 }
 
 const char *
@@ -165,6 +175,16 @@ thread::set_err_code (int _err_code)
     m_retptr = (void *)(long long)_err_code;
 }
 
+bool
+thread::equal_to (pthread_t _t)
+{
+#ifdef _WIN32
+    return (m_thr.p == self().p == m_thr.x == self().x);
+#else
+    return (m_thr == self());
+#endif
+}
+
 void *
 thread::start (void *_args)
 {
@@ -179,12 +199,12 @@ thread::start (void *_args)
 
         pthread_cleanup_pop(1);
     } catch (const k::exception &e){
-        log_fatal("caught an k::exception: %s\n%s\n",
-                  e.what().c_str(), e.dump().c_str());
+        log_fatal("caught an k::exception in thread \"%s\": %s\n%s\n",
+                  _p->name(), e.what().c_str(), e.dump().c_str());
     } catch (const std::exception &e) {
-        log_fatal("caught an std::exception: %s", e.what());
+        log_fatal("caught an std::exception in thread \"%s\": %s", _p->name(), e.what());
     } catch (...) {
-        log_fatal("caught an undefined exception");
+        log_fatal("caught an undefined exception in thread \"%s\"", _p->name());
     }
 
     return _p->m_retptr;
@@ -196,7 +216,7 @@ thread::cleanup (void *_args)
     kassert_r(_args);
 
     thread *_p = (thread *)_args;
-    _p->m_running.store(false);
+    _p->m_running = false;
 }
 
 int

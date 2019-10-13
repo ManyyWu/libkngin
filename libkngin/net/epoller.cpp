@@ -22,6 +22,7 @@ epoller::epoller (event_loop *_loop)
       m_loop(_loop),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
+    kassert(_loop);
     if (__fd_invalid(m_epollfd)) {
         log_fatal("::epoll_create1() error - %s:%d", m_epollfd, strerror(errno), errno);
         throw exception("epoller::epoller() error");

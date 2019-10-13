@@ -68,19 +68,19 @@ public:
 
 public:
     void
-    set_read_cb      (epoller_event_cb _fn); // for EPOLLIN
+    set_read_cb      (epoller_event_cb &&_fn); // for EPOLLIN
 
     void
-    set_write_cb     (epoller_event_cb _fn); // for EPOLLOUT
+    set_write_cb     (epoller_event_cb &&_fn); // for EPOLLOUT
 
     void
-    set_error_cb     (epoller_event_cb _fn); // for EPOLLPRI
+    set_error_cb     (epoller_event_cb &&_fn); // for EPOLLPRI
 
     void
-    set_ergent_cb    (epoller_event_cb _fn); // for EPOLLONCE
+    set_ergent_cb    (epoller_event_cb &&_fn); // for EPOLLONCE
 
     void
-    set_close_cb     (epoller_event_cb _fn); // for EPOLLHUP
+    set_close_cb     (epoller_event_cb &&_fn); // for EPOLLHUP
 
 public:
     void

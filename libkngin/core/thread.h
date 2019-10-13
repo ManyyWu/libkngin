@@ -47,6 +47,9 @@ public:
     name          () const;
 
 public:
+    static uint64_t
+    get_tid       ();
+
     static void
     sleep         (time_t _ms);
 
@@ -58,6 +61,9 @@ public:
 
     void
     set_err_code  (int _err_code);
+
+    bool
+    equal_to      (pthread_t _t);
 
 protected:
     static void *
@@ -74,7 +80,9 @@ public:
 protected:
     const std::string m_name;
 
-    pthread_t         m_tid;
+    pthread_t         m_thr;
+
+    uint64_t          m_tid;
 
     thr_fn            m_fn;
 

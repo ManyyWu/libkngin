@@ -115,35 +115,35 @@ epoller_event::update ()
 }
 
 void
-epoller_event::set_read_cb (epoller_event_cb _fn)
+epoller_event::set_read_cb (epoller_event_cb &&_fn)
 {
     m_incb = std::move(_fn);
     m_flags |= EPOLLIN;
 }
 
 void
-epoller_event::set_write_cb (epoller_event_cb _fn)
+epoller_event::set_write_cb (epoller_event_cb &&_fn)
 {
     m_outcb = std::move(_fn);
     m_flags |= EPOLLOUT;
 }
 
 void
-epoller_event::set_error_cb (epoller_event_cb _fn)
+epoller_event::set_error_cb (epoller_event_cb &&_fn)
 {
     m_errcb = std::move(_fn);
     m_flags |= EPOLLERR;
 }
 
 void
-epoller_event::set_ergent_cb (epoller_event_cb _fn)
+epoller_event::set_ergent_cb (epoller_event_cb &&_fn)
 {
     m_pricb = std::move(_fn);
     m_flags |= EPOLLPRI;
 }
 
 void
-epoller_event::set_close_cb (epoller_event_cb _fn)
+epoller_event::set_close_cb (epoller_event_cb &&_fn)
 {
     m_closecb = std::move(_fn);
     m_flags |= EPOLLHUP;

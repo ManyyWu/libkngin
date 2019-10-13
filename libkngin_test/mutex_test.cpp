@@ -104,6 +104,5 @@ mutex_test ()
 
     ::timespec_get(&ts2, TIME_UTC);
     ::fprintf(stderr, "--- atomic ---\n time use: %lfms, result = %d\n",
-           (ts2.tv_sec - ts1.tv_sec) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0,
-           g_num3.load());
+           (ts2.tv_sec - ts1.tv_sec) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000.0, g_num3.load());
 }
