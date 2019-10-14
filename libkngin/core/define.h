@@ -8,6 +8,11 @@
 #include <cstdint>
 #include <climits>
 
+// types
+#ifdef _WIN32
+typedef SSIZE_T ssize_t;
+#endif
+
 // compile options
 #define __LOG_MUTEX
 #define __DUMP_ERROR_MSG

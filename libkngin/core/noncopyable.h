@@ -5,9 +5,9 @@ __NAMESPACE_BEGIN
 
 class noncopyable {
 protected:
-    noncopyable  () = default;
+//    noncopyable  () = default;
 
-    ~noncopyable () = default;
+//    ~noncopyable () = default;
 
 public:
     noncopyable  (const noncopyable &) = delete;

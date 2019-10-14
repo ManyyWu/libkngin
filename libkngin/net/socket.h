@@ -45,6 +45,22 @@ public:
     accept           ();
 
 public:
+    bool
+    set_reuse_addr   (bool _on = true);
+
+    bool
+    set_reuse_port   (bool _on = true);
+
+    bool
+    set_keep_alive   (bool _on = true);
+
+    bool
+    reuse_port       () const;
+
+    bool
+    closeexec        () const;
+
+public:
     epoller_event *
     get_event ();
 

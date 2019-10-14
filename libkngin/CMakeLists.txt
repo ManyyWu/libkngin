@@ -15,10 +15,10 @@ file(GLOB KNGIN_NET_UDP_SRC   "net/udp/*.cpp")
 file(GLOB KNGIN_NET_TCP_SRC   "net/tcp/*.cpp")
 
 # pthread-win32
+set(CMAKE_PREFIX_PATH "../pthreads_win32" ${CMAKE_PREFIX_PATH})
 if(WIN32)
     find_package(PTHREADW32 REQUIRED)
 endif(WIN32)
-set(CMAKE_PREFIX_PATH "../pthreads_win32" ${CMAKE_PREFIX_PATH})
 
 # head directories
 include_directories(".")

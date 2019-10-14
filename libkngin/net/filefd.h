@@ -18,16 +18,29 @@ public:
 
 public:
     int
-    fd      () const;
+    fd            () const;
 
     ssize_t
-    write   (void *_buf, size_t _nbytes);
+    write         (void *_buf, size_t _nbytes);
 
     ssize_t
-    read    (void *_buf, size_t _nbytes);
+    read          (void *_buf, size_t _nbytes);
 
     void
-    close   ();
+    close         ();
+
+public:
+    void
+    set_nonblock  (bool _on = true);
+
+    void
+    set_closeexec (bool _on = true);
+
+    bool
+    nonblock      () const;
+
+    bool
+    reuse_addr    () const;
 
 protected:
     int m_fd;
