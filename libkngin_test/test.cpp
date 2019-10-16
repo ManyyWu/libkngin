@@ -16,24 +16,12 @@
 #include "../libkngin/core/memory.h"
 #include "../libkngin/core/buffer.h"
 #include "../libkngin/core/bits.h"
-#include "epoller.h"
+#include "../libkngin/core/error.h"
+#include "../libkngin/net/socket.h"
 
 using namespace k;
 using namespace std;
 using namespace std::placeholders;
-
-void print()
-{
-    cout << "empty" << endl;
-}
-
-//展开函数
-template <class T, class ...Args> void print(T &head, Args... rest)
-{
-    cout << "parameter " << head << endl;
-    print(rest...);
-}
-
 
 void
 test ()

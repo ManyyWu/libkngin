@@ -19,7 +19,7 @@ __NAMESPACE_BEGIN
 
 class cond : noncopyable {
 public:
-    cond           (mutex *_m);
+    cond           (mutex *_mutex);
 
     ~cond          ();
 

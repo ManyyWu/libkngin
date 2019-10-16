@@ -44,8 +44,8 @@ socket::~socket ()
 bool
 socket::set_reuse_addr (bool _on /* = true */)
 {
-    int optval = _on ? 1 : 0;
-    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval));
+    int _optval = _on ? 1 : 0;
+    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&_optval, sizeof(_optval));
     if (_ret < 0)
         log_error("::setsockopt() set SO_REUSEADDR flag failed - %s:%d", strerror(errno), errno);
     return (_ret >= 0);
@@ -55,12 +55,12 @@ bool
 socket::set_reuse_port (bool _on /* = true */)
 {
 #ifdef _WIN32
-    int optval = _on ? 0 : 1;
-    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&optval, sizeof(optval));
+    int _optval = _on ? 0 : 1;
+    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&_optval, sizeof(_optval));
     set_reuse_addr(_on);
 #else
-    int optval = _on ? 1 : 0;
-    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_REUSEPORT, (char *)&optval, sizeof(optval));
+    int _optval = _on ? 1 : 0;
+    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_REUSEPORT, (char *)&_optval, sizeof(_optval));
 #endif
     if (_ret < 0)
         log_error("::setsockopt() set SO_REUSEPORT flag failed - %s:%d", strerror(errno), errno);
@@ -70,6 +70,12 @@ socket::set_reuse_port (bool _on /* = true */)
 bool
 socket::reuse_port () const
 {
+    int       _optval;
+    socklen_t _optlen;
+    int _ret = ::getsockopt(m_fd, SOL_SOCKET, SO_REUSEPORT, (char *)&_optval, &_optlen);
+    if (_ret < 0)
+        log_error("::getsockopt() set SO_REUSEPORT flag failed - %s:%d", strerror(errno), errno);
+    return _optval;
 }
 
 bool

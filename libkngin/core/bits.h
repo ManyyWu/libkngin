@@ -31,7 +31,7 @@ template<typename __T, typename __T1, typename ...Args>
 inline __T
 set_bits (__T _val, __T1 _first, Args... _args)
 {
-    if_not (_first >= 0 && _first < __type_bits(__T))
+    if_not (_first >= 0 && (size_t)_first < __type_bits(__T))
         throw exception("invalid arguments");
     return __bit_value(__T, _first) | set_bits(_val, _args...);
 }
@@ -40,7 +40,7 @@ template<typename __T, typename __T1, typename ...Args>
 inline __T
 clear_bits (__T _val, __T1 _first, Args... _args)
 {
-    if_not (_first >= 0 && _first < __type_bits(__T))
+    if_not (_first >= 0 && (size_t)_first < __type_bits(__T))
         throw exception("invalid arguments");
     return __clear_bit(__T, _val, _first) & set_bits(_val, _args...);
 }
@@ -56,7 +56,7 @@ template<typename __T, typename __T1, typename ...Args>
 inline bool
 is_bits_set (__T _val, __T1 _first, Args... _args)
 {
-    if_not (_first >= 0 && _first < __type_bits(__T))
+    if_not (_first >= 0 && (size_t)_first < __type_bits(__T))
         throw exception("invalid arguments");
     return __is_bit_set(__T, _val, _first) && is_bits_set(_val, _args...);
 }

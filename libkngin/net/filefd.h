@@ -30,10 +30,10 @@ public:
     close         ();
 
 public:
-    void
+    bool
     set_nonblock  (bool _on = true);
 
-    void
+    bool
     set_closeexec (bool _on = true);
 
     bool
