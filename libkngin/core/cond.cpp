@@ -3,15 +3,12 @@
 #else
 #include <pthread.h>
 #endif
-#include "timestamp.h"
-#include "error.h"
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
-#include "thread.h"
+#include "timestamp.h"
 #include "mutex.h"
 #include "cond.h"
-#include "noncopyable.h"
 
 __NAMESPACE_BEGIN
 
@@ -29,32 +26,29 @@ cond::cond (mutex *_mutex)
 cond::~cond ()
 {
     int _ret = ::pthread_cond_destroy(&m_cond);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_cond_destroy() return %d", _ret);
 }
 
-    void
+void
 cond::wait ()
 {
     int _ret = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_cond_wait() return %d", _ret);
 }
 
 bool
-cond::timedwait (time_t _ms)
+cond::timedwait (timestamp _ms)
 {
-    if_not (__time_valid(_ms))
-        return false;
-
     timespec _ts;
     ::timespec_get(&_ts, TIME_UTC);
-    _ts.tv_sec += _ms / 1000;
-    _ts.tv_nsec += (_ms % 1000) * 1000000;
+    timestamp _time = _ts;
+    (_time += _ms).to_timespec(_ts);
     int _ret = ::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &_ts);
     if (ETIMEDOUT == _ret)
         return false;
-    if_not (!_ret) {
+    if (_ret) {
         log_fatal("::pthread_cond_timedwait() return %d", _ret);
         return false;
     }
@@ -65,7 +59,7 @@ void
 cond::signal ()
 {
     int _ret = ::pthread_cond_signal(&m_cond);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_cond_signal() return %d", _ret);
 }
 
@@ -74,7 +68,7 @@ void
 cond::broadcast ()
 {
     int _ret = ::pthread_cond_broadcast(&m_cond);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_cond_broadcast() return %d", _ret);
 }
 

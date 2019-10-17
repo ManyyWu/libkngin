@@ -7,12 +7,11 @@
 #include <pthread.h>
 #endif
 #include "define.h"
-#include "thread.h"
-#include "noncopyable.h"
+#include "timestamp.h"
 
 __NAMESPACE_BEGIN
 
-class rwlock : noncopyable {
+class rwlock {
 public:
     rwlock        ();
 
@@ -32,13 +31,13 @@ public:
     trywrlock     ();
 
     bool
-    timedrdlock   (time_t _ms);
+    timedrdlock   (timestamp _ms);
 
     bool
-    timedwrlock   (time_t _ms);
+    timedwrlock   (timestamp _ms);
 
     void
-    unlock      ();
+    unlock        ();
 
 public:
     pthread_rwlock_t *

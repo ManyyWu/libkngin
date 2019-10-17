@@ -4,5 +4,6 @@
 #include "rwlock.h"
 #include "mutex.h"
 #include "cond.h"
+#include "local_lock.h"
 
 #endif /* _LOCK_H_ */

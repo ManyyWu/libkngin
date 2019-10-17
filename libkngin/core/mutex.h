@@ -6,13 +6,12 @@
 #else
 #include <pthread.h>
 #endif
-#include "timestamp.h"
 #include "define.h"
-#include "noncopyable.h"
+#include "timestamp.h"
 
 __NAMESPACE_BEGIN
 
-class mutex : noncopyable {
+class mutex {
 public:
     mutex         ();
 
@@ -29,7 +28,7 @@ public:
     trylock       ();
 
     bool
-    timedlock     (time_t _ms);
+    timedlock     (timestamp _ms);
 
     pthread_mutex_t *
     get_interface ();

@@ -13,16 +13,20 @@ __NAMESPACE_BEGIN
 
 class exception {
 public:
-    exception  (const char *_what);
+    exception  () = delete;
 
-    ~exception ();
+public:
+    explicit
+    exception  (const char *_what) : m_str(_what) { this->dump_stack(); }
+
+    ~exception () = default;
 
 public:
     const std::string &
-    what       () const;
+    what       () const { return m_str; }
 
     const std::string &
-    dump       () const;
+    dump       () const { return m_dump_str; }
 
 protected:
     void

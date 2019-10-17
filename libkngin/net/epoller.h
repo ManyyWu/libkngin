@@ -23,6 +23,7 @@ public:
     typedef std::vector<epoller_event *>    event_list;
 
 public:
+    explicit
     epoller        (event_loop *_loop);
 
     ~epoller       ();

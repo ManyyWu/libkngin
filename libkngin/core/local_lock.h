@@ -8,6 +8,7 @@ __NAMESPACE_BEGIN
 
 class local_lock {
 public:
+    explicit
     local_lock  (mutex &_m);
 
     ~local_lock ();

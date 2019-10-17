@@ -6,7 +6,8 @@
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
-#include "thread.h"
+#include "timestamp.h"
+#include "mutex.h"
 
 __NAMESPACE_BEGIN
 
@@ -14,7 +15,7 @@ mutex::mutex ()
     : m_mutex(PTHREAD_MUTEX_INITIALIZER)
 {
     int _ret = ::pthread_mutex_init(&m_mutex, NULL);
-    if_not (!_ret) {
+    if (_ret) {
         log_fatal("::pthread_mutex_init() return %d", _ret);
         throw exception("mutex::mutex() error");
     }
@@ -23,7 +24,7 @@ mutex::mutex ()
 mutex::~mutex ()
 {
     int _ret = ::pthread_mutex_destroy(&m_mutex);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_mutex_destroy() return %d", _ret);
 }
 
@@ -31,7 +32,7 @@ void
 mutex::lock ()
 {
     int _ret = ::pthread_mutex_lock(&m_mutex);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_mutex_lock() return %d", _ret);
 }
 
@@ -41,7 +42,7 @@ mutex::trylock ()
     int _ret = ::pthread_mutex_trylock(&m_mutex);
     if (EBUSY == _ret)
         return false;
-    if_not (!_ret) {
+    if (_ret) {
         log_fatal("pthread_mutex_trylock() return %d", _ret);
         return false;
     }
@@ -49,19 +50,16 @@ mutex::trylock ()
 }
 
 bool
-mutex::timedlock (time_t _ms)
+mutex::timedlock (timestamp _ms)
 {
-    if_not (__time_valid(_ms))
-        return false;
-
     timespec _ts;
     ::timespec_get(&_ts, TIME_UTC);
-    _ts.tv_sec += _ms / 1000;
-    _ts.tv_nsec += (_ms % 1000) * 1000000;
+    timestamp _time = _ts;
+    (_time += _ms).to_timespec(_ts);
     int _ret = ::pthread_mutex_timedlock(&m_mutex, &_ts);
     if (ETIMEDOUT == _ret)
         return false;
-    if_not (!_ret) {
+    if (_ret) {
         log_fatal("::pthread_mutex_timedlock(), value = %ld, return %d", _ms, _ret);
         return false;
     }
@@ -72,7 +70,7 @@ void
 mutex::unlock ()
 {
     int _ret = ::pthread_mutex_unlock(&m_mutex);
-    if_not (!_ret)
+    if (_ret)
         log_fatal("::pthread_mutex_unlock() return %d", _ret);
 }
 

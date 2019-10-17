@@ -10,5 +10,5 @@ log_test ()
     log_warning("server_warning: %d", 10);
     log_info("server_info: %d", 10);
     log_debug("server_debug: %d", 10);
-//    if_not(!"test") {}
+    if_not(!"test") {}
 }

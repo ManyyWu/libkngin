@@ -21,14 +21,6 @@ log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE */)
     throw;
 }
 
-    log::log (log &&_log)
-{
-}
-
-log::~log ()
-{
-}
-
 bool
 log::fatal (const char *_fmt, ...)
 {
@@ -36,6 +28,7 @@ log::fatal (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = this->write_log(LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
+    assert(0);
     return _ret;
 }
 
@@ -46,6 +39,7 @@ log::error (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = this->write_log(LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
+    assert(0);
     return _ret;
 }
 

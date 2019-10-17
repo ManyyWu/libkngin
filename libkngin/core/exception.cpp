@@ -6,29 +6,6 @@
 
 __NAMESPACE_BEGIN
 
-exception::exception (const char *_what)
-    : m_str(_what)
-{
-    // dump
-    this->dump_stack();
-}
-
-exception::~exception ()
-{
-}
-
-const std::string &
-exception::what () const
-{
-    return m_str;
-}
-
-const std::string &
-exception::dump () const
-{
-    return m_dump_str;
-}
-
 void
 exception::dump_stack ()
 {

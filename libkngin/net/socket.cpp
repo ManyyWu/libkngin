@@ -88,6 +88,7 @@ bool
 set_keep_alive (bool _on /* = true */)
 {
 }
+
 epoller_event *
 socket::get_event ()
 {

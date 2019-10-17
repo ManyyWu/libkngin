@@ -9,6 +9,7 @@
 #include <time.h>
 #include <cstdint>
 #include <limits>
+#include <algorithm>
 #include "define.h"
 #include "copyable.h"
 
@@ -27,52 +28,57 @@ __NAMESPACE_BEGIN
 
 class timestamp : copyable {
 public:
-    timestamp    (uint64_t _ms);
-
-    timestamp    (const timestamp &_t);
-
-    timestamp    (const timeval &_tv);
-
-    timestamp    (const timespec &_ts);
+    timestamp   () = delete;
+    timestamp   (uint64_t _ms) : m_ms(_ms) {}
+    timestamp   (const timestamp &_t) : m_ms(_t.m_ms) {}
+    timestamp   (const timeval &_tv) : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
+    timestamp   (const timespec &_ts) : m_ms(_ts.tv_sec * 1000 + _ts.tv_nsec / 1000000) {}
+    ~timestamp  () = default;
 
 public:
-    timestamp
-    operator =   (timestamp _t);
-
-    timestamp
-    operator =   (uint64_t _t);
-
-    timestamp
-    operator =   (timeval _tv);
-
-    timestamp
-    operator =   (timespec _ts);
+    timestamp &
+    operator =  (timestamp _t)        { m_ms = _t.m_ms; return *this; }
+    timestamp &
+    operator =  (uint64_t _t)         { m_ms = _t; return *this; }
+    timestamp &
+    operator =  (const timeval &_tv)  { m_ms = _tv.tv_sec * 1000 + _tv.tv_usec / 1000; return *this; }
+    timestamp &
+    operator =  (const timespec &_ts) { m_ms = _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000; return *this; }
+    timestamp &
+    operator += (timestamp _t)        { m_ms += _t.m_ms; return *this; }
+    timestamp &
+    operator -= (timestamp _t)        { m_ms -= _t.m_ms; return *this; }
 
 public:
     uint64_t
-    value        ();
-
+    value       () const              { return m_ms; }
     int
-    value_int    ();
-
+    value_int   () const              { return (int)std::min(m_ms, (uint64_t)INT_MAX); }
     void
-    to_timeval   (timeval &_tv) const;
-
+    to_timeval  (timeval &_tv) const
+    { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }
     void
-    to_timespec  (timespec &_ts) const;
+    to_timespec (timespec &_ts) const
+    { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
 
 protected:
     uint64_t m_ms;
 };
 
-timestamp
-timediff (const timeval &_tvl, const timeval &_tvr);
+inline timestamp
+timediff (const timeval &_tvl, const timeval &_tvr)
+{
+    return (timestamp(_tvl).value() - timestamp(_tvr).value());
+}
 
-timestamp
-timediff (const timespec &_tsl, const timespec &_tsr);
+inline timestamp
+timediff (const timespec &_tsl, const timespec &_tsr)
+{
+    return (timestamp(_tsl).value() - timestamp(_tsr).value());
+}
 
 #ifdef _WIN32
-    #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
 #else
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL

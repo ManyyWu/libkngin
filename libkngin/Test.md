@@ -39,3 +39,66 @@
 // kassert_r kassert_r0 必须保证能释放作用域内所有堆上分存被释放******************
 // 返回值不使用及量不使用引用类型
 // 非正常错误使用if_not 代替if
+
+    /*
+    #pragma pack(push, 1)
+    template <class __T>
+    class ret_val {
+    private:
+        ret_val  ()                                            {}
+
+    public:
+        ret_val  (__T _val) : m_code(E_SUCCESS), m_value(_val) {}
+
+        ret_val  (const ret_val &_val) : m_code(_val.m_code)   {}
+
+        ~ret_val ()                                            {}
+
+    public:
+        __T
+        value             () const         { return m_value; }
+
+        ret_val &
+        operator =        (__T _val)       { m_value = _val; return *this; }
+
+    public:
+        err_code
+        code              ()               { return m_code;}
+
+        void
+        clear             ()               { m_code = E_SUCCESS; }
+
+        void
+        set_code          (err_code _code) { m_code = _code; }
+
+        explicit
+        operator bool     ()               { return m_code; }
+
+        explicit
+        operator err_code ()               { return m_code; }
+
+        const char *
+        what              ()               { return __err_code_entry[m_code]._str; }
+
+    protected:
+        err_code         m_code;
+
+        __T              m_value;
+    };
+    #pragma pack(pop)
+
+    typedef class ret_val<bool>      ret_bool;
+    typedef class ret_val<uint8_t>   ret_uint8;
+    typedef class ret_val<int8_t>    ret_int8;
+    typedef class ret_val<uint16_t>  ret_uint16;
+    typedef class ret_val<int16_t>   ret_int16;
+    typedef class ret_val<uint32_t>  ret_uint32;
+    typedef class ret_val<int32_t>   ret_int32;
+    typedef class ret_val<uint64_t>  ret_uint64;
+    typedef class ret_val<int64_t>   ret_int64;
+    typedef class ret_val<size_t>    ret_size;
+    typedef class ret_val<ssize_t>   ret_ssize;
+    typedef class ret_val<timestamp> ret_timestamp;
+    typedef class ret_val<uintptr_t> ret_uintptr_t;
+    typedef class ret_val<intptr_t>  ret_intptr_t;
+    */

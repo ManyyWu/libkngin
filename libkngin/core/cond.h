@@ -6,19 +6,15 @@
 #else
 #include <pthread.h>
 #endif
-#include "timestamp.h"
-#include "error.h"
 #include "define.h"
-#include "logfile.h"
-#include "common.h"
-#include "thread.h"
+#include "timestamp.h"
 #include "mutex.h"
-#include "noncopyable.h"
 
 __NAMESPACE_BEGIN
 
-class cond : noncopyable {
+class cond {
 public:
+    explicit
     cond           (mutex *_mutex);
 
     ~cond          ();
@@ -28,7 +24,7 @@ public:
     wait           ();
 
     bool
-    timedwait      (time_t _ms);
+    timedwait      (timestamp _ms);
 
     void
     signal         ();

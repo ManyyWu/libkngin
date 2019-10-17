@@ -63,13 +63,15 @@ enum LOG_LEVEL {
 };
 
 class log_mgr;
-class log : public noncopyable {
+class log {
+public:
+    log           () = delete;
+
 private:
+    explicit
     log           (__LOG_FILE _filetype, __LOG_MODE _mode = __LOG_MODE_FILE);
 
-    log           (log &&_log);
-
-    ~log          ();
+    ~log          () = default;
 
 public:
     bool

@@ -1,119 +1,54 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
 
+#include <logfile.h>
+#include <functional>
 #include "define.h"
 #include "copyable.h"
-#include <logfile.h>
 
 __NAMESPACE_BEGIN
 
-/*
- * Error code
- */
 enum __ERROR_CODE {
     E_SUCCESS               = 0x00000000, // success
-    
-    // application error code                                  [0x00000001, 0x000000FF]
     E_SERVER_INIT_FAIL      = 0x00000001, // failed
     E_SERVER_NOMEM          = 0x00000002, // no memory 
 
-    // common                                                  [0x00001001, 0x0000FFFF]
-    E_FAILED                = 0x00001001, // failed, undefined error
-    E_INVAL                 = 0x00001002, // invalid arguments
-    E_NOMEM                 = 0x00001003, // no memory
-
-    E_TIMEDOUT              = 0x00001101, // time out
-    E_BUSY                  = 0x00001102, // busy, try again
-    E_QUEUE_FULL            = 0x00001103, // the queue is full
-
-    // for user                                                [0x00010000, 0xFFFFFFFF]
-
+    // common                                                  [0x00000100, 0x00000FFF]
+    E_FAILED                = 0x00000100, // failed, undefined error
+    E_INVAL                 = 0x00000101, // invalid arguments
+    E_NOMEM                 = 0x00000102, // no memory
+    E_TIMEDOUT              = 0x00000103, // time out
+    E_BUSY                  = 0x00000104, // busy, try again
+    E_QUEUE_FULL            = 0x00000105, // the queue is full
     E_MAX
+    // for user                                                [0x00010000, 0xFFFFFFFF]
 };
-#define __ERR_CODE_BEGIN    E_INVAL
-#define __ERR_CODE_END      (E_MAX - 1)
-#define __ERR_CODE_NUM      (E_MAX - __ERR_CODE_BEGIN)
-#define USER_ERR_CODE_BEGIN (E_MAX + 1)
-/*
-class __sys_err {
-//    const char *what () const {}
-};
-*/
 
 typedef uint32_t sys_err;
 
-#define __make_err_code(e) (-(e))
+class __sys_err {
+public:
+    struct __err_info {
+        sys_err      _code;
+        const char *  _str;
+    };
 
-typedef uint32_t err_code;
-/*
-struct __err_info {
-    err_code      _code;
-    const char *  _str;
-};
+public:
+    static const char *
+    what (sys_err _code);
 
-extern const __err_info __err_code_entry[__ERR_CODE_NUM];
+public:
+    static const uint32_t user_err_code_begin = E_MAX + 1;
+    static const uint32_t __sys_err_begin     = E_MAX;
+    static const uint32_t __sys_err_end       = E_MAX - 1;
+    static const uint32_t __sys_err_num       = E_MAX;
 
-#pragma pack(push, 1)
-template <class __T>
-class ret_val {
 private:
-    ret_val  ()                                            {}
-
-public:
-    ret_val  (__T _val) : m_code(E_SUCCESS), m_value(_val) {}
-
-    ret_val  (const ret_val &_val) : m_code(_val.m_code)   {}
-
-    ~ret_val ()                                            {}
-
-public:
-    __T
-    value             () const         { return m_value; }
-
-    ret_val &
-    operator =        (__T _val)       { m_value = _val; return *this; }
-
-public:
-    err_code
-    code              ()               { return m_code;}
-
-    void
-    clear             ()               { m_code = E_SUCCESS; }
-
-    void
-    set_code          (err_code _code) { m_code = _code; }
-
-    explicit
-    operator bool     ()               { return m_code; }
-
-    explicit
-    operator err_code ()               { return m_code; }
-
-    const char *
-    what              ()               { return __err_code_entry[m_code]._str; }
-
-protected:
-    err_code         m_code;
-
-    __T              m_value;
+    static const __err_info __err_info_entry[__sys_err_begin];
 };
-#pragma pack(pop)
 
-typedef class ret_val<bool>      ret_bool;
-typedef class ret_val<uint8_t>   ret_uint8;
-typedef class ret_val<int8_t>    ret_int8;
-typedef class ret_val<uint16_t>  ret_uint16;
-typedef class ret_val<int16_t>   ret_int16;
-typedef class ret_val<uint32_t>  ret_uint32;
-typedef class ret_val<int32_t>   ret_int32;
-typedef class ret_val<uint64_t>  ret_uint64;
-typedef class ret_val<int64_t>   ret_int64;
-typedef class ret_val<size_t>    ret_size;
-typedef class ret_val<ssize_t>   ret_ssize;
-typedef class ret_val<timestamp> ret_timestamp;
-typedef class ret_val<uintptr_t> ret_uintptr_t;
-typedef class ret_val<intptr_t>  ret_intptr_t;
-*/
+#define err2str(_code) __sys_err::what((_code))
+
 __NAMESPACE_END
 
 #endif /* _ERROR_H_ */

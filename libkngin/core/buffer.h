@@ -15,102 +15,99 @@ class basic_buffer {
 public:
     typedef std::vector<uint8_t> uint8_arr;
 
+public:
+    basic_buffer  () = delete;
+
+    basic_buffer  (const basic_buffer &) = delete;
+
 protected:
-    basic_buffer   (const uint8_arr &_arr, size_t _reserve = 0);
+    explicit
+    basic_buffer  (const uint8_arr &_arr, size_t _reserve = 0) : m_arr(_arr), m_idx(0)
+    { m_arr.resize(std::max(_reserve, _arr.size())); }
 
-    basic_buffer   (uint8_arr &&_arr, size_t _reserve = 0);
+    explicit
+    basic_buffer  (uint8_arr &&_arr, size_t _reserve = 0) : m_arr(std::move(_arr)), m_idx(0)
+    { m_arr.resize(std::max(_reserve, m_arr.size())); }
 
-    ~basic_buffer  () = default;
+    ~basic_buffer () = default;
 
 public:
-    const uint8_arr&
-    get            ();
+    const uint8_arr &
+    get           ()              { return m_arr; }
 
 public:
     uint8_t
-    read_uint8     ();
-
+    read_uint8    ()              { return this->read<uint8_t>(); }
     int8_t
-    read_int8      ();
-
+    read_int8     ()              { return this->read<int8_t>(); }
     uint16_t
-    read_uint16    ();
-
+    read_uint16   ()              { return this->read<uint16_t>(); }
     int16_t
-    read_int16     ();
-
+    read_int16    ()              { return this->read<int16_t>(); }
     uint32_t
-    read_uint32    ();
-
+    read_uint32   ()              { return this->read<uint32_t>(); }
     int32_t
-    read_int32     ();
-
+    read_int32    ()              { return this->read<int32_t>(); }
     uint64_t
-    read_uint64    ();
-
+    read_uint64   ()              { return this->read<uint64_t>(); }
     int64_t
-    read_int64     ();
-
-    size_t
-    read_bytes     (uint8_t *_p, size_t _n);
-
-    size_t
-    write_uint8    (uint8_t _val);
-
-    size_t
-    write_int8     (int8_t _val);
-
-    size_t
-    write_uint16   (uint16_t _val);
-
-    size_t
-    write_int16    (int16_t _val);
-
-    size_t
-    write_uint32   (uint32_t _val);
-
-    size_t
-    write_int32    (int32_t _val);
-
-    size_t
-    write_uint64   (uint64_t _val);
-
-    size_t
-    write_int64    (int64_t _val);
-
-    size_t
-    write_bytes    (const uint8_t *_p, size_t _n);
+    read_int64    ()              { return this->read<int64_t>(); }
+    void
+    write_uint8   (uint8_t  _val) { this->write<uint8_t>(_val); }
+    void
+    write_int8    (int8_t   _val) { this->write<int8_t>(_val); }
+    void
+    write_uint16  (uint16_t _val) { this->write<uint16_t>(_val); }
+    void
+    write_int16   (int16_t  _val) { this->write<int16_t>(_val); }
+    void
+    write_uint32  (uint32_t _val) { this->write<uint32_t>(_val); }
+    void
+    write_int32   (int32_t  _val) { this->write<int32_t>(_val); }
+    void
+    write_uint64  (uint64_t _val) { this->write<uint64_t>(_val); }
+    void
+    write_int64   (int64_t  _val) { this->write<int64_t>(_val); }
 
 public:
     size_t
-    size           () const;
-
-    void
-    resize         (size_t _s);
-
-    void
-    shrink         ();
+    read_bytes    (uint8_t *_p, size_t _n);
 
     size_t
-    next           () const;
+    write_bytes   (const uint8_t *_p, size_t _n);
+
+public:
+    size_t
+    size          () const        { return m_arr.size(); }
 
     void
-    reset          (size_t _idx);
+    resize        (size_t _s)     { m_arr.resize(_s); m_arr.shrink_to_fit(); }
+
+    void
+    shrink        ()              { m_arr.shrink_to_fit(); }
+
+    size_t
+    next          () const        { return (m_arr.size() - m_idx); }
+
+    void
+    reset         (size_t _idx);
 
 public:
     std::string &
-    dump           ();
-
-public:
-    void
-    operator =     (const basic_buffer &) = delete;
+    dump          ();
 
 protected:
     bool
-    readable       (size_t _n);
+    readable      (size_t _n);
 
     bool
-    writeable      (size_t _n);
+    writeable     (size_t _n);
+
+    template <typename __T> __T
+    read          ();
+
+    template <typename __T> void
+    write         (__T _val);
 
 protected:
     uint8_arr   m_arr;
@@ -123,32 +120,33 @@ protected:
 
 class buffer : public basic_buffer {
 public:
-    buffer         ();
+    buffer     () : basic_buffer(uint8_arr()) {}
 
-    buffer         (size_t _reserve);
+    explicit
+    buffer     (size_t _reserve) : basic_buffer(uint8_arr(), _reserve) {}
 
-    buffer         (const uint8_arr &_arr, size_t _reserve = 0);
+    explicit
+    buffer     (const uint8_arr &_arr, size_t _reserve = 0) : basic_buffer(_arr, _reserve) {}
 
-    buffer         (uint8_arr &&_arr, size_t _reserve = 0);
+    explicit
+    buffer     (uint8_arr &&_arr, size_t _reserve = 0) : basic_buffer(std::move(_arr), _reserve) {}
 
-    buffer         (const buffer &_buf);
+    buffer     (const buffer &_buf) : basic_buffer(_buf.m_arr, _buf.m_arr.size()) {}
 
-    buffer         (buffer &&_buf);
+    explicit
+    buffer     (buffer &&_buf) : basic_buffer(std::move(_buf.m_arr), _buf.m_arr.size()) {}
 
-    ~buffer        () = default;
+    ~buffer    () = default;
 
 public:
     buffer &
-    append         (const buffer &_buf);
+    append     (const buffer &_buf);
 
     buffer &
-    operator +     (const buffer &_buf);
+    operator + (const buffer &_buf) { return append(_buf); }
 
     void
-    operator =     (const buffer &) = delete;
-
-    void
-    swap           (buffer &_buf);
+    swap       (buffer &_buf) { std::swap(m_arr, _buf.m_arr); std::swap(m_idx, _buf.m_idx); }
 };
 
 __NAMESPACE_END
