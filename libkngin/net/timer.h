@@ -15,6 +15,9 @@ public:
     typedef std::function<void (timer &)> timer_cb;
 
 public:
+    timer        () = delete;
+
+    explicit
     timer        (event_loop *_loop);
 
     virtual

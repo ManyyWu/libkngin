@@ -60,7 +60,7 @@ mutex::timedlock (timestamp _ms)
     if (ETIMEDOUT == _ret)
         return false;
     if (_ret) {
-        log_fatal("::pthread_mutex_timedlock(), value = %ld, return %d", _ms, _ret);
+        log_fatal("::pthread_mutex_timedlock() return %d", _ret);
         return false;
     }
     return true;

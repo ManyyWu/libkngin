@@ -1,6 +1,6 @@
 #ifndef _THREADPOLL_H_
 #define _THREADPOLL_H_
-
+/*
 #include <vector>
 #include <deque>
 #include <atomic>
@@ -9,6 +9,7 @@
 #include "work_thread.h"
 #include "task_base.h"
 #include "error.h"
+#include "thread.h"
 #include "msg.h"
 #include "lock.h"
 #include "timestamp.h"
@@ -89,5 +90,6 @@ protected:
 };
 
 __NAMESPACE_END
+*/
 
 #endif /* _THREADPOLL_H_ */

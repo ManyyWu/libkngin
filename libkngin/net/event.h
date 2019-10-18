@@ -15,6 +15,9 @@ public:
     typedef std::function<void (event &)> event_cb;
 
 public:
+    event        () = delete;
+
+    explicit
     event        (event_loop *_loop);
 
     virtual

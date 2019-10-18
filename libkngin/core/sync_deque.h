@@ -2,9 +2,11 @@
 #define _SYNC_DEQUE_H_
 
 #include <deque>
+#include <atomic>
 #include <memory>
 #include "define.h"
-#include "noncopyable.h"
+#include "logfile.h"
+#include "common.h"
 #include "lock.h"
 
 using std::deque;
@@ -13,12 +15,22 @@ using std::iterator;
 __NAMESPACE_BEGIN
 
 template <class __T>
-class sync_deque : public noncopyable {
+class sync_deque {
 public:
     typedef size_t size_type;
 
 public:
-    sync_deque (size_type _s = QUEUE_MAX)
+    sync_deque ()
+        try
+        : m_deque(), m_mutex(), m_cond(&m_mutex), m_max_size(QUEUE_MAX)
+    {
+    } catch (...) {
+        log_fatal("sync_deque::sync_deque() error");
+        throw;
+    }
+
+    explicit
+    sync_deque (size_type _s)
         try
         : m_deque(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
     {
@@ -189,9 +201,9 @@ public:
 
 public:
     virtual bool
-    lock (time_t _ms = TIME_INFINITE)
+    lock (timestamp _ms = timestamp::infinite())
     {
-        if (TIME_INFINITE == _ms)
+        if (timestamp::infinite() == _ms)
             m_mutex.lock();
         else
             return m_mutex.timedlock(_ms);
@@ -211,11 +223,9 @@ public:
     }
 
     virtual bool
-    wait (time_t _ms = TIME_INFINITE)
+    wait (timestamp _ms = timestamp::infinite())
     {
-        kassert_r0(__time_valid(_ms));
-
-        if (TIME_INFINITE == _ms)
+        if (timestamp::infinite() == _ms)
             m_cond.wait();
         else
             return m_cond.timedwait(_ms);

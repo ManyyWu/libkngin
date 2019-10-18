@@ -21,12 +21,7 @@ __NAMESPACE_BEGIN
 #define __localtime(__arg1, __arg2) localtime_r((__arg2), (__arg1))
 #endif
 
-#define TIME_INFINITE (time_t)(-1)
-#define TIME_MAX      (time_t)(std::numeric_limits<time_t>::max)()
-
-#define __time_valid(__t) (TIME_INFINITE == (__t) || (__t) < TIME_MAX)
-
-class timestamp : copyable {
+class timestamp {
 public:
     timestamp   () = delete;
     timestamp   (uint64_t _ms) : m_ms(_ms) {}
@@ -50,16 +45,33 @@ public:
     operator -= (timestamp _t)        { m_ms -= _t.m_ms; return *this; }
 
 public:
+    bool
+    operator == (timestamp _t)        {return _t.m_ms == m_ms; }
+
+public:
+    operator
+    uint64_t    ()                    { return m_ms; }
+
+public:
     uint64_t
     value       () const              { return m_ms; }
-    int
-    value_int   () const              { return (int)std::min(m_ms, (uint64_t)INT_MAX); }
+    int32_t
+    value_int   () const              { return (int)std::min(m_ms, (uint64_t)INT32_MAX); }
+    uint32_t
+    value_uint  () const              { return (uint32_t)std::min(m_ms, (uint64_t)UINT32_MAX); }
     void
     to_timeval  (timeval &_tv) const
     { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }
     void
     to_timespec (timespec &_ts) const
     { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
+
+public:
+    static uint64_t
+    infinite    ()                     { return UINT64_MAX; }
+
+    static uint64_t
+    max         ()                     { return UINT64_MAX - 1; }
 
 protected:
     uint64_t m_ms;

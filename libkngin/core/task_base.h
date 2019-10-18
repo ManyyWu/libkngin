@@ -11,6 +11,9 @@
 //class work_thread;
 //class task_base : noncopyable {
 //public:
+//    task_base      () = delete;
+//
+//    explicit
 //    task_base      (work_thread *_thread, msg *_msg, int _priority = 0);
 //
 //protected:

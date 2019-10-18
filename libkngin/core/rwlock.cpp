@@ -81,7 +81,7 @@ rwlock::timedrdlock (timestamp _ms)
     if (ETIMEDOUT == _ret)
         return false;
     if (_ret) {
-        log_fatal("::pthread_rwlock_timedrdlock(), value = %ld, return %d", _ms, _ret);
+        log_fatal("::pthread_rwlock_timedrdlock(), return %d", _ret);
         return false;
     }
 
@@ -99,7 +99,7 @@ rwlock::timedwrlock (timestamp _ms)
     if (ETIMEDOUT == _ret)
         return false;
     if (_ret) {
-        log_fatal("::pthread_rwlock_timedwrlock(), value = %ld, return %d", _ms, _ret);
+        log_fatal("::pthread_rwlock_timedwrlock() return %d", _ret);
         return false;
     }
 

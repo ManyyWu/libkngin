@@ -9,8 +9,11 @@
 
 __NAMESPACE_BEGIN
 
-class filefd : public noncopyable {
+class filefd {
 public:
+    filefd  () = delete;
+
+    explicit
     filefd  (int _fd);
 
     virtual

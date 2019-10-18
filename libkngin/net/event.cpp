@@ -14,7 +14,7 @@ event::event (event_loop *_loop)
       m_event(_loop, this)
 {
     kassert(_loop);
-    if_not (__fd_valid(m_fd)) {
+    if (__fd_invalid(m_fd)) {
         log_fatal("eventfd() error - %s:%d", strerror(errno), errno);
         throw exception("event::event() erorr");
     }

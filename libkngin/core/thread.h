@@ -14,12 +14,15 @@
 
 __NAMESPACE_BEGIN
 
-class thread : public noncopyable {
+class thread {
 public:
     typedef std::function<int (void *)> thr_fn;
 
 public:
-    thread        (thr_fn _fn, const char *_name = "");
+    thread        () = delete;
+
+    explicit
+    thread        (thr_fn &&_fn, const char *_name = "");
 
     virtual
     ~thread       ();
@@ -51,7 +54,7 @@ public:
     get_tid       ();
 
     static void
-    sleep         (time_t _ms);
+    sleep         (timestamp _ms);
 
     static void
     exit          (int _err_code);
@@ -84,13 +87,13 @@ protected:
 
     uint64_t          m_tid;
 
-    thr_fn            m_fn;
-
     void *            m_args;
 
     void *            m_retptr;
 
     std::atomic<bool> m_running;
+
+    thr_fn            m_fn;
 };
 
 __NAMESPACE_END

@@ -6,8 +6,8 @@ using namespace k;
 
 class mythread : public thread {
 public:
-    mythread (thr_fn _fn)
-        : thread(_fn)
+    mythread (thr_fn &&_fn)
+        : thread(std::move(_fn))
     {
     }
 

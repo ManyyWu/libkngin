@@ -15,14 +15,15 @@ __NAMESPACE_BEGIN
 
 #ifdef _WIN32
 thread::thread (thr_fn _fn, const char *_name /* = "" */)
-    : m_name(_name ? _name : ""), m_thr(pthread_t{NULL, 0}), m_fn(_fn),
-      m_retptr(NULL), m_running(false)
+    : m_name(_name ? _name : ""), m_thr(pthread_t{NULL, 0}),
+      m_retptr(NULL), m_running(false), m_fn(_fn)
 #else
-thread::thread (thr_fn _fn, const char *_name /* = "" */)
-    : m_name(_name ? _name : ""), m_thr(0), m_fn(_fn),
-      m_retptr(NULL), m_running(false)
+thread::thread (thr_fn &&_fn, const char *_name /* = "" */)
+    : m_name(_name ? _name : ""), m_thr(0), m_retptr(NULL),
+      m_running(false), m_fn(std::move(_fn))
 #endif
 {
+    kassert(_fn && _name);
 }
 
 thread::~thread ()
@@ -147,13 +148,12 @@ thread::name () const
 }
 
 void
-thread::sleep (time_t _ms)
+thread::sleep (timestamp _ms)
 {
-    kassert_r(__time_valid(_ms));
 #ifdef _WIN32
-    ::Sleep((DWORD)_ms);
+    ::Sleep((DWORD)_ms.value_uint());
 #else
-    ::usleep(std::abs(_ms) * 1000);
+    ::usleep(_ms.value_uint() * 1000);
 #endif
 }
 

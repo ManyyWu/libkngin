@@ -2,9 +2,11 @@
 #define _SYNC_QUEUE_H_
 
 #include <queue>
+#include <atomic>
 #include <memory>
 #include "define.h"
-#include "noncopyable.h"
+#include "logfile.h"
+#include "common.h"
 #include "lock.h"
 
 using std::deque;
@@ -19,7 +21,18 @@ public:
     typedef size_t                             size_type;
 
 public:
-    sync_queue (size_type _s = QUEUE_MAX)
+    sync_queue ()
+        try
+        : m_queue(), m_mutex(), m_cond(&m_mutex), m_max_size(QUEUE_MAX)
+    {
+    } catch (...) {
+        log_fatal("sync_queue::sync_queue() error");
+        throw;
+    }
+
+
+    explicit
+    sync_queue (size_type _s)
         try
         : m_queue(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
     {
@@ -110,12 +123,9 @@ public:
 
 public:
     virtual bool
-    lock (time_t _ms = TIME_INFINITE)
+    lock (timestamp _ms = timestamp::infinite())
     {
-        if_not (__time_valid(_ms))
-            return false;
-
-        if (TIME_INFINITE == _ms)
+        if (timestamp::infinite() == _ms)
             m_mutex.lock();
         else
             return m_mutex.timedlock(_ms);
@@ -125,7 +135,6 @@ public:
     virtual bool
     trylock ()
     {
-
         return m_mutex.trylock();
     }
 
@@ -136,11 +145,9 @@ public:
     }
 
     virtual bool
-    wait (time_t _ms = TIME_INFINITE)
+    wait (timestamp _ms = timestamp::infinite())
     {
-        kassert_r0(__time_valid(_ms));
-
-        if (TIME_INFINITE == _ms)
+        if (timestamp::infinite() == _ms)
             m_cond.wait();
         else
             return m_cond.timedwait(_ms);
@@ -150,7 +157,7 @@ public:
     virtual void
     signal ()
     {
-        signal();
+        m_cond.signal();
     }
  
     virtual void

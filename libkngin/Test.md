@@ -71,8 +71,8 @@
         void
         set_code          (err_code _code) { m_code = _code; }
 
-        explicit
-        operator bool     ()               { return m_code; }
+        explicit operator 
+        bool              ()               { return m_code; }
 
         explicit
         operator err_code ()               { return m_code; }
