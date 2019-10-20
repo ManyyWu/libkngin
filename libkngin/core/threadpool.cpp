@@ -165,7 +165,7 @@
 //    log_info("message qeueu are cleared up");
 //}
 //
-//sys_err
+//bool
 //thread_pool::commit (task_base **_task, time_t _ms /* = TIME_INFINITE */)
 //{
 //    if_not (!_task || !*_task)

@@ -8,10 +8,6 @@ __NAMESPACE_BEGIN
 const __sys_err::__err_info
 __sys_err::__err_info_entry[__sys_err::__sys_err_num] = {
     {E_SUCCESS,       "Success"                     },
-    {E_FAILED,        "Failed",                     },
-    {E_INVAL,         "Invalid arguments"           },
-    {E_TIMEDOUT,      "Timedout"                    },
-    {E_BUSY,          "Busy"                        },
 
 //    {E_MAX,           "Max error code"              }
 };

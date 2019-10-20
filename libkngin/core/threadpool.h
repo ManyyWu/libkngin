@@ -41,7 +41,7 @@ public:
     void
     clear         ();
 
-    sys_err
+    bool
     commit        (task_base **_task, time_t _ms = TIME_INFINITE);
 
     msg *

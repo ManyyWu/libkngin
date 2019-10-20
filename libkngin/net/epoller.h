@@ -18,7 +18,7 @@ __NAMESPACE_BEGIN
 class event_loop;
 class epoller : public noncopyable {
 public:
-    typedef std::vector<struct epoll_event> __epoll_event_set;
+    typedef std::vector<struct epoll_event> epoll_event_set;
 
     typedef std::vector<epoller_event *>    event_list;
 
@@ -34,13 +34,13 @@ public:
 
 public:
     bool
-    register_event (epoller_event *_e);
+    register_event (epoller_event *_e) { return update_event(EPOLL_CTL_ADD, _e); }
 
     bool
-    remove_event   (epoller_event *_e);
+    remove_event   (epoller_event *_e) { return update_event(EPOLL_CTL_DEL, _e); }
 
     bool
-    modify_event   (epoller_event *_e);
+    modify_event   (epoller_event *_e) { return update_event(EPOLL_CTL_MOD, _e); }
 
 public:
     void
@@ -58,14 +58,14 @@ public:
 
 protected:
 #ifndef NDEBUG
-    std::set<int>     m_fd_set;
+    std::set<int>   m_fd_set;
 #endif
 
-    __epoll_event_set m_set;
+    epoll_event_set m_set;
 
-    event_loop *      m_loop;
+    event_loop *    m_loop;
 
-    int               m_epollfd;
+    int             m_epollfd;
 };
 
 __NAMESPACE_END

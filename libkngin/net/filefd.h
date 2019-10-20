@@ -3,6 +3,7 @@
 
 #include "define.h"
 #include "noncopyable.h"
+#include "buffer.h"
 
 #define __fd_valid(__fd)   (__fd >= 0)
 #define __fd_invalid(__fd) (__fd < 0)
@@ -24,10 +25,10 @@ public:
     fd            () const;
 
     ssize_t
-    write         (void *_buf, size_t _nbytes);
+    write         (const buffer &_buf, size_t _nbytes);
 
     ssize_t
-    read          (void *_buf, size_t _nbytes);
+    read          (buffer &_buf, size_t _nbytes);
 
     void
     close         ();

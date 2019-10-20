@@ -25,6 +25,7 @@ __NAMESPACE_BEGIN
  *
  * __e: expression
  */
+#define arg_check(__e)  if (!(__e) ? (assert_log(invalid argument, expression (__e) is false), assert((__e)), true) : false)
 #define if_not(__e)     if (!(__e) ? (assert_log(expression (__e) is false), assert((__e)), true) : false)
 #define kassert(__e)    do { if_not(__e) (void)0; } while (false)
 #define kassert_r(__e)  if_not(__e) return

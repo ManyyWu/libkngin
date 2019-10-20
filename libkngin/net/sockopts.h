@@ -3,29 +3,31 @@
 
 #include <netinet/tcp.h>
 #include "define.h"
+#include "error.h"
 
 __NAMESPACE_BEGIN
 
 class sockopts {
+public:
 protected:
     union __sockopt_val {
         int            i_val;
         long           l_val;
         struct linger  linger_val;
         struct timeval timeval_val;
-    } val;
+    };
 
     struct __sockopts_info {
         const char *opt_str;
         int         opt_level;
         int         opt_name;
         bool        (*opt_get)(__sockopt_val &, int, const __sockopts_info &);
-        bool        (*opt_set)(__sockopt_val  , int, const __sockopts_info &);
+        bool        (*opt_set)(const __sockopt_val &, int, const __sockopts_info &);
     };
 
     enum SOCKOPTS_TYPE {
         SOCKOPTS_TYPE_BROADCAST = 0,
-        SOCKOPTS_TYPE_DEBUG,
+        SOCKOPTS_TYPE_DEBUG,          // it needs to be set as root
         SOCKOPTS_TYPE_DONTROUTE,
         SOCKOPTS_TYPE_ERROR,
         SOCKOPTS_TYPE_KEEPALIVE,
@@ -38,11 +40,10 @@ protected:
         SOCKOPTS_TYPE_RCVTIMEO,
         SOCKOPTS_TYPE_SNDTIMEO,
         SOCKOPTS_TYPE_REUSEADDR,
-        SOCKOPTS_TYPE_SO_REUSEPORT,
-        SOCKOPTS_TYPE_SO_TYPE,
+        SOCKOPTS_TYPE_REUSEPORT,
+        SOCKOPTS_TYPE_TYPE,
         SOCKOPTS_TYPE_IP_TOS,
         SOCKOPTS_TYPE_IP_TTL,
-        SOCKOPTS_TYPE_IPV6_UNICAST_HOPS,
         SOCKOPTS_TYPE_IPV6_V6ONLY,
         SOCKOPTS_TYPE_TCP_MAXSEG,
         SOCKOPTS_TYPE_TCP_NODELAY,
@@ -53,108 +54,125 @@ public:
     sockopts       (int _fd);
 
 public:
-    bool
+    retf_bool
     broadcast      ();
 
-    void
+    retf_void
     set_broadcast  (bool _on);
 
-    bool
+    retf_bool
     debug          ();
 
-    void
+    retf_void
     set_debug      (bool _on);
 
-    bool
+    retf_bool
     nonroute       ();
 
-    void
-    setnonroute    (bool _on);
+    retf_void
+    set_nonroute   (bool _on);
 
-    bool
+    retf_int32
     error          ();
 
-    bool
+    retf_bool
     keepalive      ();
 
-    void
-    setkeepalive   ();
+    retf_void
+    set_keepalive  (bool _on);
 
-    bool
-    linger         ();
+    retf_void
+    linger         (struct linger &_l);
 
-    void
+    retf_void
     set_linger     (bool _on, int _t = 0);
 
-    void
+    retf_bool
     oobinline      ();
 
-    void
+    retf_void
     set_ooblinline (bool _on);
 
-    int
+    retf_int32
     rcvbuf         ();
 
-    void
+    retf_void
     set_rcvbuf     (int _s);
 
-    int
+    retf_int32
     sndbuf         ();
 
-    void
+    retf_void
     set_sndbuf     (int _s);
 
-    int
+    retf_int32
     rcvlowat       ();
 
-    void
+    retf_void
     set_rcvlowat   (int _s);
 
-    int
+    retf_int32
     sndlowat       ();
 
-    void
+    retf_void
     set_sndlowat   (int _s);
 
-    timestamp
-    rcvtimeo       ();
+    retf_void
+    rcvtimeo       (struct timeval &_t);
 
-    void
-    set_rcvtimeo   (timestamp _t);
+    retf_void
+    set_rcvtimeo   (struct timeval _t);
 
-    timestamp
-    sndtimeo       ();
+    retf_void
+    sndtimeo       (struct timeval &_t);
 
-    void
-    set_sndtimeo   (timestamp _t);
+    retf_void
+    set_sndtimeo   (struct timeval _t);
 
-    bool
+    retf_bool
     reuseaddr      ();
 
-    void
+    retf_void
     set_reuseaddr  (bool _on);
 
-    bool
+    retf_bool
     reuseport      ();
 
-    void
+    retf_void
     set_reuseport  (bool _on);
 
-    int
+    retf_int32
     type           ();
 
-    int
-    tos            ();
+    retf_int32
+    ip_tos         ();
 
-    void
-    set_tos        ();
+    retf_void
+    set_ip_tos     (int _t);
 
-    int
+    retf_int32
     ip_ttl         ();
 
-    void
+    retf_void
     set_ip_ttl     (int _t);
 
+    retf_bool
+    ipv4_disabled  ();
+
+    retf_void
+    set_ipv6_only  (bool _on);
+
+    retf_int32
+    maxseg         ();
+
+    retf_void
+    set_maxseg     (int _s);
+
+    retf_bool
+    nodelay        ();
+
+    retf_void
+    set_nodelay    (int _s);
 
 protected:
     static bool
@@ -170,21 +188,22 @@ protected:
     get_timeval    (__sockopt_val &_val, int _fd, const __sockopts_info &_opt_info);
 
     static bool
-    set_flag       (__sockopt_val _val, int _fd, const __sockopts_info &_opt_info);
+    set_flag       (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info);
 
     static bool
-    set_int        (__sockopt_val _val, int _fd, const __sockopts_info &_opt_info);
+    set_int        (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info);
 
     static bool
-    set_linger     (__sockopt_val _val, int _fd, const __sockopts_info &_opt_info);
+    set_linger     (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info);
 
     static bool
-    set_timeval    (__sockopt_val _val, int _fd, const __sockopts_info &_opt_info);
+    set_timeval    (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info);
 
 protected:
-    int                    m_fd;
+    int                          m_fd;
 
-    static __sockopts_info m_opts_entry[SOCKOPTS_TYPE_MAX];
+protected:
+    static const __sockopts_info opts_entry[SOCKOPTS_TYPE_MAX];
 };
 
 __NAMESPACE_END

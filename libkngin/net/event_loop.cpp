@@ -33,7 +33,7 @@ event_loop::event_loop (thread *_thr)
 
 event_loop::~event_loop ()
 {
-    //m_waker_event.disable_read();
+    // m_waker_event.disable_read();
 }
 
 int
@@ -127,8 +127,9 @@ event_loop::wakeup ()
 {
     kassert(m_looping);
 
-    uint64_t _val = 1;
-    ssize_t _ret = m_waker.write(&_val, sizeof(_val));
+    buffer _val(8);
+    _val.write_uint64(1);
+    ssize_t _ret = m_waker.write(_val, sizeof(_val));
     if (_ret < 0)
         log_error("event_loop::wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
@@ -138,8 +139,8 @@ event_loop::wakeup ()
 void
 event_loop::handle_wakeup ()
 {
-    uint64_t _val = 1;
-    ssize_t _ret = m_waker.read(&_val, sizeof(_val));
+    buffer _val(8);
+    ssize_t _ret = m_waker.read(_val, sizeof(_val));
     if (_ret < 0)
         log_error("event_loop::handle_wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))

@@ -7,8 +7,10 @@
 #endif
 #include <cstring>
 #include "define.h"
+#include "error.h"
 #include "filefd.h"
 #include "common.h"
+#include "buffer.h"
 
 __NAMESPACE_BEGIN
 
@@ -31,24 +33,26 @@ filefd::fd () const
 }
 
 ssize_t
-filefd::write (void *_buf, size_t _nbytes)
+filefd::write (const buffer &_buf, size_t _nbytes)
 {
-    kassert(__fd_valid(m_fd));
-    return ::write(m_fd, _buf, _nbytes);
-}
+    kassert(_buf.size() < _nbytes);
+    return ::write(m_fd, _buf.get().data(), _nbytes);
+};
 
 ssize_t
-filefd::read (void *_buf, size_t _nbytes)
+filefd::read (buffer &_buf, size_t _nbytes)
 {
-    kassert(__fd_valid(m_fd));
-    return ::read(m_fd, _buf, _nbytes);
+    kassert(_buf.size() < _nbytes);
+    return ::read(m_fd, _buf.get().data(), _nbytes);
 }
 
 void
 filefd::close ()
 {
     kassert(__fd_valid(m_fd));
-    ::close(m_fd);
+    int _ret = ::close(m_fd);
+    if (_ret < 0)
+        log_error("::close() error - %s:%d", strerror(errno), errno);
 }
 
 bool

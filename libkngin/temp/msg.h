@@ -34,7 +34,7 @@ public:
     create  (const uint8_t *_buf, uint32_t _size, uint32_t _type);
 
     virtual bool
-    create (uint8_t **_buf, uint32_t _size, uint32_t _type);
+    create  (uint8_t **_buf, uint32_t _size, uint32_t _type);
 
     virtual bool
     create  (const msg *_msg);

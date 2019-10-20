@@ -7,33 +7,30 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/uio.h>
 #endif
 #include <memory>
 #include <cstring>
+#include <vector>
 #include "define.h"
 #include "filefd.h"
 #include "logfile.h"
+#include "buffer.h"
 #include "socket.h"
+#include "address.h"
 #include "event_loop.h"
 
 __NAMESPACE_BEGIN
 
-socket::socket (event_loop *_loop, INET_PROTOCOL _protocol)
-    try
-    : filefd(::socket(is_bits_set(_protocol, 1) ? AF_INET6 : AF_INET,
-                      is_bits_set(_protocol, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
-      m_loop(_loop), m_event(new epoller_event(_loop, this))
+socket::socket (int _fd)
+    : filefd(_fd), m_opts(_fd)
 {
-    kassert(_loop);
-} catch (...) {
-    log_fatal("socket::socket() error");
-    throw;
 }
 
-socket::socket (INET_PROTOCOL _protocol)
-    : filefd(::socket(is_bits_set(_protocol, 1) ? AF_INET6 : AF_INET,
-                      is_bits_set(_protocol, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
-      m_loop(NULL), m_event(nullptr)
+socket::socket (INET_PROTOCOL _proto)
+    : filefd(::socket(is_bits_set(_proto, 1) ? AF_INET6 : AF_INET,
+                      is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
+      m_opts(m_fd)
 {
 }
 
@@ -42,57 +39,49 @@ socket::~socket ()
 }
 
 bool
-socket::set_reuse_addr (bool _on /* = true */)
+socket::bind (inet_addr _addr)
 {
-    int _optval = _on ? 1 : 0;
-    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&_optval, sizeof(_optval));
+    kassert(_addr);
+
+    int _ret = ::bind(m_fd, _addr, sizeof(struct sockaddr));
     if (_ret < 0)
-        log_error("::setsockopt() set SO_REUSEADDR flag failed - %s:%d", strerror(errno), errno);
+        log_error("::bind error() - %s:%d", strerror(errno), errno);
     return (_ret >= 0);
 }
 
 bool
-socket::set_reuse_port (bool _on /* = true */)
+socket::listen (int _max)
 {
-#ifdef _WIN32
-    int _optval = _on ? 0 : 1;
-    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&_optval, sizeof(_optval));
-    set_reuse_addr(_on);
-#else
-    int _optval = _on ? 1 : 0;
-    int _ret = ::setsockopt(m_fd, SOL_SOCKET, SO_REUSEPORT, (char *)&_optval, sizeof(_optval));
-#endif
+    kassert(_max >= 0);
+
+    int _ret = ::listen(m_fd, _max);
     if (_ret < 0)
-        log_error("::setsockopt() set SO_REUSEPORT flag failed - %s:%d", strerror(errno), errno);
+        log_error("::listen error() - %s:%d", strerror(errno), errno);
     return (_ret >= 0);
 }
 
-bool
-socket::reuse_port () const
+ssize_t
+socket::writev (const std::vector<buffer> &_buf, size_t _n)
 {
-    int       _optval;
-    socklen_t _optlen;
-    int _ret = ::getsockopt(m_fd, SOL_SOCKET, SO_REUSEPORT, (char *)&_optval, &_optlen);
-    if (_ret < 0)
-        log_error("::getsockopt() set SO_REUSEPORT flag failed - %s:%d", strerror(errno), errno);
-    return _optval;
+    kassert(_buf.size() < _n);
+
+    std::vector<struct iovec> _iovec;
+    _iovec.resize(_buf.size());
+    for (auto _iter : _buf)
+        _iovec.push_back({_iter.get().data(), _iter.size()});
+    return ::writev(m_fd, _iovec.data(), _n);
 }
 
-bool
-socket::closeexec () const
+ssize_t
+socket::readv (std::vector<buffer> &_buf, size_t _n)
 {
+    kassert(_buf.size() < _n);
 
-}
-
-bool
-set_keep_alive (bool _on /* = true */)
-{
-}
-
-epoller_event *
-socket::get_event ()
-{
-    return m_event.get();
+    std::vector<struct iovec> _iovec;
+    _iovec.resize(_buf.size());
+    for (auto _iter : _buf)
+        _iovec.push_back({_iter.get().data(), _iter.size()});
+    return ::writev(m_fd, _iovec.data(), _n);
 }
 
 __NAMESPACE_END

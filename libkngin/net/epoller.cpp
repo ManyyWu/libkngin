@@ -60,24 +60,6 @@ epoller::wait (timestamp _ms, epoller::event_list &_list)
     return std::max(_num, 0);
 }
 
-bool
-epoller::register_event (epoller_event *_e)
-{
-    return update_event(EPOLL_CTL_ADD, _e);
-}
-
-bool
-epoller::remove_event (epoller_event *_e)
-{
-    return update_event(EPOLL_CTL_DEL, _e);
-}
-
-bool
-epoller::modify_event (epoller_event *_e)
-{
-    return update_event(EPOLL_CTL_MOD, _e);
-}
-
 void
 epoller::close ()
 {

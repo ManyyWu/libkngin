@@ -12,7 +12,7 @@ timer::timer (event_loop *_loop)
       m_event(_loop, this)
 {
     kassert(_loop);
-    if_not (__fd_valid(m_fd)) {
+    if (__fd_valid(m_fd)) {
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw exception("timer::timer() erorr");
     }

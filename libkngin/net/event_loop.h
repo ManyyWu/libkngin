@@ -20,6 +20,9 @@ public:
     typedef event waker;
 
 public:
+    event_loop     () = delete;
+
+    explicit
     event_loop     (thread *_thr);
 
     ~event_loop    ();

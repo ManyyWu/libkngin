@@ -52,7 +52,7 @@ basic_buffer::dump ()
 }
 
 bool
-basic_buffer::readable (size_t _n)
+basic_buffer::readable (size_t _n) const
 {
     if (m_arr.size() - m_idx < _n)
         throw exception((std::string("basic_buffer::readable: size is ")
@@ -62,7 +62,7 @@ basic_buffer::readable (size_t _n)
 }
 
 bool
-basic_buffer::writeable (size_t _n)
+basic_buffer::writeable (size_t _n) const
 {
     if (m_arr.size() - m_idx < _n)
         throw exception((std::string("basic_buffer::writeable: size is ")

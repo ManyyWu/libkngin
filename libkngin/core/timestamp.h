@@ -46,11 +46,11 @@ public:
 
 public:
     bool
-    operator == (timestamp _t)        {return _t.m_ms == m_ms; }
+    operator == (timestamp _t) const  {return _t.m_ms == m_ms; }
 
 public:
     operator
-    uint64_t    ()                    { return m_ms; }
+    uint64_t    () const              { return m_ms; }
 
 public:
     uint64_t

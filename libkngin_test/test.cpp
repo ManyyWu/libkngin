@@ -10,6 +10,8 @@
 #include <cstring>
 #include <unistd.h>
 #include <sys/eventfd.h>
+#include <netinet/tcp.h>
+#include <netinet/ip.h>
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
@@ -18,6 +20,7 @@
 #include "../libkngin/core/bits.h"
 #include "../libkngin/core/error.h"
 #include "../libkngin/net/socket.h"
+#include "../libkngin/net/sockopts.h"
 
 using namespace k;
 using namespace std;

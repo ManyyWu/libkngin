@@ -7,7 +7,7 @@
 #include "define.h"
 #include "exception.h"
 #include "error.h"
-#include "noncopyable.h"
+#include "buffer.h"
 
 __NAMESPACE_BEGIN
 
@@ -32,8 +32,11 @@ protected:
     ~basic_buffer () = default;
 
 public:
-    const uint8_arr &
+    uint8_arr &
     get           ()              { return m_arr; }
+
+    const uint8_arr &
+    get           () const        { return m_arr; }
 
 public:
     uint8_t
@@ -98,10 +101,10 @@ public:
 
 protected:
     bool
-    readable      (size_t _n);
+    readable      (size_t _n) const;
 
     bool
-    writeable     (size_t _n);
+    writeable     (size_t _n) const;
 
     template <typename __T> __T
     read          ();

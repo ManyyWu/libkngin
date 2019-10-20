@@ -8,16 +8,22 @@
 
 __NAMESPACE_BEGIN
 
-class connection : noncopyable {
+class connection {
 public:
-    virtual socket *
-    get_socket      ();
+    connection        () = delete;
 
-    virtual epoller_event *
-    get_epoller_event ();
+    explicit
+    connection        ();
+
+public:
+    bool
+    get_localaddr     (address);
+
+
+
 
 protected:
-    socket m_socket;
+    socket         m_socket;
 
     epoller_event  m_event;
 };

@@ -11,16 +11,18 @@
 #include <sys/socket.h>
 #endif
 #include <memory>
+#include <vector>
 #include "define.h"
 #include "filefd.h"
 #include "bits.h"
-#include "noncopyable.h"
+#include "buffer.h"
 #include "epoller_event.h"
 #include "event_loop.h"
+#include "sockopts.h"
 
 __NAMESPACE_BEGIN
 
-class socket : filefd {
+class socket : public filefd {
 public:
     enum INET_PROTOCOL {
         IPV4_TCP = 0x0, // 00b
@@ -30,51 +32,37 @@ public:
     };
 
 public:
-    socket           (event_loop *_loop, INET_PROTOCOL _protocol);
+    socket      () = delete;
 
-    socket           (INET_PROTOCOL _protocol);
+    explicit
+    socket      (int _fd);
+
+    explicit
+    socket      (INET_PROTOCOL _proto);
 
     virtual
-    ~socket          ();
+    ~socket     ();
 
 public:
     bool
-    bind             ();
+    bind        (struct sockaddr *_addr);
 
-    int
-    accept           ();
+    bool
+    listen      (int _max);
 
 public:
-    bool
-    set_reuse_addr   (bool _on = true);
+    ssize_t
+    writev      (const std::vector<buffer> &_buf, size_t _n);
 
-    bool
-    set_reuse_port   (bool _on = true);
-
-    bool
-    set_keep_alive   (bool _on = true);
-
-    bool
-    reuse_port       () const;
-
-    bool
-    closeexec        () const;
+    ssize_t
+    readv       (std::vector<buffer> &_buf, size_t _n);
 
 public:
-    epoller_event *
-    get_event ();
+    sockopts &
+    opts        () { return m_opts; }
 
 protected:
-    static bool
-    check_inet4_addr (const char *_addr);
-
-    static bool
-    check_inet6_addr (const char *_addr);
-
-protected:
-    event_loop *                   m_loop;
-
-    std::unique_ptr<epoller_event> m_event;
+    sockopts m_opts;
 };
 
 __NAMESPACE_END

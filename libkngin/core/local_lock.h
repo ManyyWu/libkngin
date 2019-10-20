@@ -9,9 +9,9 @@ __NAMESPACE_BEGIN
 class local_lock {
 public:
     explicit
-    local_lock  (mutex &_m);
+    local_lock  (mutex &_m) : m_mutex(_m) { m_mutex.lock(); }
 
-    ~local_lock ();
+    ~local_lock ()                        { m_mutex.unlock(); }
 
 protected:
     mutex &m_mutex;
