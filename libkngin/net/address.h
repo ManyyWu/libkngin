@@ -3,34 +3,56 @@
 
 #include <netinet/in.h>
 #include <utility>
+#include <array>
 
-union __inet_addr {
+__NAMESPACE_BEGIN
+
+union __address {
     struct in_addr  addr_inet4;
     struct in6_addr addr_inet6;
 };
 
-union __addr_str {
-    char str_inet4[INET_ADDRSTRLEN];
-    char str_inet6[INET6_ADDRSTRLEN];
+union __sockaddr {
+    struct sockaddr_in  sa_in;
+    struct sockaddr_in6 sa_in6;
 };
 
-class inet_addr {
+typedef std::array<char, INET_ADDRSTRLEN>  inet_addrstr;
+typedef std::array<char, INET6_ADDRSTRLEN> inet6_addrstr;
+
+class address {
 public:
-    inet_addr        () = delete;
+    address  () = delete;
 
     explicit
-    inet_addr        (const in_addr &_addr)  { m_addr.addr_inet4 = _addr; }
+    address  (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; };
 
     explicit
-    inet_addr        (in_addr &&_addr)       { m_addr.addr_inet4 = _addr; }
+    address  (const  sockaddr_in &&_sa) { m_sa.sa_in = _sa; }
 
     explicit
-    inet_addr        (const in6_addr &_addr) { m_addr.addr_inet6 = _addr; }
+    address  (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
 
     explicit
-    inet_addr        (in6_addr &&_addr)      { m_addr.addr_inet6 = _addr; }
+    address  (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; }
 
-    ~inet_addr       () = delete;
+    explicit
+    address  (const address &_sa)       { m_sa = _sa.m_sa; }
+
+    explicit
+    address  (const address &&_sa)      { m_sa = _sa.m_sa; }
+
+    ~address () = delete;
+
+public:
+    bool
+    inet6            () const;
+
+    bool
+    addr             (inet6_addrstr &_s) const;
+
+    uint16_t
+    port             () const { return inet6() ? m_sa.sa_in.sin_port : m_sa.sa_in6.sin6_port; }
 
 public:
     static bool
@@ -40,7 +62,17 @@ public:
     check_inet6_addr (const char *_addr);
 
 protected:
-    __inet_addr m_addr;
+    const __sockaddr &
+    sa               () const { return m_sa; }
+
+protected:
+    __sockaddr m_sa;
+
+protected:
+    friend class socket;
+    friend class connnection;
 };
+
+__NAMESPACE_END
 
 #endif /* _ADDRESS_H_ */

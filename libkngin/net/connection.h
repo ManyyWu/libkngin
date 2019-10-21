@@ -2,7 +2,7 @@
 #define _CONNECTION_H_
 
 #include "define.h"
-#include "noncopyable.h"
+#include "address.h"
 #include "epoller_event.h"
 #include "socket.h"
 
@@ -17,7 +17,7 @@ public:
 
 public:
     bool
-    get_localaddr     (address);
+    get_localaddr     (const address &_addr);
 
 
 

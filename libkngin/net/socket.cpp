@@ -39,11 +39,10 @@ socket::~socket ()
 }
 
 bool
-socket::bind (inet_addr _addr)
+socket::bind (const address &_addr)
 {
-    kassert(_addr);
-
-    int _ret = ::bind(m_fd, _addr, sizeof(struct sockaddr));
+    int _ret = ::bind(m_fd, _addr.inet6() ? (const sockaddr *)&(_addr.sa().sa_in6) : (const sockaddr *)&(_addr.sa().sa_in),
+                      _addr.inet6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in));
     if (_ret < 0)
         log_error("::bind error() - %s:%d", strerror(errno), errno);
     return (_ret >= 0);

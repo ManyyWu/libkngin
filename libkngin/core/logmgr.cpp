@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cassert>
 #include "define.h"
 #include "error.h"

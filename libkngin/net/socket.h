@@ -19,6 +19,7 @@
 #include "epoller_event.h"
 #include "event_loop.h"
 #include "sockopts.h"
+#include "address.h"
 
 __NAMESPACE_BEGIN
 
@@ -45,7 +46,7 @@ public:
 
 public:
     bool
-    bind        (struct sockaddr *_addr);
+    bind        (const address &_addr);
 
     bool
     listen      (int _max);
@@ -58,8 +59,8 @@ public:
     readv       (std::vector<buffer> &_buf, size_t _n);
 
 public:
-    sockopts &
-    opts        () { return m_opts; }
+    const sockopts &
+    opts        () const { return m_opts; }
 
 protected:
     sockopts m_opts;
