@@ -22,48 +22,74 @@ typedef std::array<char, INET6_ADDRSTRLEN> inet6_addrstr;
 
 class address {
 public:
-    address  () = delete;
-
-    explicit
-    address  (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; };
-
-    explicit
-    address  (const  sockaddr_in &&_sa) { m_sa.sa_in = _sa; }
-
-    explicit
-    address  (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
-
-    explicit
-    address  (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; }
-
-    explicit
-    address  (const address &_sa)       { m_sa = _sa.m_sa; }
-
-    explicit
-    address  (const address &&_sa)      { m_sa = _sa.m_sa; }
-
-    ~address () = delete;
+    address    () = default;
+    address    (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; }
+    address    (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; }
+    address    (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
+    address    (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; }
+    address    (const address &_sa)       { m_sa = _sa.m_sa; }
+    address    (const address &&_sa)      { m_sa = _sa.m_sa; }
+    ~address   () = default;
 
 public:
     bool
-    inet6            () const;
+    inet6      () const;
 
-    bool
-    addr             (inet6_addrstr &_s) const;
+    int
+    size       () const;
+
+    const char *
+    addrstr    (inet_addrstr &_s) const;
+
+    const char *
+    addrstr    (inet6_addrstr &_s) const;
 
     uint16_t
-    port             () const { return inet6() ? m_sa.sa_in.sin_port : m_sa.sa_in6.sin6_port; }
+    port       () const;
+
+public:
+    address &
+    operator = (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; }
+    address &
+    operator = (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; }
+    address &
+    operator = (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
+    address &
+    operator = (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; }
+    address &
+    operator = (const address &_sa)       { m_sa = _sa.m_sa; }
+    address &
+    operator = (const address &&_sa)      { m_sa = _sa.m_sa; }
+
+public:
+    const __sockaddr &
+    sa         () const                   { return m_sa; }
 
 public:
     static bool
-    check_inet4_addr (const char *_addr);
+    str2sockaddr   (const inet_addrstr &_addrstr, uint16_t _port, address &_addr);
 
     static bool
-    check_inet6_addr (const char *_addr);
+    str2sockaddr   (const inet6_addrstr &_addrstr, uint16_t _port, address &_addr);
 
-protected:
-    const __sockaddr &
-    sa               () const { return m_sa; }
+    static bool
+    str2sockaddr   (const inet_addrstr &&_addrstr, uint16_t _port, address &_addr);
+
+    static bool
+    str2sockaddr   (const inet6_addrstr &&_addrstr, uint16_t _port, address &_addr);
+
+public:
+    static bool
+    check_sockaddr (const inet_addrstr &_addrstr);
+
+    static bool
+    check_sockaddr (const inet6_addrstr &_addrstr);
+
+    static bool
+    check_sockaddr (const inet_addrstr &&_addrstr);
+
+    static bool
+    check_sockaddr (const inet6_addrstr &&_addrstr);
 
 protected:
     __sockaddr m_sa;

@@ -16,8 +16,6 @@ public:
     connection        ();
 
 public:
-    bool
-    get_localaddr     (const address &_addr);
 
 
 

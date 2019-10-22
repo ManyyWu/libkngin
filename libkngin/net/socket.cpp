@@ -5,6 +5,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <unistd.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -32,31 +33,6 @@ socket::socket (INET_PROTOCOL _proto)
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
       m_opts(m_fd)
 {
-}
-
-socket::~socket ()
-{
-}
-
-bool
-socket::bind (const address &_addr)
-{
-    int _ret = ::bind(m_fd, _addr.inet6() ? (const sockaddr *)&(_addr.sa().sa_in6) : (const sockaddr *)&(_addr.sa().sa_in),
-                      _addr.inet6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in));
-    if (_ret < 0)
-        log_error("::bind error() - %s:%d", strerror(errno), errno);
-    return (_ret >= 0);
-}
-
-bool
-socket::listen (int _max)
-{
-    kassert(_max >= 0);
-
-    int _ret = ::listen(m_fd, _max);
-    if (_ret < 0)
-        log_error("::listen error() - %s:%d", strerror(errno), errno);
-    return (_ret >= 0);
 }
 
 ssize_t

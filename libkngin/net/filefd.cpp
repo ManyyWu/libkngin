@@ -17,7 +17,7 @@ __NAMESPACE_BEGIN
 filefd::filefd (int _fd)
     : m_fd(_fd)
 {
-    // kassert(__fd_valid(_fd));
+     kassert(__fd_valid(_fd));
 }
 
 filefd::~filefd()

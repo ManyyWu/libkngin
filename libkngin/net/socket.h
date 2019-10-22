@@ -7,7 +7,6 @@
 #include <Windows.h>
 #else
 #include <unistd.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
 #endif
 #include <memory>
@@ -33,34 +32,49 @@ public:
     };
 
 public:
-    socket      () = delete;
+    socket        () = delete;
 
     explicit
-    socket      (int _fd);
+    socket        (int _fd);
 
     explicit
-    socket      (INET_PROTOCOL _proto);
+    socket        (INET_PROTOCOL _proto);
 
     virtual
-    ~socket     ();
+    ~socket       () = default;
+
+public:
+    int
+    bind          (const address &_addr)
+    { return ::bind(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
+    int
+    listen        (int _backlog)
+    { return ::listen(m_fd, _backlog); }
+    int
+    accept        (address &_addr)
+    { socklen_t _len = sizeof(_addr.m_sa); return ::accept(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
+    int
+    connect       (const address &_addr)
+    { return ::connect(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
 
 public:
     bool
-    bind        (const address &_addr);
-
+    localaddr     (address &_addr, uint16_t &_port)
+    { socklen_t _len = sizeof(_addr.m_sa); return ::getsockname(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
     bool
-    listen      (int _max);
+    peeraddr      (address &_addr, uint16_t &_port)
+    { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
 
 public:
     ssize_t
-    writev      (const std::vector<buffer> &_buf, size_t _n);
+    writev        (const std::vector<buffer> &_buf, size_t _n);
 
     ssize_t
-    readv       (std::vector<buffer> &_buf, size_t _n);
+    readv         (std::vector<buffer> &_buf, size_t _n);
 
 public:
     const sockopts &
-    opts        () const { return m_opts; }
+    opts          () const { return m_opts; }
 
 protected:
     sockopts m_opts;
