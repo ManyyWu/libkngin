@@ -66,15 +66,8 @@ public:
     { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
 
 public:
-    ssize_t
-    writev        (const std::vector<buffer> &_buf, size_t _n);
-
-    ssize_t
-    readv         (std::vector<buffer> &_buf, size_t _n);
-
-public:
-    sockopts &
-    opts          () { return m_opts; }
+    const sockopts &
+    opts          () const { return m_opts; }
 
 protected:
     sockopts m_opts;

@@ -35,28 +35,4 @@ socket::socket (INET_PROTOCOL _proto)
 {
 }
 
-ssize_t
-socket::writev (const std::vector<buffer> &_buf, size_t _n)
-{
-    kassert(_buf.size() < _n);
-
-    std::vector<struct iovec> _iovec;
-    _iovec.resize(_buf.size());
-    for (auto _iter : _buf)
-        _iovec.push_back({_iter.get().data(), _iter.size()});
-    return ::writev(m_fd, _iovec.data(), _n);
-}
-
-ssize_t
-socket::readv (std::vector<buffer> &_buf, size_t _n)
-{
-    kassert(_buf.size() < _n);
-
-    std::vector<struct iovec> _iovec;
-    _iovec.resize(_buf.size());
-    for (auto _iter : _buf)
-        _iovec.push_back({_iter.get().data(), _iter.size()});
-    return ::writev(m_fd, _iovec.data(), _n);
-}
-
 __NAMESPACE_END
