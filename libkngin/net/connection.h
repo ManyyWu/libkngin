@@ -16,7 +16,7 @@ public:
     connection        ();
 
 public:
-
+    
 
 
 
@@ -24,6 +24,8 @@ protected:
     socket         m_socket;
 
     epoller_event  m_event;
+
+    address        m_addr;
 };
 
 __NAMESPACE_END

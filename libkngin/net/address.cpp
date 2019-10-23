@@ -51,6 +51,7 @@ address::port () const
 bool
 address::str2sockaddr (const inet_addrstr &_addrstr, uint16_t _port, address &_addr)
 {
+    ::bzero(_addr.m_sa, sizeof(_addr.m_sa));
     _addr.m_sa.sa_in.sin_port = ::htons(_port);
     _addr.m_sa.sa_in.sin_family = AF_INET;
     return ::inet_pton(AF_INET, _addrstr.data(), &(_addr.m_sa.sa_in.sin_addr));
@@ -59,6 +60,7 @@ address::str2sockaddr (const inet_addrstr &_addrstr, uint16_t _port, address &_a
 bool
 address::str2sockaddr (const inet6_addrstr &_addrstr, uint16_t _port, address &_addr)
 {
+    ::bzero(_addr.m_sa, sizeof(_addr.m_sa));
     _addr.m_sa.sa_in6.sin6_port = ::htons(_port);
     _addr.m_sa.sa_in6.sin6_family = AF_INET6;
     return ::inet_pton(AF_INET, _addrstr.data(), &(_addr.m_sa.sa_in6.sin6_addr));
@@ -68,6 +70,7 @@ address::str2sockaddr (const inet6_addrstr &_addrstr, uint16_t _port, address &_
 bool
 address::str2sockaddr (const inet_addrstr &&_addrstr, uint16_t _port, address &_addr)
 {
+    ::bzero(_addr.m_sa, sizeof(_addr.m_sa));
     _addr.m_sa.sa_in.sin_port = ::htons(_port);
     _addr.m_sa.sa_in.sin_family = AF_INET;
     return ::inet_pton(AF_INET, _addrstr.data(), &(_addr.m_sa.sa_in.sin_addr));
@@ -76,6 +79,7 @@ address::str2sockaddr (const inet_addrstr &&_addrstr, uint16_t _port, address &_
 bool
 address::str2sockaddr (const inet6_addrstr &&_addrstr, uint16_t _port, address &_addr)
 {
+    ::bzero(_addr.m_sa, sizeof(_addr.m_sa));
     _addr.m_sa.sa_in6.sin6_port = htons(_port);
     _addr.m_sa.sa_in6.sin6_family = AF_INET6;
     return ::inet_pton(AF_INET, _addrstr.data(), &(_addr.m_sa.sa_in6.sin6_addr));
