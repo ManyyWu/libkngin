@@ -66,8 +66,8 @@ public:
     { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
 
 public:
-    const sockopts &
-    opts          () const { return m_opts; }
+    sockopts &
+    opts          () { return m_opts; }
 
 protected:
     sockopts m_opts;

@@ -3,6 +3,7 @@
 #
 #else
 #include <unistd.h>
+#include <sys/uio.h>
 #include <fcntl.h>
 #endif
 #include <cstring>
