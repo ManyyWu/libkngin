@@ -71,23 +71,6 @@ basic_buffer::writeable (size_t _n) const
     return (m_arr.size() - m_idx >= _n);
 }
 
-template <typename __T> __T
-basic_buffer::read ()
-{
-    readable(sizeof(__T));
-    __T _val = *(__T *)(m_arr.data() + m_idx);
-    m_idx += sizeof(__T);
-    return _val;
-}
-
-template <typename __T> void
-basic_buffer::write (__T _val)
-{
-    writeable(sizeof(__T));
-    *(__T*)(m_arr.data() + m_idx) = _val;
-    m_idx += sizeof(__T);
-}
-
 buffer &
 buffer::append (const buffer &_buf)
 {

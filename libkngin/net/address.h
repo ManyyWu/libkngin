@@ -49,17 +49,17 @@ public:
 
 public:
     address &
-    operator = (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; }
+    operator = (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; return *this; }
     address &
-    operator = (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; }
+    operator = (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; return *this; }
     address &
-    operator = (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
+    operator = (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; return *this; }
     address &
-    operator = (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; }
+    operator = (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; return *this; }
     address &
-    operator = (const address &_sa)       { m_sa = _sa.m_sa; }
+    operator = (const address &_sa)       { m_sa = _sa.m_sa; return *this; }
     address &
-    operator = (const address &&_sa)      { m_sa = _sa.m_sa; }
+    operator = (const address &&_sa)      { m_sa = _sa.m_sa; return *this; }
 
 public:
     const __sockaddr &

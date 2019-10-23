@@ -35,14 +35,14 @@ filefd::fd () const
 ssize_t
 filefd::write (const buffer &_buf, size_t _nbytes)
 {
-    kassert(_buf.size() < _nbytes);
+    kassert(_buf.size() >= _nbytes);
     return ::write(m_fd, _buf.get().data(), _nbytes);
 };
 
 ssize_t
 filefd::read (buffer &_buf, size_t _nbytes)
 {
-    kassert(_buf.size() < _nbytes);
+    kassert(_buf.size() >= _nbytes);
     return ::read(m_fd, _buf.get().data(), _nbytes);
 }
 

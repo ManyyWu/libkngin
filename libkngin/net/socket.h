@@ -73,8 +73,8 @@ public:
     readv         (std::vector<buffer> &_buf, size_t _n);
 
 public:
-    const sockopts &
-    opts          () const { return m_opts; }
+    sockopts &
+    opts          () { return m_opts; }
 
 protected:
     sockopts m_opts;

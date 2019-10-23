@@ -40,37 +40,37 @@ public:
 
 public:
     uint8_t
-    read_uint8    ()              { return this->read<uint8_t>(); }
+    read_uint8    ()              { return basic_buffer::read<uint8_t>(*this); }
     int8_t
-    read_int8     ()              { return this->read<int8_t>(); }
+    read_int8     ()              { return basic_buffer::read<int8_t>(*this); }
     uint16_t
-    read_uint16   ()              { return this->read<uint16_t>(); }
+    read_uint16   ()              { return basic_buffer::read<uint16_t>(*this); }
     int16_t
-    read_int16    ()              { return this->read<int16_t>(); }
+    read_int16    ()              { return basic_buffer::read<int16_t>(*this); }
     uint32_t
-    read_uint32   ()              { return this->read<uint32_t>(); }
+    read_uint32   ()              { return basic_buffer::read<uint32_t>(*this); }
     int32_t
-    read_int32    ()              { return this->read<int32_t>(); }
+    read_int32    ()              { return basic_buffer::read<int32_t>(*this); }
     uint64_t
-    read_uint64   ()              { return this->read<uint64_t>(); }
+    read_uint64   ()              { return basic_buffer::read<uint64_t>(*this); }
     int64_t
-    read_int64    ()              { return this->read<int64_t>(); }
+    read_int64    ()              { return basic_buffer::read<int64_t>(*this); }
     void
-    write_uint8   (uint8_t  _val) { this->write<uint8_t>(_val); }
+    write_uint8   (uint8_t  _val) { basic_buffer::write<uint8_t>(*this, _val); }
     void
-    write_int8    (int8_t   _val) { this->write<int8_t>(_val); }
+    write_int8    (int8_t   _val) { basic_buffer::write<int8_t>(*this, _val); }
     void
-    write_uint16  (uint16_t _val) { this->write<uint16_t>(_val); }
+    write_uint16  (uint16_t _val) { basic_buffer::write<uint16_t>(*this, _val); }
     void
-    write_int16   (int16_t  _val) { this->write<int16_t>(_val); }
+    write_int16   (int16_t  _val) { basic_buffer::write<int16_t>(*this, _val); }
     void
-    write_uint32  (uint32_t _val) { this->write<uint32_t>(_val); }
+    write_uint32  (uint32_t _val) { basic_buffer::write<uint32_t>(*this, _val); }
     void
-    write_int32   (int32_t  _val) { this->write<int32_t>(_val); }
+    write_int32   (int32_t  _val) { basic_buffer::write<int32_t>(*this, _val); }
     void
-    write_uint64  (uint64_t _val) { this->write<uint64_t>(_val); }
+    write_uint64  (uint64_t _val) { basic_buffer::write<uint64_t>(*this, _val); }
     void
-    write_int64   (int64_t  _val) { this->write<int64_t>(_val); }
+    write_int64   (int64_t  _val) { basic_buffer::write<int64_t>(*this, _val); }
 
 public:
     size_t
@@ -106,11 +106,24 @@ protected:
     bool
     writeable     (size_t _n) const;
 
-    template <typename __T> __T
-    read          ();
+    template <typename __T>
+    static __T
+    read (basic_buffer &_buf)
+    {
+        _buf.readable(sizeof(__T));
+        __T _val = *(__T *)(_buf.m_arr.data() + _buf.m_idx);
+        _buf.m_idx += sizeof(__T);
+        return _val;
+    }
 
-    template <typename __T> void
-    write         (__T _val);
+    template <typename __T>
+    static void
+    write (basic_buffer &_buf, __T _val)
+    {
+        _buf.writeable(sizeof(__T));
+        *(__T*)(_buf.m_arr.data() + _buf.m_idx) = _val;
+        _buf.m_idx += sizeof(__T);
+    }
 
 protected:
     uint8_arr   m_arr;
