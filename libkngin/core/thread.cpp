@@ -23,7 +23,7 @@ thread::thread (thr_fn &&_fn, const char *_name /* = "" */)
       m_running(false), m_fn(std::move(_fn))
 #endif
 {
-    kassert(_fn && _name);
+    kassert(m_fn && _name);
 }
 
 thread::~thread ()

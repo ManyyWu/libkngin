@@ -15,9 +15,9 @@ size_t
 basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 {
     kassert(_p);
-    readable(sizeof(_n));
-    ::memcpy(_p, m_arr.data() + m_idx, _n);
-    m_idx += _n;
+    check_readable(sizeof(_n));
+    ::memcpy(_p, m_arr.data() + m_ridx, _n);
+    m_ridx += _n;
     return _n;
 }
 
@@ -25,9 +25,9 @@ size_t
 basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
 {
     kassert(_p);
-    writeable(sizeof(_n));
-    ::memcpy((void *)(m_arr.data() + m_idx), _p, _n);
-    m_idx += _n;
+    check_writeable(sizeof(_n));
+    ::memcpy((void *)(m_arr.data() + m_widx), _p, _n);
+    m_widx += _n;
     return _n;
 }
 
@@ -35,7 +35,7 @@ void
 basic_buffer::reset (size_t _idx)
 {
     assert(_idx < m_arr.size());
-    m_idx = std::min(_idx, m_arr.size() - 1);
+    m_widx = std::min(_idx, m_arr.size() - 1);
 }
 
 std::string &
@@ -51,24 +51,22 @@ basic_buffer::dump ()
     return m_dump_str;
 }
 
-bool
-basic_buffer::readable (size_t _n) const
+void
+basic_buffer::check_readable (size_t _n) const
 {
-    if (m_arr.size() - m_idx < _n)
+    if (m_arr.size() - m_ridx < _n)
         throw exception((std::string("basic_buffer::readable: size is ")
-                        + std::to_string(m_arr.size()) + ", index is"
-                        + std::to_string(m_idx)).c_str());
-    return (m_arr.size() - m_idx >= _n);
+                        + std::to_string(m_arr.size()) + ", index is "
+                        + std::to_string(m_ridx)).c_str());
 }
 
-bool
-basic_buffer::writeable (size_t _n) const
+void
+basic_buffer::check_writeable (size_t _n) const
 {
-    if (m_arr.size() - m_idx < _n)
+    if (m_arr.size() - m_widx < _n)
         throw exception((std::string("basic_buffer::writeable: size is ")
-                        + std::to_string(m_arr.size()) + ", index is"
-                        + std::to_string(m_idx)).c_str());
-    return (m_arr.size() - m_idx >= _n);
+                        + std::to_string(m_arr.size()) + ", index is "
+                        + std::to_string(m_widx)).c_str());
 }
 
 buffer &

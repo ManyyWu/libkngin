@@ -24,15 +24,20 @@
 __NAMESPACE_BEGIN
 
 socket::socket (int _fd)
-    : filefd(_fd), m_opts(_fd)
+    : filefd(_fd)
 {
 }
 
 socket::socket (INET_PROTOCOL _proto)
     : filefd(::socket(is_bits_set(_proto, 1) ? AF_INET6 : AF_INET,
-                      is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
-      m_opts(m_fd)
+                      is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0))
 {
+}
+
+socket::socket (socket &&_s)
+    : filefd(_s.m_fd)
+{
+    _s.m_fd = -1;
 }
 
 __NAMESPACE_END

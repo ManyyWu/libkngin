@@ -10,6 +10,7 @@
 #include "error.h"
 #include "filefd.h"
 #include "sockopts.h"
+#include "socket.h"
 #include "logfile.h"
 #include "common.h"
 
@@ -47,335 +48,329 @@ const sockopts::__sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
     { "TCP_NODELAY",       IPPROTO_TCP,  TCP_NODELAY,       sockopts::get_flag,    sockopts::set_flag    },
 };
 
-sockopts::sockopts (int _fd)
-    : m_fd(_fd)
-{
-    kassert(__fd_valid(_fd));
-}
-
 retf_bool
-sockopts::broadcast ()
+sockopts::broadcast (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_BROADCAST]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_BROADCAST]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_broadcast (bool _on)
+sockopts::set_broadcast (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_BROADCAST]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_BROADCAST]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::debug ()
+sockopts::debug (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_DEBUG]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DEBUG]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_debug (bool _on)
+sockopts::set_debug (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_DEBUG]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DEBUG]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::nonroute ()
+sockopts::nonroute (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_DONTROUTE]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_nonroute (bool _on)
+sockopts::set_nonroute (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_DONTROUTE]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::error ()
+sockopts::error (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_ERROR]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR]);
     return {(bool)!_ret, _val.i_val};
 }
 
 retf_bool
-sockopts::keepalive ()
+sockopts::keepalive (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_KEEPALIVE]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_keepalive (bool _on)
+sockopts::set_keepalive (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_KEEPALIVE]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]);
     return {(bool)!_ret};
 }
 
 retf_void
-sockopts::linger (struct linger &_l)
+sockopts::linger (socket &_s, struct linger &_l)
 {
     __sockopt_val _val;
-    int _ret = sockopts::get_linger(_val, m_fd, opts_entry[SOCKOPTS_TYPE_LINGER]);
+    int _ret = sockopts::get_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]);
     _l = _val.linger_val;
     return {(bool)!_ret};
 }
 
 retf_void
-sockopts::set_linger (bool _on, int _t /* = 0 */)
+sockopts::set_linger (socket &_s, bool _on, int _t /* = 0 */)
 {
     __sockopt_val _val;
     _val.linger_val = {(int)_on, _t};
-    int _ret = sockopts::set_linger(_val, m_fd, opts_entry[SOCKOPTS_TYPE_LINGER]);
+    int _ret = sockopts::set_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::oobinline ()
+sockopts::oobinline (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_OOBINLINE]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_ooblinline (bool _on)
+sockopts::set_ooblinline (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_OOBINLINE]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::rcvbuf ()
+sockopts::rcvbuf (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_RCVBUF]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVBUF]);
     return {(bool)!_ret, (int)_val.i_val};
 }
 
 retf_void
-sockopts::set_rcvbuf (int _s)
+sockopts::set_rcvbuf (socket &_s, int _size)
 {
-    __sockopt_val _val{_s};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_RCVBUF]);
+    __sockopt_val _val{_size};
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVBUF]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::sndbuf ()
+sockopts::sndbuf (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_SNDBUF]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDBUF]);
     return {(bool)!_ret, (int)_val.i_val};
 }
 
 retf_void
-sockopts::set_sndbuf (int _s)
+sockopts::set_sndbuf (socket &_s, int _size)
 {
-    __sockopt_val _val{_s};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_SNDBUF]);
+    __sockopt_val _val{_size};
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDBUF]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::rcvlowat ()
+sockopts::rcvlowat (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_RCVLOWAT]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVLOWAT]);
     return {(bool)!_ret, (int)_val.i_val};
 }
 
 retf_void
-sockopts::set_rcvlowat (int _s)
+sockopts::set_rcvlowat (socket &_s, int _size)
 {
-    __sockopt_val _val{_s};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_RCVLOWAT]);
+    __sockopt_val _val{_size};
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVLOWAT]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::sndlowat ()
+sockopts::sndlowat (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_SNDLOWAT]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]);
     return {(bool)!_ret, (int)_val.i_val};
 }
 
 retf_void
-sockopts::set_sndlowat (int _s)
+sockopts::set_sndlowat (socket &_s, int _size)
 {
-    __sockopt_val _val{_s};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_SNDLOWAT]);
+    __sockopt_val _val{_size};
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]);
     return {(bool)!_ret};
 }
 
 retf_void
-sockopts::rcvtimeo (struct timeval &_t)
+sockopts::rcvtimeo (socket &_s, struct timeval &_t)
 {
     __sockopt_val _val;
-    int _ret = sockopts::get_timeval(_val, m_fd, opts_entry[SOCKOPTS_TYPE_RCVTIMEO]);
+    int _ret = sockopts::get_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]);
     _val.timeval_val = _t;
     return {(bool)!_ret};
 }
 
 retf_void
-sockopts::set_rcvtimeo (struct timeval _t)
+sockopts::set_rcvtimeo (socket &_s, struct timeval _t)
 {
     __sockopt_val _val;
     _val.timeval_val = _t;
-    int _ret = sockopts::set_timeval(_val, m_fd, opts_entry[SOCKOPTS_TYPE_RCVTIMEO]);
+    int _ret = sockopts::set_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]);
     return {(bool)!_ret};
 }
 
 retf_void
-sockopts::sndtimeo (struct timeval &_t)
+sockopts::sndtimeo (socket &_s, struct timeval &_t)
 {
     __sockopt_val _val;
-    int _ret = sockopts::get_timeval(_val, m_fd, opts_entry[SOCKOPTS_TYPE_SNDTIMEO]);
+    int _ret = sockopts::get_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]);
     _t = _val.timeval_val;
     return {(bool)!_ret};
 }
 
 retf_void
-sockopts::set_sndtimeo (struct timeval _t)
+sockopts::set_sndtimeo (socket &_s, struct timeval _t)
 {
     __sockopt_val _val;
     _val.timeval_val = _t;
-    int _ret = sockopts::set_timeval(_val, m_fd, opts_entry[SOCKOPTS_TYPE_SNDTIMEO]);
+    int _ret = sockopts::set_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::reuseaddr ()
+sockopts::reuseaddr (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_REUSEADDR]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEADDR]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_reuseaddr (bool _on)
+sockopts::set_reuseaddr (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_REUSEADDR]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEADDR]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::reuseport ()
+sockopts::reuseport (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_REUSEPORT]);
+    int _ret = sockopts::get_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEPORT]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_reuseport (bool _on)
+sockopts::set_reuseport (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_REUSEPORT]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEPORT]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::type ()
+sockopts::type (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_TYPE]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TYPE]);
     return {(bool)!_ret, _val.i_val};
 }
 
 retf_int32
-sockopts::ip_tos ()
+sockopts::ip_tos (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_IP_TOS]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]);
     return {(bool)!_ret, _val.i_val};
 }
 
 retf_void
-sockopts::set_ip_tos (int _t)
+sockopts::set_ip_tos (socket &_s, int _t)
 {
     __sockopt_val _val{_t};
-    int _ret = sockopts::set_flag(_val, m_fd, opts_entry[SOCKOPTS_TYPE_IP_TOS]);
+    int _ret = sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::ip_ttl ()
+sockopts::ip_ttl (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_IP_TTL]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]);
     return {(bool)!_ret, _val.i_val};
 }
 
 retf_void
-sockopts::set_ip_ttl (int _t)
+sockopts::set_ip_ttl (socket &_s, int _t)
 {
     __sockopt_val _val{_t};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_IP_TTL]);
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::ipv4_disabled  ()
+sockopts::ipv4_disabled  (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_ipv6_only (bool _on)
+sockopts::set_ipv6_only (socket &_s, bool _on)
 {
     __sockopt_val _val{_on};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]);
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]);
     return {(bool)!_ret};
 }
 
 retf_int32
-sockopts::maxseg ()
+sockopts::maxseg (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]);
     return {(bool)!_ret, _val.i_val};
 }
 
 retf_void
-sockopts::set_maxseg (int _s)
+sockopts::set_maxseg (socket &_s, int _size)
 {
-    __sockopt_val _val{_s};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]);
+    __sockopt_val _val{_size};
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]);
     return {(bool)!_ret};
 }
 
 retf_bool
-sockopts::nodelay ()
+sockopts::nodelay (socket &_s)
 {
     __sockopt_val _val{0};
-    int _ret = sockopts::get_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]);
+    int _ret = sockopts::get_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]);
     return {(bool)!_ret, (bool)_val.i_val};
 }
 
 retf_void
-sockopts::set_nodelay (int _s)
+sockopts::set_nodelay (socket &_s, int _size)
 {
-    __sockopt_val _val{_s};
-    int _ret = sockopts::set_int(_val, m_fd, opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]);
+    __sockopt_val _val{_size};
+    int _ret = sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]);
     return {(bool)!_ret};
 }
 

@@ -4,6 +4,7 @@
 #include <netinet/tcp.h>
 #include "define.h"
 #include "error.h"
+#include "socket.h"
 
 __NAMESPACE_BEGIN
 
@@ -50,129 +51,131 @@ protected:
         SOCKOPTS_TYPE_MAX
     };
 
-public:
-    sockopts       (int _fd);
+private:
+    sockopts       () = default;
+
+    ~sockopts      () = default;
 
 public:
-    retf_bool
-    broadcast      ();
+    static retf_bool
+    broadcast      (socket &_s);
 
-    retf_void
-    set_broadcast  (bool _on);
+    static retf_void
+    set_broadcast  (socket &_s, bool _on);
 
-    retf_bool
-    debug          ();
+    static retf_bool
+    debug          (socket &_s);
 
-    retf_void
-    set_debug      (bool _on);
+    static retf_void
+    set_debug      (socket &_s, bool _on);
 
-    retf_bool
-    nonroute       ();
+    static retf_bool
+    nonroute       (socket &_s);
 
-    retf_void
-    set_nonroute   (bool _on);
+    static retf_void
+    set_nonroute   (socket &_s, bool _on);
 
-    retf_int32
-    error          ();
+    static retf_int32
+    error          (socket &_s);
 
-    retf_bool
-    keepalive      ();
+    static retf_bool
+    keepalive      (socket &_s);
 
-    retf_void
-    set_keepalive  (bool _on);
+    static retf_void
+    set_keepalive  (socket &_s, bool _on);
 
-    retf_void
-    linger         (struct linger &_l);
+    static retf_void
+    linger         (socket &_s, struct linger &_l);
 
-    retf_void
-    set_linger     (bool _on, int _t = 0);
+    static retf_void
+    set_linger     (socket &_s, bool _on, int _t = 0);
 
-    retf_bool
-    oobinline      ();
+    static retf_bool
+    oobinline      (socket &_s);
 
-    retf_void
-    set_ooblinline (bool _on);
+    static retf_void
+    set_ooblinline (socket &_s, bool _on);
 
-    retf_int32
-    rcvbuf         ();
+    static retf_int32
+    rcvbuf         (socket &_s);
 
-    retf_void
-    set_rcvbuf     (int _s);
+    static retf_void
+    set_rcvbuf     (socket &_s, int _size);
 
-    retf_int32
-    sndbuf         ();
+    static retf_int32
+    sndbuf         (socket &_s);
 
-    retf_void
-    set_sndbuf     (int _s);
+    static retf_void
+    set_sndbuf     (socket &_s, int _size);
 
-    retf_int32
-    rcvlowat       ();
+    static retf_int32
+    rcvlowat       (socket &_s);
 
-    retf_void
-    set_rcvlowat   (int _s);
+    static retf_void
+    set_rcvlowat   (socket &_s, int _size);
 
-    retf_int32
-    sndlowat       ();
+    static retf_int32
+    sndlowat       (socket &_s);
 
-    retf_void
-    set_sndlowat   (int _s);
+    static retf_void
+    set_sndlowat   (socket &_s, int _size);
 
-    retf_void
-    rcvtimeo       (struct timeval &_t);
+    static retf_void
+    rcvtimeo       (socket &_s, struct timeval &_t);
 
-    retf_void
-    set_rcvtimeo   (struct timeval _t);
+    static retf_void
+    set_rcvtimeo   (socket &_s, struct timeval _t);
 
-    retf_void
-    sndtimeo       (struct timeval &_t);
+    static retf_void
+    sndtimeo       (socket &_s, struct timeval &_t);
 
-    retf_void
-    set_sndtimeo   (struct timeval _t);
+    static retf_void
+    set_sndtimeo   (socket &_s, struct timeval _t);
 
-    retf_bool
-    reuseaddr      ();
+    static retf_bool
+    reuseaddr      (socket &_s);
 
-    retf_void
-    set_reuseaddr  (bool _on);
+    static retf_void
+    set_reuseaddr  (socket &_s, bool _on);
 
-    retf_bool
-    reuseport      ();
+    static retf_bool
+    reuseport      (socket &_s);
 
-    retf_void
-    set_reuseport  (bool _on);
+    static retf_void
+    set_reuseport  (socket &_s, bool _on);
 
-    retf_int32
-    type           ();
+    static retf_int32
+    type           (socket &_s);
 
-    retf_int32
-    ip_tos         ();
+    static retf_int32
+    ip_tos         (socket &_s);
 
-    retf_void
-    set_ip_tos     (int _t);
+    static retf_void
+    set_ip_tos     (socket &_s, int _t);
 
-    retf_int32
-    ip_ttl         ();
+    static retf_int32
+    ip_ttl         (socket &_s);
 
-    retf_void
-    set_ip_ttl     (int _t);
+    static retf_void
+    set_ip_ttl     (socket &_s, int _t);
 
-    retf_bool
-    ipv4_disabled  ();
+    static retf_bool
+    ipv4_disabled  (socket &_s);
 
-    retf_void
-    set_ipv6_only  (bool _on);
+    static retf_void
+    set_ipv6_only  (socket &_s, bool _on);
 
-    retf_int32
-    maxseg         ();
+    static retf_int32
+    maxseg         (socket &_s);
 
-    retf_void
-    set_maxseg     (int _s);
+    static retf_void
+    set_maxseg     (socket &_s, int _size);
 
-    retf_bool
-    nodelay        ();
+    static retf_bool
+    nodelay        (socket &_s);
 
-    retf_void
-    set_nodelay    (int _s);
+    static retf_void
+    set_nodelay    (socket &_s, int _size);
 
 protected:
     static bool
@@ -198,9 +201,6 @@ protected:
 
     static bool
     set_timeval    (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info);
-
-protected:
-    int                          m_fd;
 
 protected:
     static const __sockopts_info opts_entry[SOCKOPTS_TYPE_MAX];

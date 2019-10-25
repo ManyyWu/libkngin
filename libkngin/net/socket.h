@@ -17,7 +17,6 @@
 #include "buffer.h"
 #include "epoller_event.h"
 #include "event_loop.h"
-#include "sockopts.h"
 #include "address.h"
 
 __NAMESPACE_BEGIN
@@ -39,6 +38,9 @@ public:
 
     explicit
     socket        (INET_PROTOCOL _proto);
+
+    explicit
+    socket        (socket &&_s);
 
     virtual
     ~socket       () = default;
@@ -64,13 +66,6 @@ public:
     bool
     peeraddr      (address &_addr, uint16_t &_port)
     { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
-
-public:
-    sockopts &
-    opts          () { return m_opts; }
-
-protected:
-    sockopts m_opts;
 };
 
 __NAMESPACE_END
