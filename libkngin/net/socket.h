@@ -60,6 +60,13 @@ public:
     { return ::connect(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
 
 public:
+    ssize_t
+    sendto        (const address &_addr, const buffer &_buf, size_t _nbytes, int _flags);
+
+    ssize_t
+    recvfrom      (address &_addr, buffer &_buf, size_t _nbytes, int _flags);
+
+public:
     bool
     localaddr     (address &_addr, uint16_t &_port)
     { socklen_t _len = sizeof(_addr.m_sa); return ::getsockname(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }

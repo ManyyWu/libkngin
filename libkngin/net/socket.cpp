@@ -57,8 +57,6 @@ socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags)
     ssize_t _ret = ::recvfrom(m_fd, (char *)_buf.get().data(), _nbytes, _flags, 
                               (sockaddr *)&(_addr.sa()), 
                               &_addr_len);
-    kassert(_addr_len);
 }
-
 
 __NAMESPACE_END

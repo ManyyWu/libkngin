@@ -25,7 +25,28 @@ public:
     ~connection       ();
 
 public:
+    bool
+    recv              ();
 
+    bool
+    send              ();
+
+public:
+    bool
+    connected         ();
+
+public:
+    void
+    set_read_lowat    (int _size);
+
+    void
+    set_read_lowat    (int _size);
+
+    int
+    read_lowat        ();
+
+    int
+    _read_lowat       ();
 
 protected:
     event_loop *
@@ -44,10 +65,6 @@ protected:
     address        m_local_addr;
 
     address        m_peer_addr;
-
-    connection_cb  m_read_cb;
-
-    connection_cb  m_write_cb;
 
     connection_cb  m_writable_cb;
 
