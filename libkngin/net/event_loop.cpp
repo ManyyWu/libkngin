@@ -18,7 +18,8 @@ event_loop::event_loop (thread *_thr)
       m_mutex(),
       m_epoller(this),
       m_looping(false),
-      m_stop(false)
+      m_stop(false),
+      m_fnq()
 {
     kassert(__fd_valid(m_waker.fd()));
     kassert(_thr);
@@ -54,6 +55,11 @@ event_loop::loop (void *_args)
         // process events
         for (auto _iter : _events)
             _iter->handle_events();
+            
+        // process queued events
+        for (auto _iter : m_fnq)
+            _iter();
+        m_fnq.clear();
     }
 
     m_looping = false;
@@ -120,6 +126,18 @@ event_loop::update_event (epoller_event *_e)
     if (!in_loop_thread())
         wakeup();
     return _ret;
+}
+
+bool
+event_loop::run_in_loop (event_loop::queued_fn &&_fn)
+{
+    {
+        local_lock _lock(m_mutex);
+        m_fnq.push_front(_fn);
+    }
+    
+    if (!in_loop_thread())
+        wakeup();
 }
 
 void

@@ -52,7 +52,7 @@ socket::sendto (const address &_addr, const buffer &_buf, size_t _nbytes, int _f
 ssize_t
 socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags)
 {
-    int _addr_len = (_addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+    socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
     kassert(_buf.size() >= _nbytes);
     ssize_t _ret = ::recvfrom(m_fd, (char *)_buf.get().data(), _nbytes, _flags, 
                               (sockaddr *)&(_addr.sa()), 

@@ -2,6 +2,7 @@
 #define _EVENT_LOOP_H_
 
 #include <functional>
+#include <deque>
 #include "define.h"
 #include "noncopyable.h"
 #include "epoller.h"
@@ -17,7 +18,9 @@ __NAMESPACE_BEGIN
 
 class event_loop : noncopyable {
 public:
-    typedef event waker;
+    typedef std::function<void (void)> queued_fn;
+
+    typedef event                      waker;
 
 public:
     event_loop     () = delete;
@@ -47,7 +50,10 @@ public:
     bool
     update_event   (epoller_event *_e);
 
-protected:
+    bool
+    run_in_loop    (event_loop::queued_fn &&_fn);
+
+public:
     void
     check_thread   ();
 
@@ -62,17 +68,19 @@ protected:
     handle_wakeup  ();
 
 protected:
-    waker             m_waker;
+    waker                 m_waker;
 
-    thread *          m_thr;
+    thread *              m_thr;
 
-    mutex             m_mutex;
+    mutex                 m_mutex;
 
-    epoller           m_epoller;
+    epoller               m_epoller;
 
-    std::atomic<bool> m_looping;
+    std::atomic<bool>     m_looping;
 
-    std::atomic<bool> m_stop;
+    std::atomic<bool>     m_stop;
+
+    std::deque<queued_fn> m_fnq;
 };
 
 __NAMESPACE_END

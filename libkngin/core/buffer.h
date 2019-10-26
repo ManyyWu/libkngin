@@ -39,6 +39,12 @@ public:
     const uint8_arr &
     get           () const        { return m_arr; }
 
+    const uint8_t *
+    rindex        () const        { return &m_arr[m_ridx]; }
+
+    uint8_t *
+    windex        ()              { return &m_arr[m_widx]; }
+
 public:
     uint8_t
     peek_uint8   ()              { return read<uint8_t>(false); }
@@ -130,8 +136,11 @@ public:
     bool
     writeable (size_t _n) const { return (m_arr.size() - m_widx >= _n); }
 
-    void
-    reset     (size_t _idx);
+    size_t
+    rreset     (size_t _idx);
+
+    size_t
+    wreset     (size_t _idx);
 
 public:
     std::string &

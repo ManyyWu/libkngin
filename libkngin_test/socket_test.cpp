@@ -12,7 +12,6 @@ using namespace k;
 static int
 client (void *_args)
 {
-    bool _ok = true;
     inet_addrstr _addr_str = {"192.168.0.2"};
     uint16_t     _port = 20000;
 
@@ -30,7 +29,6 @@ client (void *_args)
         buffer _buf(4);
         if (_server_sock.read(_buf, _buf.size()) < 0)
             log_error("%s", strerror(errno));
-        _buf.reset(0);
         log_info("myport %d", _buf.peek_int32());
     }
     std::cerr << "> ";
@@ -60,9 +58,9 @@ server (void *_args)
     k::socket _server_sock(socket::IPV4_TCP);
     if (_server_sock.bind(_server_addr) < 0)
         log_error("%s", strerror(errno));
-    if (sockopts::set_reuseaddr(_server_sock, true).code)
+    if (!sockopts::set_reuseaddr(_server_sock, true))
         log_error("%s", strerror(errno));
-    if (sockopts::set_reuseport(_server_sock, true).code)
+    if (!sockopts::set_reuseport(_server_sock, true))
         log_error("%s", strerror(errno));
     if (_server_sock.listen(5) < 0)
         log_error("%s", strerror(errno));
@@ -87,7 +85,6 @@ server (void *_args)
                 log_error("%s", strerror(errno));
             if (_buf.peek_int32() == 0)
                 _ok = false;
-            _buf.reset(0);
             log_info("read integer %d from client %s:%d",
                     _buf.peek_int32(),
                     _client_addr.addrstr(_client_addr_str),

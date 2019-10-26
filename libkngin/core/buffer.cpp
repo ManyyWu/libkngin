@@ -31,11 +31,18 @@ basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
     return _n;
 }
 
-void
-basic_buffer::reset (size_t _idx)
+size_t
+basic_buffer::rreset (size_t _idx)
 {
     assert(_idx < m_arr.size());
-    m_widx = std::min(_idx, m_arr.size() - 1);
+    return (m_arr.empty() ? (m_ridx = 0) : (m_ridx = std::min(_idx, m_arr.size() - 1)));
+}
+
+size_t
+basic_buffer::wreset (size_t _idx)
+{
+    assert(_idx < m_arr.size());
+    return (m_arr.empty() ? (m_widx = 0) : (m_widx = std::min(_idx, m_arr.size() - 1)));
 }
 
 std::string &

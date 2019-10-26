@@ -13,7 +13,6 @@ buffer_test ()
         buffer b1(10);
         b1.write_bytes((uint8_t *)"0123456789", 10);
         cerr << b1.dump() << endl;
-        b1.reset(0);
         cerr << b1.dump() << endl;
 
         buffer b2(10);
