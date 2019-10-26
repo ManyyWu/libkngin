@@ -40,4 +40,25 @@ socket::socket (socket &&_s)
     _s.m_fd = -1;
 }
 
+ssize_t
+socket::sendto (const address &_addr, const buffer &_buf, size_t _nbytes, int _flags)
+{
+    kassert(_buf.size() >= _nbytes);
+    return ::sendto(m_fd, (const char *)_buf.get().data(), _nbytes, _flags, 
+                    (const sockaddr *)&(_addr.sa()), 
+                    _addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+};
+
+ssize_t
+socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags)
+{
+    int _addr_len = (_addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+    kassert(_buf.size() >= _nbytes);
+    ssize_t _ret = ::recvfrom(m_fd, (char *)_buf.get().data(), _nbytes, _flags, 
+                              (sockaddr *)&(_addr.sa()), 
+                              &_addr_len);
+    kassert(_addr_len);
+}
+
+
 __NAMESPACE_END
