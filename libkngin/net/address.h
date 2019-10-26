@@ -65,6 +65,9 @@ public:
     const __sockaddr &
     sa         () const                   { return m_sa; }
 
+    __sockaddr &
+    sa         ()                         { return m_sa; }
+
 public:
     static bool
     str2sockaddr   (const inet_addrstr &_addrstr, uint16_t _port, address &_addr);
