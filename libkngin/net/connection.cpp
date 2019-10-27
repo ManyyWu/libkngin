@@ -26,8 +26,14 @@ connection::~connection()
 }
 
 bool
-connection::recv (buffer &_buf)
+connection::recv (buffer *_buf)
 {
+    if (!m_connected) {
+        log_error("connection closed, failed to recv data");
+        return false;
+    }
+
+    m_loop->run_in_loop(std::bind(*this, _buf));
 }
 
 bool
@@ -78,6 +84,7 @@ connection::handle_close ()
 void
 connection::run_in_loop (event_loop::queued_fn &&_fn)
 {
+    m_loop->check_thread();
 }
 
 __NAMESPACE_END
