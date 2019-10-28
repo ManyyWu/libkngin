@@ -17,8 +17,8 @@ producer (void *_args)
             _q->wait();
         string *_str = NULL;
         knew(_str, string, (_buf));
-        kassert(_str);
-        kassert(!_q->full() && _q->push_front(&_str));
+        check(_str);
+        check(!_q->full() && _q->push_front(&_str));
         ::fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         _q->unlock();
@@ -27,7 +27,7 @@ producer (void *_args)
     _q->lock();
     string *_str = NULL;
     knew(_str, string, (""));
-    kassert(_str);
+    check(_str);
     _q->push_front(&_str);
     _q->unlock();
     _q->broadcast();
@@ -44,7 +44,7 @@ comsumer (void *_args)
         while (_q->empty())
             _q->wait();
         string *_s = _q->back();
-        kassert(_s);
+        check(_s);
         _q->pop_back();
         ::fprintf(stderr, "comsumer get \"%s\", len: %ld\n",
                 _s->c_str(), _q->size());

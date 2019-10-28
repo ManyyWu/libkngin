@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cstdint>
-#include <cstring>
 #include <algorithm>
 #include "define.h"
+#include "errno.h"
 #include "logfile.h"
 #include "task_base.h"
 #include "common.h"
@@ -13,7 +13,7 @@ __NAMESPACE_BEGIN
 msg::msg (task_base *_task)
     : m_buf(NULL), m_size(0), m_type(INVALID_MSG), m_task(_task)
 {
-    kassert(_task);
+    check(_task);
 }
 
 msg::~msg ()
@@ -24,7 +24,7 @@ msg::~msg ()
 bool
 msg::create (uint32_t _type)
 {
-    kassert_r0(__msg_valid(_type));
+    check_r0(__msg_valid(_type));
 
     if (m_buf)
         kdelete_array(m_buf);
@@ -35,8 +35,8 @@ msg::create (uint32_t _type)
 bool
 msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 {
-    kassert_r0(__msg_valid(_type));
-    kassert_r0(__both(_buf, _size));
+    check_r0(__msg_valid(_type));
+    check_r0(__both(_buf, _size));
 
     if (m_buf)
         kdelete_array(m_buf);
@@ -57,8 +57,8 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 bool
 msg::create (uint8_t **_buf, uint32_t _size, uint32_t _type)
 {
-    kassert_r0(__msg_valid(_type));
-    kassert_r0(__both(*_buf, _size));
+    check_r0(__msg_valid(_type));
+    check_r0(__both(*_buf, _size));
 
     if (m_buf)
         kdelete_array(m_buf);
@@ -77,15 +77,15 @@ msg::create (uint8_t **_buf, uint32_t _size, uint32_t _type)
 bool
 msg::create (const msg *_msg)
 {
-    kassert_r0(_msg);
-    kassert_r0(__msg_valid(_msg->m_type));
-    kassert_r0(__both(_msg->m_buf, _msg->m_size));
+    check_r0(_msg);
+    check_r0(__msg_valid(_msg->m_type));
+    check_r0(__both(_msg->m_buf, _msg->m_size));
 
     if (m_buf)
         kdelete_array(m_buf);
     if (_msg->m_size && _msg->m_buf) {
         knew_array(m_buf, uint8_t, _msg->m_size);
-        kassert_r0(m_buf);
+        check_r0(m_buf);
         if (!m_buf)
             return NULL;
         ::memcpy(m_buf, _msg->m_buf, (std::min)(_msg->m_size, MAX_MSG_SIZE));
@@ -101,9 +101,9 @@ msg::create (const msg *_msg)
 bool
 msg::create (msg **_msg)
 {
-    kassert_r0(_msg);
-    kassert_r0(__msg_valid((*_msg)->m_type));
-    kassert_r0(__both((*_msg)->m_buf, (*_msg)->m_size));
+    check_r0(_msg);
+    check_r0(__msg_valid((*_msg)->m_type));
+    check_r0(__both((*_msg)->m_buf, (*_msg)->m_size));
 
     if (m_buf)
         kdelete_array(m_buf);
@@ -155,7 +155,7 @@ msg::type ()
 task_base *
 msg::task ()
 {
-    kassert_r0(m_task);
+    check_r0(m_task);
     return m_task;
 }
 

@@ -17,37 +17,38 @@ __NAMESPACE_BEGIN
 
 class connection {
 public:
-    typedef std::function<void (connection &, buffer *)> write_done_cb;
+    typedef std::function<void (connection &, buffer &, size_t)> write_done_cb;
 
-    typedef std::function<void (connection &, buffer *)> read_done_cb;
+    typedef std::function<void (connection &, buffer &, size_t)> read_done_cb;
 
-    typedef std::function<void (connection &)>           close_cb;
+    typedef std::function<void (connection &, uint8_t)>          read_oob_cb;
 
-    typedef std::function<void (void)>                   writeable_cb;
+    typedef std::function<void (connection &)>                   close_cb;
 
-    typedef std::function<void (void)>                   readable_cb;
+    typedef std::function<void (void)>                           writeable_cb;
+
+    typedef std::function<void (void)>                           readable_cb;
 
 public:
-    connection        () = delete;
+    connection  () = delete;
 
-    connection        (event_loop *_loop, socket &&_socket,
-                       const address &_local_addr, const address &_peer_addr);
+    connection  (event_loop *_loop, socket &&_socket,
+                 const address &_local_addr, const address &_peer_addr);
 
-    ~connection       ();
+    ~connection ();
 
 public:
     bool
-    recv              (buffer &_buf);
+    send      (buffer &_buf, size_t _size);
 
     bool
-    send              (const buffer &_buf);
+    recv      (buffer &_buf, size_t _size);
 
     void
-    close             ();
+    close     () { m_socket.close(); }
 
-public:
     bool
-    connected         () { return m_connected; }
+    connected () { return m_connected; }
 
 public:
     void
@@ -61,40 +62,42 @@ public:
 
 public:
     bool
-    set_read_lowat    (int _size)  { return sockopts::set_rcvlowat(m_socket, _size); }
+    set_read_lowat  (int _size)  { return sockopts::set_rcvlowat(m_socket, _size); }
 
     bool
-    set_write_lowat   (int _size)  { return sockopts::set_sndlowat(m_socket, _size); }
+    set_write_lowat (int _size)  { return sockopts::set_sndlowat(m_socket, _size); }
 
     bool
-    read_lowat        (int &_size) { return sockopts::rcvlowat(m_socket, _size); }
+    read_lowat      (int &_size) { return sockopts::rcvlowat(m_socket, _size); }
 
     bool
-    write_lowat       (int &_size) { return sockopts::sndlowat(m_socket, _size); }
+    write_lowat     (int &_size) { return sockopts::sndlowat(m_socket, _size); }
 
 private:
     void
-    handle_write      ();
+    handle_write  ();
 
     void
-    handle_read       ();
+    handle_read   ();
 
     void
-    handle_error      ();
+    handle_close  ();
 
     void
-    handle_close      ();
+    handle_ergent ();
 
     void
-    run_in_loop       (event_loop::queued_fn &&_fn);
+    handle_error  ();
+
+    void
+    run_in_loop   (event_loop::queued_fn &&_fn);
 
 public:
     class socket &
-    socket            () { return m_socket; }
+    socket () { return m_socket; }
 
-protected:
     event_loop *
-    loop              () { return m_loop; }
+    loop   () { return m_loop; }
 
 protected:
     event_loop *      m_loop;
@@ -117,11 +120,19 @@ protected:
 
     read_done_cb      m_read_done_cb;
 
+    read_oob_cb       m_read_oob_cb;
+
     close_cb          m_close_cb;
 
-    buffer            *m_out_buf;
+    buffer *          m_out_buf;
 
-    buffer            *m_in_buf;
+    size_t            m_out_size;
+
+    buffer *          m_in_buf;
+
+    size_t            m_in_size;
+
+    uint8_t           m_oob_buf;
 };
 
 __NAMESPACE_END

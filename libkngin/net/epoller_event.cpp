@@ -12,13 +12,13 @@ epoller_event::epoller_event(event_loop *_loop, filefd *_s)
       m_incb(nullptr), m_outcb(nullptr), m_errcb(nullptr),
       m_pricb(nullptr), m_closecb(nullptr)
 {
-    kassert(_loop && _s);
+    check(_loop && _s);
 }
 
 void
 epoller_event::update ()
 {
-    kassert(m_loop);
+    check(m_loop);
     m_loop->update_event(this);
 }
 
@@ -29,18 +29,19 @@ epoller_event::handle_events ()
 
     if (EPOLLHUP & m_flags) // RST
     {
+        m_filefd->close();
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
-        m_closecb(m_filefd);
+        m_closecb();
         return;
     }
     if (EPOLLERR & m_flags && m_errcb)
-        m_errcb(m_filefd);
+        m_errcb();
     if (EPOLLIN & m_flags && m_incb)
-        m_incb(m_filefd);
+        m_incb();
     if (EPOLLOUT & m_flags && m_outcb)
-        m_outcb(m_filefd);
+        m_outcb();
     if (EPOLLPRI & m_flags && m_pricb)
-        m_pricb(m_filefd);
+        m_pricb();
 }
 
 __NAMESPACE_END

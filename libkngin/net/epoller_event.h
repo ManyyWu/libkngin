@@ -12,9 +12,9 @@ __NAMESPACE_BEGIN
 class event_loop;
 class epoller_event : noncopyable {
 public:
-    typedef std::function<void (filefd *)> epoller_event_cb;
+    typedef std::function<void (void)> epoller_event_cb;
 
-    typedef int                            epollfd;
+    typedef int                        epollfd;
 
 public:
     epoller_event  () = delete;

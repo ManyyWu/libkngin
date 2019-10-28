@@ -1,8 +1,8 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <cstring>
 #include "define.h"
+#include "error.h"
 #include "exception.h"
 #include "common.h"
 #include "logfile.h"
@@ -14,7 +14,7 @@ __NAMESPACE_BEGIN
 size_t
 basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 {
-    kassert(_p);
+    check(_p);
     check_readable(sizeof(_n));
     ::memcpy(_p, m_arr.data() + m_ridx, _n);
     m_ridx += _n;
@@ -24,25 +24,11 @@ basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 size_t
 basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
 {
-    kassert(_p);
+    check(_p);
     check_writeable(sizeof(_n));
     ::memcpy((void *)(m_arr.data() + m_widx), _p, _n);
     m_widx += _n;
     return _n;
-}
-
-size_t
-basic_buffer::rreset (size_t _idx)
-{
-    assert(_idx < m_arr.size());
-    return (m_arr.empty() ? (m_ridx = 0) : (m_ridx = std::min(_idx, m_arr.size() - 1)));
-}
-
-size_t
-basic_buffer::wreset (size_t _idx)
-{
-    assert(_idx < m_arr.size());
-    return (m_arr.empty() ? (m_widx = 0) : (m_widx = std::min(_idx, m_arr.size() - 1)));
 }
 
 std::string &
@@ -61,9 +47,9 @@ basic_buffer::dump ()
 void
 basic_buffer::check_readable (size_t _n) const
 {
-    if (m_arr.size() - m_ridx < _n)
-        throw exception((std::string("basic_buffer::readable: size is ")
-                        + std::to_string(m_arr.size()) + ", index is "
+    if (m_widx - m_ridx < _n)
+        throw exception((std::string("basic_buffer::readable: widx is ")
+                        + std::to_string(m_widx) + ", ridx is "
                         + std::to_string(m_ridx)).c_str());
 }
 
@@ -72,7 +58,7 @@ basic_buffer::check_writeable (size_t _n) const
 {
     if (m_arr.size() - m_widx < _n)
         throw exception((std::string("basic_buffer::writeable: size is ")
-                        + std::to_string(m_arr.size()) + ", index is "
+                        + std::to_string(m_arr.size()) + ", widx is "
                         + std::to_string(m_widx)).c_str());
 }
 

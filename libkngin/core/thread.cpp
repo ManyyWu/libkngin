@@ -5,11 +5,11 @@
 #include <pthread.h>
 #include <unistd.h>
 #endif
-#include <cstring>
+#include "define.h"
+#include "error.h"
 #include "exception.h"
 #include "thread.h"
 #include "logfile.h"
-#include "error.h"
 
 __NAMESPACE_BEGIN
 
@@ -23,7 +23,7 @@ thread::thread (thr_fn &&_fn, const char *_name /* = "" */)
       m_running(false), m_fn(std::move(_fn))
 #endif
 {
-    kassert(m_fn && _name);
+    check(m_fn && _name);
 }
 
 thread::~thread ()
@@ -47,9 +47,9 @@ bool
 thread::run ()
 {
 #ifdef _WIN32
-    kassert_r0(!m_thr.p);
+    check_r0(!m_thr.p);
 #else
-    kassert_r0(!m_thr);
+    check_r0(!m_thr);
 #endif
 
     int _ret = 0;
@@ -65,11 +65,11 @@ bool
 thread::join (int *_err_code)
 {
 #ifdef _WIN32
-    kassert_r0(m_thr.p);
+    check_r0(m_thr.p);
 #else
-    kassert_r0(m_thr);
+    check_r0(m_thr);
 #endif
-    kassert_r0(!::pthread_equal(m_thr, pthread_self()));
+    check_r0(!::pthread_equal(m_thr, pthread_self()));
 
     int _ret = 0;
     _ret = ::pthread_join(m_thr, &m_retptr);
@@ -93,11 +93,11 @@ bool
 thread::cancel ()
 {
 #ifdef _WIN32
-    kassert_r0(m_thr.p);
+    check_r0(m_thr.p);
 #else
-    kassert_r0(m_thr);
+    check_r0(m_thr);
 #endif
-    kassert_r0(!pthread_equal(m_thr, pthread_self()));
+    check_r0(!pthread_equal(m_thr, pthread_self()));
 
     int _ret = 0;
     _ret = ::pthread_cancel(m_thr);
@@ -118,7 +118,7 @@ thread::running () const
 pthread_t
 thread::get_interface () const
 {
-    kassert(m_running);
+    check(m_running);
 
     return m_thr;
 }
@@ -126,7 +126,7 @@ thread::get_interface () const
 int
 thread::get_err_code  () const
 {
-    kassert_r0(m_running);
+    check_r0(m_running);
 
     return (int)(long long)m_retptr;
 }
@@ -188,7 +188,7 @@ thread::equal_to (pthread_t _t)
 void *
 thread::start (void *_args)
 {
-    kassert_r0(_args);
+    check_r0(_args);
 
     thread *_p = (thread *)_args;
 
@@ -213,7 +213,7 @@ thread::start (void *_args)
 void
 thread::cleanup (void *_args)
 {
-    kassert_r(_args);
+    check_r(_args);
 
     thread *_p = (thread *)_args;
     _p->m_running = false;

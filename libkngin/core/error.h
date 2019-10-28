@@ -3,6 +3,8 @@
 
 #include <logfile.h>
 #include <functional>
+#include <cstring>
+#include <cerrno>
 #include "define.h"
 #include "copyable.h"
 

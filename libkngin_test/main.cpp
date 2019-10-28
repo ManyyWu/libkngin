@@ -92,7 +92,7 @@ int main()
 //        cerr << "********************************************************\n";
 //
 //        cerr << "********************* socket_test test *****************\n";
-        socket_test();
+//        socket_test();
 //        cerr << "********************************************************\n";
 
 //        cerr << "************************* test *************************\n";
@@ -119,6 +119,6 @@ int main()
 // 云除 copyable noncopyable
 // 返回值
 // inline
-// 重新考虑kassert if_not throw
+// 重新考虑check if_not throw
 // 检查日志
 // timestamp

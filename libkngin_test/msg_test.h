@@ -42,7 +42,7 @@
 //    {
 //        //knew(m_info, test_info, ({_action, _param}));
 //        knew(m_info, test_info, ({_action, _param}));
-//        kassert_r0(m_info);
+//        check_r0(m_info);
 //        if (!m_info)
 //            return false;
 //        return msg::create((uint8_t *)m_info, sizeof(test_info), MSG_TYPE_TEST0);

@@ -1,6 +1,6 @@
 #include <sys/eventfd.h>
-#include <cstring>
 #include "define.h"
+#include "error.h"
 #include "event.h"
 #include "filefd.h"
 #include "common.h"
@@ -13,7 +13,7 @@ event::event (event_loop *_loop)
       m_loop(_loop),
       m_event(_loop, this)
 {
-    kassert(_loop);
+    check(_loop);
     if (__fd_invalid(m_fd)) {
         log_fatal("eventfd() error - %s:%d", strerror(errno), errno);
         throw exception("event::event() erorr");

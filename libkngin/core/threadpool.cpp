@@ -16,7 +16,7 @@
 //      m_task_queue(NULL), m_msg_queue(NULL),
 //      m_pool_thread(NULL), m_serial(0)
 //{
-//    kassert(_thr_max > 0 && _thr_max <= THREAD_NUM_MAX);
+//    check(_thr_max > 0 && _thr_max <= THREAD_NUM_MAX);
 //    // log, throw
 //}
 //
@@ -29,8 +29,8 @@
 //bool
 //thread_pool::run (int _num)
 //{
-//    kassert_r0(m_stop);
-//    kassert_r0(!m_running);
+//    check_r0(m_stop);
+//    check_r0(!m_running);
 //    char _name[50];
 //
 //    m_stop = false;
@@ -110,7 +110,7 @@
 //bool
 //thread_pool::stop ()
 //{
-//    kassert_r0(m_pool_thread);
+//    check_r0(m_pool_thread);
 //
 //    // stop manager thread
 //    bool _ret = true;
@@ -150,7 +150,7 @@
 //void
 //thread_pool::clear ()
 //{
-//    kassert_r(m_msg_queue && m_task_queue);
+//    check_r(m_msg_queue && m_task_queue);
 //    if (m_task_queue) {
 //        m_task_queue->lock();
 //        m_task_queue->clear();
@@ -231,7 +231,7 @@
 //int
 //thread_pool::process (void *_args)
 //{
-//    kassert_r0(_args);
+//    check_r0(_args);
 //    thread_pool *_pool = (thread_pool *)_args;
 //    _pool->m_running = true;
 //

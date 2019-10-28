@@ -2,9 +2,9 @@
 #else
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <cstring>
 #endif
 #include "define.h"
+#include "error.h"
 #include "exception.h"
 #include "address.h"
 #include "common.h"
@@ -32,14 +32,14 @@ address::size () const
 const char *
 address::addrstr (inet_addrstr &_s) const
 {
-    kassert(!inet6());
+    check(!inet6());
     return ::inet_ntop(AF_INET, &(m_sa.sa_in.sin_addr), _s.data(), sizeof(sockaddr_in));
 }
 
 const char *
 address::addrstr (inet6_addrstr &_s) const
 {
-    kassert(inet6());
+    check(inet6());
     return ::inet_ntop(AF_INET6, &(m_sa.sa_in6.sin6_addr), _s.data(), sizeof(sockaddr_in6));
 }
 

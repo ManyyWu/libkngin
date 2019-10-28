@@ -1,8 +1,8 @@
 #include <sys/epoll.h>
 #include <unistd.h>
-#include <cstring>
 #include <map>
 #include "define.h"
+#include "error.h"
 #include "common.h"
 #include "timestamp.h"
 #include "exception.h"
@@ -22,7 +22,7 @@ epoller::epoller (event_loop *_loop)
       m_loop(_loop),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
-    kassert(_loop);
+    check(_loop);
     if (__fd_invalid(m_epollfd)) {
         log_fatal("::epoll_create1() error - %s:%d", m_epollfd, strerror(errno), errno);
         throw exception("epoller::epoller() error");
@@ -91,20 +91,20 @@ epoller::update_event (int _opt, epoller_event *_e)
     * in another thread has no effect on select().  In summary, any application that relies on a
     * particular behavior in this scenario must be considered buggy.
     */
-    kassert(_e);
+    check(_e);
 
     int _fd = _e->m_filefd->fd();
 #ifndef NDEBUG
     auto _iter = m_fd_set.find(_fd);
     if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt) {
-        kassert(_iter != m_fd_set.end());
+        check(_iter != m_fd_set.end());
         if (EPOLL_CTL_DEL ==  _opt)
             m_fd_set.erase(_fd);
     } else if (EPOLL_CTL_ADD ==  _opt) {
-        kassert(_iter == m_fd_set.end());
+        check(_iter == m_fd_set.end());
         m_fd_set.insert(_fd);
     } else {
-        kassert(!"invalid epoll_ctl option");
+        check(!"invalid epoll_ctl option");
     }
 #endif
 

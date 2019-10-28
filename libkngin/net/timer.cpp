@@ -1,5 +1,5 @@
 #include <sys/timerfd.h>
-#include <cstring>
+#include "errno.h"
 #include "define.h"
 #include "common.h"
 #include "event_loop.h"
@@ -11,7 +11,7 @@ timer::timer (event_loop *_loop)
       m_loop(_loop),
       m_event(_loop, this)
 {
-    kassert(_loop);
+    check(_loop);
     if (__fd_valid(m_fd)) {
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw exception("timer::timer() erorr");
@@ -42,7 +42,7 @@ timer::stop ()
 timestamp
 timer::get_time ()
 {
-    kassert(__fd_valid(m_fd));
+    check(__fd_valid(m_fd));
 
     itimerspec _its;
     int _ret = timerfd_gettime(m_fd, &_its);
@@ -60,7 +60,7 @@ timer::get_event ()
 void
 timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
-    kassert(__fd_valid(m_fd));
+    check(__fd_valid(m_fd));
 
     itimerspec _its;
     _val.to_timespec(_its.it_value);

@@ -28,7 +28,16 @@ using namespace k;
 using namespace std;
 using namespace std::placeholders;
 
+void fun (int &a)
+{
+    cerr << (uintptr_t)&a << endl;
+}
+
 void
 test ()
 {
+    int a = 0x10;
+    cerr << a << endl;
+    cerr << (uintptr_t)&a << endl;
+    fun(a);
 }

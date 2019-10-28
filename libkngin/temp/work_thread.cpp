@@ -29,7 +29,7 @@
 //bool
 //work_thread::run ()
 //{
-//    kassert_r0(!m_running);
+//    check_r0(!m_running);
 //
 //    bool _ret = true;
 //    _ret = this->thread::run();
@@ -49,7 +49,7 @@
 //bool
 //work_thread::cancel ()
 //{
-//    kassert_r0(m_mutex && m_cond);
+//    check_r0(m_mutex && m_cond);
 //
 //    m_stop_thread = true;
 //    m_new_task = false;
@@ -66,7 +66,7 @@
 //bool
 //work_thread::task_done () const
 //{
-//    kassert_r0(m_running);
+//    check_r0(m_running);
 //
 //    return m_done;
 //}
@@ -74,11 +74,11 @@
 //bool
 //work_thread::recv_task (work_task **_task)
 //{
-//    kassert_r0(_task);
-//    kassert_r0(*_task);
-//    kassert_r0(!m_task);
-//    kassert_r0(m_mutex && m_cond);
-//    kassert_r0(m_running && m_done);
+//    check_r0(_task);
+//    check_r0(*_task);
+//    check_r0(!m_task);
+//    check_r0(m_mutex && m_cond);
+//    check_r0(m_running && m_done);
 //
 //    if (!m_mutex.trylock())
 //        return false;
@@ -95,9 +95,9 @@
 //msg *
 //work_thread::send_msg ()
 //{
-//    kassert_r0(m_task);
-//    kassert_r0(m_mutex && m_cond);
-//    kassert_r0(m_running && m_done)
+//    check_r0(m_task);
+//    check_r0(m_mutex && m_cond);
+//    check_r0(m_running && m_done)
 //
 //    m_mutex.lock();
 //    msg *_ret = m_task->send_reply_msg();
@@ -112,9 +112,9 @@
 //void
 //work_thread::cleanup_lock (void *_args)
 //{
-//    kassert_r(_args);
+//    check_r(_args);
 //    work_thread *_p = (work_thread *)_args;
-//    kassert_r(_p->m_mutex && _p->m_cond);
+//    check_r(_p->m_mutex && _p->m_cond);
 //
 //    _p->m_done = true;
 //    _p->m_mutex.unlock();
@@ -124,7 +124,7 @@
 //int
 //work_thread::process (void *_args)
 //{
-//    kassert_r0(_args);
+//    check_r0(_args);
 //
 //    work_thread *_p = (work_thread *)_args;
 //    pthread_cleanup_push(cleanup_lock, _args);

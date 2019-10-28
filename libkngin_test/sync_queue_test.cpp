@@ -17,8 +17,8 @@ producer (void *_args)
             _q->wait();
         string *_str = NULL;
         knew(_str, string, (_buf));
-        kassert(_str);
-        kassert(!_q->full() && _q->push(&_str));
+        check(_str);
+        check(!_q->full() && _q->push(&_str));
         ::fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         _q->unlock();
@@ -27,7 +27,7 @@ producer (void *_args)
     _q->lock();
     string *_str = NULL;
     knew(_str, string, (""));
-    kassert(_str);
+    check(_str);
     _q->push(&_str);
     _q->unlock();
     _q->broadcast();

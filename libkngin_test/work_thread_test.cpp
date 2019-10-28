@@ -14,13 +14,13 @@
 //    {
 //        work_task *_wt = NULL;
 //        knew(_wt, work_task, (_c));
-//        kassert(_wt);
+//        check(_wt);
 //        netmsg_test *_msg = NULL;
 //        knew(_msg, netmsg_test, (_wt));
-//        kassert(_msg->create((ACTION)(rand() % 10), i * rand()));
-//        kassert(_msg);
-//        kassert(_wt->create((msg **)&_msg));
-//        kassert(_c->recv_task(&_wt));
+//        check(_msg->create((ACTION)(rand() % 10), i * rand()));
+//        check(_msg);
+//        check(_wt->create((msg **)&_msg));
+//        check(_c->recv_task(&_wt));
 //        while (!_c->task_done());
 //        if (_c->running()) {
 //            // then _msg is NULL

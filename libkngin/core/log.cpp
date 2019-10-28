@@ -1,8 +1,9 @@
 #include <cstdio>
 #include <cstdarg>
-#include <cstring>
 #include <cerrno>
 #include <ctime>
+#include "define.h"
+#include "error.h"
 #include "log.h"
 #include "logfile.h"
 #include "logmgr.h"

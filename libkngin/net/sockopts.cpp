@@ -5,7 +5,6 @@
 #include <netinet/ip.h>
 #endif
 #include <cstdio>
-#include <cstring>
 #include "define.h"
 #include "error.h"
 #include "filefd.h"
@@ -58,7 +57,7 @@ sockopts::get_flag (int _fd, const __sockopts_info &_opt_info, bool &_flag)
     if (_ret < 0)
         log_error("::getsockopt() get option %s failed - %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
-    kassert(_optlen == sizeof(int));
+    check(_optlen == sizeof(int));
     _flag = _value.i_val;
     return (_ret >= 0);
 }
@@ -73,7 +72,7 @@ sockopts::get_int (int _fd, const __sockopts_info &_opt_info, int &_val)
     if (_ret < 0)
         log_error("::getsockopt() get option %s failed - %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
-    kassert(_optlen == sizeof(int));
+    check(_optlen == sizeof(int));
     _val = _value.i_val;
     return (_ret >= 0);
 }
@@ -88,7 +87,7 @@ sockopts::get_linger (int _fd, const __sockopts_info &_opt_info, struct linger &
     if (_ret < 0)
         log_error("::getsockopt() get option %s failed - %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
-    kassert(_optlen == sizeof(struct linger));
+    check(_optlen == sizeof(struct linger));
     return (_ret >= 0);
 }
 
@@ -102,7 +101,7 @@ sockopts::get_timeval (int _fd, const __sockopts_info &_opt_info, struct timeval
     if (_ret < 0)
         log_error("::getsockopt() get option %s failed - %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
-    kassert(_optlen == sizeof(struct timeval));
+    check(_optlen == sizeof(struct timeval));
     _tv = _value.timeval_val;
     return (_ret >= 0);
 }

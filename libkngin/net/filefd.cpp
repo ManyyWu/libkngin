@@ -6,7 +6,6 @@
 #include <sys/uio.h>
 #include <fcntl.h>
 #endif
-#include <cstring>
 #include "define.h"
 #include "error.h"
 #include "filefd.h"
@@ -18,7 +17,7 @@ __NAMESPACE_BEGIN
 filefd::filefd (int _fd)
     : m_fd(_fd)
 {
-     kassert(__fd_valid(_fd));
+     check(__fd_valid(_fd));
 }
 
 filefd::~filefd()
@@ -34,47 +33,29 @@ filefd::fd () const
 }
 
 ssize_t
-filefd::write (const buffer &_buf, size_t _nbytes)
+filefd::write (buffer &_buf, size_t _nbytes)
 {
-    kassert(_buf.size() >= _nbytes);
-    return ::write(m_fd, _buf.get().data(), _nbytes);
+    check(_buf.readable(_nbytes));
+    ssize_t _size = ::write(m_fd, _buf.get().data() + _buf.windex(), _nbytes);
+    if (_size > 0)
+        _buf.wreset(_size);
+    return _size;
 };
 
 ssize_t
 filefd::read (buffer &_buf, size_t _nbytes)
 {
-    kassert(_buf.size() >= _nbytes);
-    return ::read(m_fd, _buf.get().data(), _nbytes);
-}
-
-ssize_t
-filefd::writev (const std::vector<buffer> &_buf, size_t _n)
-{
-    kassert(_buf.size() < _n);
-
-    std::vector<struct iovec> _iovec;
-    _iovec.resize(_buf.size());
-    for (auto _iter : _buf)
-        _iovec.push_back({_iter.get().data(), _iter.size()});
-    return ::writev(m_fd, _iovec.data(), _n);
-}
-
-ssize_t
-filefd::readv (std::vector<buffer> &_buf, size_t _n)
-{
-    kassert(_buf.size() < _n);
-
-    std::vector<struct iovec> _iovec;
-    _iovec.resize(_buf.size());
-    for (auto _iter : _buf)
-        _iovec.push_back({_iter.get().data(), _iter.size()});
-    return ::writev(m_fd, _iovec.data(), _n);
+    check(_buf.writeable(_nbytes));
+    ssize_t _size = ::read(m_fd, _buf.get().data() + _buf.rindex(), _nbytes);
+    if (_size > 0)
+        _buf.rreset(_size);
+    return _size;
 }
 
 void
 filefd::close ()
 {
-    kassert(__fd_valid(m_fd));
+    check(__fd_valid(m_fd));
     int _ret = ::close(m_fd);
     if (_ret < 0)
         log_error("::close() error - %s:%d", strerror(errno), errno);

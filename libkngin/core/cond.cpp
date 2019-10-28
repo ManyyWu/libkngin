@@ -15,7 +15,7 @@ __NAMESPACE_BEGIN
 cond::cond (mutex *_mutex)
     : m_cond(PTHREAD_COND_INITIALIZER), m_mutex(_mutex)
 {
-    kassert(_mutex);
+    check(_mutex);
     int _ret = ::pthread_cond_init(&m_cond, NULL);
     if (_ret) {
         log_fatal("::pthread_cond_init() return %d", _ret);

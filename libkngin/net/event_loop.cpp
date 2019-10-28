@@ -1,8 +1,8 @@
 #include <sys/eventfd.h>
 #include <functional>
-#include <cstring>
 #include <unistd.h>
 #include "define.h"
+#include "errno.h"
 #include "event_loop.h"
 #include "local_lock.h"
 #include "thread.h"
@@ -21,8 +21,8 @@ event_loop::event_loop (thread *_thr)
       m_stop(false),
       m_fnq()
 {
-    kassert(__fd_valid(m_waker.fd()));
-    kassert(_thr);
+    check(__fd_valid(m_waker.fd()));
+    check(_thr);
 
     // listen waker
     m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this));
@@ -57,9 +57,15 @@ event_loop::loop (void *_args)
             _iter->handle_events();
             
         // process queued events
-        for (auto _iter : m_fnq)
+        std::deque<queued_fn> _fnq;
+        {
+            local_lock _lock(m_mutex);
+            _fnq.swap(m_fnq);
+        }
+        for (auto _iter : _fnq) {
             _iter();
-        m_fnq.clear();
+        }
+        _fnq.clear();
     }
 
     m_looping = false;
@@ -83,7 +89,7 @@ event_loop::looping ()
 void
 event_loop::check_thread ()
 {
-    kassert(m_thr->equal_to(thread::self()));
+    check(m_thr->equal_to(thread::self()));
 }
 
 bool
@@ -95,7 +101,7 @@ event_loop::in_loop_thread()
 bool
 event_loop::add_event (epoller_event *_e)
 {
-    kassert(_e);
+    check(_e);
     bool _ret = m_epoller.register_event(_e);
     if (!_ret)
         log_fatal("epoller::register_event() erorr");
@@ -107,7 +113,7 @@ event_loop::add_event (epoller_event *_e)
 bool
 event_loop::remove_event (epoller_event *_e)
 {
-    kassert(_e);
+    check(_e);
     bool _ret = m_epoller.remove_event(_e);
     if (!_ret)
         log_fatal("epoller::remove_event() erorr");
@@ -119,7 +125,7 @@ event_loop::remove_event (epoller_event *_e)
 bool
 event_loop::update_event (epoller_event *_e)
 {
-    kassert(_e);
+    check(_e);
     bool _ret = m_epoller.modify_event(_e);
     if (!_ret)
         log_fatal("epoller::modify_event() erorr");
@@ -133,7 +139,7 @@ event_loop::run_in_loop (event_loop::queued_fn &&_fn)
 {
     {
         local_lock _lock(m_mutex);
-        m_fnq.push_front(_fn);
+        m_fnq.push_back(_fn);
     }
     
     if (!in_loop_thread())
@@ -143,7 +149,7 @@ event_loop::run_in_loop (event_loop::queued_fn &&_fn)
 void
 event_loop::wakeup ()
 {
-    kassert(m_looping);
+    check(m_looping);
 
     buffer _val(8);
     _val.write_uint64(1);
@@ -157,6 +163,8 @@ event_loop::wakeup ()
 void
 event_loop::handle_wakeup ()
 {
+    check(m_looping);
+
     buffer _val(8);
     ssize_t _ret = m_waker.read(_val, sizeof(_val));
     if (_ret < 0)

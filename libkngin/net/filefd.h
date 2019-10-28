@@ -25,16 +25,10 @@ public:
     fd            () const;
 
     ssize_t
-    write         (const buffer &_buf, size_t _nbytes);
+    write         (buffer &_buf, size_t _nbytes);
 
     ssize_t
     read          (buffer &_buf, size_t _nbytes);
-
-    ssize_t
-    writev        (const std::vector<buffer> &_buf, size_t _n);
-
-    ssize_t
-    readv         (std::vector<buffer> &_buf, size_t _n);
 
     void
     close         ();
