@@ -19,7 +19,6 @@ public:
 public:
     epoller_event  () = delete;
 
-    explicit
     epoller_event  (event_loop *_loop, filefd *_s);
 
     ~epoller_event () = default;
@@ -30,7 +29,9 @@ public:
     int
     flags          () const    { return m_flags; }
     void
-    enable_once    ()          { m_flags = m_flags & ~EPOLLONESHOT; }
+    enable_once    ()          { m_flags = m_flags | EPOLLONESHOT; }
+    void
+    disable_once   ()          { m_flags = m_flags & ~EPOLLONESHOT; }
     void
     disable_read   ()          { m_flags = m_flags & ~EPOLLIN; m_incb = nullptr; }
     void
@@ -38,7 +39,7 @@ public:
     void
     disable_error  ()          { m_errcb = nullptr; }
     void
-    disable_ergent ()          { m_flags = m_flags & ~EPOLLPRI; m_pricb = nullptr; }
+    disable_oob    ()          { m_flags = m_flags & ~EPOLLPRI; m_pricb = nullptr; }
     void
     disable_once   ()          { m_flags = m_flags & ~EPOLLONESHOT; }
     void
@@ -53,7 +54,6 @@ public:
     pollonce       () const    { return (m_flags & EPOLLONESHOT); }
     bool
     pollhup        () const    { return (m_flags & EPOLLHUP); }
-
     void
     update         ();
 
@@ -65,7 +65,7 @@ public:
     void
     set_error_cb   (epoller_event_cb &&_fn) { m_errcb = std::move(_fn); m_flags |= EPOLLERR; }
     void
-    set_ergent_cb  (epoller_event_cb &&_fn) { m_pricb = std::move(_fn); m_flags |= EPOLLPRI; }
+    set_oob_cb     (epoller_event_cb &&_fn) { m_pricb = std::move(_fn); m_flags |= EPOLLPRI; }
     void
     set_close_cb   (epoller_event_cb &&_fn) { m_closecb = std::move(_fn); m_flags |= EPOLLHUP; }
 

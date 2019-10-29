@@ -31,7 +31,8 @@ epoller_event::handle_events ()
     {
         m_filefd->close();
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
-        m_closecb();
+        if (m_closecb)
+            m_closecb();
         return;
     }
     if (EPOLLERR & m_flags && m_errcb)

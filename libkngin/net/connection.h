@@ -52,13 +52,16 @@ public:
 
 public:
     void
-    set_read_done_cb  (read_done_cb &&_cb)  { m_read_done_cb = std::move(_cb); }
+    set_read_done_cb  (read_done_cb &&_cb);
 
     void
-    set_write_done_cb (write_done_cb &&_cb) { m_write_done_cb = std::move(_cb); }
+    set_write_done_cb (write_done_cb &&_cb);
 
     void
-    set_close_cb      (close_cb &&_cb)      { m_close_cb = std::move(_cb); }
+    set_close_cb      (close_cb &&_cb);
+
+    void
+    set_oob_cb        (read_oob_cb &&_cb);
 
 public:
     bool
@@ -84,13 +87,10 @@ private:
     handle_close  ();
 
     void
-    handle_ergent ();
+    handle_oob    ();
 
     void
     handle_error  ();
-
-    void
-    run_in_loop   (event_loop::queued_fn &&_fn);
 
 public:
     class socket &
@@ -120,7 +120,7 @@ protected:
 
     read_done_cb      m_read_done_cb;
 
-    read_oob_cb       m_read_oob_cb;
+    read_oob_cb       m_oob_cb;
 
     close_cb          m_close_cb;
 
