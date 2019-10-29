@@ -116,6 +116,8 @@ public:
     readable  (size_t _n) const { return (m_widx - m_ridx >= _n); }
     bool
     writeable (size_t _n) const { return (m_arr.size() - m_widx >= _n); }
+    void
+    reset     ()                { m_widx = m_ridx = 0; }
     size_t
     rreset    (size_t _idx)
     { return (m_arr.empty() ? (m_ridx = 0) : (m_ridx = std::min(_idx, m_widx))); }

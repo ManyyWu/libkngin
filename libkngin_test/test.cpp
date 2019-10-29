@@ -23,6 +23,7 @@
 #include "../libkngin/core/sync_queue.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
+#include "../libkngin/net/connection.h"
 
 using namespace k;
 using namespace std;
@@ -36,8 +37,5 @@ void fun (int &a)
 void
 test ()
 {
-    int a = 0x10;
-    cerr << a << endl;
-    cerr << (uintptr_t)&a << endl;
-    fun(a);
+    cerr << sizeof(connection) << endl;
 }

@@ -52,6 +52,39 @@ filefd::read (buffer &_buf, size_t _nbytes)
     return _size;
 }
 
+ssize_t
+filefd::writev (filefd::buffer_list &_buf, size_t _n)
+{
+    size_t _buf_size = 0;
+    for (auto _iter : _buf) {
+        _iter.reset();
+        _buf_size += _iter.size();
+    }
+    check(_buf_size >= _n);
+
+    std::vector<struct iovec> _iovec;
+    _iovec.resize(_buf.size());
+    for (auto _iter : _buf) {
+        _iovec.push_back({_iter.get().data(), _iter.size()});
+    }
+    return ::writev(m_fd, _iovec.data(), _buf.size());
+}
+
+ssize_t
+filefd::readv (filefd::buffer_list &_buf, size_t _n)
+{
+    size_t _buf_size = 0;
+    for (auto _iter : _buf)
+        _buf_size += _iter->size();
+    check(_buf_size >= _n);
+
+    std::vector<struct iovec> _iovec;
+    _iovec.resize(_buf.size());
+    for (auto _iter : _buf)
+        _iovec.push_back({_iter->get().data(), _iter->size()});
+    return ::readv(m_fd, _iovec.data(), _buf.size());
+}
+
 void
 filefd::close ()
 {

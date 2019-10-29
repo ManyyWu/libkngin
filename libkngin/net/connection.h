@@ -2,6 +2,7 @@
 #define _CONNECTION_H_
 
 #include <functional>
+#include <list>
 #include "define.h"
 #include "address.h"
 #include "epoller_event.h"
@@ -17,17 +18,17 @@ __NAMESPACE_BEGIN
 
 class connection {
 public:
-    typedef std::function<void (connection &, buffer &, size_t)> write_done_cb;
+    typedef std::function<void (connection &)> write_done_cb;
 
-    typedef std::function<void (connection &, buffer &, size_t)> read_done_cb;
+    typedef std::function<void (connection &, buffer &)> read_done_cb;
 
-    typedef std::function<void (connection &, uint8_t)>          read_oob_cb;
+    typedef std::function<void (connection &, uint8_t)>  read_oob_cb;
 
-    typedef std::function<void (connection &)>                   close_cb;
+    typedef std::function<void (connection &)>           close_cb;
 
-    typedef std::function<void (void)>                           writeable_cb;
+    typedef std::function<void (void)>                   writeable_cb;
 
-    typedef std::function<void (void)>                           readable_cb;
+    typedef std::function<void (void)>                   readable_cb;
 
 public:
     connection  () = delete;
@@ -39,7 +40,7 @@ public:
 
 public:
     bool
-    send      (buffer &_buf, size_t _size);
+    send      (buffer &&_buf);
 
     bool
     recv      (buffer &_buf, size_t _size);
@@ -124,15 +125,13 @@ protected:
 
     close_cb          m_close_cb;
 
-    buffer *          m_out_buf;
+    buffer_list       m_out_buf;
 
-    size_t            m_out_size;
-
-    buffer *          m_in_buf;
-
-    size_t            m_in_size;
+    buffer_list       m_in_buf;
 
     uint8_t           m_oob_buf;
+
+    mutex             m_mutex;
 };
 
 __NAMESPACE_END

@@ -41,8 +41,6 @@ public:
     void
     disable_oob    ()          { m_flags = m_flags & ~EPOLLPRI; m_pricb = nullptr; }
     void
-    disable_once   ()          { m_flags = m_flags & ~EPOLLONESHOT; }
-    void
     disable_close  ()          { m_closecb = nullptr; }
     bool
     pollin         () const    { return (m_flags & EPOLLIN); }

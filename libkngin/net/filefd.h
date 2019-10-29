@@ -1,6 +1,7 @@
 #ifndef _FILEFD_H_
 #define _FILEFD_H_
 
+#include <list>
 #include "define.h"
 #include "noncopyable.h"
 #include "buffer.h"
@@ -11,6 +12,9 @@
 __NAMESPACE_BEGIN
 
 class filefd {
+public:
+    typedef std::list<buffer> buffer_list;
+
 public:
     filefd  () = delete;
 
@@ -29,6 +33,12 @@ public:
 
     ssize_t
     read          (buffer &_buf, size_t _nbytes);
+
+    ssize_t
+    writev        (filefd::buffer_list &_buf, size_t _n);
+
+    ssize_t
+    readv         (filefd::buffer_list &_buf, size_t _n);
 
     void
     close         ();
