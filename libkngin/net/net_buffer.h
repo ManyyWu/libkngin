@@ -1,39 +1,73 @@
 #ifndef _NET_BUFFER_H_
 #define _NET_BUFFER_H_
 
+#ifndef _WIN32
+#include <sys/uio.h>
+#endif
 #include <list>
+#include <vector>
 #include <atomic>
 #include "define.h"
 #include "buffer.h"
 
 __NAMESPACE_BEGIN
 
+#ifdef _WIN32
+struct iovec {
+    void * iov_base; /* Pointer to data. */
+    size_t iov_len;  /* Length of data. */
+};
+#endif
+
 class net_buffer {
 public:
-    typedef filefd::buffer_list buffer_list;
+    typedef std::list<buffer> buffer_list;
 
 public:
-    net_buffer      () : m_use_buf1(true)
+    net_buffer     () : m_list(), m_rindex(0), m_windex(0), m_iovec() {}
 
-    ~net_buffer     () = default;
+    ~net_buffer    () = default;
 
 public:
     buffer_list &
-    buffer1         () { return m_buf[0]; }
-
-    buffer_list &
-    buffer2         () { return m_buf[1]; }
+    list            () { return m_list; }
 
     void
-    buffer1_receive ();
+    receive         (size_t _n);
 
     void
-    buffer2_receive ();
+    send            (size_t _n);
+
+    size_t 
+    readable        ();
+
+    size_t
+    writeable       ();
+
+    size_t 
+    size            ();
+
+    std::vector<struct iovec> &
+    to_iovec        ();
+
+    void
+    swap            (net_buffer &_buf);
 
 protected:
-    buffer_list       m_buf[2];
+    void
+    check_readable  (size_t _n);
 
-    std::atomic<bool> m_use_buf1;
+    void
+    check_writeable (size_t _n);
+
+protected:
+    buffer_list               m_list;
+
+    size_t                    m_rindex;
+
+    size_t                    m_windex;
+
+    std::vector<struct iovec> m_iovec;
 };
 
 __NAMESPACE_END

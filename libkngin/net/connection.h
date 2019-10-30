@@ -12,6 +12,7 @@
 #include "sockopts.h"
 #include "epoller.h"
 #include "buffer.h"
+#include "net_buffer.h"
 #include "epoller_event.h"
 
 __NAMESPACE_BEGIN
@@ -125,9 +126,9 @@ protected:
 
     close_cb          m_close_cb;
 
-    buffer_list       m_out_buf;
+    net_buffer        m_out_buf;
 
-    buffer_list       m_in_buf;
+    net_buffer        m_in_buf;
 
     uint8_t           m_oob_buf;
 

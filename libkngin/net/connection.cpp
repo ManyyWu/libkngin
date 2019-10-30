@@ -5,13 +5,14 @@
 #include "socket.h"
 #include "error.h"
 #include "buffer.h"
+#include "net_buffer.h"
 #include "epoller_event.h"
 #include "epoller.h"
 #include "local_lock.h"
 
 __NAMESPACE_BEGIN
 
-connection::connection(k::event_loop *_loop, k::socket &&_socket,
+connection::connection(event_loop *_loop, socket &&_socket,
                        const address &_local_addr, const address &_peer_addr)
     : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
       m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
@@ -41,8 +42,8 @@ connection::send (buffer &&_buf)
 
     {
         local_lock _lock(m_mutex);
-        m_out_buf.push_back(buffer(std::move(_buf)));
-        m_out_buf.back().reset();
+        m_out_buf.list.push_back(buffer(std::move(_buf)));
+        m_out_buf.list.back().reset();
     }
     if (m_loop->in_loop_thread()) {
         // write
@@ -107,17 +108,15 @@ connection::handle_write ()
 {
     check(m_connected);
     m_loop->check_thread();
-    if (m_out_buf.empty())
+    if (!m_out_buf.readable())
         return;
 
-    buffer_list _list;
-    size_t      _buf_size = 0;
+    net_buffer _list;
     {
         local_lock _lock(m_mutex);
         _list.swap(m_out_buf);
     }
-    for (auto _iter : _list)
-        _buf_size += _iter.size();
+    size_t _buf_size = _list.readable();
     ssize_t _size = m_socket.writev(_list, _buf_size);
     if (_size > 0) {
         if (_buf_size != _size)
@@ -126,9 +125,6 @@ connection::handle_write ()
         // done
         size_t _remain = _size;
         for (auto _iter : _list) {
-            _remain -= std::min(_iter.size(), _remain);
-            //if ()
-            _list.remove(_iter);
         }
         m_event.disable_write();
         if (m_write_done_cb)
@@ -146,14 +142,13 @@ connection::handle_read ()
     check(m_connected);
     m_loop->check_thread();
 
-    for ()
 }
 
 void
 connection::handle_close ()
 {
     check(m_connected);
-    m_connected = true;
+    m_connected = false;
     m_loop->check_thread();
 
     m_socket.close();

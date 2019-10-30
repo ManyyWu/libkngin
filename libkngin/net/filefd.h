@@ -5,6 +5,7 @@
 #include "define.h"
 #include "noncopyable.h"
 #include "buffer.h"
+#include "net_buffer.h"
 
 #define __fd_valid(__fd)   (__fd >= 0)
 #define __fd_invalid(__fd) (__fd < 0)
@@ -12,9 +13,6 @@
 __NAMESPACE_BEGIN
 
 class filefd {
-public:
-    typedef std::list<buffer> buffer_list;
-
 public:
     filefd  () = delete;
 
@@ -35,10 +33,10 @@ public:
     read          (buffer &_buf, size_t _nbytes);
 
     ssize_t
-    writev        (filefd::buffer_list &_buf, size_t _n);
+    writev        (net_buffer &_buf, size_t _n);
 
     ssize_t
-    readv         (filefd::buffer_list &_buf, size_t _n);
+    readv         (net_buffer &_buf, size_t _n);
 
     void
     close         ();

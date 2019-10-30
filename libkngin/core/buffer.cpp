@@ -48,7 +48,7 @@ void
 basic_buffer::check_readable (size_t _n) const
 {
     if (m_widx - m_ridx < _n)
-        throw exception((std::string("basic_buffer::readable: widx is ")
+        throw exception((std::string("basic_buffer::readable() - widx is ")
                         + std::to_string(m_widx) + ", ridx is "
                         + std::to_string(m_ridx)).c_str());
 }
@@ -57,7 +57,7 @@ void
 basic_buffer::check_writeable (size_t _n) const
 {
     if (m_arr.size() - m_widx < _n)
-        throw exception((std::string("basic_buffer::writeable: size is ")
+        throw exception((std::string("basic_buffer::writeable() - size is ")
                         + std::to_string(m_arr.size()) + ", widx is "
                         + std::to_string(m_widx)).c_str());
 }

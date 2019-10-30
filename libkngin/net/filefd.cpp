@@ -1,6 +1,6 @@
 #ifdef _WIN32
+#include <winsock2.h>
 #include <Windows.h>
-#
 #else
 #include <unistd.h>
 #include <sys/uio.h>
@@ -53,36 +53,23 @@ filefd::read (buffer &_buf, size_t _nbytes)
 }
 
 ssize_t
-filefd::writev (filefd::buffer_list &_buf, size_t _n)
+filefd::writev (net_buffer &_buf, size_t _n)
 {
-    size_t _buf_size = 0;
-    for (auto _iter : _buf) {
-        _iter.reset();
-        _buf_size += _iter.size();
-    }
-    check(_buf_size >= _n);
-
-    std::vector<struct iovec> _iovec;
-    _iovec.resize(_buf.size());
-    for (auto _iter : _buf) {
-        _iovec.push_back({_iter.get().data(), _iter.size()});
-    }
-    return ::writev(m_fd, _iovec.data(), _buf.size());
+    check(_buf.writeable() >= _n);
+    ssize_t _size = ::writev(m_fd, _buf.to_iovec().data(), _n);
+    if (_size > 0)
+        _buf.send(_size);
+    return _size;
 }
 
 ssize_t
-filefd::readv (filefd::buffer_list &_buf, size_t _n)
+filefd::readv (net_buffer &_buf, size_t _n)
 {
-    size_t _buf_size = 0;
-    for (auto _iter : _buf)
-        _buf_size += _iter->size();
-    check(_buf_size >= _n);
-
-    std::vector<struct iovec> _iovec;
-    _iovec.resize(_buf.size());
-    for (auto _iter : _buf)
-        _iovec.push_back({_iter->get().data(), _iter->size()});
-    return ::readv(m_fd, _iovec.data(), _buf.size());
+    check(_buf.readable() >= _n);
+    ssize_t _size = ::readv(m_fd, _buf.to_iovec().data(), _n);
+    if (_size > 0)
+        _buf.receive(_size);
+    return _size;
 }
 
 void
