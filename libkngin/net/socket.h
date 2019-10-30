@@ -58,10 +58,22 @@ public:
     int
     connect       (const address &_addr)
     { return ::connect(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
+    int
+    rd_shutdown   ()
+    { return shutdown(m_fd, SHUT_RD); }
+    int
+    wr_shutdown   ()
+    { return shutdown(m_fd, SHUT_WR); }
 
 public:
     ssize_t
-    sendto        (const address &_addr, const buffer &_buf, size_t _nbytes, int _flags);
+    send          (buffer &_buf, size_t _nbytes, int _flags);
+
+    ssize_t
+    recv          (buffer &_buf, size_t _nbytes, int _flags);
+
+    ssize_t
+    sendto        (const address &_addr, buffer &_buf, size_t _nbytes, int _flags);
 
     ssize_t
     recvfrom      (address &_addr, buffer &_buf, size_t _nbytes, int _flags);

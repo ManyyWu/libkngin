@@ -39,6 +39,10 @@ public:
     get         ()                  { return m_arr; }
     const uint8_arr &
     get         () const            { return m_arr; }
+    uint8_t *
+    data        ()                  { return m_arr.data(); }
+    const uint8_t *
+    data        () const            { return m_arr.data(); }
     size_t
     rindex      () const            { return m_ridx; }
     size_t
@@ -107,6 +111,8 @@ public:
     void
     resize    (size_t _s)       { m_arr.resize(_s); m_arr.shrink_to_fit(); }
     void
+    clear     ()                { uint8_arr _arr; m_arr.swap(_arr); reset(); }
+    void
     shrink    ()                { m_arr.shrink_to_fit(); }
     size_t
     readable  () const          { return (m_widx - m_ridx); }
@@ -123,7 +129,7 @@ public:
     { return (m_arr.empty() ? (m_ridx = 0) : (m_ridx = std::min(_idx, m_widx))); }
     size_t
     wreset    (size_t _idx)
-    { return (m_arr.empty() ? (m_widx = 0) : (m_widx = std::min(_idx, m_arr.size() - 1))); }
+    { return (m_arr.empty() ? (m_widx = 0) : (m_widx = std::min(_idx, m_arr.size()))); }
 
 public:
     std::string &
@@ -187,7 +193,7 @@ public:
     { return append(_buf); }
     void
     swap       (buffer &_buf)
-    { std::swap(m_arr, _buf.m_arr); std::swap(m_widx, _buf.m_widx); }
+    { std::swap(m_arr, _buf.m_arr); std::swap(m_widx, _buf.m_widx); std::swap(m_ridx, _buf.m_ridx);}
 };
 
 __NAMESPACE_END

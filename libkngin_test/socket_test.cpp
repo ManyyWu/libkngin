@@ -27,7 +27,7 @@ client (void *_args)
     int _reply = 0;
     {
         buffer _buf(4);
-        if (_server_sock.read(_buf, _buf.size()) < 0)
+        if (_server_sock.read(_buf, _buf.writeable()) < 0)
             log_error("%s", strerror(errno));
         log_info("myport %d", _buf.peek_int32());
     }
@@ -37,7 +37,7 @@ client (void *_args)
     {
         buffer _buf(4);
         _buf.write_int32(_reply);
-        if (_server_sock.write(_buf, _buf.size()) < 0)
+        if (_server_sock.write(_buf, _buf.readable()) < 0)
             log_error("%s", strerror(errno));
     }
 
@@ -75,13 +75,13 @@ server (void *_args)
         {
             buffer _buf(4);
             _buf.write_int32(_client_addr.port());
-            if (_client_sock.write(_buf, _buf.size()) < 0)
+            if (_client_sock.write(_buf, _buf.readable()) < 0)
                 log_error("%s", strerror(errno));
         }
         // read
         {
             buffer _buf(4);
-            if (_client_sock.read(_buf, _buf.size()) < 0)
+            if (_client_sock.read(_buf, _buf.writeable()) < 0)
                 log_error("%s", strerror(errno));
             if (_buf.peek_int32() == 0)
                 _ok = false;

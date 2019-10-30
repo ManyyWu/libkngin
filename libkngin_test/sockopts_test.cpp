@@ -8,13 +8,13 @@ using namespace k;
 void
 sockopts_test ()
 {
-    k::socket _s(socket::IPV6_TCP);
-    bool           i_val;
-    int            l_val;
-    struct linger  linger_val;
-    struct timeval timeval_val;
-
-    // print flags
+//    k::socket _s(socket::IPV6_TCP);
+//    bool           i_val;
+//    int            l_val;
+//    struct linger  linger_val;
+//    struct timeval timeval_val;
+//
+//    // print flags
 //    cerr << "SO_BROADCAST: " << sockopts::broadcast(_s, i_val), i_val << endl;
 //    cerr << "SO_DEBUG    : " << sockopts::debug(_s).val << endl;
 //    cerr << "SO_DONTROUTE: " << sockopts::nonroute(_s).val << endl;

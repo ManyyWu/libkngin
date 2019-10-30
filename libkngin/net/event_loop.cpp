@@ -134,7 +134,7 @@ event_loop::update_event (epoller_event *_e)
     return _ret;
 }
 
-bool
+void
 event_loop::run_in_loop (event_loop::queued_fn &&_fn)
 {
     {

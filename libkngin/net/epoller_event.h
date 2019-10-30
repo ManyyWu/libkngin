@@ -29,19 +29,25 @@ public:
     int
     flags          () const    { return m_flags; }
     void
-    enable_once    ()          { m_flags = m_flags | EPOLLONESHOT; }
+    enable_read    ()          { m_flags |= EPOLLIN; }
     void
-    disable_once   ()          { m_flags = m_flags & ~EPOLLONESHOT; }
+    enable_write   ()          { m_flags |= EPOLLOUT; }
     void
-    disable_read   ()          { m_flags = m_flags & ~EPOLLIN; m_incb = nullptr; }
+    enable_oob     ()          { m_flags |= EPOLLPRI; }
     void
-    disable_write  ()          { m_flags = m_flags & ~EPOLLOUT; m_outcb = nullptr; }
+    enable_once    ()          { m_flags |= EPOLLONESHOT; }
     void
-    disable_error  ()          { m_errcb = nullptr; }
+    disable_read   ()          { m_flags &= ~EPOLLIN; }
     void
-    disable_oob    ()          { m_flags = m_flags & ~EPOLLPRI; m_pricb = nullptr; }
+    disable_write  ()          { m_flags &= ~EPOLLOUT; }
+    void
+    disable_oob    ()          { m_flags = ~EPOLLPRI; }
+    void
+    disable_once   ()          { m_flags &= ~EPOLLONESHOT; }
     void
     disable_close  ()          { m_closecb = nullptr; }
+    void
+    disable_error  ()          { m_errcb = nullptr; }
     bool
     pollin         () const    { return (m_flags & EPOLLIN); }
     bool

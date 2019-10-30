@@ -41,22 +41,49 @@ socket::socket (socket &&_s)
 }
 
 ssize_t
-socket::sendto (const address &_addr, const buffer &_buf, size_t _nbytes, int _flags)
+socket::send (buffer &_buf, size_t _nbytes, int _flags)
 {
-    check(_buf.size() >= _nbytes);
-    return ::sendto(m_fd, (const char *)_buf.get().data(), _nbytes, _flags, 
+    check(_buf.readable(_nbytes));
+    ssize_t _size = ::send(m_fd, _buf.data(), _nbytes, _flags);
+    if (_nbytes > 0)
+        _buf.rreset(_buf.rindex() + _nbytes);
+    return _size;
+}
+
+ssize_t
+socket::recv (buffer &_buf, size_t _nbytes, int _flags)
+{
+    check(_buf.readable(_nbytes));
+    ssize_t _size = ::recv(m_fd, _buf.data(), _nbytes, _flags);
+    if (_nbytes > 0)
+        _buf.wreset(_buf.windex() + _nbytes);
+    return _size;
+}
+
+ssize_t
+socket::sendto (const address &_addr, buffer &_buf, size_t _nbytes, int _flags)
+{
+    check(_buf.readable(_nbytes));
+    ssize_t _size = ::sendto(m_fd, (const char *)_buf.data(), _nbytes, _flags,
                     (const sockaddr *)&(_addr.sa()), 
                     _addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+    if (_size > 0)
+        _buf.rreset(_buf.rindex() + _size);
+    return _size;
 };
 
 ssize_t
 socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags)
 {
+    check(_buf.writeable(_nbytes));
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
-    check(_buf.size() >= _nbytes);
-    ssize_t _ret = ::recvfrom(m_fd, (char *)_buf.get().data(), _nbytes, _flags, 
+    check(_buf.writeable() >= _nbytes);
+    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.data(), _nbytes, _flags,
                               (sockaddr *)&(_addr.sa()), 
                               &_addr_len);
+    if (_size > 0)
+        _buf.wreset(_buf.windex() + _size);
+    return _size;
 }
 
 __NAMESPACE_END

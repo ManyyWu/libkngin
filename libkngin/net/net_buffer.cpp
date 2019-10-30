@@ -60,7 +60,7 @@ net_buffer::to_iovec ()
     int i = 0;
     for (auto _iter : m_list) {
         if (_iter.size() > _remain)
-            m_iovec.push_back({_iter.get().data() + _remain, _iter.size() - _remain});
+            m_iovec.push_back({_iter.data() + _remain, _iter.size() - _remain});
         _remain -= (std::min)(_iter.size(), _remain);
     }
     return m_iovec;

@@ -33,10 +33,10 @@ public:
     read          (buffer &_buf, size_t _nbytes);
 
     ssize_t
-    writev        (net_buffer &_buf, size_t _n);
+    writev        (net_buffer &_buf, size_t _nbytes);
 
     ssize_t
-    readv         (net_buffer &_buf, size_t _n);
+    readv         (net_buffer &_buf, size_t _nbytes);
 
     void
     close         ();

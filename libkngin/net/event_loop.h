@@ -50,7 +50,7 @@ public:
     bool
     update_event   (epoller_event *_e);
 
-    bool
+    void
     run_in_loop    (event_loop::queued_fn &&_fn);
 
 public:

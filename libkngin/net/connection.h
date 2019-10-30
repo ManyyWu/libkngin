@@ -19,51 +19,54 @@ __NAMESPACE_BEGIN
 
 class connection {
 public:
-    typedef std::function<void (connection &)> write_done_cb;
+    typedef std::function<void (connection &, buffer &, size_t)> read_done_cb;
 
-    typedef std::function<void (connection &, buffer &)> read_done_cb;
+    typedef std::function<void (connection &)>                   write_done_cb;
 
-    typedef std::function<void (connection &, uint8_t)>  read_oob_cb;
+    typedef std::function<void (connection &, uint8_t)>          read_oob_cb;
 
-    typedef std::function<void (connection &)>           close_cb;
+    typedef std::function<void (connection &)>                   close_cb;
 
-    typedef std::function<void (void)>                   writeable_cb;
+    typedef std::function<void (void)>                           writeable_cb;
 
-    typedef std::function<void (void)>                   readable_cb;
+    typedef std::function<void (void)>                           readable_cb;
 
 public:
     connection  () = delete;
 
-    connection  (event_loop *_loop, socket &&_socket,
+    connection  (event_loop *_loop, class socket &&_socket,
                  const address &_local_addr, const address &_peer_addr);
 
     ~connection ();
 
 public:
     bool
-    send      (buffer &&_buf);
+    send             (buffer &&_buf);
 
     bool
-    recv      (buffer &_buf, size_t _size);
+    recv             (buffer &_buf);
 
     void
-    close     () { m_socket.close(); }
+    close            () { m_socket.close(); m_connected = false; }
 
     bool
-    connected () { return m_connected; }
+    connected        () { return m_connected; }
+
+    void
+    set_disconnected () { m_connected = false; }
 
 public:
     void
-    set_read_done_cb  (read_done_cb &&_cb);
+    set_read_done_cb  (read_done_cb &&_cb)  { m_read_done_cb = std::move(_cb); }
 
     void
-    set_write_done_cb (write_done_cb &&_cb);
+    set_write_done_cb (write_done_cb &&_cb) { m_write_done_cb = std::move(_cb); }
 
     void
-    set_close_cb      (close_cb &&_cb);
+    set_close_cb      (close_cb &&_cb)      { m_close_cb = std::move(_cb); }
 
     void
-    set_oob_cb        (read_oob_cb &&_cb);
+    set_oob_cb        (read_oob_cb &&_cb)   { m_oob_cb = std::move(_cb); }
 
 public:
     bool
@@ -126,13 +129,9 @@ protected:
 
     close_cb          m_close_cb;
 
-    net_buffer        m_out_buf;
+    buffer            m_out_buf;
 
-    net_buffer        m_in_buf;
-
-    uint8_t           m_oob_buf;
-
-    mutex             m_mutex;
+    buffer *          m_in_buf;
 };
 
 __NAMESPACE_END

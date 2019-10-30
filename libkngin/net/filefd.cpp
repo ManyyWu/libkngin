@@ -36,9 +36,9 @@ ssize_t
 filefd::write (buffer &_buf, size_t _nbytes)
 {
     check(_buf.readable(_nbytes));
-    ssize_t _size = ::write(m_fd, _buf.get().data() + _buf.windex(), _nbytes);
+    ssize_t _size = ::write(m_fd, _buf.data() + _buf.rindex(), _nbytes);
     if (_size > 0)
-        _buf.wreset(_size);
+        _buf.rreset(_buf.rindex() + _size);
     return _size;
 };
 
@@ -46,27 +46,27 @@ ssize_t
 filefd::read (buffer &_buf, size_t _nbytes)
 {
     check(_buf.writeable(_nbytes));
-    ssize_t _size = ::read(m_fd, _buf.get().data() + _buf.rindex(), _nbytes);
+    ssize_t _size = ::read(m_fd, _buf.data() + _buf.windex(), _nbytes);
     if (_size > 0)
-        _buf.rreset(_size);
+        _buf.wreset(_buf.windex() + _size);
     return _size;
 }
 
 ssize_t
-filefd::writev (net_buffer &_buf, size_t _n)
+filefd::writev (net_buffer &_buf, size_t _nbytes)
 {
-    check(_buf.writeable() >= _n);
-    ssize_t _size = ::writev(m_fd, _buf.to_iovec().data(), _n);
+    check(_buf.readable() >= _nbytes);
+    ssize_t _size = ::writev(m_fd, _buf.to_iovec().data(), _nbytes);
     if (_size > 0)
         _buf.send(_size);
     return _size;
 }
 
 ssize_t
-filefd::readv (net_buffer &_buf, size_t _n)
+filefd::readv (net_buffer &_buf, size_t _nbytes)
 {
-    check(_buf.readable() >= _n);
-    ssize_t _size = ::readv(m_fd, _buf.to_iovec().data(), _n);
+    check(_buf.writeable() >= _nbytes);
+    ssize_t _size = ::readv(m_fd, _buf.to_iovec().data(), _nbytes);
     if (_size > 0)
         _buf.receive(_size);
     return _size;
