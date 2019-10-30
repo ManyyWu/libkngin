@@ -111,21 +111,19 @@ connection::handle_write ()
     if (!m_out_buf.readable())
         return;
 
-    net_buffer _list;
+    buffer _buf;
     {
         local_lock _lock(m_mutex);
-        _list.swap(m_out_buf);
+        _buf.swap(m_out_buf.list().front());
+        m_out_buf.list().pop_front();
     }
-    size_t _buf_size = _list.readable();
-    ssize_t _size = m_socket.writev(_list, _buf_size);
+    size_t _buf_size = _buf.readable();
+    ssize_t _size = m_socket.write(_buf, _buf_size);
     if (_size > 0) {
         if (_buf_size != _size)
             return;
 
         // done
-        size_t _remain = _size;
-        for (auto _iter : _list) {
-        }
         m_event.disable_write();
         if (m_write_done_cb)
             m_write_done_cb(*this);
@@ -141,7 +139,6 @@ connection::handle_read ()
 {
     check(m_connected);
     m_loop->check_thread();
-
 }
 
 void
