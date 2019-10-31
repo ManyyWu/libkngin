@@ -76,21 +76,21 @@ void
 connection::close ()
 { 
     check(m_connected);
-    m_loop->run_in_loop(std::bind(&socket::close, m_socket));
+    m_loop->run_in_loop(std::bind(&socket::close, &m_socket));
 }
 
 void
 connection::rd_shutdown ()
 {
     check(m_connected);
-    m_loop->run_in_loop(std::bind(&socket::rd_shutdown, m_socket));
+    m_loop->run_in_loop(std::bind(&socket::rd_shutdown, &m_socket));
 }
 
 void
 connection::wr_shutdown ()
 {
     check(m_connected);
-    m_loop->run_in_loop(std::bind(&socket::wr_shutdown, m_socket));
+    m_loop->run_in_loop(std::bind(&socket::wr_shutdown, &m_socket));
 }
 
 void
@@ -184,8 +184,10 @@ connection::handle_oob ()
     }
     if (m_oob_cb)
         m_oob_cb(*this, _buf.read_uint8());
-    else
-        log_warning("unhandled oob data from %s:%d", local_addr);
+    else {
+        inet_addrstr _addrstr;
+        log_warning("unhandled oob data from %s:%d", m_local_addr.addrstr(_addrstr), m_local_addr.port());
+    }
 }
 
 void

@@ -12,8 +12,8 @@ using namespace k;
 static int
 client (void *_args)
 {
-    inet_addrstr _addr_str = {"192.168.0.2"};
-    uint16_t     _port = 20000;
+    inet_addrstr _addr_str = {"127.0.0.1"};
+    uint16_t     _port = 40000;
 
     address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port,_server_addr));
@@ -49,18 +49,18 @@ static int
 server (void *_args)
 {
     bool _ok = true;
-    inet_addrstr _addr_str = {"192.168.0.2"};
-    uint16_t     _port = 20000;
+    inet_addrstr _addr_str = {"127.0.0.1"};
+    uint16_t     _port = 40000;
 
     address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port,_server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
+    assert(sockopts::set_reuseaddr(_server_sock, true));
+    assert(sockopts::set_reuseport(_server_sock, true));
+    inet_addrstr _a;
+    log_debug("server_addr: %s:%d", _server_addr.addrstr(_a), _server_addr.port());
     if (_server_sock.bind(_server_addr) < 0)
-        log_error("%s", strerror(errno));
-    if (!sockopts::set_reuseaddr(_server_sock, true))
-        log_error("%s", strerror(errno));
-    if (!sockopts::set_reuseport(_server_sock, true))
         log_error("%s", strerror(errno));
     if (_server_sock.listen(5) < 0)
         log_error("%s", strerror(errno));
