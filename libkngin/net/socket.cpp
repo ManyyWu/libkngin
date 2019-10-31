@@ -40,6 +40,22 @@ socket::socket (socket &&_s)
     _s.m_fd = -1;
 }
 
+void
+socket::rd_shutdown ()
+{ 
+    int _ret = ::shutdown(m_fd, SHUT_RD); 
+    if (_ret < 0)
+        log_error("::shutdown(SHUT_RD) error - %s:%d", strerror(errno), errno);
+}
+
+void
+socket::wr_shutdown ()
+{ 
+    ::shutdown(m_fd, SHUT_WR); 
+    if (_ret < 0)
+        log_error("::shutdown(SHUT_WR) error - %s:%d", strerror(errno), errno);
+}
+
 ssize_t
 socket::send (buffer &_buf, size_t _nbytes, int _flags)
 {

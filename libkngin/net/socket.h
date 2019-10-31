@@ -58,12 +58,13 @@ public:
     int
     connect       (const address &_addr)
     { return ::connect(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
-    int
-    rd_shutdown   ()
-    { return shutdown(m_fd, SHUT_RD); }
-    int
-    wr_shutdown   ()
-    { return shutdown(m_fd, SHUT_WR); }
+
+public:
+    void
+    rd_shutdown   ();
+
+    void
+    wr_shutdown   ();
 
 public:
     ssize_t

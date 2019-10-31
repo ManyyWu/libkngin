@@ -16,7 +16,7 @@ connection::connection(event_loop *_loop, class socket &&_socket,
                        const address &_local_addr, const address &_peer_addr)
     : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
       m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
-      m_writable_cb(nullptr), m_readable_cb(nullptr), m_write_done_cb(nullptr), 
+      /*m_writeable_cb(nullptr), m_readable_cb(nullptr), */m_write_done_cb(nullptr), 
       m_read_done_cb(nullptr), m_oob_cb(nullptr), m_close_cb(nullptr),
       m_out_buf(), m_in_buf(NULL)
 {
@@ -70,6 +70,27 @@ connection::recv (buffer &_buf)
     m_event.enable_read();
     m_event.update();
     return true;
+}
+
+void
+connection::close ()
+{ 
+    check(m_connected);
+    m_loop->run_in_loop(std::bind(&socket::close, m_socket));
+}
+
+void
+connection::rd_shutdown ()
+{
+    check(m_connected);
+    m_loop->run_in_loop(std::bind(&socket::rd_shutdown, m_socket));
+}
+
+void
+connection::wr_shutdown ()
+{
+    check(m_connected);
+    m_loop->run_in_loop(std::bind(&socket::wr_shutdown, m_socket));
 }
 
 void
@@ -139,9 +160,10 @@ connection::handle_close ()
     check(m_connected);
     m_loop->check_thread();
 
-    m_event.disable_write();
+    m_connected = false; 
+    m_event.set_flags(0);
     m_event.update();
-    m_socket.wr_shutdown();
+    m_socket.close();
     if (m_close_cb)
         m_close_cb(*this);
 }
@@ -162,6 +184,8 @@ connection::handle_oob ()
     }
     if (m_oob_cb)
         m_oob_cb(*this, _buf.read_uint8());
+    else
+        log_warning("unhandled oob data from %s:%d", local_addr);
 }
 
 void

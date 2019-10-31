@@ -41,19 +41,25 @@ public:
 
 public:
     bool
-    send             (buffer &&_buf);
+    send              (buffer &&_buf);
 
     bool
-    recv             (buffer &_buf);
+    recv              (buffer &_buf);
 
     void
-    close            () { m_socket.close(); m_connected = false; }
+    close             ();
+
+    void
+    rd_shutdown       ();
+
+    void
+    wr_shutdown       ();
 
     bool
-    connected        () { return m_connected; }
+    connected         () { return m_connected; }
 
     void
-    set_disconnected () { m_connected = false; }
+    set_disconnected  () { m_connected = false; }
 
 public:
     void
@@ -67,6 +73,12 @@ public:
 
     void
     set_oob_cb        (read_oob_cb &&_cb)   { m_oob_cb = std::move(_cb); }
+
+//    void
+//    set_readable_cb   (readable_cb &&_cb)   { m_readable_cb = std::move(_cb); }
+//
+//    void
+//    set_writeable_cb  (writeable_cb &&_cb)   { m_writeable_cb = std::move(_cb); }
 
 public:
     bool
@@ -99,10 +111,16 @@ private:
 
 public:
     class socket &
-    socket () { return m_socket; }
+    socket     () { return m_socket; }
 
     event_loop *
-    loop   () { return m_loop; }
+    loop       () { return m_loop; }
+
+    const address &
+    local_addr () { return m_local_addr; }
+
+    const address &
+    peer_addr  () { return m_peer_addr; }
 
 protected:
     event_loop *      m_loop;
@@ -117,9 +135,9 @@ protected:
 
     address           m_peer_addr;
 
-    writeable_cb      m_writable_cb;
+//    writeable_cb      m_writeable_cb;
 
-    readable_cb       m_readable_cb;
+//    readable_cb       m_readable_cb;
 
     write_done_cb     m_write_done_cb;
 
