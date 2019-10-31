@@ -23,19 +23,12 @@
 #include "../libkngin/core/sync_queue.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
-#include "../libkngin/net/connection.h"
 
 using namespace k;
 using namespace std;
 using namespace std::placeholders;
 
-void fun (int &a)
-{
-    cerr << (uintptr_t)&a << endl;
-}
-
 void
 test ()
 {
-    cerr << sizeof(connection) << endl;
 }

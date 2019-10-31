@@ -9,11 +9,14 @@
 
 using namespace k;
 
+#define SERVER_ADDR "127.0.0.1"
+#define SERVER_PORT 40000
+
 static int
 client (void *_args)
 {
-    inet_addrstr _addr_str = {"127.0.0.1"};
-    uint16_t     _port = 40000;
+    inet_addrstr _addr_str = {SERVER_ADDR};
+    uint16_t     _port = SERVER_PORT;
 
     address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port,_server_addr));
@@ -49,8 +52,8 @@ static int
 server (void *_args)
 {
     bool _ok = true;
-    inet_addrstr _addr_str = {"127.0.0.1"};
-    uint16_t     _port = 40000;
+    inet_addrstr _addr_str = {SERVER_ADDR};
+    uint16_t     _port = SERVER_PORT;
 
     address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port,_server_addr));

@@ -31,7 +31,7 @@ basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
     return _n;
 }
 
-std::string &
+const std::string &
 basic_buffer::dump ()
 {
     m_dump_str.clear();

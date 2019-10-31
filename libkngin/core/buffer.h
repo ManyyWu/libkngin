@@ -132,7 +132,7 @@ public:
     { return (m_arr.empty() ? (m_widx = 0) : (m_widx = std::min(_idx, m_arr.size()))); }
 
 public:
-    std::string &
+    const std::string &
     dump          ();
 
 protected:
