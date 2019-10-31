@@ -3,8 +3,18 @@
 #include <string>
 #include "define.h"
 #include "exception.h"
+#include "common.h"
 
 __NAMESPACE_BEGIN
+
+exception::exception (const char *_what)
+    : m_str(_what)
+{
+#ifndef NDEBUG
+    check(!"exception");
+#endif
+    this->dump_stack();
+}
 
 void
 exception::dump_stack ()

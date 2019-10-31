@@ -24,9 +24,8 @@ event_loop::event_loop (thread *_thr)
     check(__fd_valid(m_waker.fd()));
     check(_thr);
 
-    // listen waker
     m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this));
-    m_epoller.register_event(m_waker.get_event());
+    m_waker.start();
 } catch (...) {
     log_fatal("event_loop::event_loop() error");
     throw;
@@ -34,11 +33,11 @@ event_loop::event_loop (thread *_thr)
 
 event_loop::~event_loop ()
 {
-    // m_waker_event.disable_read();
+    m_waker.stop();
 }
 
 int
-event_loop::loop (void *_args)
+event_loop::loop ()
 {
     check_thread();
     m_looping = true;
@@ -49,7 +48,7 @@ event_loop::loop (void *_args)
 
         // wait for events
         m_epoller.wait(EPOLLER_TIMEOUT, _events);
-        log_debug("the epoller in thread \"%s\" is awardkened with %ul events",
+        log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
                   m_thr->name(), _events.size());
 
         // process events
@@ -157,7 +156,7 @@ event_loop::wakeup ()
     if (_ret < 0)
         log_error("event_loop::wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
-        log_error("event_loop::wakeup() error, write %d bytes to waker instead of 8", _ret);
+        log_error("event_loop::wakeup() error, write %" PRId64 " bytes to waker instead of 8", _ret);
 }
 
 void
@@ -170,7 +169,7 @@ event_loop::handle_wakeup ()
     if (_ret < 0)
         log_error("event_loop::handle_wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
-        log_error("event_loop::handle_wakeup() error, read %d bytes from waker instead of 8", _ret);
+        log_error("event_loop::handle_wakeup() error, read %" PRId64 " bytes from waker instead of 8", _ret);
 }
 
 __NAMESPACE_END

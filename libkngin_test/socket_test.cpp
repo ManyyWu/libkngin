@@ -32,7 +32,7 @@ client (void *_args)
         buffer _buf(4);
         if (_server_sock.read(_buf, _buf.writeable()) < 0)
             log_error("%s", strerror(errno));
-        log_info("myport %d", _buf.peek_int32());
+        log_info("myport %s", _buf.peek_int32());
     }
     std::cerr << "> ";
     std::cin >> _reply;
@@ -62,7 +62,7 @@ server (void *_args)
     assert(sockopts::set_reuseaddr(_server_sock, true));
     assert(sockopts::set_reuseport(_server_sock, true));
     inet_addrstr _a;
-    log_debug("server_addr: %s:%d", _server_addr.addrstr(_a), _server_addr.port());
+    log_debug("server_addr: %s:%hu", _server_addr.addrstr(_a), _server_addr.port());
     if (_server_sock.bind(_server_addr) < 0)
         log_error("%s", strerror(errno));
     if (_server_sock.listen(5) < 0)
@@ -102,13 +102,13 @@ server (void *_args)
 void
 socket_test ()
 {
-    k::thread _server_thr(std::bind(server, (void *)1), "server");
-    _server_thr.run();
+    k::thread _server_thr("server");
+    _server_thr.run(std::bind(server, (void *)1));
     k::thread::sleep(1000);
 
     for (int i = 0; i< 100; i++) {
-        k::thread _client_thr(std::bind(client, (void *)1), "client");
-        _client_thr.run();
+        k::thread _client_thr("client");
+        _client_thr.run(std::bind(client, (void *)1));
         _client_thr.join(NULL);
     }
 

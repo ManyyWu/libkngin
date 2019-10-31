@@ -56,8 +56,8 @@ mutex_test ()
     ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        knew(thrs[i], thread, (process_mutex, NULL));
-        thrs[i]->run();
+        knew(thrs[i], thread, (""));
+        thrs[i]->run(process_mutex);
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
@@ -75,8 +75,8 @@ mutex_test ()
     ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        knew(thrs[i], thread, (process_std_mutex, NULL));
-        thrs[i]->run();
+        knew(thrs[i], thread, (""));
+        thrs[i]->run(process_std_mutex);
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
@@ -93,8 +93,8 @@ mutex_test ()
     ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        knew(thrs[i], thread, (process_atomic, NULL));
-        thrs[i]->run();
+        knew(thrs[i], thread, (""));
+        thrs[i]->run(process_atomic);
     }
 
     for (int i = 0; i < THR_NUM; ++i) {

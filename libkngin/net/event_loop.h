@@ -12,7 +12,11 @@
 #include "event.h"
 #include "timer.h"
 
+#ifndef NDEBUG
+#define EPOLLER_TIMEOUT 30000
+#else
 #define EPOLLER_TIMEOUT 3000
+#endif
 
 __NAMESPACE_BEGIN
 
@@ -32,7 +36,7 @@ public:
 
 public:
     int
-    loop           (void *_args);
+    loop           ();
 
     void
     stop           ();

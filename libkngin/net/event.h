@@ -25,6 +25,16 @@ public:
 
 public:
     void
+    start        ();
+
+    void
+    update       ();
+
+    void
+    stop         ();
+
+public:
+    void
     set_read_cb  (event_cb &&_cb);
 
     void

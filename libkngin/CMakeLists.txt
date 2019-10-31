@@ -53,7 +53,9 @@ message(STATUS "======================== build start ========================")
 # libraries
 add_library(kngin
             ${KNGIN_CORE_SRC}
-            ${KNGIN_NET_SRC})
+            ${KNGIN_NET_SRC}
+            ${KNGIN_NET_TCP_SRC}
+            ${KNGIN_NET_UDP_SRC})
 
 # link
 if(TARGET pthreadw32)

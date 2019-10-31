@@ -59,18 +59,18 @@ void
 sync_queue_test ()
 {
     sync_queue<string> _q;
-    k::thread t0(std::bind(producer, &_q));
-    k::thread t1(std::bind(producer, &_q));
-    k::thread t2(std::bind(producer, &_q));
-    k::thread t3(std::bind(comsumer, &_q));
-    k::thread t4(std::bind(comsumer, &_q));
-    k::thread t5(std::bind(comsumer, &_q));
-    t0.run();
-    t1.run();
-    t2.run();
-    t3.run();
-    t4.run();
-    t5.run();
+    k::thread t0("");
+    k::thread t1("");
+    k::thread t2("");
+    k::thread t3("");
+    k::thread t4("");
+    k::thread t5("");
+    t0.run(std::bind(producer, &_q));
+    t1.run(std::bind(producer, &_q));
+    t2.run(std::bind(producer, &_q));
+    t3.run(std::bind(comsumer, &_q));
+    t4.run(std::bind(comsumer, &_q));
+    t5.run(std::bind(comsumer, &_q));
     t0.join(NULL);
     t1.join(NULL);
     t2.join(NULL);

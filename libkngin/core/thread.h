@@ -22,14 +22,14 @@ public:
     thread        () = delete;
 
     explicit
-    thread        (thr_fn &&_fn, const char *_name = "");
+    thread        (const char *_name);
 
     virtual
     ~thread       ();
 
 public:
     virtual bool
-    run           ();
+    run           (thr_fn &&_fn);
 
     virtual bool
     join          (int *_err_code);

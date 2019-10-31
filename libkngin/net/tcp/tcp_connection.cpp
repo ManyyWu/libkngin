@@ -12,7 +12,7 @@
 
 __NAMESPACE_BEGIN
 
-tcp_connection (event_loop *_loop, k::socket &&_socket,
+tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
                                 address &&_local_addr, address &&_peer_addr)
     : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
       m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
@@ -28,10 +28,10 @@ tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.set_error_cb(std::bind(&tcp_connection::handle_error, this));
     m_event.set_close_cb(std::bind(&tcp_connection::handle_close, this));
     m_event.set_oob_cb(std::bind(&tcp_connection::handle_oob, this));
-    m_event.update();
+    m_event.start();
 }
 
-~tcp_connection ()
+tcp_connection::~tcp_connection ()
 {
 }
 
@@ -185,7 +185,7 @@ tcp_connection::handle_oob ()
         m_oob_cb(*this, _buf.read_uint8());
     else {
         inet_addrstr _addrstr;
-        log_warning("unhandled oob data from %s:%d", m_local_addr.addrstr(_addrstr), m_local_addr.port());
+        log_warning("unhandled oob data from %s:%hu", m_local_addr.addrstr(_addrstr), m_local_addr.port());
     }
 }
 

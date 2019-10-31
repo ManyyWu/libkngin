@@ -14,16 +14,16 @@
 __NAMESPACE_BEGIN
 
 #ifdef _WIN32
-thread::thread (thr_fn _fn, const char *_name /* = "" */)
+thread::thread (const char *_name /* = "" */)
     : m_name(_name ? _name : ""), m_thr(pthread_t{NULL, 0}),
-      m_retptr(NULL), m_running(false), m_fn(_fn)
+      m_retptr(NULL), m_running(false), m_fn(nullptr)
 #else
-thread::thread (thr_fn &&_fn, const char *_name /* = "" */)
+thread::thread (const char *_name)
     : m_name(_name ? _name : ""), m_thr(0), m_retptr(NULL),
-      m_running(false), m_fn(std::move(_fn))
+      m_running(false), m_fn(nullptr)
 #endif
 {
-    check(m_fn && _name);
+    check(_name);
 }
 
 thread::~thread ()
@@ -44,7 +44,7 @@ thread::~thread ()
 }
 
 bool
-thread::run ()
+thread::run (thr_fn &&_fn)
 {
 #ifdef _WIN32
     check_r0(!m_thr.p);
@@ -52,8 +52,8 @@ thread::run ()
     check_r0(!m_thr);
 #endif
 
-    int _ret = 0;
-    _ret = ::pthread_create(&m_thr, NULL, thread::start, this);
+    m_fn = std::move(_fn);
+    int _ret = ::pthread_create(&m_thr, NULL, thread::start, this);
     if_not (!_ret)
         log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
     m_running = true;
@@ -85,7 +85,7 @@ thread::join (int *_err_code)
     m_thr = 0;
 #endif
     m_running = false;
-    log_info("thread \"%s\" joined with code: %u", m_name.c_str(), (int)(long long)m_retptr);
+    log_info("thread \"%s\" joined with code: %d", m_name.c_str(), (int)(long long)m_retptr);
     return true;
 }
 
@@ -181,7 +181,7 @@ thread::equal_to (pthread_t _t)
 #ifdef _WIN32
     return (m_thr.p == self().p == m_thr.x == self().x);
 #else
-    return (m_thr == self());
+    return (_t == thread::self());
 #endif
 }
 

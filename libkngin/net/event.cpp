@@ -18,25 +18,41 @@ event::event (event_loop *_loop)
         log_fatal("eventfd() error - %s:%d", strerror(errno), errno);
         throw exception("event::event() erorr");
     }
-    m_event.enable_once();
 }
 
 event::~event()
 {
+    m_loop->remove_event(&m_event);
+}
+
+void
+event::start ()
+{
+    m_loop->add_event(&m_event);
+}
+
+void
+event::update ()
+{
+    m_loop->update_event(&m_event);
+}
+
+void
+event::stop ()
+{
+    m_loop->remove_event(&m_event);
 }
 
 void
 event::set_read_cb (event_cb &&_cb)
 {
     m_event.set_read_cb(std::bind(&event::m_read_cb, this));
-    m_loop->add_event(&m_event);
 }
 
 void
 event::set_write_cb (event_cb &&_cb)
 {
     m_event.set_read_cb(std::bind(&event::m_read_cb, this));
-    m_loop->add_event(&m_event);
 }
 
 epoller_event *

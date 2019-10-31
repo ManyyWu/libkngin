@@ -40,10 +40,10 @@ process2 (void *_args)
 extern void
 cond_test ()
 {
-    thread t1(process1, NULL);
-    thread t2(process2, NULL);
-    t1.run();
-    t2.run();
+    thread t1("");
+    thread t2("");
+    t1.run(process1);
+    t2.run(process2);
     t1.join(NULL);
     t2.join(NULL);
 }

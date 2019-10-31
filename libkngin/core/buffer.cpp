@@ -35,7 +35,7 @@ const std::string &
 basic_buffer::dump ()
 {
     m_dump_str.clear();
-    m_dump_str.reserve(m_arr.size() * 1);
+    m_dump_str.reserve(m_arr.size() * 2 + 1);
     for (size_t i = 0; i < m_arr.size(); ++i) {
         char _tmp[3] = {0};
         ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);

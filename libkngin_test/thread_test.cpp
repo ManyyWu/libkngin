@@ -6,8 +6,8 @@ using namespace k;
 
 class mythread : public thread {
 public:
-    mythread (thr_fn &&_fn)
-        : thread(std::move(_fn))
+    mythread ()
+        : thread("")
     {
     }
 
@@ -39,20 +39,20 @@ thread_test ()
 {
     int ret;
 
-    thread t1(thread::process, NULL);
-    t1.run();
+    thread t1("");
+    t1.run(thread::process);
     t1.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);
 
-    thread t2(thread::process, NULL);
-    t2.run();
+    thread t2("");
+    t2.run(thread::process);
     t2.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);
 
-    mythread thr1(mythread::process1);
-    mythread thr2(mythread::process2);
-    thr1.run();
-    thr2.run();
+    mythread thr1;
+    mythread thr2;
+    thr1.run(mythread::process1);
+    thr2.run(mythread::process2);
 
     thr1.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);

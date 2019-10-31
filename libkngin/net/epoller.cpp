@@ -55,6 +55,8 @@ epoller::wait (timestamp _ms, epoller::event_list &_list)
         _list.clear();
         log_debug("no events happend", _num);
     } else {
+        if (EINTR == errno)
+            return 0;
         log_error("::epoll_wait() error - %s:%d", strerror(errno), errno);
     }
     return std::max(_num, 0);
@@ -65,7 +67,7 @@ epoller::close ()
 {
 #ifndef NDEBUG
     if (!m_fd_set.empty())
-        log_warning("there are still have %d undeleted fd in epoller", m_fd_set.size());
+        log_warning("there are still have %" PRIu64 " undeleted fd in epoller", m_fd_set.size());
 #endif
     if (m_epollfd >= 0) {
         if (::close(m_epollfd) < 0)

@@ -16,9 +16,14 @@ epoller_event::epoller_event(event_loop *_loop, filefd *_s)
 }
 
 void
+epoller_event::start ()
+{
+    m_loop->add_event(this);
+}
+
+void
 epoller_event::update ()
 {
-    check(m_loop);
     m_loop->update_event(this);
 }
 

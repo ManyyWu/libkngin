@@ -10,7 +10,7 @@
 __NAMESPACE_BEGIN
 
 class event_loop;
-class epoller_event : noncopyable {
+class epoller_event {
 public:
     typedef std::function<void (void)> epoller_event_cb;
 
@@ -58,6 +58,11 @@ public:
     pollonce       () const    { return (m_flags & EPOLLONESHOT); }
     bool
     pollhup        () const    { return (m_flags & EPOLLHUP); }
+
+public:
+    void
+    start          ();
+
     void
     update         ();
 
@@ -73,7 +78,7 @@ public:
     void
     set_close_cb   (epoller_event_cb &&_fn) { m_closecb = std::move(_fn); m_flags |= EPOLLHUP; }
 
-public:
+protected:
     void
     handle_events  ();
 
@@ -96,6 +101,7 @@ protected:
 
 protected:
     friend class epoller;
+    friend class event_loop;
 };
 
 __NAMESPACE_END

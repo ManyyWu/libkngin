@@ -15,9 +15,8 @@ class exception {
 public:
     exception  () = delete;
 
-public:
     explicit
-    exception  (const char *_what) : m_str(_what) { this->dump_stack(); }
+    exception  (const char *_what);
 
     ~exception () = default;
 

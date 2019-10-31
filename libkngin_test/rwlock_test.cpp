@@ -55,12 +55,12 @@ process3 (void *_args)
 void
 rwlock_test ()
 {
-    thread t1(process1, NULL);
-    thread t2(process2, NULL);
-    thread t3(process3, NULL);
-    t1.run();
-    t2.run();
-    t3.run();
+    thread t1("");
+    thread t2("");
+    thread t3("");
+    t1.run(process1);
+    t2.run(process2);
+    t3.run(process3);
     t1.join(NULL);
     t2.join(NULL);
     t3.join(NULL);

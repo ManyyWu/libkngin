@@ -4,6 +4,8 @@
 #include <new>
 #include <cstdio>
 #include <atomic>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 #include "logfile.h"
 #include "define.h"
 #include "assert.h"
