@@ -162,7 +162,7 @@ tcp_connection::handle_close ()
     m_connected = false; 
     m_event.set_flags(0);
     m_event.update();
-    m_socket.close();
+//    m_socket.close();
     if (m_close_cb)
         m_close_cb(*this);
 }

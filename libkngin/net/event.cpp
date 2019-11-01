@@ -18,6 +18,8 @@ event::event (event_loop *_loop)
         log_fatal("eventfd() error - %s:%d", strerror(errno), errno);
         throw exception("event::event() erorr");
     }
+
+    log_debug("new event, fd = %d", m_fd);
 }
 
 event::~event()

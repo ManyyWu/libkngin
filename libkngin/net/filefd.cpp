@@ -23,7 +23,7 @@ filefd::filefd (int _fd)
 filefd::~filefd()
 {
     if (__fd_valid(m_fd))
-        ::close(m_fd);
+        this->close();
 }
 
 int
@@ -75,10 +75,13 @@ filefd::readv (net_buffer &_buf, size_t _nbytes)
 void
 filefd::close ()
 {
+    log_debug("fd %d is closed", m_fd);
+
     check(__fd_valid(m_fd));
     int _ret = ::close(m_fd);
     if (_ret < 0)
         log_error("::close() error - %s:%d", strerror(errno), errno);
+    m_fd = __INVALID_FD;
 }
 
 bool

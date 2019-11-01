@@ -16,6 +16,8 @@ timer::timer (event_loop *_loop)
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw exception("timer::timer() erorr");
     }
+
+    log_debug("new timer, fd = %d", m_fd);
 }
 
 timer::~timer ()
