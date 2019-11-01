@@ -48,14 +48,14 @@ epoller::wait (timestamp _ms, epoller::event_list &_list)
         if (_list.size() < m_set.size())
             _list.reserve(_num);
         _list.clear();
-        for (auto _iter : m_set) {
-            ((epoller_event *)(_iter.data.ptr))->set_flags(_iter.events);
-            _list.push_back((epoller_event *)(_iter.data.ptr));
+        for (int i = 0; i < _num; i++) {
+            ((epoller_event *)(m_set[i].data.ptr))->set_flags(m_set[i].events);
+            _list.push_back((epoller_event *)(m_set[i].data.ptr));
         }
         log_debug("%d events happend", _num);
     } else if (!_num) {
         _list.clear();
-        log_debug("no events happend", _num);
+        log_debug("no events happend");
     } else {
         if (EINTR == errno)
             return 0;
