@@ -24,25 +24,25 @@ event::event (event_loop *_loop)
 
 event::~event()
 {
-    m_loop->remove_event(&m_event);
+    m_event.remove();
 }
 
 void
 event::start ()
 {
-    m_loop->add_event(&m_event);
+    m_event.start();
 }
 
 void
 event::update ()
 {
-    m_loop->update_event(&m_event);
+    m_event.update();
 }
 
 void
 event::stop ()
 {
-    m_loop->remove_event(&m_event);
+    m_event.stop();
 }
 
 void

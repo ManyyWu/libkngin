@@ -41,13 +41,15 @@ public:
     void
     disable_write  ()          { m_flags &= ~EPOLLOUT; }
     void
-    disable_oob    ()          { m_flags = ~EPOLLPRI; }
+    disable_oob    ()          { m_flags &= ~EPOLLPRI; }
     void
     disable_once   ()          { m_flags &= ~EPOLLONESHOT; }
     void
     disable_close  ()          { m_closecb = nullptr; }
     void
     disable_error  ()          { m_errcb = nullptr; }
+    void
+    disable_all    ()          { m_flags = 0; }
     bool
     pollin         () const    { return (m_flags & EPOLLIN); }
     bool
@@ -66,6 +68,12 @@ public:
     void
     update         ();
 
+    void
+    stop           ();
+
+    void
+    remove         ();
+
 public:
     void
     set_read_cb    (epoller_event_cb &&_fn) { m_incb = std::move(_fn); m_flags |= EPOLLIN; }
@@ -80,14 +88,14 @@ public:
 
 protected:
     void
-    handle_events  ();
+    handle_events  (uint32_t _flags);
 
 protected:
     event_loop *     m_loop;
 
     filefd *         m_filefd;
 
-    int              m_flags;
+    uint32_t         m_flags;
 
     epoller_event_cb m_incb;
 
@@ -98,6 +106,8 @@ protected:
     epoller_event_cb m_pricb;
 
     epoller_event_cb m_closecb;
+
+    epoll_event      m_event;
 
 protected:
     friend class epoller;

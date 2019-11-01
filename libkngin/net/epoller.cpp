@@ -18,7 +18,6 @@ epoller::epoller (event_loop *_loop)
 #ifndef NDEBUG
       m_fd_set(),
 #endif
-      m_set(RESERVE_EPOLLELR_EVENT),
       m_loop(_loop),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
@@ -40,23 +39,11 @@ epoller::~epoller ()
      this->close();
 }
 
-int
-epoller::wait (timestamp _ms, epoller::event_list &_list)
+uint32_t
+epoller::wait (epoller::epoll_event_set &_list, timestamp _ms)
 {
-    int _num = ::epoll_wait(m_epollfd, m_set.data(), (int)m_set.size(), (int)_ms.value_int());
-    if (_num > 0) {
-        if (_list.size() < m_set.size())
-            _list.reserve(_num);
-        _list.clear();
-        for (int i = 0; i < _num; i++) {
-            ((epoller_event *)(m_set[i].data.ptr))->set_flags(m_set[i].events);
-            _list.push_back((epoller_event *)(m_set[i].data.ptr));
-        }
-        log_debug("%d events happend", _num);
-    } else if (!_num) {
-        _list.clear();
-        log_debug("no events happend");
-    } else {
+    int _num = ::epoll_wait(m_epollfd, _list.data(), (int)_list.size(), (int)_ms.value_int());
+    if (_num < 0) {
         if (EINTR == errno)
             return 0;
         log_error("::epoll_wait() error - %s:%d", strerror(errno), errno);
@@ -114,8 +101,8 @@ epoller::update_event (int _opt, epoller_event *_e)
     }
 #endif
 
-    epoll_event _epe = {_epe.events = _e->m_flags, _epe.data.ptr = _e};
-    if (epoll_ctl(m_epollfd, _opt, _fd, &_epe) < 0) {
+    _e->m_event = {_e->m_flags, (void *)(_e)};
+    if (epoll_ctl(m_epollfd, _opt, _fd, &_e->m_event) < 0) {
         log_error("::epoll_ctl() error - %s:%d", strerror(errno), errno);
         return false;
     }

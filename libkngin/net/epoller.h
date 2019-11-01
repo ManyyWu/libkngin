@@ -11,7 +11,7 @@
 #include "timestamp.h"
 #include "epoller_event.h"
 
-#define RESERVE_EPOLLELR_EVENT 32
+#define RESERVED_EPOLLELR_EVENT 32
 
 __NAMESPACE_BEGIN
 
@@ -20,8 +20,6 @@ class epoller : public noncopyable {
 public:
     typedef std::vector<struct epoll_event> epoll_event_set;
 
-    typedef std::vector<epoller_event *>    event_list;
-
 public:
     explicit
     epoller        (event_loop *_loop);
@@ -29,8 +27,8 @@ public:
     ~epoller       ();
 
 public:
-    int
-    wait           (timestamp _ms, epoller::event_list &_list);
+    uint32_t
+    wait           (epoller::epoll_event_set &_list, timestamp _ms);
 
 public:
     bool
@@ -60,8 +58,6 @@ protected:
 #ifndef NDEBUG
     std::set<int>   m_fd_set;
 #endif
-
-    epoll_event_set m_set;
 
     event_loop *    m_loop;
 

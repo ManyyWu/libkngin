@@ -22,6 +22,7 @@ timer::timer (event_loop *_loop)
 
 timer::~timer ()
 {
+    m_event.remove();
 }
 
 void
@@ -30,15 +31,14 @@ timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool 
     m_timeout_cb = std::move(_timeout_cb);
     set_time(_val, _interval, _abs);
     m_event.set_read_cb(std::bind(&timer::m_timeout_cb, this));
-    m_loop->add_event(&m_event);
+    m_event.start();
 }
 
 void
 timer::stop ()
 {
     set_time(0, 0);
-    m_event.disable_read();
-    m_loop->remove_event(&m_event);
+    m_event.stop();
 }
 
 timestamp

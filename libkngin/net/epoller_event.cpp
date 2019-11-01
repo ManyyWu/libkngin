@@ -28,11 +28,24 @@ epoller_event::update ()
 }
 
 void
-epoller_event::handle_events ()
+epoller_event::stop ()
 {
-    log_debug("epoller_event::handle_events() flags = %d", m_flags);
+    disable_all();
+    m_loop->update_event(this);
+}
 
-    if (EPOLLHUP & m_flags) // RST
+void
+epoller_event::remove ()
+{
+    m_loop->remove_event(this);
+}
+
+void
+epoller_event::handle_events (uint32_t _flags)
+{
+//    log_debug("epoller_event::handle_events() flags = %d", m_flags);
+
+    if (EPOLLHUP & _flags) // RST
     {
         m_filefd->close();
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
@@ -40,13 +53,13 @@ epoller_event::handle_events ()
             m_closecb();
         return;
     }
-    if (EPOLLERR & m_flags && m_errcb)
+    if ((EPOLLERR & _flags) && m_errcb)
         m_errcb();
-    if (EPOLLIN & m_flags && m_incb)
+    if ((EPOLLIN & _flags) && m_incb)
         m_incb();
-    if (EPOLLOUT & m_flags && m_outcb)
+    if ((EPOLLOUT & _flags) && m_outcb)
         m_outcb();
-    if (EPOLLPRI & m_flags && m_pricb)
+    if ((EPOLLPRI & _flags) && m_pricb)
         m_pricb();
 }
 

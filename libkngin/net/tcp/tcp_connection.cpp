@@ -28,6 +28,9 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.set_error_cb(std::bind(&tcp_connection::handle_error, this));
     m_event.set_close_cb(std::bind(&tcp_connection::handle_close, this));
     m_event.set_oob_cb(std::bind(&tcp_connection::handle_oob, this));
+    m_event.disable_write();
+    m_event.disable_read();
+    m_event.disable_oob();
     m_event.start();
 }
 
@@ -43,14 +46,15 @@ tcp_connection::send (buffer &&_buf)
     if (m_out_buf.readable())
         return false;
 
+    m_event.enable_write();
+    m_event.update();
+
     m_out_buf.swap(_buf);
     if (m_loop->in_loop_thread()) {
         handle_read();
     } else {
         m_loop->run_in_loop(std::bind(&tcp_connection::handle_write, this));
     }
-    m_event.enable_write();
-    m_event.update();
     return true;
 }
 
@@ -60,14 +64,15 @@ tcp_connection::recv (buffer &_buf)
     check(&_buf);
     check(m_connected);
 
+    m_event.enable_read();
+    m_event.update();
+
     m_in_buf = &_buf;
     if (m_loop->in_loop_thread()) {
         handle_read();
     } else {
         m_loop->run_in_loop(std::bind(&tcp_connection::handle_read, this));
     }
-    m_event.enable_read();
-    m_event.update();
     return true;
 }
 
@@ -75,6 +80,7 @@ void
 tcp_connection::close ()
 { 
     check(m_connected);
+    m_event.stop();
     m_loop->run_in_loop(std::bind(&socket::close, &m_socket));
 }
 
@@ -99,7 +105,7 @@ tcp_connection::handle_write ()
     m_loop->check_thread();
 
     size_t _readable_bytes = m_out_buf.readable();
-    if (!m_event.pollout() || !_readable_bytes)
+    if (m_event.pollout() || !_readable_bytes)
         return;
 
     ssize_t _size = m_socket.write(m_out_buf, _readable_bytes);
@@ -114,7 +120,7 @@ tcp_connection::handle_write ()
         if (m_write_done_cb)
             m_write_done_cb(*this);
     } else {
-        if ((EWOULDBLOCK == _size || EAGAIN == _size) && m_socket.nonblock())
+        if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
         handle_error();
@@ -130,7 +136,7 @@ tcp_connection::handle_read ()
     m_loop->check_thread();
 
     size_t _writeable_bytes = m_in_buf->writeable();
-    if (!m_event.pollout() || !_writeable_bytes)
+    if (m_event.pollin() || !_writeable_bytes)
         return;
 
     ssize_t _size = m_socket.read(*m_in_buf, _writeable_bytes);
@@ -145,7 +151,7 @@ tcp_connection::handle_read ()
         if (m_read_done_cb)
             m_read_done_cb(*this, *m_in_buf, m_in_buf->readable());
     } else {
-        if ((EWOULDBLOCK == _size || EAGAIN == _size) && m_socket.nonblock())
+        if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
         handle_error();
@@ -160,8 +166,8 @@ tcp_connection::handle_close ()
     m_loop->check_thread();
 
     m_connected = false; 
-    m_event.set_flags(0);
-    m_event.update();
+//    m_event.disable_all(); // fd have been closed
+//    m_event.update();
 //    m_socket.close();
     if (m_close_cb)
         m_close_cb(*this);

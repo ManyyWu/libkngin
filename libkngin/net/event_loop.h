@@ -72,19 +72,21 @@ protected:
     handle_wakeup  ();
 
 protected:
-    waker                 m_waker;
+    waker                    m_waker;
 
-    thread *              m_thr;
+    thread *                 m_thr;
 
-    mutex                 m_mutex;
+    mutex                    m_mutex;
 
-    epoller               m_epoller;
+    epoller                  m_epoller;
 
-    std::atomic<bool>     m_looping;
+    std::atomic<bool>        m_looping;
 
-    std::atomic<bool>     m_stop;
+    std::atomic<bool>        m_stop;
 
-    std::deque<queued_fn> m_fnq;
+    std::deque<queued_fn>    m_fnq;
+
+    epoller::epoll_event_set m_events;
 };
 
 __NAMESPACE_END

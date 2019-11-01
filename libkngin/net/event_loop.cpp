@@ -19,12 +19,15 @@ event_loop::event_loop (thread *_thr)
       m_epoller(this),
       m_looping(false),
       m_stop(false),
-      m_fnq()
+      m_fnq(),
+      m_events(RESERVED_EPOLLELR_EVENT)
 {
     check(__fd_valid(m_waker.fd()));
     check(_thr);
 
     m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this));
+    m_waker.set_nonblock(true);
+    m_waker.set_closeexec(true);
     m_waker.start();
 } catch (...) {
     log_fatal("event_loop::event_loop() error");
@@ -42,29 +45,29 @@ event_loop::loop ()
     check_thread();
     m_looping = true;
 
-    epoller::event_list _events;
-    while (!m_stop) {
-        _events.clear();
+    try {
+        while (!m_stop) {
+            // wait for events
+            uint32_t _size = m_epoller.wait(m_events, EPOLLER_TIMEOUT);
+            log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
+                      m_thr->name(), _size);
 
-        // wait for events
-        m_epoller.wait(EPOLLER_TIMEOUT, _events);
-        log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
-                  m_thr->name(), _events.size());
+            // process events
+            for (uint32_t i = 0; i < _size; i++)
+                ((epoller_event *)(m_events[i].data.ptr))->handle_events(m_events[i].events);
 
-        // process events
-        for (auto _iter : _events)
-            _iter->handle_events();
-            
-        // process queued events
-        std::deque<queued_fn> _fnq;
-        {
-            local_lock _lock(m_mutex);
-            _fnq.swap(m_fnq);
+            // process queued events
+            std::deque<queued_fn> _fnq;
+            {
+                local_lock _lock(m_mutex);
+                _fnq.swap(m_fnq);
+            }
+            for (auto _iter : _fnq)
+                _iter();
         }
-        for (auto _iter : _fnq) {
-            _iter();
-        }
-        _fnq.clear();
+    } catch (...) {
+        m_looping = false;
+        throw;
     }
 
     m_looping = false;
