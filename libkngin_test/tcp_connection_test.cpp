@@ -148,8 +148,8 @@ public:
                 inet_addrstr _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
-                        _conn.peer_addr().addrstr(_client_addr_str), _port,
-                        _buf.dump().c_str(), _size);
+                         _conn.peer_addr().addrstr(_client_addr_str), _port,
+                         _buf.dump().c_str(), _size);
                 buffer _outbuf(4);
                 _outbuf.write_uint32(_port);
                 check(_conn.send(std::move(_outbuf)));
