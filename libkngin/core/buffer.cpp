@@ -11,6 +11,26 @@
 
 __NAMESPACE_BEGIN
 
+basic_buffer::basic_buffer (const uint8_arr &_arr, size_t _reserve /* = 0 */)
+    try
+    : m_arr(_arr), m_widx(0), m_ridx(0)
+{
+    m_arr.resize(std::max(_reserve, _arr.size()));
+} catch (...) {
+    log_fatal("basic_buffer::basic_buffer() error");
+    throw;
+}
+
+basic_buffer::basic_buffer (uint8_arr &&_arr, size_t _reserve /* = 0 */)
+    try
+    : m_arr(std::move(_arr)), m_widx(0), m_ridx(0)
+{
+    m_arr.resize(std::max(_reserve, m_arr.size()));
+} catch (...) {
+    log_fatal("basic_buffer::basic_buffer() error");
+    throw;
+}
+
 size_t
 basic_buffer::read_bytes (uint8_t *_p, size_t _n)
 {

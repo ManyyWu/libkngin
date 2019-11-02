@@ -22,12 +22,10 @@ public:
     basic_buffer  (const basic_buffer &) = delete;
 
 protected:
-    basic_buffer  (const uint8_arr &_arr, size_t _reserve = 0)
-        : m_arr(_arr), m_widx(0), m_ridx(0)
-    { m_arr.resize(std::max(_reserve, _arr.size())); }
-    basic_buffer  (uint8_arr &&_arr, size_t _reserve = 0)
-        : m_arr(std::move(_arr)), m_widx(0), m_ridx(0)
-    { m_arr.resize(std::max(_reserve, m_arr.size())); }
+    basic_buffer  (const uint8_arr &_arr, size_t _reserve = 0);
+
+    basic_buffer  (uint8_arr &&_arr, size_t _reserve = 0);
+
     ~basic_buffer () = default;
 
 public:

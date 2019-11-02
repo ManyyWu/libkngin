@@ -26,7 +26,7 @@ event_loop::event_loop (thread *_thr)
     check(_thr);
 
     m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this));
-    m_waker.set_nonblock(true);
+    m_waker.set_nonblock(false);
     m_waker.set_closeexec(true);
     m_waker.start();
 } catch (...) {
@@ -36,7 +36,6 @@ event_loop::event_loop (thread *_thr)
 
 event_loop::~event_loop ()
 {
-    m_waker.stop();
 }
 
 int
@@ -64,21 +63,27 @@ event_loop::loop ()
             }
             for (auto _iter : _fnq)
                 _iter();
+            log_debug("handled %" PRIu64 " queued functions", _fnq.size());
         }
     } catch (...) {
         m_looping = false;
+        m_waker.stop();
+        m_epoller.close();
         throw;
     }
 
     m_looping = false;
+    m_waker.stop();
+    m_epoller.close();
     return 0;
 }
 
 void
 event_loop::stop ()
 {
+    check(m_looping);
     m_stop = true;
-    if (!in_loop_thread())
+//    if (!in_loop_thread())
         wakeup();
 }
 
@@ -104,6 +109,8 @@ bool
 event_loop::add_event (epoller_event *_e)
 {
     check(_e);
+    //check(m_looping);
+
     bool _ret = m_epoller.register_event(_e);
     if (!_ret)
         log_fatal("epoller::register_event() erorr");
@@ -116,6 +123,8 @@ bool
 event_loop::remove_event (epoller_event *_e)
 {
     check(_e);
+    //check(m_looping);
+
     bool _ret = m_epoller.remove_event(_e);
     if (!_ret)
         log_fatal("epoller::remove_event() erorr");
@@ -128,6 +137,8 @@ bool
 event_loop::update_event (epoller_event *_e)
 {
     check(_e);
+    //check(m_looping);
+
     bool _ret = m_epoller.modify_event(_e);
     if (!_ret)
         log_fatal("epoller::modify_event() erorr");
@@ -139,6 +150,8 @@ event_loop::update_event (epoller_event *_e)
 void
 event_loop::run_in_loop (event_loop::queued_fn &&_fn)
 {
+    check(m_looping);
+
     {
         local_lock _lock(m_mutex);
         m_fnq.push_back(_fn);
@@ -152,10 +165,11 @@ void
 event_loop::wakeup ()
 {
     check(m_looping);
+    log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
 
     buffer _val(8);
     _val.write_uint64(1);
-    ssize_t _ret = m_waker.write(_val, sizeof(_val));
+    ssize_t _ret = m_waker.write(_val, 8);
     if (_ret < 0)
         log_error("event_loop::wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
@@ -168,7 +182,7 @@ event_loop::handle_wakeup ()
     check(m_looping);
 
     buffer _val(8);
-    ssize_t _ret = m_waker.read(_val, sizeof(_val));
+    ssize_t _ret = m_waker.read(_val, 8);
     if (_ret < 0)
         log_error("event_loop::handle_wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))

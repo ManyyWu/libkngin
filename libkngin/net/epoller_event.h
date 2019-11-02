@@ -47,8 +47,6 @@ public:
     void
     disable_close  ()          { m_closecb = nullptr; }
     void
-    disable_error  ()          { m_errcb = nullptr; }
-    void
     disable_all    ()          { m_flags = 0; }
     bool
     pollin         () const    { return (m_flags & EPOLLIN); }
@@ -58,8 +56,6 @@ public:
     pollpri        () const    { return (m_flags & EPOLLPRI); }
     bool
     pollonce       () const    { return (m_flags & EPOLLONESHOT); }
-    bool
-    pollhup        () const    { return (m_flags & EPOLLHUP); }
 
 public:
     void

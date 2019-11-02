@@ -8,9 +8,9 @@
 __NAMESPACE_BEGIN
 
 epoller_event::epoller_event(event_loop *_loop, filefd *_s)
-    : m_loop(_loop), m_filefd(_s), m_flags(0),
+    : m_loop(_loop), m_filefd(_s), m_flags(EPOLLHUP | EPOLLERR),
       m_incb(nullptr), m_outcb(nullptr), m_errcb(nullptr),
-      m_pricb(nullptr), m_closecb(nullptr)
+      m_pricb(nullptr), m_closecb(nullptr), m_event({0, NULL})
 {
     check(_loop && _s);
 }
@@ -47,10 +47,11 @@ epoller_event::handle_events (uint32_t _flags)
 
     if (EPOLLHUP & _flags) // RST
     {
-        m_filefd->close();
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
         if (m_closecb)
             m_closecb();
+        else
+            m_filefd->close();
         return;
     }
     if ((EPOLLERR & _flags) && m_errcb)

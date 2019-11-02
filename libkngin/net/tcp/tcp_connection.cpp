@@ -14,6 +14,7 @@ __NAMESPACE_BEGIN
 
 tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
                                 address &&_local_addr, address &&_peer_addr)
+    try
     : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
       m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
       m_write_done_cb(nullptr), m_read_done_cb(nullptr), m_oob_cb(nullptr), m_close_cb(nullptr),
@@ -32,6 +33,9 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.disable_read();
     m_event.disable_oob();
     m_event.start();
+} catch (...) {
+    log_fatal("tcp_connection::tcp_connection() error");
+    throw;
 }
 
 tcp_connection::~tcp_connection ()
@@ -50,11 +54,10 @@ tcp_connection::send (buffer &&_buf)
     m_event.update();
 
     m_out_buf.swap(_buf);
-    if (m_loop->in_loop_thread()) {
+    if (m_loop->in_loop_thread())
         handle_write();
-    } else {
+    else
         m_loop->run_in_loop(std::bind(&tcp_connection::handle_write, this));
-    }
     return true;
 }
 
@@ -68,11 +71,10 @@ tcp_connection::recv (buffer &_buf)
     m_event.update();
 
     m_in_buf = &_buf;
-    if (m_loop->in_loop_thread()) {
+    if (m_loop->in_loop_thread())
         handle_read();
-    } else {
+    else
         m_loop->run_in_loop(std::bind(&tcp_connection::handle_read, this));
-    }
     return true;
 }
 
@@ -80,22 +82,30 @@ void
 tcp_connection::close ()
 { 
     check(m_connected);
-    m_event.stop();
-    m_loop->run_in_loop(std::bind(&socket::close, &m_socket));
+    if (m_loop->in_loop_thread())
+       handle_close();
+    else
+        m_loop->run_in_loop(std::bind(&tcp_connection::handle_close, this));
 }
 
 void
 tcp_connection::rd_shutdown ()
 {
     check(m_connected);
-    m_loop->run_in_loop(std::bind(&socket::rd_shutdown, &m_socket));
+    if (m_loop->in_loop_thread())
+        m_socket.rd_shutdown();
+    else
+        m_loop->run_in_loop(std::bind(&socket::rd_shutdown, &m_socket));
 }
 
 void
 tcp_connection::wr_shutdown ()
 {
     check(m_connected);
-    m_loop->run_in_loop(std::bind(&socket::wr_shutdown, &m_socket));
+    if (m_loop->in_loop_thread())
+        m_socket.wr_shutdown();
+    else
+        m_loop->run_in_loop(std::bind(&socket::wr_shutdown, &m_socket));
 }
 
 void
@@ -165,12 +175,11 @@ tcp_connection::handle_close ()
     check(m_connected);
     m_loop->check_thread();
 
-    m_connected = false; 
-//    m_event.disable_all(); // fd have been closed
-//    m_event.update();
-//    m_socket.close();
     if (m_close_cb)
         m_close_cb(*this);
+    m_event.remove();
+    m_socket.close();
+    m_connected = false;
 }
 
 void

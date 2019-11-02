@@ -42,11 +42,13 @@ protected:
     set_time     (timestamp _val, timestamp _interval, bool _abs = false);
 
 protected:
-    event_loop *  m_loop;
+    event_loop *      m_loop;
 
-    timer_cb      m_timeout_cb;
+    timer_cb          m_timeout_cb;
 
-    epoller_event m_event;
+    epoller_event     m_event;
+
+    std::atomic<bool> m_stopped;
 };
 
 __NAMESPACE_END

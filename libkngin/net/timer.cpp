@@ -9,7 +9,8 @@ __NAMESPACE_BEGIN
 timer::timer (event_loop *_loop)
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
-      m_event(_loop, this)
+      m_event(_loop, this),
+      m_stopped(false)
 {
     check(_loop);
     if (__fd_valid(m_fd)) {
@@ -22,12 +23,14 @@ timer::timer (event_loop *_loop)
 
 timer::~timer ()
 {
-    m_event.remove();
+    if (!m_stopped)
+        m_event.remove();
 }
 
 void
 timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
+    check(!m_stopped);
     m_timeout_cb = std::move(_timeout_cb);
     set_time(_val, _interval, _abs);
     m_event.set_read_cb(std::bind(&timer::m_timeout_cb, this));
@@ -37,14 +40,18 @@ timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool 
 void
 timer::stop ()
 {
+    check(!m_stopped);
     set_time(0, 0);
-    m_event.stop();
+    m_event.remove();
+    close();
+    m_stopped = true;
 }
 
 timestamp
 timer::get_time ()
 {
     check(__fd_valid(m_fd));
+    check(!m_stopped);
 
     itimerspec _its;
     int _ret = timerfd_gettime(m_fd, &_its);
@@ -63,6 +70,7 @@ void
 timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
     check(__fd_valid(m_fd));
+    check(!m_stopped);
 
     itimerspec _its;
     _val.to_timespec(_its.it_value);

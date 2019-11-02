@@ -11,7 +11,8 @@ __NAMESPACE_BEGIN
 event::event (event_loop *_loop)
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(_loop),
-      m_event(_loop, this)
+      m_event(_loop, this),
+      m_stopped(false)
 {
     check(_loop);
     if (__fd_invalid(m_fd)) {
@@ -19,30 +20,36 @@ event::event (event_loop *_loop)
         throw exception("event::event() erorr");
     }
 
-    log_debug("new event, fd = %d", m_fd);
+    //log_debug("new event, fd = %d", m_fd);
 }
 
 event::~event()
 {
-    m_event.remove();
+    if (!m_stopped)
+        m_event.remove();
 }
 
 void
 event::start ()
 {
+    check(!m_stopped);
     m_event.start();
 }
 
 void
 event::update ()
 {
+    check(!m_stopped);
     m_event.update();
 }
 
 void
 event::stop ()
 {
-    m_event.stop();
+    check(!m_stopped);
+    m_event.remove();
+    close();
+    m_stopped = true;
 }
 
 void

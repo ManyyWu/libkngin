@@ -75,7 +75,7 @@ filefd::readv (net_buffer &_buf, size_t _nbytes)
 void
 filefd::close ()
 {
-    log_debug("fd %d is closed", m_fd);
+    //log_debug("fd %d is closed", m_fd);
 
     check(__fd_valid(m_fd));
     int _ret = ::close(m_fd);

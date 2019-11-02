@@ -32,7 +32,7 @@ client (void *_args)
         buffer _buf(4);
         if (_server_sock.read(_buf, _buf.writeable()) < 0)
             log_error("%s", strerror(errno));
-        log_info("myport %s", _buf.peek_int32());
+        log_info("read integer %s", _buf.peek_int32());
     }
     std::cerr << "> ";
     std::cin >> _reply;
@@ -89,9 +89,9 @@ server (void *_args)
             if (_buf.peek_int32() == 0)
                 _ok = false;
             log_info("read integer %d from client %s:%d",
-                    _buf.peek_int32(),
-                    _client_addr.addrstr(_client_addr_str),
-                    _client_addr.port());
+                     _buf.peek_int32(),
+                     _client_addr.addrstr(_client_addr_str),
+                     _client_addr.port());
         }
         _client_sock.close();
     }

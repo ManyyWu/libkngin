@@ -30,17 +30,17 @@ client (void *_args)
 close:
         _server_sock.close();
         log_info("c: client closed");
+        return 0;
     }
-    log_info("c: connected");
 
     int _reply = 0;
-    std::cerr << "> ";
+    std::cerr << "> " << std::endl;
     std::cin >> _reply;
     // write
     {
         buffer _buf(4);
         _buf.write_int32(_reply);
-        if (_server_sock.write(_buf, _buf.readable()) < 0) {
+        if (_server_sock.write(_buf, _buf.readable()) <= 0) {
                     log_error("c: %s", strerror(errno));
             goto close;
         }
@@ -56,21 +56,10 @@ close:
         }
         if (!_ret)
             goto close;
-        log_info("c: port %d", _buf.peek_int32());
+        log_info("c: read integer %d", _buf.peek_int32());
     }
 
     return 0;
-}
-
-static int
-client_mgr (void *_args)
-{
-    thread::sleep(1000);
-    for (int i = 0; i< 100; i++) {
-        k::thread _client_thr("client");
-        _client_thr.run(std::bind(client, (void *)1));
-        _client_thr.join(NULL);
-    }
 }
 
 class mythread : public thread {
@@ -106,7 +95,14 @@ public:
     bool
     connected ()
     {
-        return (looping() && m_conn);
+        return (m_conn && m_conn->connected() && looping());
+    }
+
+    bool
+    stop ()
+    {
+        check(looping());
+        m_loop->stop();
     }
 
 public:
@@ -146,6 +142,8 @@ public:
             tcp_connection _conn(&_loop, std::move(_client_sock),
                                  std::move(address(_server_addr)), std::move(address(_client_addr)));
             _thr->m_conn = &_conn;
+
+            // set callback
             _conn.set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
                 inet_addrstr _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
@@ -154,30 +152,33 @@ public:
                         _buf.dump().c_str(), _size);
                 buffer _outbuf(4);
                 _outbuf.write_uint32(_port);
-                _conn.send(std::move(_outbuf));
+                check(_conn.send(std::move(_outbuf)));
             });
             _conn.set_write_done_cb([] (tcp_connection &_conn) {
                 inet_addrstr _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
-                log_info("s: write done: to %s:%d",
+                log_info("s: on_write_done: to %s:%d",
                          _conn.peer_addr().addrstr(_client_addr_str), _port);
+                _conn.close();
             });
             _conn.set_close_cb([] (tcp_connection &_conn) {
-                log_info("s: close: fd = %d", _conn.socket().fd());
+                log_info("s: on_close: fd = %d", _conn.socket().fd());
             });
 
             // loop
             _loop.loop();
+            _thr->m_conn = NULL;
         } catch (...) {
             _thr->m_loop = NULL;
             throw;
         }
+        _thr->m_loop = NULL;
+        return 0;
     }
 
 protected:
     bool
-    run ()
-    {}
+    run () {}
 
 protected:
     event_loop *    m_loop;
@@ -189,18 +190,19 @@ void
 tcp_connection_test ()
 {
     mythread _server_thr;
-    thread _client_mgr("client mgr");
-    _client_mgr.run(client_mgr);
-
-    while (!_server_thr.looping())
-        thread::sleep(100);
+    thread _client("client");
+    thread::sleep(1000);
+    _client.run(std::bind(&client, nullptr));
     while (!_server_thr.connected())
         thread::sleep(100);
+
     tcp_connection *_conn = _server_thr.get_conn();
-
     buffer _inbuf(4);
-    _conn->recv(_inbuf);
+    check(_conn->recv(_inbuf));
 
-    _client_mgr.join(NULL);
+    while (_server_thr.connected())
+        thread::sleep(100);
+    _server_thr.stop();
+    _client.join(NULL);
     _server_thr.join(NULL);
 }
