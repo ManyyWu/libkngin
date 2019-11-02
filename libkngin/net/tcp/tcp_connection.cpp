@@ -51,7 +51,7 @@ tcp_connection::send (buffer &&_buf)
 
     m_out_buf.swap(_buf);
     if (m_loop->in_loop_thread()) {
-        handle_read();
+        handle_write();
     } else {
         m_loop->run_in_loop(std::bind(&tcp_connection::handle_write, this));
     }
@@ -105,7 +105,7 @@ tcp_connection::handle_write ()
     m_loop->check_thread();
 
     size_t _readable_bytes = m_out_buf.readable();
-    if (m_event.pollout() || !_readable_bytes)
+    if (!m_event.pollout() || !_readable_bytes)
         return;
 
     ssize_t _size = m_socket.write(m_out_buf, _readable_bytes);
@@ -136,7 +136,7 @@ tcp_connection::handle_read ()
     m_loop->check_thread();
 
     size_t _writeable_bytes = m_in_buf->writeable();
-    if (m_event.pollin() || !_writeable_bytes)
+    if (!m_event.pollin() || !_writeable_bytes)
         return;
 
     ssize_t _size = m_socket.read(*m_in_buf, _writeable_bytes);

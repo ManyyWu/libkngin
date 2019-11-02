@@ -24,6 +24,11 @@
 ### 2. 内存
 ## 所有堆内存使用智能指针管理
 
+### 3. 调试
+## VS-Linux
+1. vs无法加载缓存: cmake-缓存-生成-libkngin_test
+2. 虚拟机libkngin/build中make
+
 ### To do 
 1. 日志目录从配置文件读
 2. 日志类型和前缀从配置文件读, 不同worker使用不同文件名
