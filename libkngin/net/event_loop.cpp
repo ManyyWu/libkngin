@@ -2,6 +2,7 @@
 #include <functional>
 #include <unistd.h>
 #include "define.h"
+#include "common.h"
 #include "errno.h"
 #include "event_loop.h"
 #include "local_lock.h"
@@ -41,18 +42,25 @@ event_loop::event_loop (thread *_thr)
 
 event_loop::~event_loop ()
 {
+    log_debug("wait for loop in thread \"%s\" to end", m_thr->name());
+    while (m_looping);
+    log_debug("loop in thread \"%s\" closed", m_thr->name());
 }
 
 int
-event_loop::loop ()
+event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
 {
     check_thread();
     m_looping = true;
+    if (_start_cb)
+        _start_cb(this);
 
     try {
         while (!m_stop) {
             // wait for events
             uint32_t _size = m_epoller.wait(m_events, EPOLLER_TIMEOUT);
+            if (m_stop)
+                break;
             log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
                       m_thr->name(), _size);
 
@@ -72,16 +80,18 @@ event_loop::loop ()
             log_debug("handled %" PRIu64 " queued functions", _fnq.size());
         }
     } catch (...) {
-        m_looping = false;
         m_waker.stop();
-        m_epoller.close();
+        m_looping = false;
+        if (_stop_cb)
+            _stop_cb();
         log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
     }
 
-    m_looping = false;
     m_waker.stop();
-    m_epoller.close();
+    m_looping = false;
+    if (_stop_cb)
+        _stop_cb();
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
     return 0;
 }
@@ -91,7 +101,7 @@ event_loop::stop ()
 {
     check(m_looping);
     m_stop = true;
-//    if (!in_loop_thread())
+    if (!in_loop_thread())
         wakeup();
 }
 
@@ -174,6 +184,8 @@ event_loop::wakeup ()
 {
     check(m_looping);
     log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
+    if (m_waker.stopped())
+        return;
 
     buffer _val(8);
     _val.write_uint64(1);
@@ -189,6 +201,8 @@ event_loop::handle_wakeup (event &_e)
 {
     check(m_looping);
     log_debug("handled wakeup event_loop in thread \"%s\"", m_thr->name());
+    if (m_waker.stopped())
+        return;
 
     buffer _val(8);
     ssize_t _ret = _e.read(_val, 8); // blocked

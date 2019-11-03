@@ -6,7 +6,9 @@
 #include <unistd.h>
 #endif
 #include "define.h"
+#include "common.h"
 #include "error.h"
+#include "timestamp.h"
 #include "exception.h"
 #include "thread.h"
 #include "logfile.h"

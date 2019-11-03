@@ -69,7 +69,6 @@ close:
 
 class mythread : public thread {
 public:
-    explicit
     mythread ()
         : thread("server"),
           m_loop(nullptr),

@@ -3,8 +3,6 @@
 
 #include <cstdint>
 #include "define.h"
-#include "common.h"
-#include "noncopyable.h"
 
 #define MAX_MSG_SIZE      8192U
 #define MAX_MSG           0x7fffffffU
@@ -17,8 +15,10 @@
 __NAMESPACE_BEGIN
 
 class task_base;
-class msg : public noncopyable {
+class msg {
 public:
+    msg () = delete;
+
     explicit
     msg (task_base *task);
 

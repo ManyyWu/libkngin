@@ -2,7 +2,9 @@
 #include <ctime>
 #include <atomic>
 #include <mutex>
+#include "define.h"
 #include "thread.h"
+#include "common.h"
 #include "lock.h"
 
 #ifdef __FILENAME__

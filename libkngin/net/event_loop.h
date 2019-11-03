@@ -4,7 +4,6 @@
 #include <functional>
 #include <deque>
 #include "define.h"
-#include "noncopyable.h"
 #include "epoller.h"
 #include "epoller_event.h"
 #include "mutex.h"
@@ -20,11 +19,15 @@
 
 __NAMESPACE_BEGIN
 
-class event_loop : noncopyable {
+class event_loop {
 public:
-    typedef std::function<void (void)> queued_fn;
+    typedef std::function<void (event_loop *)> loop_started_cb;
 
-    typedef event                      waker;
+    typedef std::function<void (void)>         loop_stopped_cb;
+
+    typedef std::function<void (void)>         queued_fn;
+
+    typedef event                              waker;
 
 public:
     event_loop     () = delete;
@@ -36,7 +39,7 @@ public:
 
 public:
     int
-    loop           ();
+    loop           (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb);
 
     void
     stop           ();

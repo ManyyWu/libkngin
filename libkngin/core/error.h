@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cerrno>
 #include "define.h"
-#include "copyable.h"
+#include "timestamp.h"
 
 __NAMESPACE_BEGIN
 

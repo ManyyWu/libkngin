@@ -27,11 +27,11 @@ __NAMESPACE_BEGIN
  *
  * __e: expression
  */
-#define arg_check(__e)  if (!(__e) ? (assert_log(invalid argument, expression (__e) is false), assert((__e)), true) : false)
-#define if_not(__e)     if (!(__e) ? (assert_log(expression (__e) is false), assert((__e)), true) : false)
-#define check(__e)    do { if_not(__e) (void)0; } while (false)
-#define check_r(__e)  if_not(__e) return
-#define check_r0(__e) if_not(__e) return 0
+#define arg_check(__e) if (!(__e) ? (assert_log(invalid argument, expression (__e) is false), assert((__e)), true) : false)
+#define if_not(__e)    if (!(__e) ? (assert_log(expression (__e) is false), assert((__e)), true) : false)
+#define check(__e)     do { if_not(__e) (void)0; } while (false)
+#define check_r(__e)   if_not(__e) return
+#define check_r0(__e)  if_not(__e) return 0
 
 /*
 * nullptr reference

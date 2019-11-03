@@ -9,8 +9,7 @@
 #include <atomic>
 #include <functional>
 #include "define.h"
-#include "common.h"
-#include "noncopyable.h"
+#include "timestamp.h"
 
 __NAMESPACE_BEGIN
 

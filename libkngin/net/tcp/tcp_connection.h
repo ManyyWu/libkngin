@@ -27,9 +27,9 @@ public:
 
     typedef std::function<void (tcp_connection &)>                   close_cb;
 
-    typedef std::function<void (void)>                               writeable_cb;
+    //typedef std::function<void (void)>                               writeable_cb;
 
-    typedef std::function<void (void)>                               readable_cb;
+    //typedef std::function<void (void)>                               readable_cb;
 
 public:
     tcp_connection  () = delete;

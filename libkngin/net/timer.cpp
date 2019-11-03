@@ -53,7 +53,6 @@ timer::stop ()
     check(!m_stopped);
     set_time(0, 0);
     m_event.remove();
-    close();
     m_stopped = true;
 }
 
@@ -91,6 +90,12 @@ epoller_event *
 timer::get_event ()
 {
     return &m_event;
+}
+
+bool
+timer::stopped ()
+{
+    return m_stopped;
 }
 
 void

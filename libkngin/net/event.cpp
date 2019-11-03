@@ -55,7 +55,6 @@ event::stop ()
 {
     check(!m_stopped);
     m_event.remove();
-    close();
     m_stopped = true;
 }
 
@@ -77,6 +76,12 @@ epoller_event *
 event::get_event ()
 {
     return &m_event;
+}
+
+bool
+event::stopped ()
+{
+    return m_stopped;
 }
 
 void

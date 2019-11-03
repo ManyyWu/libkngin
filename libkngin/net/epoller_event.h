@@ -4,7 +4,6 @@
 #include <functional>
 #include <sys/epoll.h>
 #include "define.h"
-#include "noncopyable.h"
 #include "filefd.h"
 
 __NAMESPACE_BEGIN
@@ -21,7 +20,7 @@ public:
 
     epoller_event  (event_loop *_loop, filefd *_s);
 
-    ~epoller_event () = default;
+    ~epoller_event ();
 
 public:
     void
@@ -47,7 +46,7 @@ public:
     void
     disable_close  ()          { m_closecb = nullptr; }
     void
-    disable_all    ()          { m_flags = 0; }
+    disable_all    ()          { m_flags = EPOLLHUP | EPOLLERR; }
     bool
     pollin         () const    { return (m_flags & EPOLLIN); }
     bool
@@ -56,6 +55,8 @@ public:
     pollpri        () const    { return (m_flags & EPOLLPRI); }
     bool
     pollonce       () const    { return (m_flags & EPOLLONESHOT); }
+    bool
+    registed       () const    { return m_registed; }
 
 public:
     void
@@ -87,23 +88,25 @@ protected:
     handle_events  (uint32_t _flags);
 
 protected:
-    event_loop *     m_loop;
+    event_loop *      m_loop;
 
-    filefd *         m_filefd;
+    filefd *          m_filefd;
 
-    uint32_t         m_flags;
+    uint32_t          m_flags;
 
-    epoller_event_cb m_incb;
+    epoller_event_cb  m_incb;
 
-    epoller_event_cb m_outcb;
+    epoller_event_cb  m_outcb;
 
-    epoller_event_cb m_errcb;
+    epoller_event_cb  m_errcb;
 
-    epoller_event_cb m_pricb;
+    epoller_event_cb  m_pricb;
 
-    epoller_event_cb m_closecb;
+    epoller_event_cb  m_closecb;
 
-    epoll_event      m_event;
+    epoll_event       m_event;
+
+    std::atomic<bool> m_registed;
 
 protected:
     friend class epoller;

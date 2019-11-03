@@ -11,7 +11,6 @@
 #include <limits>
 #include <algorithm>
 #include "define.h"
-#include "copyable.h"
 
 __NAMESPACE_BEGIN
 

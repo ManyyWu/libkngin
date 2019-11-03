@@ -11,6 +11,11 @@
 #define __set_bit(__t, __v, __p)    ((bool)(((__t)1 << (__t)(__p)) | (__t)(__v)))
 #define __clear_bit(__t, __v, __p)  ((bool)(~((__t)1 << (__t)(__p)) & (__t)(__v)))
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/bits.cpp"
+
 __NAMESPACE_BEGIN
 
 template<typename __T>

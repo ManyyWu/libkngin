@@ -31,7 +31,7 @@ typedef SSIZE_T ssize_t;
 #pragma warning(disable: 4996)
 #endif
 
-// redefine __FILE__
-#define __REDEFINE_FILE(_f) static const char *__file__ = (_f);
+// for log
+//#define __LOG_RELATIVE_PATH
 
 #endif /* _DEFINE_H_ */

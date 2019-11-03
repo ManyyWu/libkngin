@@ -3,7 +3,6 @@
 
 #include <list>
 #include "define.h"
-#include "noncopyable.h"
 #include "buffer.h"
 #include "net_buffer.h"
 

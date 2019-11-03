@@ -4,7 +4,6 @@
 #include <functional>
 #include <atomic>
 #include "define.h"
-#include "noncopyable.h"
 #include "filefd.h"
 #include "epoller_event.h"
 
@@ -44,6 +43,9 @@ public:
 public:
     epoller_event *
     get_event    ();
+
+    bool
+    stopped      ();
 
 protected:
     void

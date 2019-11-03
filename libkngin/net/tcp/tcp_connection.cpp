@@ -45,6 +45,8 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
 
 tcp_connection::~tcp_connection ()
 {
+    if (m_connected)
+        this->close();
 }
 
 bool
@@ -86,7 +88,7 @@ tcp_connection::close ()
 { 
     check(m_connected);
     if (m_loop->in_loop_thread())
-       handle_close();
+        handle_close();
     else
         m_loop->run_in_loop(std::bind(&tcp_connection::handle_close, this));
 }
@@ -214,8 +216,10 @@ tcp_connection::handle_error()
     m_loop->check_thread();
 
     int _err_code = 0;
-    sockopts::error(m_socket, _err_code);
-    log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
+    if (!sockopts::error(m_socket, _err_code))
+        log_error("sockopts::error() error");
+    else
+        log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
     m_loop->run_in_loop(std::bind(&tcp_connection::handle_close, this));
 }
 

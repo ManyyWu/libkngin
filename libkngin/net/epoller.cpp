@@ -47,6 +47,7 @@ epoller::~epoller ()
 uint32_t
 epoller::wait (epoller::epoll_event_set &_list, timestamp _ms)
 {
+    check(__fd_valid(m_epollfd));
     int _num = ::epoll_wait(m_epollfd, _list.data(), (int)_list.size(), (int)_ms.value_int());
     if (_num < 0) {
         if (EINTR == errno)
@@ -67,7 +68,7 @@ epoller::close ()
 #endif
     if (__fd_valid(m_epollfd)) {
         if (::close(m_epollfd) < 0)
-            log_error("::close() error - %s:%d", strerror(errno), errno);
+                    log_error("::close() error - %s:%d", strerror(errno), errno);
         m_epollfd = __INVALID_FD;
     }
 }

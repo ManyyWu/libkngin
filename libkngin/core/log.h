@@ -4,7 +4,6 @@
 #include <cstdarg>
 #include "define.h"
 #include "mutex.h"
-#include "noncopyable.h"
 
 #define __LOG_FILE_DATE_LEN 19
 #define __LOG_BUF_SIZE      4096

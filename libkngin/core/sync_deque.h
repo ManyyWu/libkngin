@@ -7,6 +7,7 @@
 #include "define.h"
 #include "logfile.h"
 #include "common.h"
+#include "timestamp.h"
 #include "lock.h"
 
 using std::deque;
