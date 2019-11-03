@@ -5,6 +5,11 @@
 #include "exception.h"
 #include "common.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/exception.cpp"
+
 __NAMESPACE_BEGIN
 
 exception::exception (const char *_what)

@@ -5,6 +5,11 @@
 #include "thread.h"
 #include "lock.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/mutex_test.cpp"
+
 using namespace k;
 
 #define THR_NUM 10
@@ -61,7 +66,7 @@ mutex_test ()
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join(NULL);
+        thrs[i]->join(nullptr);
         kdelete(thrs[i]);
     }
 
@@ -80,7 +85,7 @@ mutex_test ()
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join(NULL);
+        thrs[i]->join(nullptr);
         kdelete(thrs[i]);
     }
 
@@ -98,7 +103,7 @@ mutex_test ()
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join(NULL);
+        thrs[i]->join(nullptr);
         kdelete(thrs[i]);
     }
 

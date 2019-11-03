@@ -5,6 +5,11 @@
 #include "thread.h"
 #include "lock.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/rwlock_test.cpp"
+
 using namespace k;
 
 static rwlock           g_rwlock;
@@ -61,8 +66,8 @@ rwlock_test ()
     t1.run(process1);
     t2.run(process2);
     t3.run(process3);
-    t1.join(NULL);
-    t2.join(NULL);
-    t3.join(NULL);
+    t1.join(nullptr);
+    t2.join(nullptr);
+    t3.join(nullptr);
 
 }

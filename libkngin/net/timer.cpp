@@ -4,12 +4,22 @@
 #include "common.h"
 #include "event_loop.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/timer.cpp"
+
 __NAMESPACE_BEGIN
 
 timer::timer (event_loop *_loop)
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
       m_event(_loop, this),
+      m_read_cb(nullptr),
+      m_write_cb(nullptr),
       m_stopped(false)
 {
     check(_loop);
@@ -60,6 +70,23 @@ timer::get_time ()
     return _its.it_value;
 }
 
+
+void
+timer::set_read_cb (timer_cb &&_cb)
+{
+    m_read_cb = std::move(_cb);
+    m_event.set_read_cb(std::bind(&timer::handle_read, this));
+    m_event.update();
+}
+
+void
+timer::set_write_cb (timer_cb &&_cb)
+{
+    m_write_cb = std::move(_cb);
+    m_event.set_read_cb(std::bind(&timer::handle_write, this));
+    m_event.update();
+}
+
 epoller_event *
 timer::get_event ()
 {
@@ -76,9 +103,25 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
     _val.to_timespec(_its.it_value);
     _interval.to_timespec(_its.it_interval);
 
-    int _ret = timerfd_settime(m_fd, _abs ? TFD_TIMER_ABSTIME : 0, &_its, NULL);
+    int _ret = timerfd_settime(m_fd, _abs ? TFD_TIMER_ABSTIME : 0, &_its, nullptr);
     if (_ret < 0)
         log_fatal("timerfd_settime() error - %s:%d", strerror(errno), errno);
+}
+
+void
+timer::handle_read  ()
+{
+    check(!m_stopped);
+    if (m_read_cb)
+        m_read_cb(*this);
+}
+
+void
+timer::handle_write ()
+{
+    check(!m_stopped);
+    if (m_write_cb)
+        m_write_cb(*this);
 }
 
 __NAMESPACE_END

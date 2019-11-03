@@ -69,11 +69,9 @@ protected:
     wakeup         ();
 
     void
-    handle_wakeup  ();
+    handle_wakeup  (event &_e);
 
 protected:
-    waker                    m_waker;
-
     thread *                 m_thr;
 
     mutex                    m_mutex;
@@ -87,6 +85,8 @@ protected:
     std::deque<queued_fn>    m_fnq;
 
     epoller::epoll_event_set m_events;
+
+    waker                    m_waker;
 };
 
 __NAMESPACE_END

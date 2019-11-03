@@ -7,7 +7,7 @@
 //__NAMESPACE_BEGIN
 //
 //work_task::work_task(work_thread *_thread)
-//    : task_base(_thread, NULL)
+//    : task_base(_thread, nullptr)
 //{
 //}
 //
@@ -23,14 +23,14 @@
 //    check_r0(m_msg);
 //
 //    msg *_msg = m_msg;
-//    m_msg = NULL;
+//    m_msg = nullptr;
 //    bool _ret = _msg->process();
 //#ifdef __DUMP_ERROR_MSG
 //    if (!_ret)
 //        _msg->dump();
 //#endif /* __DUMP_ERROR_MSG */
 //    _msg->release();
-//    _msg = NULL;
+//    _msg = nullptr;
 //    return _ret;
 //}
 //
@@ -42,7 +42,7 @@
 //        return false;
 //
 //    m_msg = *_msg;
-//    *_msg = NULL;
+//    *_msg = nullptr;
 //    return true;
 //}
 //
@@ -59,14 +59,14 @@
 //    check_r0(!m_msg);
 //
 //    m_msg = *_msg;
-//    *_msg = NULL;
+//    *_msg = nullptr;
 //}
 //
 //msg *
 //work_task::send_reply_msg ()
 //{
 //    msg *_msg = m_msg;
-//    m_msg = NULL;
+//    m_msg = nullptr;
 //    return _msg;
 //}
 //

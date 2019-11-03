@@ -8,13 +8,18 @@
 //#include "error.h"
 //#include "threadpool.h"
 //
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/threadpoll.cpp"
+
 //__NAMESPACE_BEGIN
 //
 //thread_pool::thread_pool (size_t _qsize, int _thr_max, time_t _alive)
 //    : m_running(false), m_stop(true),
 //      m_queue_size(_qsize), m_maxthread(_thr_max), m_alive(_alive),
-//      m_task_queue(NULL), m_msg_queue(NULL),
-//      m_pool_thread(NULL), m_serial(0)
+//      m_task_queue(nullptr), m_msg_queue(nullptr),
+//      m_pool_thread(nullptr), m_serial(0)
 //{
 //    check(_thr_max > 0 && _thr_max <= THREAD_NUM_MAX);
 //    // log, throw
@@ -52,7 +57,7 @@
 //        ::snprintf(_name, sizeof(_name),
 //                 "work_thread[%10d-%19lld]", // format: work_thread[pid: serial]
 //                 getpid(), (std::min)(m_serial++, SIZE_MAX));
-//        work_thread *_thr = NULL;
+//        work_thread *_thr = nullptr;
 //        knew(_thr, work_thread, (_name));
 //        if_not (_thr)
 //            goto fail;
@@ -77,7 +82,7 @@
 //    // log error
 //    if (m_pool_thread && m_pool_thread->running()) {
 //        m_pool_thread->cancel();
-//        m_pool_thread->join(NULL);
+//        m_pool_thread->join(nullptr);
 //        // log error
 //    }
 //    kdelete(m_pool_thread);
@@ -86,7 +91,7 @@
 //        for (auto iter : m_pool) {
 //            if (iter && iter->running()) {
 //                iter->cancel();
-//                iter->join(NULL);
+//                iter->join(nullptr);
 //            }
 //            kdelete(iter);
 //        }
@@ -96,11 +101,11 @@
 //
 //    if (m_task_queue) {
 //        m_task_queue->release();
-//        m_task_queue = NULL;
+//        m_task_queue = nullptr;
 //    }
 //    if (m_msg_queue) {
 //        m_msg_queue->release();
-//        m_msg_queue = NULL;
+//        m_msg_queue = nullptr;
 //    }
 //
 //    log_fatal("thread pool create failed");
@@ -119,7 +124,7 @@
 //            log_fatal("pool manager thread cancel failed");
 //            _ret = false;
 //        }
-//        if_not (m_pool_thread->join(NULL)) {
+//        if_not (m_pool_thread->join(nullptr)) {
 //            log_fatal("pool manager thread join failed");
 //            _ret = false;
 //        }
@@ -133,7 +138,7 @@
 //                log_fatal("pool thread cancel failed");
 //                _ret = false;
 //            }
-//            if_not (iter->join(NULL)) {
+//            if_not (iter->join(nullptr)) {
 //                log_fatal("pool thread join failed");
 //                _ret = false;
 //            }
@@ -193,7 +198,7 @@
 //thread_pool::get_msg (time_t _ms /* = TIME_INFINITE */)
 //{
 //    if_not (__time_valid(_ms))
-//        return NULL;
+//        return nullptr;
 //}
 //
 //bool

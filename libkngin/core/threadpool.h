@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include <atomic>
+#include "define.h"
 #include "sync_queue.h"
 #include "sync_deque.h"
 #include "work_thread.h"

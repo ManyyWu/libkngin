@@ -7,6 +7,14 @@
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/address.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/socket_test.cpp"
+
 using namespace k;
 
 #define SERVER_ADDR "127.0.0.1"
@@ -109,8 +117,8 @@ socket_test ()
     for (int i = 0; i< 100; i++) {
         k::thread _client_thr("client");
         _client_thr.run(std::bind(client, (void *)1));
-        _client_thr.join(NULL);
+        _client_thr.join(nullptr);
     }
 
-    _server_thr.join(NULL);
+    _server_thr.join(nullptr);
 }

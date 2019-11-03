@@ -2,6 +2,11 @@
 #include "thread.h"
 #include "lock.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/cond_test.cpp"
+
 using namespace k;
 
 static mutex  g_mutex;
@@ -44,6 +49,6 @@ cond_test ()
     thread t2("");
     t1.run(process1);
     t2.run(process2);
-    t1.join(NULL);
-    t2.join(NULL);
+    t1.join(nullptr);
+    t2.join(nullptr);
 }

@@ -2,6 +2,11 @@
 #include "thread.h"
 #include "lock.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/thread_test.cpp"
+
 using namespace k;
 
 class mythread : public thread {

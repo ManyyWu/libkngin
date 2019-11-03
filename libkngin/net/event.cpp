@@ -6,12 +6,19 @@
 #include "common.h"
 #include "event_loop.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/event.cpp"
+
 __NAMESPACE_BEGIN
 
 event::event (event_loop *_loop)
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(_loop),
       m_event(_loop, this),
+      m_read_cb(nullptr),
+      m_write_cb(nullptr),
       m_stopped(false)
 {
     check(_loop);
@@ -55,19 +62,37 @@ event::stop ()
 void
 event::set_read_cb (event_cb &&_cb)
 {
-    m_event.set_read_cb(std::bind(&event::m_read_cb, this));
+    m_read_cb = std::move(_cb);
+    m_event.set_read_cb(std::bind(&event::handle_read, this));
 }
 
 void
 event::set_write_cb (event_cb &&_cb)
 {
-    m_event.set_read_cb(std::bind(&event::m_read_cb, this));
+    m_write_cb = std::move(_cb);
+    m_event.set_read_cb(std::bind(&event::handle_write, this));
 }
 
 epoller_event *
 event::get_event ()
 {
     return &m_event;
+}
+
+void
+event::handle_read  ()
+{
+    check(!m_stopped);
+    if (m_read_cb)
+        m_read_cb(*this);
+}
+
+void
+event::handle_write ()
+{
+    check(!m_stopped);
+    if (m_write_cb)
+        m_write_cb(*this);
 }
 
 __NAMESPACE_END

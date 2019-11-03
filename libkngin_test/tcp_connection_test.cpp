@@ -8,6 +8,11 @@
 #include "../libkngin/net/address.h"
 #include "../libkngin/net/tcp/tcp_connection.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/tcp_connection_test.cpp"
+
 using namespace k;
 
 //#define SERVER_ADDR "192.168.0.2"
@@ -67,8 +72,8 @@ public:
     explicit
     mythread ()
         : thread("server"),
-          m_loop(NULL),
-          m_conn(NULL)
+          m_loop(nullptr),
+          m_conn(nullptr)
     {
         thread::run(std::bind(&mythread::server, this));
     }
@@ -98,7 +103,7 @@ public:
         return (m_conn && m_conn->connected() && looping());
     }
 
-    bool
+    void
     stop ()
     {
         check(looping());
@@ -115,7 +120,6 @@ public:
 
         try {
             // init server
-            bool _ok = true;
             inet_addrstr _addr_str = {SERVER_ADDR};
             uint16_t     _port = SERVER_PORT;
 
@@ -167,17 +171,17 @@ public:
 
             // loop
             _loop.loop();
-            _thr->m_conn = NULL;
+            _thr->m_conn = nullptr;
         } catch (...) {
-            _thr->m_loop = NULL;
+            _thr->m_loop = nullptr;
             throw;
         }
-        _thr->m_loop = NULL;
+        _thr->m_loop = nullptr;
         return 0;
     }
 
 protected:
-    bool
+    void
     run () {}
 
 protected:
@@ -203,6 +207,6 @@ tcp_connection_test ()
     while (_server_thr.connected())
         thread::sleep(100);
     _server_thr.stop();
-    _client.join(NULL);
-    _server_thr.join(NULL);
+    _client.join(nullptr);
+    _server_thr.join(nullptr);
 }

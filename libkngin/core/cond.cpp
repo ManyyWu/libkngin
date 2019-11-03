@@ -10,13 +10,18 @@
 #include "mutex.h"
 #include "cond.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/cond.cpp"
+
 __NAMESPACE_BEGIN
 
 cond::cond (mutex *_mutex)
     : m_cond(PTHREAD_COND_INITIALIZER), m_mutex(_mutex)
 {
     check(_mutex);
-    int _ret = ::pthread_cond_init(&m_cond, NULL);
+    int _ret = ::pthread_cond_init(&m_cond, nullptr);
     if (_ret) {
         log_fatal("::pthread_cond_init() return %d", _ret);
         throw exception("cond::cond() error");

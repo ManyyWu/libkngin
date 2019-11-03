@@ -13,6 +13,11 @@
 #include "logfile.h"
 #include "common.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/sockopts.cpp"
+
 __NAMESPACE_BEGIN
 
 const sockopts::__sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {

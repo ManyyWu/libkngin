@@ -10,6 +10,11 @@
 #include "epoller.h"
 #include "filefd.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/epoller.cpp"
+
 __NAMESPACE_BEGIN
 
 epoller::epoller (event_loop *_loop)

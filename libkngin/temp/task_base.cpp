@@ -16,7 +16,7 @@
 //{
 //    if (m_msg)
 //        m_msg->release();
-//    m_thread = NULL;
+//    m_thread = nullptr;
 //}
 //
 //bool
@@ -28,7 +28,7 @@
 //    if (m_msg)
 //        m_msg->release();
 //    m_msg = *_msg;
-//    *_msg = NULL;
+//    *_msg = nullptr;
 //    return true;
 //}
 //

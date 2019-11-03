@@ -96,7 +96,7 @@ log::log_assert (const char *_func, const char *_file, int _line, const char *_e
 const char *
 log::get_datetime ()
 {
-    time_t _t = ::time(NULL);
+    time_t _t = ::time(nullptr);
     struct tm _tm;
     __localtime(&_tm, &_t);
     ::snprintf(m_datetime, __LOG_DATETIME_LEN + 1,
@@ -141,8 +141,8 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     char         _buf[__LOG_BUF_SIZE + 1] = {0};
     char         _filename[FILENAME_MAX + 1];
     tm           _tm;
-    time_t       _t = ::time(NULL);
-    FILE *       _fplog = NULL;
+    time_t       _t = ::time(nullptr);
+    FILE *       _fplog = nullptr;
     const char * _datetime = this->get_datetime();
 
     __localtime(&_tm, &_t);

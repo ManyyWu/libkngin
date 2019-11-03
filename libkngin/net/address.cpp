@@ -9,6 +9,11 @@
 #include "address.h"
 #include "common.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/address.cpp"
+
 __NAMESPACE_BEGIN
 
 bool

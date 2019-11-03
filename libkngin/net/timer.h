@@ -34,6 +34,14 @@ public:
     get_time     ();
 
 public:
+
+    void
+    set_read_cb (timer_cb &&_cb);
+
+    void
+    set_write_cb (timer_cb &&_cb);
+
+public:
     epoller_event *
     get_event    ();
 
@@ -42,11 +50,22 @@ protected:
     set_time     (timestamp _val, timestamp _interval, bool _abs = false);
 
 protected:
+    void
+    handle_read  ();
+
+    void
+    handle_write ();
+
+protected:
     event_loop *      m_loop;
 
     timer_cb          m_timeout_cb;
 
     epoller_event     m_event;
+
+    timer_cb          m_read_cb;
+
+    timer_cb          m_write_cb;
 
     std::atomic<bool> m_stopped;
 };

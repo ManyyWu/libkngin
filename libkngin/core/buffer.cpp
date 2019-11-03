@@ -9,6 +9,11 @@
 #include "buffer.h"
 #include "memory.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/buffer.cpp"
+
 __NAMESPACE_BEGIN
 
 basic_buffer::basic_buffer (const uint8_arr &_arr, size_t _reserve /* = 0 */)

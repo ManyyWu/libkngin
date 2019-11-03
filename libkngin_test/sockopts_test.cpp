@@ -2,6 +2,11 @@
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/socket.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/sockopts_test.cpp"
+
 using namespace std;
 using namespace k;
 

@@ -9,23 +9,28 @@
 #include "epoller.h"
 #include "filefd.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/event_loop.cpp"
+
 __NAMESPACE_BEGIN
 
 event_loop::event_loop (thread *_thr)
     try
-    : m_waker(this),
-      m_thr(_thr),
+    : m_thr(_thr),
       m_mutex(),
       m_epoller(this),
       m_looping(false),
       m_stop(false),
       m_fnq(),
-      m_events(RESERVED_EPOLLELR_EVENT)
+      m_events(RESERVED_EPOLLELR_EVENT),
+      m_waker(this)
 {
     check(__fd_valid(m_waker.fd()));
     check(_thr);
 
-    m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this));
+    m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this, std::placeholders::_1));
     m_waker.set_nonblock(false);
     m_waker.set_closeexec(true);
     m_waker.start();
@@ -57,6 +62,7 @@ event_loop::loop ()
 
             // process queued events
             std::deque<queued_fn> _fnq;
+            if (!m_fnq.empty())
             {
                 local_lock _lock(m_mutex);
                 _fnq.swap(m_fnq);
@@ -69,12 +75,14 @@ event_loop::loop ()
         m_looping = false;
         m_waker.stop();
         m_epoller.close();
+        log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
     }
 
     m_looping = false;
     m_waker.stop();
     m_epoller.close();
+    log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
     return 0;
 }
 
@@ -169,7 +177,7 @@ event_loop::wakeup ()
 
     buffer _val(8);
     _val.write_uint64(1);
-    ssize_t _ret = m_waker.write(_val, 8);
+    ssize_t _ret = m_waker.write(_val, 8); // blocked
     if (_ret < 0)
         log_error("event_loop::wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
@@ -177,12 +185,13 @@ event_loop::wakeup ()
 }
 
 void
-event_loop::handle_wakeup ()
+event_loop::handle_wakeup (event &_e)
 {
     check(m_looping);
+    log_debug("handled wakeup event_loop in thread \"%s\"", m_thr->name());
 
     buffer _val(8);
-    ssize_t _ret = m_waker.read(_val, 8);
+    ssize_t _ret = _e.read(_val, 8); // blocked
     if (_ret < 0)
         log_error("event_loop::handle_wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))

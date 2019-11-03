@@ -21,6 +21,11 @@
 #include "address.h"
 #include "event_loop.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/socket.cpp"
+
 __NAMESPACE_BEGIN
 
 socket::socket (int _fd)

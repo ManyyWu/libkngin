@@ -11,7 +11,7 @@
 __NAMESPACE_BEGIN
 
 msg::msg (task_base *_task)
-    : m_buf(NULL), m_size(0), m_type(INVALID_MSG), m_task(_task)
+    : m_buf(nullptr), m_size(0), m_type(INVALID_MSG), m_task(_task)
 {
     check(_task);
 }
@@ -48,7 +48,7 @@ msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
         m_type = _type;
         m_size = _size;
     } else {
-        m_buf = NULL;
+        m_buf = nullptr;
         m_size = 0;
     }
     return true;
@@ -62,10 +62,10 @@ msg::create (uint8_t **_buf, uint32_t _size, uint32_t _type)
 
     if (m_buf)
         kdelete_array(m_buf);
-    m_buf = NULL;
+    m_buf = nullptr;
     if (_buf) {
         m_buf = *_buf;
-        (*_buf) = NULL;
+        (*_buf) = nullptr;
     }
     m_type = _type;
     if (_size && *_buf)
@@ -87,12 +87,12 @@ msg::create (const msg *_msg)
         knew_array(m_buf, uint8_t, _msg->m_size);
         check_r0(m_buf);
         if (!m_buf)
-            return NULL;
+            return nullptr;
         ::memcpy(m_buf, _msg->m_buf, (std::min)(_msg->m_size, MAX_MSG_SIZE));
         m_type = _msg->m_type;
         m_size = _msg->m_size;
     } else {
-        m_buf = NULL;
+        m_buf = nullptr;
         m_size = 0;
     }
     return true;
@@ -109,12 +109,12 @@ msg::create (msg **_msg)
         kdelete_array(m_buf);
     if (*_msg) {
         m_buf = (*_msg)->m_buf;
-        (*_msg)->m_buf = NULL;
+        (*_msg)->m_buf = nullptr;
         m_type = (*_msg)->m_type;
         (*_msg)->m_type = INVALID_MSG;
         m_size = (*_msg)->m_size;
         (*_msg)->m_size = 0;
-        *_msg = NULL;
+        *_msg = nullptr;
     }
 
     return true;
@@ -166,7 +166,7 @@ msg::dump ()
     _len += 2 * m_size;
     _len = (std::min)(_len, (uint32_t)__LOG_BUF_SIZE); // max: 4096
 
-    char *_buf = NULL;
+    char *_buf = nullptr;
     knew_array(_buf, char, ((m_size) + _len));
     if_not (_buf) {
         log_fatal("failed to dump msg, size = %#x", m_size);

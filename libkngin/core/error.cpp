@@ -3,6 +3,11 @@
 #include "error.h"
 #include "exception.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/error.cpp"
+
 __NAMESPACE_BEGIN
 
 const __sys_err::__err_info

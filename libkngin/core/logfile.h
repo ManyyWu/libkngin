@@ -1,16 +1,17 @@
 #ifndef _LOGFILE_H_
 #define _LOGFILE_H_
 
+#include "define.h"
 #include "log.h"
 #include "logmgr.h"
 
-#define __make_log(__level, __level_str, __file_type, __fmt, ...) \
-        do {                                                      \
-            if (logger().inited())                                \
-                logger()[__file_type]                             \
-                    .__level(__log_format(__level_str, __fmt),    \
-                             __FUNCTION__, __FILE__, __LINE__,    \
-                             ##__VA_ARGS__);                      \
+#define __make_log(__level, __level_str, __file_type, __fmt, ...)  \
+        do {                                                       \
+            if (logger().inited())                                 \
+                logger()[__file_type]                              \
+                    .__level(__log_format(__level_str, __fmt),     \
+                             __FUNCTION__, __FILENAME__, __LINE__, \
+                             ##__VA_ARGS__);                       \
         } while (false)
 
 #define __make_log_noline(__level, __level_str, __file_type, __fmt, ...) \

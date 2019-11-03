@@ -11,6 +11,11 @@
 
 using std::deque;
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/sync_queue.h"
+
 __NAMESPACE_BEGIN
 
 template <class __T>
@@ -52,7 +57,7 @@ public:
     virtual __T *
     peek ()
     {
-        return (m_queue.empty() ? NULL : m_queue.back());
+        return (m_queue.empty() ? nullptr : m_queue.back());
     }
 
 public:
@@ -65,14 +70,14 @@ public:
         if (m_queue.size() > m_max_size)
             return false;
         m_queue.push_front(*_v);
-        *_v = NULL;
+        *_v = nullptr;
         return true;
     }
 
     virtual __T *
     pop ()
     {
-        __T *_item = m_queue.empty() ? NULL : m_queue.back();
+        __T *_item = m_queue.empty() ? nullptr : m_queue.back();
         m_queue.pop_back();
         return _item;
     }

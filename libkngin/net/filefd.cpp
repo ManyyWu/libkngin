@@ -12,6 +12,11 @@
 #include "common.h"
 #include "buffer.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/net/filefd.cpp"
+
 __NAMESPACE_BEGIN
 
 filefd::filefd (int _fd)

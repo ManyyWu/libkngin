@@ -14,9 +14,9 @@ __NAMESPACE_BEGIN
 
 #ifndef NDEBUG
 #define knew(__p, __t, __e)       (__p) = new(std::nothrow) __t __e
-#define kdelete(__p)              do { delete (__p); (__p) = NULL; } while (false)
+#define kdelete(__p)              do { delete (__p); (__p) = nullptr; } while (false)
 #define knew_array(__p, __t, __n) (__p) = new(std::nothrow) __t[__n]
-#define kdelete_array(__p)        do { delete[] (__p); (__p) = NULL; } while (false)
+#define kdelete_array(__p)        do { delete[] (__p); (__p) = nullptr; } while (false)
 #define kdelete_this(__p)         delete (this)
 #endif
 
@@ -34,11 +34,11 @@ __NAMESPACE_BEGIN
 #define check_r0(__e) if_not(__e) return 0
 
 /*
-* null reference
+* nullptr reference
 */
 //template <typename __T>
 //__T &
-//null_ref ()
+//nullptr_ref ()
 //{
 //    return *static_cast<__T *>(nullptr);
 //}

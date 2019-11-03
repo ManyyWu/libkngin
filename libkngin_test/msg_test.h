@@ -1,5 +1,9 @@
 //#include "msg.h"
 //
+//#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/msg_test.h"
 //using namespace k;
 //
 //enum ACTION {
@@ -25,7 +29,7 @@
 //
 //public:
 //    netmsg_test (task_base *_task)
-//    : msg(_task), m_info(NULL)
+//    : msg(_task), m_info(nullptr)
 //    {
 //    }
 //
@@ -56,7 +60,7 @@
 //            switch (this->m_info->action) {
 //            case ACTION_0:
 //                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = NULL;
+//                    netmsg_test *_msg = nullptr;
 //                    knew(_msg, netmsg_test, (this->task()));
 //                    if (!_msg)
 //                        return false;
@@ -70,7 +74,7 @@
 //                break;
 //            case ACTION_1:
 //                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = NULL;
+//                    netmsg_test *_msg = nullptr;
 //                    knew(_msg, netmsg_test, (this->task()));
 //                    if (!_msg)
 //                        return false;
@@ -84,7 +88,7 @@
 //                break;
 //            case ACTION_2:
 //                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = NULL;
+//                    netmsg_test *_msg = nullptr;
 //                    knew(_msg, netmsg_test, (this->task()));
 //                    if (!_msg)
 //                        return false;
@@ -98,7 +102,7 @@
 //                break;
 //            case ACTION_3:
 //                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = NULL;
+//                    netmsg_test *_msg = nullptr;
 //                    knew(_msg, netmsg_test, (this->task()));
 //                    if (!_msg)
 //                        return false;

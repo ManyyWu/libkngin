@@ -2,6 +2,11 @@
 #include <vector>
 #include "buffer.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/buffer_test.cpp"
+
 using namespace std;
 using namespace k;
 

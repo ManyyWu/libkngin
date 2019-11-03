@@ -1,5 +1,10 @@
 #include "mylogfile.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/log_test.cpp"
+
 using namespace k;
 
 extern void

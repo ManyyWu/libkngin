@@ -15,7 +15,7 @@
 //work_thread::work_thread (const char *_name)
 //    : thread(work_thread::process, this, _name ? _name : "work_thread"),
 //      m_done(true), m_new_task(false),
-//      m_stop_thread(false), m_task(NULL)
+//      m_stop_thread(false), m_task(nullptr)
 //{
 //}
 //
@@ -37,7 +37,7 @@
 //fail:
 //        if (this->thread::running()) {
 //            _ret = this->cancel();
-//            _ret = this->join(NULL);
+//            _ret = this->join(nullptr);
 //        }
 //        log_fatal("::thread::run() error, name = \"%s\"", m_name.c_str());
 //        return false;
@@ -83,7 +83,7 @@
 //    if (!m_mutex.trylock())
 //        return false;
 //    m_task = *_task;
-//    *_task = NULL;
+//    *_task = nullptr;
 //    m_done = false;
 //    m_new_task = true;
 //    m_mutex.unlock();
@@ -102,7 +102,7 @@
 //    m_mutex.lock();
 //    msg *_ret = m_task->send_reply_msg();
 //    m_task->release();
-//    m_task = NULL;
+//    m_task = nullptr;
 //    m_mutex.unlock();
 //    m_cond.broadcast();
 //

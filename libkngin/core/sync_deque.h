@@ -12,6 +12,11 @@
 using std::deque;
 using std::iterator;
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin/core/sync_deque.h"
+
 __NAMESPACE_BEGIN
 
 template <class __T>
@@ -51,28 +56,28 @@ public:
     at (size_type _n)
     {
         check_r0(_n >= 0 && _n < m_deque.size());
-        return (m_deque.empty() ? NULL : m_deque.at(_n));
+        return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
     virtual __T *
     front ()
     {
         check_r0(m_deque.size());
-        return (m_deque.empty() ? NULL : m_deque.front());
+        return (m_deque.empty() ? nullptr : m_deque.front());
     }
 
     virtual __T *
     back ()
     {
         check_r0(m_deque.size());
-        return (m_deque.empty() ? NULL : m_deque.back());
+        return (m_deque.empty() ? nullptr : m_deque.back());
     }
 
     virtual __T *
     operator [] (size_type _n)
     {
         check_r0(_n >= 0 && _n < m_deque.size());
-        return (m_deque.empty() ? NULL : m_deque.at(_n));
+        return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
 public:
@@ -84,7 +89,7 @@ public:
         if (m_deque.size() > m_max_size)
             return false;
         m_deque.push_back(*_v);
-        *_v = NULL;
+        *_v = nullptr;
         return true;
     }
 
@@ -96,7 +101,7 @@ public:
             return false;
 
         m_deque.push_front(*_v);
-        *_v = NULL;
+        *_v = nullptr;
         return true;
     }
 
@@ -133,7 +138,7 @@ public:
             ++iter; // ++iter is more efficient
         }
         m_deque.insert(iter, *_v);
-        *_v = NULL;
+        *_v = nullptr;
         return true;
     }
 

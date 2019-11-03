@@ -2,6 +2,11 @@
 #include "sync_queue.h"
 #include "thread.h"
 
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ "libkngin_test/sync_queue_test.cpp"
+
 using namespace k;
 using namespace std;
 
@@ -15,7 +20,7 @@ producer (void *_args)
         ::sprintf(_buf, "%d", i);
         while (_q->full())
             _q->wait();
-        string *_str = NULL;
+        string *_str = nullptr;
         knew(_str, string, (_buf));
         check(_str);
         check(!_q->full() && _q->push(&_str));
@@ -25,7 +30,7 @@ producer (void *_args)
         _q->broadcast();
     }
     _q->lock();
-    string *_str = NULL;
+    string *_str = nullptr;
     knew(_str, string, (""));
     check(_str);
     _q->push(&_str);
@@ -71,10 +76,10 @@ sync_queue_test ()
     t3.run(std::bind(comsumer, &_q));
     t4.run(std::bind(comsumer, &_q));
     t5.run(std::bind(comsumer, &_q));
-    t0.join(NULL);
-    t1.join(NULL);
-    t2.join(NULL);
-    t3.join(NULL);
-    t4.join(NULL);
-    t5.join(NULL);
+    t0.join(nullptr);
+    t1.join(nullptr);
+    t2.join(nullptr);
+    t3.join(nullptr);
+    t4.join(nullptr);
+    t5.join(nullptr);
 }

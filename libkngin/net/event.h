@@ -46,6 +46,13 @@ public:
     get_event    ();
 
 protected:
+    void
+    handle_read  ();
+
+    void
+    handle_write ();
+
+protected:
     event_loop *      m_loop;
 
     epoller_event     m_event;

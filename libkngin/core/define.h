@@ -26,8 +26,12 @@ typedef SSIZE_T ssize_t;
 #define QUEUE_MAX     (size_t)(SIZE_MAX)
 #define QUEUE_MIN     (size_t)10
 
+// for MSVC
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
+
+// redefine __FILE__
+#define __REDEFINE_FILE(_f) static const char *__file__ = (_f);
 
 #endif /* _DEFINE_H_ */

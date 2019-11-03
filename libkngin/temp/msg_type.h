@@ -4,7 +4,7 @@
 #include "cstdint"
 
 enum MSG_TYPE {
-    MSG_TYPE_NULL                = 0x00000000,
+    MSG_TYPE_nullptr                = 0x00000000,
 
     // for server                                              [0x00000001, 0x00010000]
     MSG_TYPE_SERVER_CLOSE        = 0x00000001, // close server

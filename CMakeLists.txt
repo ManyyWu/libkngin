@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 set(CMAKE_CXX_STANDARD 14)
 
-project(kngin      LANGUAGES C CXX)
+project(kngin         LANGUAGES C CXX)
 project(libkngin_test LANGUAGES C CXX)
 
 # build option
