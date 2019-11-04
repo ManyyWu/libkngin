@@ -9,14 +9,18 @@
 __NAMESPACE_BEGIN
 
 worker_thread::worker_thread (const char *_name,
-                              thread_inited_cb &&_inited_cb,
+                              thread_started_cb &&_started_cb,
                               thread_stopped_cb &&_stopped_cb)
-    : thread(_name), m_inited_cb(_inited_cb), m_stopped_cb(_stopped_cb)
+    : thread(_name), m_started_cb(_started_cb), m_stopped_cb(_stopped_cb)
 {
 }
 
 worker_thread::~worker_thread ()
 {
+    if (m_running) {
+        this->cancel();
+        this->join(NULL);
+    }
 }
 
 int
@@ -32,8 +36,8 @@ void
 worker_thread::handle_loop_started (event_loop *_loop)
 {
     m_loop = _loop;
-    if (m_inited_cb)
-        m_inited_cb(this);
+    if (m_started_cb)
+        m_started_cb(this);
 }
 
 void

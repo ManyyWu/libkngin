@@ -10,15 +10,16 @@
 __NAMESPACE_BEGIN
 
 class worker_thread : public thread {
-    typedef std::function<void (worker_thread *)> thread_inited_cb;
+    typedef std::function<void (worker_thread *)> thread_started_cb;
 
     typedef std::function<void (worker_thread *)> thread_stopped_cb;
 
 public:
     worker_thread       (const char *_name,
-                         thread_inited_cb &&_inited_cb,
+                         thread_started_cb &&_started_cb,
                          thread_stopped_cb &&_stopped_cb);
 
+    virtual
     ~worker_thread      ();
 
 protected:
@@ -34,7 +35,7 @@ protected:
 protected:
     event_loop *      m_loop;
 
-    thread_inited_cb  m_inited_cb;
+    thread_started_cb m_started_cb;
 
     thread_stopped_cb m_stopped_cb;
 };

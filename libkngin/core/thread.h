@@ -17,6 +17,16 @@ class thread {
 public:
     typedef std::function<int (void *)> thr_fn;
 
+    union thread_err_code {
+        void *ptr;
+        int   code;
+
+        thread_err_code ()          { ptr = nullptr; code = 0; }
+
+        explicit
+        thread_err_code (int _code) { ptr = nullptr; code = _code; }
+    };
+
 public:
     thread        () = delete;
 
@@ -37,35 +47,46 @@ public:
     cancel        ();
 
     bool
-    running       () const;
+    running       () const { return m_running; }
+
+    bool
+    joined        () const { return m_joined; }
 
     pthread_t
-    get_interface () const;
+    get_interface () const { return m_thr; }
 
     int
-    get_err_code  () const;
+    get_err_code  () const { return m_err_code.code; }
 
     const char *
-    name          () const;
+    name          () const { return m_name.c_str(); }
 
 public:
     static uint64_t
-    get_tid       ();
-
-    static void
-    sleep         (timestamp _ms);
-
-    static void
-    exit          (int _err_code);
+#ifdef _WIN32
+    get_tid       ()              { return ::GetCurrentThreadId(); }
+#else
+    get_tid       ()              { return ::getpid(); }
+#endif
 
     static pthread_t
-    self          ();
+    self          ()              { return ::pthread_self(); }
+
+    static void
+#ifdef _WIN32
+    sleep         (timestamp _ms) { ::Sleep((DWORD)_ms.value_uint()); }
+#else
+    sleep         (timestamp _ms) { ::usleep(_ms.value_uint() * 1000); }
+#endif
+
+    static void
+    exit          (int _err_code) { ::pthread_exit(thread_err_code(_err_code).ptr); }
 
     void
-    set_err_code  (int _err_code);
+    set_err_code  (int _err_code) { m_err_code.code = _err_code; }
 
     bool
-    equal_to      (pthread_t _t);
+    equal_to      (pthread_t _t)  { return ::pthread_equal(_t, m_thr); }
 
 protected:
     static void *
@@ -88,9 +109,11 @@ protected:
 
     void *            m_args;
 
-    void *            m_retptr;
+    thread_err_code   m_err_code;
 
     std::atomic<bool> m_running;
+
+    std::atomic<bool> m_joined;
 
     thr_fn            m_fn;
 };

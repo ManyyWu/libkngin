@@ -50,8 +50,6 @@ public:
 public:
     // threadpoll
 
-    // set,get max connection
-
     // set,get thread num
 
 public:
