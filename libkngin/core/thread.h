@@ -8,6 +8,7 @@
 #endif
 #include <atomic>
 #include <functional>
+#include <unistd.h> ///////////
 #include "define.h"
 #include "timestamp.h"
 

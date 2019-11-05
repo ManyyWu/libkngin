@@ -20,7 +20,7 @@ timer::timer (event_loop *_loop)
       m_event(_loop, this),
       m_read_cb(nullptr),
       m_write_cb(nullptr),
-      m_stopped(false)
+      m_stopped(true)
 {
     check(_loop);
     if (__fd_valid(m_fd)) {
@@ -45,15 +45,16 @@ timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool 
     set_time(_val, _interval, _abs);
     m_event.set_read_cb(std::bind(&timer::m_timeout_cb, this));
     m_event.start();
+    m_stopped = false;
 }
 
 void
 timer::stop ()
 {
     check(!m_stopped);
+    m_stopped = true;
     set_time(0, 0);
     m_event.remove();
-    m_stopped = true;
 }
 
 timestamp

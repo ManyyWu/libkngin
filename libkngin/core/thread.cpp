@@ -55,7 +55,8 @@ thread::run (thr_fn &&_fn)
     check_r0(!m_thr);
 #endif
 
-    m_fn = std::move(_fn);
+    if (!(m_fn = std::move(_fn)))
+        m_fn = std::bind(&thread::process, this);
     int _ret = ::pthread_create(&m_thr, nullptr, thread::start, this);
     if_not (!_ret)
         log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));

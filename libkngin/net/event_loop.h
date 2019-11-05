@@ -21,13 +21,13 @@ __NAMESPACE_BEGIN
 
 class event_loop {
 public:
-    typedef std::function<void (event_loop *)> loop_started_cb;
+    typedef std::function<void (void)> loop_started_cb;
 
-    typedef std::function<void (void)>         loop_stopped_cb;
+    typedef std::function<void (void)> loop_stopped_cb;
 
-    typedef std::function<void (void)>         queued_fn;
+    typedef std::function<void (void)> queued_fn;
 
-    typedef event                              waker;
+    typedef event                      waker;
 
 public:
     event_loop     () = delete;
@@ -39,7 +39,7 @@ public:
 
 public:
     int
-    loop           (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb);
+    loop           (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb);
 
     void
     stop           ();

@@ -113,8 +113,8 @@ public:
     k::socket &
     socket     () { return m_socket; }
 
-    event_loop *
-    loop       () { return m_loop; }
+    //event_loop *
+    //loop       () { return m_loop; }
 
     const address &
     local_addr () { return m_local_addr; }

@@ -30,11 +30,6 @@ event_loop::event_loop (thread *_thr)
 {
     check(__fd_valid(m_waker.fd()));
     check(_thr);
-
-    m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this, std::placeholders::_1));
-    m_waker.set_nonblock(false);
-    m_waker.set_closeexec(true);
-    m_waker.start();
 } catch (...) {
     log_fatal("event_loop::event_loop() error");
     throw;
@@ -48,14 +43,19 @@ event_loop::~event_loop ()
 }
 
 int
-event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
+event_loop::loop (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb)
 {
     check_thread();
     m_looping = true;
-    if (_start_cb)
-        _start_cb(this);
+    if (!is_nullptr_ref(_start_cb))
+        _start_cb();
 
     try {
+        m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this, std::placeholders::_1));
+        m_waker.set_nonblock(false);
+        m_waker.set_closeexec(true);
+        m_waker.start();
+
         while (!m_stop) {
             // wait for events
             uint32_t _size = m_epoller.wait(m_events, EPOLLER_TIMEOUT);
@@ -80,18 +80,18 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
             log_debug("handled %" PRIu64 " queued functions", _fnq.size());
         }
     } catch (...) {
+        if (!is_nullptr_ref(_stop_cb))
+            _stop_cb();
         m_waker.stop();
         m_looping = false;
-        if (_stop_cb)
-            _stop_cb();
         log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
     }
 
+    if (!is_nullptr_ref(_stop_cb))
+        _stop_cb();
     m_waker.stop();
     m_looping = false;
-    if (_stop_cb)
-        _stop_cb();
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
     return 0;
 }
@@ -120,6 +120,7 @@ event_loop::check_thread ()
 bool
 event_loop::in_loop_thread()
 {
+    //log_debug("m_thr:%" PRIu64 ", self:%" PRIu64, m_thr->get_interface(), thread::self());
     return (m_thr->equal_to(thread::self()));
 }
 
@@ -127,7 +128,7 @@ bool
 event_loop::add_event (epoller_event *_e)
 {
     check(_e);
-    //check(m_looping);
+    check(m_looping);
 
     bool _ret = m_epoller.register_event(_e);
     if (!_ret)
@@ -141,7 +142,7 @@ bool
 event_loop::remove_event (epoller_event *_e)
 {
     check(_e);
-    //check(m_looping);
+    check(m_looping);
 
     bool _ret = m_epoller.remove_event(_e);
     if (!_ret)
@@ -155,7 +156,7 @@ bool
 event_loop::update_event (epoller_event *_e)
 {
     check(_e);
-    //check(m_looping);
+    check(m_looping);
 
     bool _ret = m_epoller.modify_event(_e);
     if (!_ret)

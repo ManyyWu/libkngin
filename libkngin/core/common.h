@@ -36,12 +36,19 @@ __NAMESPACE_BEGIN
 /*
 * nullptr reference
 */
-//template <typename __T>
-//__T &
-//nullptr_ref ()
-//{
-//    return *static_cast<__T *>(nullptr);
-//}
+template <typename __T>
+__T &
+nullptr_ref ()
+{
+    return *static_cast<__T *>(nullptr);
+}
+
+template <typename __T>
+bool
+is_nullptr_ref (__T &_ref)
+{
+    return (nullptr == _ref);
+}
 
 __NAMESPACE_END
 

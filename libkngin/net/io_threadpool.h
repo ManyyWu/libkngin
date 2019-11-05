@@ -6,18 +6,18 @@
 #include <functional>
 #include "define.h"
 #include "event_loop.h"
-#include "worker_thread.h"
+#include "io_thread.h"
 
 __NAMESPACE_BEGIN
 
-class worker_thread_pool {
+class io_thread_pool {
 public:
-    typedef std::function<void (worker_thread_pool &_pool)> inited_cb;
+    typedef std::function<void (io_thread_pool &_pool)> inited_cb;
 
 public:
-    worker_thread_pool  (uint16_t _max, inited_cb &&_cb);
+    io_thread_pool  (uint16_t _max, inited_cb &&_cb);
 
-    ~worker_thread_pool ();
+    ~io_thread_pool ();
 
 public:
 
@@ -27,7 +27,7 @@ protected:
     assign_loop         ();
 
 protected:
-    std::vector<worker_thread> m_threads;
+    std::vector<io_thread> m_threads;
 
     std::vector<event_loop *>  m_loops;
 

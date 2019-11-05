@@ -7,6 +7,7 @@
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/address.h"
 #include "../libkngin/net/tcp/tcp_connection.h"
+#include "../libkngin/net/io_thread.h"
 
 #ifdef __FILENAME__
 #undef __FILENAME__
@@ -37,6 +38,7 @@ close:
         log_info("c: client closed");
         return 0;
     }
+    log_info("c: connected");
 
     int _reply = 0;
     std::cerr << "> " << std::endl;
@@ -67,56 +69,27 @@ close:
     return 0;
 }
 
-class mythread : public thread {
+class mythread : public io_thread {
 public:
     mythread ()
-        : thread("server"),
-          m_loop(nullptr),
-          m_conn(nullptr)
+        : io_thread("server",
+                    std::bind(&mythread::on_start, this),
+                    std::bind(&mythread::on_stop, this)),
+          m_conn(nullptr), m_buf(4)
     {
-        thread::run(std::bind(&mythread::server, this));
+        this->run();
+    }
+
+    virtual
+    ~mythread ()
+    {
+        delete m_conn;
     }
 
 public:
-    event_loop *
-    get_loop ()
-    {
-        return m_loop;
-    }
-
-    bool
-    looping ()
-    {
-        return (m_loop && m_loop->looping());
-    }
-
-    tcp_connection *
-    get_conn ()
-    {
-        return m_conn;
-    }
-
-    bool
-    connected ()
-    {
-        return (m_conn && m_conn->connected() && looping());
-    }
-
     void
-    stop ()
+    on_start ()
     {
-        check(looping());
-        m_loop->stop();
-    }
-
-public:
-    static int
-    server (void *_args)
-    {
-        mythread *_thr = (mythread *)_args;
-        event_loop _loop(_thr);
-        _thr->m_loop = &_loop;
-
         try {
             // init server
             inet_addrstr _addr_str = {SERVER_ADDR};
@@ -140,14 +113,13 @@ public:
             address _client_addr;
             k::socket _client_sock(_server_sock.accept(_client_addr));
             inet_addrstr _client_addr_str;
-            log_info("s: connect to: %s:%hu", _client_addr.addrstr(_client_addr_str),
+            log_info("s: connected to client: %s:%hu", _client_addr.addrstr(_client_addr_str),
                     _client_addr.port());
-            tcp_connection _conn(&_loop, std::move(_client_sock),
-                                 std::move(address(_server_addr)), std::move(address(_client_addr)));
-            _thr->m_conn = &_conn;
+            m_conn = new tcp_connection(m_loop, std::move(_client_sock),
+                                        std::move(address(_server_addr)), std::move(address(_client_addr)));
 
             // set callback
-            _conn.set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
+            m_conn->set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
                 inet_addrstr _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
@@ -157,55 +129,51 @@ public:
                 _outbuf.write_uint32(_port);
                 check(_conn.send(std::move(_outbuf)));
             });
-            _conn.set_write_done_cb([] (tcp_connection &_conn) {
+            m_conn->set_write_done_cb([] (tcp_connection &_conn) {
                 inet_addrstr _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_write_done: to %s:%d",
                          _conn.peer_addr().addrstr(_client_addr_str), _port);
                 _conn.close();
             });
-            _conn.set_close_cb([] (tcp_connection &_conn) {
+            m_conn->set_close_cb([] (tcp_connection &_conn) {
                 log_info("s: on_close: fd = %d", _conn.socket().fd());
             });
 
-            // loop
-            _loop.loop();
-            _thr->m_conn = nullptr;
+            // recv
+            {
+                m_conn->recv(m_buf);
+            }
+
+            // send
         } catch (...) {
-            _thr->m_loop = nullptr;
+            if (m_conn)
+                m_conn->close();
             throw;
         }
-        _thr->m_loop = nullptr;
-        return 0;
+    }
+
+    void
+    on_stop ()
+    {
     }
 
 protected:
-    void
-    run () {}
-
-protected:
-    event_loop *    m_loop;
-
     tcp_connection *m_conn;
+
+    buffer          m_buf;
 };
 
 void
 tcp_connection_test ()
 {
     mythread _server_thr;
+
     thread _client("client");
     thread::sleep(1000);
-    _client.run(std::bind(&client, nullptr));
-    while (!_server_thr.connected())
-        thread::sleep(100);
-
-    tcp_connection *_conn = _server_thr.get_conn();
-    buffer _inbuf(4);
-    check(_conn->recv(_inbuf));
-
-    while (_server_thr.connected())
-        thread::sleep(100);
-    _server_thr.stop();
+    _client.run(client);
     _client.join(nullptr);
+    _server_thr.get_loop()->stop();
+
     _server_thr.join(nullptr);
 }

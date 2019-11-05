@@ -19,7 +19,7 @@ event::event (event_loop *_loop)
       m_event(_loop, this),
       m_read_cb(nullptr),
       m_write_cb(nullptr),
-      m_stopped(false)
+      m_stopped(true)
 {
     check(_loop);
     if (__fd_invalid(m_fd)) {
@@ -39,8 +39,9 @@ event::~event()
 void
 event::start ()
 {
-    check(!m_stopped);
+    check(m_stopped);
     m_event.start();
+    m_stopped = false;
 }
 
 void
@@ -54,8 +55,8 @@ void
 event::stop ()
 {
     check(!m_stopped);
-    m_event.remove();
     m_stopped = true;
+    m_event.remove();
 }
 
 void

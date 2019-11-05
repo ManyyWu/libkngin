@@ -32,4 +32,5 @@ void
 test ()
 {
 #warning "包装系统api， 取消所有头文件引用"
+#warning "std::function &&改&"
 }
