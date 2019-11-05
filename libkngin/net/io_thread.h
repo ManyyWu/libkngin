@@ -3,8 +3,7 @@
 
 #include "define.h"
 #include "thread.h"
-#include "mutex.h"
-#include "cond.h"
+#include "lock.h"
 #include "event_loop.h"
 
 __NAMESPACE_BEGIN

@@ -2,7 +2,7 @@
 #define _LOCAL_LOCK_
 
 #include "define.h"
-#include "mutex.h"
+#include "lock.h"
 
 __NAMESPACE_BEGIN
 

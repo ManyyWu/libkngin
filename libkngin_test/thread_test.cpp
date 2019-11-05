@@ -23,7 +23,7 @@ public:
 
 public:
     static int
-    process1 (void *_args)
+    process1 ()
     {
         ::fprintf(stderr, "process1\n");
 
@@ -31,7 +31,7 @@ public:
     }
 
     static int
-    process2 (void *_args)
+    process2 ()
     {
         ::fprintf(stderr, "process1\n");
 
@@ -45,12 +45,12 @@ thread_test ()
     int ret;
 
     thread t1("");
-    t1.run(thread::process);
+    t1.run(nullptr);
     t1.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);
 
     thread t2("");
-    t2.run(thread::process);
+    t2.run(nullptr);
     t2.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);
 

@@ -5,7 +5,7 @@
 #include "common.h"
 #include "errno.h"
 #include "event_loop.h"
-#include "local_lock.h"
+#include "lock.h"
 #include "thread.h"
 #include "epoller.h"
 #include "filefd.h"

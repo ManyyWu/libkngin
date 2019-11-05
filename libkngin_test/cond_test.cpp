@@ -13,7 +13,7 @@ static mutex  g_mutex;
 static cond   g_cond(&g_mutex);
 
 static int
-process1 (void *_args)
+process1 ()
 {
     g_mutex.lock();
     g_cond.wait();
@@ -27,7 +27,7 @@ process1 (void *_args)
 }
 
 static int
-process2 (void *_args)
+process2 ()
 {
     thread::sleep(100);
     g_mutex.lock();

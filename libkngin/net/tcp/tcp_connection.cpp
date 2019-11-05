@@ -8,7 +8,7 @@
 #include "net_buffer.h"
 #include "epoller_event.h"
 #include "epoller.h"
-#include "local_lock.h"
+#include "lock.h"
 
 #ifdef __FILENAME__
 #undef __FILENAME__
@@ -133,7 +133,7 @@ tcp_connection::handle_write ()
         m_event.update();
         m_out_buf.clear();
         if (m_write_done_cb)
-            m_write_done_cb(*this);
+            m_write_done_cb(std::ref(*this));
     } else {
         if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
@@ -164,7 +164,7 @@ tcp_connection::handle_read ()
         m_event.update();
         m_in_buf->clear();
         if (m_read_done_cb)
-            m_read_done_cb(*this, *m_in_buf, m_in_buf->readable());
+            m_read_done_cb(std::ref(*this), *m_in_buf, m_in_buf->readable());
     } else {
         if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
@@ -181,7 +181,7 @@ tcp_connection::handle_close ()
     m_loop->check_thread();
 
     if (m_close_cb)
-        m_close_cb(*this);
+        m_close_cb(std::ref(*this));
     m_event.remove();
     m_socket.close();
     m_connected = false;
@@ -202,7 +202,7 @@ tcp_connection::handle_oob ()
         return;
     }
     if (m_oob_cb)
-        m_oob_cb(*this, _buf.read_uint8());
+        m_oob_cb(std::ref(*this), _buf.read_uint8());
     else {
         inet_addrstr _addrstr;
         log_warning("unhandled oob data from %s:%hu", m_local_addr.addrstr(_addrstr), m_local_addr.port());

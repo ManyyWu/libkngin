@@ -119,7 +119,7 @@ timer::handle_read  ()
 {
     check(!m_stopped);
     if (m_read_cb)
-        m_read_cb(*this);
+        m_read_cb(std::ref(*this));
 }
 
 void
@@ -127,7 +127,7 @@ timer::handle_write ()
 {
     check(!m_stopped);
     if (m_write_cb)
-        m_write_cb(*this);
+        m_write_cb(std::ref(*this));
 }
 
 __NAMESPACE_END

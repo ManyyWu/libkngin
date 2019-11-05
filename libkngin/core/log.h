@@ -3,7 +3,7 @@
 
 #include <cstdarg>
 #include "define.h"
-#include "mutex.h"
+#include "lock.h"
 
 #define __LOG_FILE_DATE_LEN 19
 #define __LOG_BUF_SIZE      4096
@@ -48,9 +48,9 @@ enum __LOG_FILE {          // reserved type
 };
 
 enum __LOG_MODE {
-    __LOG_MODE_FILE,   // only output to file
-    __LOG_MODE_STDERR, // only output to stderr
-    __LOG_MODE_BOTH    // the above two
+    __LOG_MODE_FILE = 0,   // only output to file
+    __LOG_MODE_STDERR,     // only output to stderr
+    __LOG_MODE_BOTH        // the above two
 };
 
 enum LOG_LEVEL {

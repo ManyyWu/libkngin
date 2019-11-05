@@ -21,7 +21,7 @@ using namespace k;
 #define SERVER_PORT 20000
 
 static int
-client (void *_args)
+client ()
 {
     inet_addrstr _addr_str = {SERVER_ADDR};
     uint16_t     _port = SERVER_PORT;

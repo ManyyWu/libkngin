@@ -23,7 +23,7 @@ static mutex            g_mutex;
 static std::mutex       g_std_mutex;
 
 static int
-process_mutex (void *_args)
+process_mutex ()
 {
     for (int i = 0; i < 1000000; i++) {
         g_mutex.lock();
@@ -34,7 +34,7 @@ process_mutex (void *_args)
 }
 
 static int
-process_std_mutex (void *_args)
+process_std_mutex ()
 {
     for (int i = 0; i < 1000000; i++) {
         g_std_mutex.lock();
@@ -45,7 +45,7 @@ process_std_mutex (void *_args)
 }
 
 static int
-process_atomic (void *_args)
+process_atomic ()
 {
     for (int i = 0; i < 1000000; i++) {
         g_num3 += 1;

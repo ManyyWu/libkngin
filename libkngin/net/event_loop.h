@@ -6,7 +6,7 @@
 #include "define.h"
 #include "epoller.h"
 #include "epoller_event.h"
-#include "mutex.h"
+#include "lock.h"
 #include "thread.h"
 #include "event.h"
 #include "timer.h"

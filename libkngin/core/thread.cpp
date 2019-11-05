@@ -22,12 +22,12 @@ __NAMESPACE_BEGIN
 
 #ifdef _WIN32
 thread::thread (const char *_name /* = "" */)
-    : m_name(_name ? _name : ""), m_thr(pthread_t{nullptr, 0}),
+    : m_name(_name ? _name : ""), m_thr(pthread_t{nullptr, 0}), m_tid(thread::tid())
       m_err_code(nullptr), m_running(false), m_joined(false), m_fn(nullptr)
 #else
 thread::thread (const char *_name)
-    : m_name(_name ? _name : ""), m_thr(0), m_err_code(),
-      m_running(false), m_joined(false), m_fn(nullptr)
+    : m_name(_name ? _name : ""), m_thr(0), m_tid(thread::tid()),
+      m_err_code(), m_running(false), m_joined(false), m_fn(nullptr)
 #endif
 {
     check(_name);
@@ -121,7 +121,7 @@ thread::start (void *_args)
 
     try {
         pthread_cleanup_push(thread::cleanup, _args);
-        _p->set_err_code(_p->m_fn(_p->m_args));
+        _p->set_err_code(_p->m_fn());
         pthread_cleanup_pop(1);
     } catch (const k::exception &e){
         log_fatal("caught an k::exception in thread \"%s\": %s\n%s",

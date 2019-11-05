@@ -16,7 +16,7 @@ __NAMESPACE_BEGIN
 
 class thread {
 public:
-    typedef std::function<int (void *)> thr_fn;
+    typedef std::function<int (void)> thr_fn;
 
     union thread_err_code {
         void *ptr;
@@ -48,26 +48,29 @@ public:
     cancel        ();
 
     bool
-    running       () const { return m_running; }
+    running       () const        { return m_running; }
 
     bool
-    joined        () const { return m_joined; }
+    joined        () const        { return m_joined; }
 
     pthread_t
-    get_interface () const { return m_thr; }
+    get_interface () const        { return m_thr; }
+
+    uint64_t
+    get_tid       () const        { return m_tid; }
 
     int
-    get_err_code  () const { return m_err_code.code; }
+    get_err_code  () const        { return m_err_code.code; }
 
     const char *
-    name          () const { return m_name.c_str(); }
+    name          () const        { return m_name.c_str(); }
 
 public:
     static uint64_t
 #ifdef _WIN32
-    get_tid       ()              { return ::GetCurrentThreadId(); }
+    tid           ()              { return ::GetCurrentThreadId(); }
 #else
-    get_tid       ()              { return ::getpid(); }
+    tid           ()              { return ::getpid(); }
 #endif
 
     static pthread_t
@@ -102,13 +105,11 @@ public:
     process       (void *_args);
 
 protected:
-    const std::string m_name;
+    std::string       m_name;
 
     pthread_t         m_thr;
 
     uint64_t          m_tid;
-
-    void *            m_args;
 
     thread_err_code   m_err_code;
 

@@ -22,7 +22,7 @@ static mutex            g_mutex;
 } while (false)
 
 static int
-process1 (void *_args)
+process1 ()
 {
     for (int i = 0; i < 10; i++) {
         g_rwlock.wrlock();
@@ -34,7 +34,7 @@ process1 (void *_args)
 }
 
 static int
-process2 (void *_args)
+process2 ()
 {
     for (int i = 0; i < 10; i++) {
         g_rwlock.rdlock();
@@ -46,7 +46,7 @@ process2 (void *_args)
 }
 
 static int
-process3 (void *_args)
+process3 ()
 {
     for (int i = 0; i < 10; i++) {
         g_rwlock.rdlock();

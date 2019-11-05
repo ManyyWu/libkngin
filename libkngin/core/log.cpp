@@ -9,7 +9,7 @@
 #include "logmgr.h"
 #include "common.h"
 #include "define.h"
-#include "mutex.h"
+#include "lock.h"
 #include "timestamp.h"
 
 __NAMESPACE_BEGIN
