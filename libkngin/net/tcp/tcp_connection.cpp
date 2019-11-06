@@ -50,7 +50,7 @@ tcp_connection::~tcp_connection ()
 }
 
 bool
-tcp_connection::send (buffer &&_buf)
+tcp_connection::send (const buffer &_buf)
 {
     check(m_connected);
     if (m_out_buf.readable())
@@ -58,8 +58,7 @@ tcp_connection::send (buffer &&_buf)
 
     m_event.enable_write();
     m_event.update();
-
-    m_out_buf.swap(_buf);
+    _buf.copy_to(m_out_buf);
     if (m_loop->in_loop_thread())
         handle_write();
     else

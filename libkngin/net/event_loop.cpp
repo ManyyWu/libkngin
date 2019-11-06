@@ -51,10 +51,9 @@ event_loop::loop (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb)
         _start_cb();
 
     try {
-        m_waker.set_read_cb(std::bind(&event_loop::handle_wakeup, this, std::placeholders::_1));
         m_waker.set_nonblock(false);
         m_waker.set_closeexec(true);
-        m_waker.start();
+        m_waker.start(nullptr);
 
         while (!m_stop) {
             // wait for events
@@ -173,7 +172,7 @@ event_loop::run_in_loop (event_loop::queued_fn &&_fn)
 
     {
         local_lock _lock(m_mutex);
-        m_fnq.push_back(_fn);
+        m_fnq.push_back(std::move(_fn));
     }
     
     if (!in_loop_thread())
@@ -195,22 +194,6 @@ event_loop::wakeup ()
         log_error("event_loop::wakeup() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
         log_error("event_loop::wakeup() error, write %" PRId64 " bytes to waker instead of 8", _ret);
-}
-
-void
-event_loop::handle_wakeup (event &_e)
-{
-    check(m_looping);
-    log_debug("handled wakeup event_loop in thread \"%s\"", m_thr->name());
-    if (m_waker.stopped())
-        return;
-
-    buffer _val(8);
-    ssize_t _ret = _e.read(_val, 8); // blocked
-    if (_ret < 0)
-        log_error("event_loop::handle_wakeup() error - %s:%d", strerror(errno), errno);
-    else if (_ret != sizeof(_ret))
-        log_error("event_loop::handle_wakeup() error, read %" PRId64 " bytes from waker instead of 8", _ret);
 }
 
 __NAMESPACE_END

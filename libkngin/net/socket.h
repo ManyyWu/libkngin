@@ -39,7 +39,6 @@ public:
     explicit
     socket        (INET_PROTOCOL _proto);
 
-    explicit
     socket        (socket &&_s);
 
     virtual

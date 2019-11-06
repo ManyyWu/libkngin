@@ -17,9 +17,8 @@ __NAMESPACE_BEGIN
 timer::timer (event_loop *_loop)
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
+      m_timeout_cb(nullptr),
       m_event(_loop, this),
-      m_read_cb(nullptr),
-      m_write_cb(nullptr),
       m_stopped(true)
 {
     check(_loop);
@@ -40,10 +39,10 @@ timer::~timer ()
 void
 timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
-    check(!m_stopped);
+    check(m_stopped);
     m_timeout_cb = std::move(_timeout_cb);
     set_time(_val, _interval, _abs);
-    m_event.set_read_cb(std::bind(&timer::m_timeout_cb, this));
+    m_event.set_read_cb(std::bind(&timer::on_timeout, this));
     m_event.start();
     m_stopped = false;
 }
@@ -70,35 +69,6 @@ timer::get_time ()
     return _its.it_value;
 }
 
-
-void
-timer::set_read_cb (timer_cb &&_cb)
-{
-    m_read_cb = std::move(_cb);
-    m_event.set_read_cb(std::bind(&timer::handle_read, this));
-    m_event.update();
-}
-
-void
-timer::set_write_cb (timer_cb &&_cb)
-{
-    m_write_cb = std::move(_cb);
-    m_event.set_read_cb(std::bind(&timer::handle_write, this));
-    m_event.update();
-}
-
-epoller_event *
-timer::get_event ()
-{
-    return &m_event;
-}
-
-bool
-timer::stopped ()
-{
-    return m_stopped;
-}
-
 void
 timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
@@ -115,19 +85,17 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 }
 
 void
-timer::handle_read  ()
+timer::on_timeout ()
 {
-    check(!m_stopped);
-    if (m_read_cb)
-        m_read_cb(std::ref(*this));
-}
-
-void
-timer::handle_write ()
-{
-    check(!m_stopped);
-    if (m_write_cb)
-        m_write_cb(std::ref(*this));
+    buffer _val(8);
+    ssize_t _ret = this->read(_val, 8); // blocked
+    if (_ret < 0)
+        log_error("timer::on_timeout() error - %s:%d", strerror(errno), errno);
+    else if (_ret != sizeof(_ret))
+        log_error("timer::on_timeout() error, read %" PRId64 " bytes instead of 8", _ret);
+    else
+        if (m_timeout_cb)
+            m_timeout_cb();
 }
 
 __NAMESPACE_END

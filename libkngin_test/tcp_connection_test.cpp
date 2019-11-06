@@ -127,7 +127,7 @@ public:
                          _buf.dump().c_str(), _size);
                 buffer _outbuf(4);
                 _outbuf.write_uint32(_port);
-                check(_conn.send(std::move(_outbuf)));
+                check(_conn.send(_outbuf));
             });
             m_conn->set_write_done_cb([] (tcp_connection &_conn) {
                 inet_addrstr _client_addr_str;

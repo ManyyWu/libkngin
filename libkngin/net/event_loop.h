@@ -71,9 +71,6 @@ protected:
     void
     wakeup         ();
 
-    void
-    handle_wakeup  (event &_e);
-
 protected:
     thread *                 m_thr;
 

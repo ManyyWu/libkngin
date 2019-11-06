@@ -10,7 +10,7 @@ __NAMESPACE_BEGIN
 io_threadpool::io_threadpool (uint16_t _max, inited_cb &&_cb)
     try
     : m_num(_max), m_threads(), m_stopped(true),
-      m_mutex(), m_cond(&m_mutex)
+      m_mutex(), m_cond(&m_mutex), m_inited_cb(std::move(_cb))
 {
 } catch (...) {
     log_fatal("io_threadpool::io_threadpool() error");

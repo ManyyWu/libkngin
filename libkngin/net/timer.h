@@ -12,7 +12,7 @@ __NAMESPACE_BEGIN
 class event_loop;
 class timer : public filefd {
 public:
-    typedef std::function<void (timer &)> timer_cb;
+    typedef epoller_event::epoller_event_cb timer_cb;
 
 public:
     timer        () = delete;
@@ -33,31 +33,18 @@ public:
     timestamp
     get_time     ();
 
-public:
-
-    void
-    set_read_cb (timer_cb &&_cb);
-
-    void
-    set_write_cb (timer_cb &&_cb);
-
-public:
-    epoller_event *
-    get_event    ();
-
-    bool
-    stopped      ();
-
-protected:
     void
     set_time     (timestamp _val, timestamp _interval, bool _abs = false);
 
+    bool
+    stopped      () { return m_stopped; }
+
+    epoller_event *
+    get_event    () { return &m_event; }
+
 protected:
     void
-    handle_read  ();
-
-    void
-    handle_write ();
+    on_timeout   ();
 
 protected:
     event_loop *      m_loop;
@@ -65,10 +52,6 @@ protected:
     timer_cb          m_timeout_cb;
 
     epoller_event     m_event;
-
-    timer_cb          m_read_cb;
-
-    timer_cb          m_write_cb;
 
     std::atomic<bool> m_stopped;
 };

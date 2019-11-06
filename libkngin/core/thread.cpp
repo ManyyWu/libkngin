@@ -145,7 +145,7 @@ thread::cleanup (void *_args)
 }
 
 int
-thread::process (void *_args)
+thread::process ()
 {
     // thread *_p = (thread *)_args;
     // pthread_cleanup_push()

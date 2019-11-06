@@ -56,6 +56,13 @@ basic_buffer::write_bytes (const uint8_t *_p, size_t _n)
     return _n;
 }
 
+void
+basic_buffer::copy_to (basic_buffer &_buf) const
+{
+    _buf.m_widx = _buf.m_ridx = 0;
+    _buf.m_arr.assign(m_arr.begin(), m_arr.end());
+}
+
 const std::string &
 basic_buffer::dump ()
 {

@@ -103,6 +103,9 @@ public:
     size_t
     write_bytes (const uint8_t *_p, size_t _n);
 
+    void
+    copy_to     (basic_buffer &_buf) const;
+
 public:
     size_t
     size      () const          { return m_arr.size(); }

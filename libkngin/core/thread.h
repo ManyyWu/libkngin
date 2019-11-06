@@ -101,8 +101,8 @@ protected:
     cleanup       (void *_args);
 
 public:
-    static int
-    process       (void *_args);
+    int
+    process       ();
 
 protected:
     std::string       m_name;

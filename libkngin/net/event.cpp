@@ -16,9 +16,8 @@ __NAMESPACE_BEGIN
 event::event (event_loop *_loop)
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(_loop),
+      m_event_cb(nullptr),
       m_event(_loop, this),
-      m_read_cb(nullptr),
-      m_write_cb(nullptr),
       m_stopped(true)
 {
     check(_loop);
@@ -37,9 +36,11 @@ event::~event()
 }
 
 void
-event::start ()
+event::start (event_cb &&_cb)
 {
     check(m_stopped);
+    m_event_cb = std::move(_cb);
+    m_event.set_read_cb(std::bind(&event::on_event, this));
     m_event.start();
     m_stopped = false;
 }
@@ -60,45 +61,17 @@ event::stop ()
 }
 
 void
-event::set_read_cb (event_cb &&_cb)
+event::on_event ()
 {
-    m_read_cb = std::move(_cb);
-    m_event.set_read_cb(std::bind(&event::handle_read, this));
-}
-
-void
-event::set_write_cb (event_cb &&_cb)
-{
-    m_write_cb = std::move(_cb);
-    m_event.set_read_cb(std::bind(&event::handle_write, this));
-}
-
-epoller_event *
-event::get_event ()
-{
-    return &m_event;
-}
-
-bool
-event::stopped ()
-{
-    return m_stopped;
-}
-
-void
-event::handle_read  ()
-{
-    check(!m_stopped);
-    if (m_read_cb)
-        m_read_cb(std::ref(*this));
-}
-
-void
-event::handle_write ()
-{
-    check(!m_stopped);
-    if (m_write_cb)
-        m_write_cb(std::ref(*this));
+    buffer _val(8);
+    ssize_t _ret = this->read(_val, 8); // blocked
+    if (_ret < 0)
+        log_error("event::on_event() error - %s:%d", strerror(errno), errno);
+    else if (_ret != sizeof(_ret))
+        log_error("event::on_event() error, read %" PRId64 " bytes instead of 8", _ret);
+    else
+        if (m_event_cb)
+            m_event_cb();
 }
 
 __NAMESPACE_END

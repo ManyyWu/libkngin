@@ -12,7 +12,7 @@ __NAMESPACE_BEGIN
 class event_loop;
 class event : public filefd {
 public:
-    typedef std::function<void (event &)> event_cb;
+    typedef epoller_event::epoller_event_cb event_cb;
 
 public:
     event        () = delete;
@@ -25,7 +25,7 @@ public:
 
 public:
     void
-    start        ();
+    start        (event_cb &&_cb);
 
     void
     update       ();
@@ -33,35 +33,22 @@ public:
     void
     stop         ();
 
-public:
-    void
-    set_read_cb  (event_cb &&_cb);
-
-    void
-    set_write_cb (event_cb &&_cb);
-
-public:
     epoller_event *
-    get_event    ();
+    get_event    () { return &m_event; }
 
     bool
-    stopped      ();
+    stopped      () { return m_stopped; }
 
 protected:
     void
-    handle_read  ();
-
-    void
-    handle_write ();
+    on_event     ();
 
 protected:
     event_loop *      m_loop;
 
+    event_cb          m_event_cb;
+
     epoller_event     m_event;
-
-    event_cb          m_read_cb;
-
-    event_cb          m_write_cb;
 
     std::atomic<bool> m_stopped;
 };
