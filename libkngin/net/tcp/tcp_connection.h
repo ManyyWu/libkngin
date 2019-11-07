@@ -41,7 +41,7 @@ public:
 
 public:
     bool
-    send              (const buffer &_buf);
+    send              (buffer &_buf);
 
     bool
     recv              (buffer &_buf);

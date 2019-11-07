@@ -100,10 +100,6 @@ protected:
     static void
     cleanup       (void *_args);
 
-public:
-    int
-    process       ();
-
 protected:
     std::string       m_name;
 

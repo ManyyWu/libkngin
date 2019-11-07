@@ -59,7 +59,7 @@ tcp_connection::send (buffer &_buf)
     m_event.enable_write();
     m_event.update();
     m_out_buf.clear();
-    _buf.swap(m_out_buf);
+    m_out_buf.swap(_buf);
     if (m_loop->in_loop_thread())
         handle_write();
     else

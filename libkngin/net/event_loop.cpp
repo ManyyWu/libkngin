@@ -43,11 +43,11 @@ event_loop::~event_loop ()
 }
 
 int
-event_loop::loop (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb)
+event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
 {
     check_thread();
     m_looping = true;
-    if (!is_nullptr_ref(_start_cb))
+    if (_start_cb)
         _start_cb();
 
     try {
@@ -79,7 +79,7 @@ event_loop::loop (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb)
             log_debug("handled %" PRIu64 " queued functions", _fnq.size());
         }
     } catch (...) {
-        if (!is_nullptr_ref(_stop_cb))
+        if (_stop_cb)
             _stop_cb();
         m_waker.stop();
         m_looping = false;
@@ -87,7 +87,7 @@ event_loop::loop (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb)
         throw;
     }
 
-    if (!is_nullptr_ref(_stop_cb))
+    if (_stop_cb)
         _stop_cb();
     m_waker.stop();
     m_looping = false;

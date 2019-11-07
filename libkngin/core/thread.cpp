@@ -55,8 +55,6 @@ thread::run (thr_fn &&_fn)
     check_r0(!m_thr);
 #endif
 
-    if (!(m_fn = std::move(_fn)))
-        m_fn = std::bind(&thread::process, this);
     int _ret = ::pthread_create(&m_thr, nullptr, thread::start, this);
     if_not (!_ret)
         log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
@@ -121,7 +119,8 @@ thread::start (void *_args)
 
     try {
         pthread_cleanup_push(thread::cleanup, _args);
-        _p->set_err_code(_p->m_fn());
+        if (_p->m_fn)
+            _p->set_err_code(_p->m_fn());
         pthread_cleanup_pop(1);
     } catch (const k::exception &e){
         log_fatal("caught an k::exception in thread \"%s\": %s\n%s",
@@ -144,16 +143,16 @@ thread::cleanup (void *_args)
     _p->m_running = false;
 }
 
-int
-thread::process ()
-{
-    // thread *_p = (thread *)_args;
-    // pthread_cleanup_push()
-    // pthread_setcancelstate()
-    // pthread_setcanceltype()
-    // pthread testcancel()
-    // pthread_cleanup_pop()
-    return 0;
-}
+//int
+//thread::process ()
+//{
+//    // thread *_p = (thread *)_args;
+//    // pthread_cleanup_push()
+//    // pthread_setcancelstate()
+//    // pthread_setcanceltype()
+//    // pthread testcancel()
+//    // pthread_cleanup_pop()
+//    return 0;
+//}
 
 __NAMESPACE_END

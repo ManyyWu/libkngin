@@ -9,35 +9,30 @@
 __NAMESPACE_BEGIN
 
 class io_thread : public thread {
-    typedef event_loop::loop_started_cb loop_started_cb;
-
-    typedef event_loop::loop_stopped_cb loop_stopped_cb;
-
 public:
-    io_thread  (const char *_name,
-                loop_started_cb &&_started_cb,
-                loop_stopped_cb &&_stopped_cb);
+    explicit
+    io_thread  (const char *_name);
 
     virtual
     ~io_thread ();
 
 public:
     bool
-    run        ()            { return thread::run(std::bind(&io_thread::process, this, nullptr)); }
+    run        ();
 
     event_loop *
-    get_loop   ()            { return m_loop; }
+    get_loop   () { return m_loop; }
 
 protected:
     int
-    process    (void *_args) { m_loop->loop(m_started_cb, m_stopped_cb); return 0; }
+    process    ();
 
 protected:
-    event_loop *    m_loop;
+    event_loop * m_loop;
 
-    loop_started_cb m_started_cb;
+    mutex        m_mutex;
 
-    loop_stopped_cb m_stopped_cb;
+    cond         m_cond;
 };
 
 __NAMESPACE_END

@@ -39,7 +39,7 @@ public:
 
 public:
     int
-    loop           (loop_started_cb &_start_cb, loop_stopped_cb &_stop_cb);
+    loop           (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb);
 
     void
     stop           ();

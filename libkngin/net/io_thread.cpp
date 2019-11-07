@@ -9,13 +9,10 @@
 
 __NAMESPACE_BEGIN
 
-io_thread::io_thread (const char *_name,
-                      loop_started_cb &&_started_cb,
-                      loop_stopped_cb &&_stopped_cb)
+io_thread::io_thread (const char *_name)
     try
     : thread(_name), m_loop(new event_loop(this)),
-      m_started_cb(std::move(_started_cb)),
-      m_stopped_cb(std::move(_stopped_cb))
+      m_mutex(), m_cond(&m_mutex)
 {
 } catch (...) {
     delete m_loop;
@@ -24,10 +21,35 @@ io_thread::io_thread (const char *_name,
 
 io_thread::~io_thread ()
 {
-    if (this->running()) {
-        this->cancel();
-        this->join(nullptr);
+    if (m_loop && m_loop->looping())
+        m_loop->stop();
+    safe_release(m_loop);
+    if (running()) {
+        cancel();
+        join(nullptr);
     }
+}
+
+bool
+io_thread::run ()
+{
+    local_lock _lock(m_mutex);
+    bool _ret = thread::run(std::bind(&io_thread::process, this));
+    while (_ret && !m_loop->looping())
+        m_cond.wait();
+
+    return _ret;
+}
+
+int
+io_thread::process ()
+{
+    m_loop->loop([this] () {
+        local_lock _lock(m_mutex);
+        m_cond.signal();
+    }, nullptr);
+
+    return 0;
 }
 
 __NAMESPACE_END

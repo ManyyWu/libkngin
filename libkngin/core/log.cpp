@@ -27,7 +27,7 @@ log::fatal (const char *_fmt, ...)
 {
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = this->write_log(LOG_LEVEL_FATAL, _fmt, _vl);
+    bool _ret = write_log(LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
     assert(!"log fatal");
     return _ret;
@@ -38,7 +38,7 @@ log::error (const char *_fmt, ...)
 {
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = this->write_log(LOG_LEVEL_ERROR, _fmt, _vl);
+    bool _ret = write_log(LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
     assert(!"log error");
     return _ret;
@@ -49,7 +49,7 @@ log::warning (const char *_fmt, ...)
 {
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = this->write_log(LOG_LEVEL_WARNING, _fmt, _vl);
+    bool _ret = write_log(LOG_LEVEL_WARNING, _fmt, _vl);
     va_end(_vl);
     return _ret;
 }
@@ -59,7 +59,7 @@ log::info (const char *_fmt, ...)
 {
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = this->write_log(LOG_LEVEL_INFO, _fmt, _vl);
+    bool _ret = write_log(LOG_LEVEL_INFO, _fmt, _vl);
     va_end(_vl);
     return _ret;
 }
@@ -69,7 +69,7 @@ log::debug (const char *_fmt, ...)
 {
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = this->write_log(LOG_LEVEL_DEBUG, _fmt, _vl);
+    bool _ret = write_log(LOG_LEVEL_DEBUG, _fmt, _vl);
     va_end(_vl);
     return _ret;
 }
@@ -81,16 +81,16 @@ log::log_data (const char *_data, int _len)
 
     bool _ret = true;
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        _ret = this->write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len);
+        _ret = write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(LOG_LEVEL_DEBUG, _data, _len);
+        write_stderr(LOG_LEVEL_DEBUG, _data, _len);
     return _ret;
 }
 
 bool
 log::log_assert (const char *_func, const char *_file, int _line, const char *_exp)
 {
-    return this->fatal(__log_assert_format, _func, _file, _line, _exp);
+    return fatal(__log_assert_format, _func, _file, _line, _exp);
 }
 
 const char *
@@ -114,15 +114,15 @@ log::write_log (LOG_LEVEL _level, const char *_fmt, va_list _vl)
 
     bool _ret = true;
     char _buf[__LOG_BUF_SIZE + 1];
-    ::strncpy(_buf, this->get_datetime(), __LOG_DATETIME_LEN + 1);
+    ::strncpy(_buf, get_datetime(), __LOG_DATETIME_LEN + 1);
     ::vsnprintf(_buf + __LOG_DATETIME_LEN, __LOG_BUF_SIZE - __LOG_DATETIME_LEN, _fmt, _vl);
     _buf[__LOG_BUF_SIZE] = '\0';
 
     int _len = (int)::strnlen(_buf, __LOG_BUF_SIZE);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        _ret = this->write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
+        _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        this->write_stderr(_level, _buf, _len);
+        write_stderr(_level, _buf, _len);
     return _ret;
 }
 
@@ -143,14 +143,14 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
     tm           _tm;
     time_t       _t = ::time(nullptr);
     FILE *       _fplog = nullptr;
-    const char * _datetime = this->get_datetime();
+    const char * _datetime = get_datetime();
 
     __localtime(&_tm, &_t);
     ::snprintf(_filename, FILENAME_MAX, __log_filename_format, _file,
              _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday);
     _fplog = ::fopen(_filename, "a");
     if (!_fplog) {
-        this->write_stderr2(LOG_LEVEL_FATAL,
+        write_stderr2(LOG_LEVEL_FATAL,
                             __log_format("FATAL", "failed to open \"%s\" - %s[%#x]"),
                             _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
                             ::strerror(errno), errno);
@@ -168,14 +168,14 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
         size_t _str_len = ::strnlen(_buf, __LOG_BUF_SIZE);
         _ret = (int)::fwrite(_buf, 1, _str_len , _fplog);
         if (_ret < 0) {
-            this->write_stderr2(LOG_LEVEL_FATAL,
+            write_stderr2(LOG_LEVEL_FATAL,
                                 __log_format("FATAL", "failed to write log to \"%s\" - %s[%#x]"),
                                 _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
                                 ::strerror(errno), errno);
             ::fclose(_fplog);
             goto fail;
         } else if ((size_t)_ret != _str_len) {
-             this->write_stderr2(LOG_LEVEL_FATAL,
+             write_stderr2(LOG_LEVEL_FATAL,
                                  __log_format("ERROR", "the content been writen to \"%s\" are too short, "
                                               "and the disk space may be insufficient"),
                                  _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
@@ -186,7 +186,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
 
     _ret = (int)::fwrite(_str, 1, _len, _fplog);
     if (_ret < 0) {
-        this->write_stderr2(LOG_LEVEL_FATAL,
+        write_stderr2(LOG_LEVEL_FATAL,
                             __log_format("FATAL", "failed to write log to \"%s\" - write %s[%#x]"),
                             _datetime, __FUNCTION__, __FILE__, __LINE__,
                             _filename, ::strerror(errno), errno);

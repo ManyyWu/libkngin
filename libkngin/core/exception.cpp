@@ -18,7 +18,7 @@ exception::exception (const char *_what)
 #ifndef NDEBUG
     check(!"exception");
 #endif
-    this->dump_stack();
+    dump_stack();
 }
 
 void

@@ -72,9 +72,7 @@ close:
 class mythread : public io_thread {
 public:
     mythread ()
-        : io_thread("server",
-                    std::bind(&mythread::on_start, this),
-                    std::bind(&mythread::on_stop, this)),
+        : io_thread("server"),
           m_conn(nullptr), m_buf(4)
     {
         this->run();

@@ -21,26 +21,16 @@ public:
     typedef event_loop::loop_stopped_cb             loop_stopped_cb;
 
 public:
-    typedef std::function<void (io_threadpool &_pool)> inited_cb;
+    typedef std::function<void (io_threadpool *)>   inited_cb;
 
 public:
-    io_threadpool  (uint16_t _max, inited_cb &&_cb);
+    io_threadpool  (uint16_t _max);
 
     ~io_threadpool ();
 
 public:
     void
-    start           ();
-
-protected:
-    int
-    assign_loop     ();
-
-    void
-    on_loop_start   ();
-
-    void
-    on_loop_stop    ();
+    start           (inited_cb &&_cb);
 
 protected:
     const uint16_t    m_num;
@@ -48,10 +38,6 @@ protected:
     threads           m_threads;
 
     std::atomic<bool> m_stopped;
-
-    mutex             m_mutex;
-
-    cond              m_cond;
 
     inited_cb         m_inited_cb;
 };

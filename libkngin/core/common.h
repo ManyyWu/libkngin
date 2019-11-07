@@ -18,6 +18,8 @@ __NAMESPACE_BEGIN
 #define knew_array(__p, __t, __n) (__p) = new(std::nothrow) __t[__n]
 #define kdelete_array(__p)        do { delete[] (__p); (__p) = nullptr; } while (false)
 #define kdelete_this(__p)         delete (this)
+#define safe_release(__p)         do { delete (__p); (__p) = nullptr; } while (false)
+#else
 #endif
 
 /*
