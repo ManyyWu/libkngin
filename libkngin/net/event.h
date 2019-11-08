@@ -31,6 +31,9 @@ public:
     update       ();
 
     void
+    notify       ();
+
+    void
     stop         ();
 
     epoller_event *

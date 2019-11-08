@@ -9,6 +9,7 @@
 #include "lock.h"
 #include "event_loop.h"
 #include "io_thread.h"
+#include "tcp_connection.h"
 
 __NAMESPACE_BEGIN
 
@@ -20,20 +21,30 @@ public:
 
     typedef event_loop::loop_stopped_cb             loop_stopped_cb;
 
+    typedef event_loop::queued_fn                   task;
+
 public:
     typedef std::function<void (io_threadpool *)>   inited_cb;
 
 public:
-    io_threadpool  (uint16_t _max);
+    io_threadpool  (uint16_t _min, uint16_t _max, timestamp _alive, size_t _size); 
 
     ~io_threadpool ();
 
 public:
     void
-    start           (inited_cb &&_cb);
+    start          (inited_cb &&_cb);
+
+    void
+    add_task       (task &&_task);
+
+    void
+    add_conn       (tcp_connection &_conn);
 
 protected:
-    const uint16_t    m_num;
+    const uint16_t    m_min;
+
+    const uint16_t    m_max;
 
     threads           m_threads;
 

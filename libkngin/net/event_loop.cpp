@@ -38,7 +38,11 @@ event_loop::event_loop (thread *_thr)
 event_loop::~event_loop ()
 {
     log_debug("wait for loop in thread \"%s\" to end", m_thr->name());
-    while (m_looping);
+    if (m_looping) {
+        stop();
+        // FIXME: wait for loop to end
+    }
+    
     log_debug("loop in thread \"%s\" closed", m_thr->name());
 }
 
@@ -47,13 +51,13 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
 {
     check_thread();
     m_looping = true;
-    if (_start_cb)
-        _start_cb();
 
     try {
         m_waker.set_nonblock(false);
         m_waker.set_closeexec(true);
         m_waker.start(nullptr);
+        if (_start_cb)
+            _start_cb();
 
         while (!m_stop) {
             // wait for events

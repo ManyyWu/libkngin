@@ -85,7 +85,7 @@ thread::join (int *_err_code)
 #else
     m_thr = 0;
 #endif
-    log_info("thread \"%s\" joined with code: %d", m_name.c_str(), m_err_code.code);
+    log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), m_err_code.code);
     return true;
 }
 

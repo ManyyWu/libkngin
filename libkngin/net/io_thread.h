@@ -33,6 +33,8 @@ protected:
     mutex        m_mutex;
 
     cond         m_cond;
+
+    timestamp    m_last_task_time;
 };
 
 __NAMESPACE_END

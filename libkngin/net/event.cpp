@@ -53,6 +53,18 @@ event::update ()
 }
 
 void
+event::notify ()
+{
+    buffer _val(8);
+    _val.write_uint64(1);
+    ssize_t _ret = this->write(_val, 8); // blocked
+    if (_ret < 0)
+        log_error("filefd::write() error - %s:%d", strerror(errno), errno);
+    else if (_ret != sizeof(_ret))
+        log_error("filefd::wakeup() error, written %" PRId64 " bytes instead of 8", _ret);
+}
+
+void
 event::stop ()
 {
     check(!m_stopped);
@@ -66,9 +78,9 @@ event::on_event ()
     buffer _val(8);
     ssize_t _ret = this->read(_val, 8); // blocked
     if (_ret < 0)
-        log_error("event::on_event() error - %s:%d", strerror(errno), errno);
+        log_error("filefd::read() error - %s:%d", strerror(errno), errno);
     else if (_ret != sizeof(_ret))
-        log_error("event::on_event() error, read %" PRId64 " bytes instead of 8", _ret);
+        log_error("filefd::read() error, readed %" PRId64 " bytes instead of 8", _ret);
     else
         if (m_event_cb)
             m_event_cb();
