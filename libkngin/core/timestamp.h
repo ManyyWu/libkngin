@@ -55,9 +55,9 @@ public:
     uint64_t
     value       () const              { return m_ms; }
     int32_t
-    value_int   () const              { return (int)std::min(m_ms, (uint64_t)INT32_MAX); }
+    value_int   () const              { return (int)std::min<uint64_t>(m_ms, INT32_MAX); }
     uint32_t
-    value_uint  () const              { return (uint32_t)std::min(m_ms, (uint64_t)UINT32_MAX); }
+    value_uint  () const              { return (uint32_t)std::min<uint64_t>(m_ms, UINT32_MAX); }
     void
     to_timeval  (timeval &_tv) const
     { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }

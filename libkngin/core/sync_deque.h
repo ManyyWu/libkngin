@@ -136,7 +136,7 @@ public:
         check_r0(iter != m_deque.end());
         for (size_type i = 0; i < _n; i++) {
             check_r0(iter++ == m_deque.end());
-            ++iter; // ++iter is more efficient
+            ++iter;
         }
         m_deque.insert(iter, *_v);
         *_v = nullptr;
@@ -154,11 +154,10 @@ public:
         check_r0(iter != m_deque.end());
         for (size_type i = 0; i < _n; i++) {
             check_r0(iter == m_deque.end());
-            ++iter; // ++iter is more efficient
+            ++iter;
         }
         m_deque.erase(iter);
         return true;
-        return false;
     }
     
 public:
