@@ -21,7 +21,7 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
                                 address &&_local_addr, address &&_peer_addr)
     try
     : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
-      m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
+      m_connected(true), m_local_addr(std::move(_local_addr)), m_peer_addr(std::move(_peer_addr)),
       m_write_done_cb(nullptr), m_read_done_cb(nullptr), m_oob_cb(nullptr), m_close_cb(nullptr),
       m_out_buf(), m_in_buf(nullptr)
 {
@@ -29,11 +29,11 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
     sockopts::set_ooblinline(m_socket, false);
-    m_event.set_read_cb(std::bind(&tcp_connection::handle_read, this));
-    m_event.set_write_cb(std::bind(&tcp_connection::handle_write, this));
-    m_event.set_error_cb(std::bind(&tcp_connection::handle_error, this));
-    m_event.set_close_cb(std::bind(&tcp_connection::handle_close, this));
-    m_event.set_oob_cb(std::bind(&tcp_connection::handle_oob, this));
+    m_event.set_read_cb(std::bind(&tcp_connection::on_read, this));
+    m_event.set_write_cb(std::bind(&tcp_connection::on_write, this));
+    m_event.set_error_cb(std::bind(&tcp_connection::on_error, this));
+    m_event.set_close_cb(std::bind(&tcp_connection::on_close, this));
+    m_event.set_oob_cb(std::bind(&tcp_connection::on_oob, this));
     m_event.disable_write();
     m_event.disable_read();
     m_event.disable_oob();
@@ -61,9 +61,9 @@ tcp_connection::send (buffer &_buf)
     m_out_buf.clear();
     m_out_buf.swap(_buf);
     if (m_loop->in_loop_thread())
-        handle_write();
+        on_write();
     else
-        m_loop->run_in_loop(std::bind(&tcp_connection::handle_write, this));
+        m_loop->run_in_loop(std::bind(&tcp_connection::on_write, this));
     return true;
 }
 
@@ -77,9 +77,9 @@ tcp_connection::recv (buffer &_buf)
 
     m_in_buf = &_buf;
     if (m_loop->in_loop_thread())
-        handle_read();
+        on_read();
     else
-        m_loop->run_in_loop(std::bind(&tcp_connection::handle_read, this));
+        m_loop->run_in_loop(std::bind(&tcp_connection::on_read, this));
     return true;
 }
 
@@ -88,9 +88,9 @@ tcp_connection::close ()
 { 
     check(m_connected);
     if (m_loop->in_loop_thread())
-        handle_close();
+        on_close();
     else
-        m_loop->run_in_loop(std::bind(&tcp_connection::handle_close, this));
+        m_loop->run_in_loop(std::bind(&tcp_connection::on_close, this));
 }
 
 void
@@ -114,7 +114,7 @@ tcp_connection::wr_shutdown ()
 }
 
 void
-tcp_connection::handle_write ()
+tcp_connection::on_write ()
 {
     check(m_connected);
     m_loop->check_thread();
@@ -138,13 +138,13 @@ tcp_connection::handle_write ()
         if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
-        handle_error();
+        on_error();
         return;
     }
 }
 
 void
-tcp_connection::handle_read ()
+tcp_connection::on_read ()
 {
     check(m_connected);
     check(m_in_buf);
@@ -168,13 +168,13 @@ tcp_connection::handle_read ()
         if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
-        handle_error();
+        on_error();
         return;
     }
 }
 
 void
-tcp_connection::handle_close ()
+tcp_connection::on_close ()
 {
     check(m_connected);
     m_loop->check_thread();
@@ -187,7 +187,7 @@ tcp_connection::handle_close ()
 }
 
 void
-tcp_connection::handle_oob ()
+tcp_connection::on_oob ()
 {
     check(m_connected);
     m_loop->check_thread();
@@ -197,7 +197,7 @@ tcp_connection::handle_oob ()
     ssize_t _size = m_socket.recv(_buf, 1, MSG_OOB);
     if (1 != _size) {
         log_error("socket::recv(MSG_OOB) error - %s:%d", strerror(errno), errno);
-        handle_error();
+        on_error();
         return;
     }
     if (m_oob_cb)
@@ -209,7 +209,7 @@ tcp_connection::handle_oob ()
 }
 
 void
-tcp_connection::handle_error()
+tcp_connection::on_error()
 {
     check(m_connected);
     m_loop->check_thread();
@@ -219,7 +219,7 @@ tcp_connection::handle_error()
         log_error("sockopts::error() error");
     else
         log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
-    m_loop->run_in_loop(std::bind(&tcp_connection::handle_close, this));
+    m_loop->run_in_loop(std::bind(&tcp_connection::on_close, this));
 }
 
 __NAMESPACE_END

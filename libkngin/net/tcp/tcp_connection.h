@@ -95,19 +95,19 @@ public:
 
 private:
     void
-    handle_write  ();
+    on_write  ();
 
     void
-    handle_read   ();
+    on_read   ();
 
     void
-    handle_close  ();
+    on_close  ();
 
     void
-    handle_oob    ();
+    on_oob    ();
 
     void
-    handle_error  ();
+    on_error  ();
 
 public:
     k::socket &

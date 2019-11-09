@@ -85,7 +85,7 @@ public:
 
 protected:
     void
-    handle_events  (uint32_t _flags);
+    on_events  (uint32_t _flags);
 
 protected:
     event_loop *      m_loop;

@@ -69,7 +69,7 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
 
             // process events
             for (uint32_t i = 0; i < _size; i++)
-                ((epoller_event *)(m_events[i].data.ptr))->handle_events(m_events[i].events);
+                ((epoller_event *)(m_events[i].data.ptr))->on_events(m_events[i].events);
 
             // process queued events
             std::deque<queued_fn> _fnq;

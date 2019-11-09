@@ -70,19 +70,19 @@ public:
 
 public:
     void
-    handle_new_connection_cb (tcp_connection &_conn);
+    on_new_connection     (socket &&_conn);
 
     void
-    handle_read_done_cb      (tcp_connection &_conn);
+    on_message            (tcp_connection &_conn);
 
     void
-    handle_write_done_cb     (tcp_connection &_conn);
+    on_send_complete      (tcp_connection &_conn);
 
     void
-    handle_close_cb          (tcp_connection &_conn);
+    on_close              (tcp_connection &_conn);
 
     void
-    handle_oob_cb            (tcp_connection &_conn);
+    on_oob                (tcp_connection &_conn);
 
 protected:
     // assign_thread
