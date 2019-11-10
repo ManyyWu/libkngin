@@ -18,7 +18,7 @@ func ()
 extern void
 io_threadpool_test ()
 {
-    io_threadpool _pool(20);
+    io_threadpool _pool(10);
     _pool.start();
 
     for (int i = 0; i < 100; ++i)

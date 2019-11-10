@@ -36,7 +36,7 @@ public:
     typedef event_loop::loop_stopped_cb             loop_stopped_cb;
 
 
-    typedef std::function<void (io_threadpool *)>   inited_cb;
+    typedef std::function<void (io_threadpool &)>   inited_cb;
 
 public:
     io_threadpool  (uint16_t _num);
