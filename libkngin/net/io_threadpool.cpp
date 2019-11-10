@@ -62,12 +62,12 @@ io_threadpool::stop ()
 
     {
         local_lock _lock(m_mutex);
-        m_stopped = true;
         for (uint16_t i = 0; i < m_threads.size(); ++i)
             m_threads[i]->stop();
         m_threads.clear();
         m_taskq.clear();
     }
+    m_stopped = true;
 }
 
 void

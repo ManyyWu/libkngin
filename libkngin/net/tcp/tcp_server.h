@@ -7,6 +7,7 @@
 #include "address.h"
 #include "event_loop.h"
 #include "server_opts.h"
+#include "io_threadpool.h"
 
 __NAMESPACE_BEGIN
 
@@ -30,18 +31,20 @@ public:
     ~tcp_server ();
 
 public:
-    // run
-    // stop
-    // enable_accept
-    // disable_accept
-    // accepting
+    void
+    run            ();
+
+    void
+    stop           ();
+
+    void
+    accepting      ();
 
 public:
-    // accept, be called when new connection comming
+
+    //accept         ();
 
 public:
-    // add_connection
-
     // remove_connection
 
 public:
@@ -68,7 +71,7 @@ public:
     void
     set_oob_cb            (read_oob_cb &&_cb);
 
-public:
+protected:
     void
     on_new_connection     (socket &&_conn);
 
@@ -88,7 +91,8 @@ protected:
     // assign_thread
 
 protected:
-    // m_threadpoll
+    io_threadpool     m_threadpool;
+
     // m_listener
     // m_connections;
     // m_max_connection

@@ -72,10 +72,11 @@ close:
 class mythread : public io_thread {
 public:
     mythread ()
-        : io_thread("server"),
-          m_conn(nullptr), m_buf(4)
+        : io_thread("io_thread"),
+          m_conn(nullptr),
+          m_buf(4),
+          m_server_thr("server_thread")
     {
-        this->run();
     }
 
     virtual
@@ -85,8 +86,16 @@ public:
     }
 
 public:
-    void
-    on_start ()
+    bool
+    run ()
+    {
+        io_thread::run();
+        return m_server_thr.run(std::bind(&mythread::process, this));
+    }
+
+protected:
+    int
+    process ()
     {
         try {
             // init server
@@ -151,21 +160,19 @@ public:
         }
     }
 
-    void
-    on_stop ()
-    {
-    }
-
 protected:
     tcp_connection *m_conn;
 
     buffer          m_buf;
+
+    thread          m_server_thr;
 };
 
 void
 tcp_connection_test ()
 {
     mythread _server_thr;
+    _server_thr.run();
 
     thread _client("client");
     thread::sleep(1000);

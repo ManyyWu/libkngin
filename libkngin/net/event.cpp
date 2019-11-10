@@ -68,8 +68,8 @@ void
 event::stop ()
 {
     check(!m_stopped);
-    m_stopped = true;
     m_event.remove();
+    m_stopped = true;
 }
 
 void

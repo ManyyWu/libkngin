@@ -51,9 +51,9 @@ void
 timer::stop ()
 {
     check(!m_stopped);
-    m_stopped = true;
     set_time(0, 0);
     m_event.remove();
+    m_stopped = true;
 }
 
 timestamp

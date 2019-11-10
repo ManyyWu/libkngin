@@ -30,6 +30,8 @@ event_loop::event_loop (thread *_thr)
 {
     check(__fd_valid(m_waker.fd()));
     check(_thr);
+    m_waker.set_nonblock(false);
+    m_waker.set_closeexec(true);
 } catch (...) {
     log_fatal("event_loop::event_loop() error");
     throw;
@@ -53,8 +55,6 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
     m_looping = true;
 
     try {
-        m_waker.set_nonblock(false);
-        m_waker.set_closeexec(true);
         m_waker.start(nullptr);
         if (_start_cb)
             _start_cb();
