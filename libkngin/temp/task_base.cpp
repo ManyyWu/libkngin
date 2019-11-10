@@ -22,8 +22,8 @@
 //bool
 //task_base::create (msg **_msg)
 //{
-//    check_r0(_msg);
-//    check_r0(*_msg);
+//    check(_msg);
+//    check(*_msg);
 //
 //    if (m_msg)
 //        m_msg->release();

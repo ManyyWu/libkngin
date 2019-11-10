@@ -114,7 +114,7 @@ socket_test ()
     _server_thr.run(std::bind(server, (void *)1));
     k::thread::sleep(1000);
 
-    for (int i = 0; i< 100; i++) {
+    for (int i = 0; i< 100; ++i) {
         k::thread _client_thr("client");
         _client_thr.run(std::bind(client, (void *)1));
         _client_thr.join(nullptr);

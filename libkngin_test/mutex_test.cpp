@@ -25,7 +25,7 @@ static std::mutex       g_std_mutex;
 static int
 process_mutex ()
 {
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 1000000; ++i) {
         g_mutex.lock();
         g_num1 += 1;
         g_mutex.unlock();
@@ -36,7 +36,7 @@ process_mutex ()
 static int
 process_std_mutex ()
 {
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 1000000; ++i) {
         g_std_mutex.lock();
         g_num2 += 1;
         g_std_mutex.unlock();
@@ -47,7 +47,7 @@ process_std_mutex ()
 static int
 process_atomic ()
 {
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 1000000; ++i) {
         g_num3 += 1;
     }
     return 0;

@@ -68,7 +68,7 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
                       m_thr->name(), _size);
 
             // process events
-            for (uint32_t i = 0; i < _size; i++)
+            for (uint32_t i = 0; i < _size; ++i)
                 ((epoller_event *)(m_events[i].data.ptr))->on_events(m_events[i].events);
 
             // process queued events
@@ -80,7 +80,8 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
             }
             for (auto _iter : _fnq)
                 _iter();
-            log_debug("handled %" PRIu64 " queued functions", _fnq.size());
+            log_debug("the epoller in thread \"%s\" handled %" PRIu64 " task",
+                      m_thr->name(), _fnq.size());
         }
     } catch (...) {
         if (_stop_cb)

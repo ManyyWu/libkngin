@@ -131,7 +131,7 @@ namespace fooNS {
             auto la = [X, W](int i1, int i2) -> bool mutable { return i1 < i2; }(1, 2);
             auto laF = []() {};
             bool z = (bar.foo<2>() & 4) == 4;
-            for (int i = 0; i < x; i++) {
+            for (int i = 0; i < x; ++i) {
                 y += (y ^ 0x123) << 2;
             }
             do {

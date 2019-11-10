@@ -4,6 +4,7 @@
 #else
 #include <pthread.h>
 #include <unistd.h>
+#include <memory>
 #endif
 #include "define.h"
 #include "common.h"
@@ -20,26 +21,23 @@
 
 __NAMESPACE_BEGIN
 
-#ifdef _WIN32
-thread::thread (const char *_name /* = "" */)
-    : m_name(_name ? _name : ""), m_thr(pthread_t{nullptr, 0}), m_tid(thread::tid())
-      m_err_code(nullptr), m_running(false), m_joined(false), m_fn(nullptr)
-#else
 thread::thread (const char *_name)
-    : m_name(_name ? _name : ""), m_thr(0), m_tid(thread::tid()),
-      m_err_code(), m_running(false), m_joined(false), m_fn(nullptr)
+    : m_name(_name ? _name : ""),
+#ifdef _WIN32
+      m_thr({nullptr, 0}),
+#else
+      m_thr(0),
 #endif
+      m_tid(0),
+      m_joined(false)
 {
-    check(_name);
 }
 
 thread::~thread ()
 {
-    int _ret = 0;
-    
     if (!m_joined) {
-        _ret = ::pthread_detach(m_thr);
-        if_not (!_ret)
+        int _ret = ::pthread_detach(m_thr);
+        if (_ret)
             log_fatal("::pthread_detach(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
         else
             log_info("thread \"%s\" detached", m_name.c_str());
@@ -49,98 +47,75 @@ thread::~thread ()
 bool
 thread::run (thr_fn &&_fn)
 {
-#ifdef _WIN32
-    check_r0(!m_thr.p);
-#else
-    check_r0(!m_thr);
-#endif
-
-    int _ret = ::pthread_create(&m_thr, nullptr, thread::start, this);
-    if_not (!_ret)
+    thread_data *_data = new thread_data(m_name, std::move(_fn));
+    int _ret = ::pthread_create(&m_thr, nullptr, thread::start, _data);
+    if (_ret)
         log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
-    log_info("thread \"%s\" running", m_name.c_str());
+    else
+        log_info("thread \"%s\" is running", m_name.c_str());
     return !_ret;
 }
 
 bool
 thread::join (int *_err_code)
 {
-#ifdef _WIN32
-    check_r0(m_thr.p);
-#else
-    check_r0(m_thr);
-#endif
-    check_r0(!equal_to(self()));
+    check(!equal_to(self()));
 
-    int _ret = ::pthread_join(m_thr, &m_err_code.ptr);
-    if_not (!_ret) {
+    thread_err_code _code;
+    int _ret = ::pthread_join(m_thr, &_code.ptr);
+    if (_ret) {
         log_fatal("::pthread_join(), name = \"%s\"return %d - %s", m_name.c_str(), _ret, strerror(_ret));
+        m_joined = true;
         return false;
     }
     if (_err_code)
-        *_err_code = m_err_code.code;
+        *_err_code = _code.code;
     m_joined = true;
-#ifdef _WIN32
-    m_thr = pthread_t{nullptr, 0};
-#else
-    m_thr = 0;
-#endif
-    log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), m_err_code.code);
+    log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), _code.code);
     return true;
 }
 
 bool
 thread::cancel ()
 {
-#ifdef _WIN32
-    check_r0(m_thr.p);
-#else
-    check_r0(m_thr);
-#endif
-    check_r0(!equal_to(self()));
+    check(!equal_to(self()));
 
-    int _ret = 0;
-    _ret = ::pthread_cancel(m_thr);
-    if_not (!_ret) {
+    int _ret = ::pthread_cancel(m_thr);
+    if (_ret)
         log_fatal("::pthread_cancel(), name = \"%s\"return %d - %s", m_name.c_str(), _ret, strerror(_ret));
-        return false;
-    }
-    log_info("thread \"%s\" cancel", m_name.c_str());
-    return true;
+    else
+        log_info("thread \"%s\" cancel", m_name.c_str());
+    return !_ret;
 }
 
 void *
 thread::start (void *_args)
 {
-    check_r0(_args);
-
-    thread *_p = (thread *)_args;
-    _p->m_running = true;
+    check(_args);
+    pthread_cleanup_push(thread::cleanup, _args);
+    thread_data * _data = (thread_data *)_args;
 
     try {
-        pthread_cleanup_push(thread::cleanup, _args);
-        if (_p->m_fn)
-            _p->set_err_code(_p->m_fn());
-        pthread_cleanup_pop(1);
+        if (_data->fn)
+            _data->fn();
     } catch (const k::exception &e){
         log_fatal("caught an k::exception in thread \"%s\": %s\n%s",
-                  _p->name(), e.what().c_str(), e.dump().c_str());
+                  _data->name.c_str(), e.what().c_str(), e.dump().c_str());
     } catch (const std::exception &e) {
-        log_fatal("caught an std::exception in thread \"%s\": %s", _p->name(), e.what());
+        log_fatal("caught an std::exception in thread \"%s\": %s", _data->name.c_str(), e.what());
     } catch (...) {
-        log_fatal("caught an undefined exception in thread \"%s\"", _p->name());
+        log_fatal("caught an undefined exception in thread \"%s\"", _data->name.c_str());
     }
 
-    return _p->m_err_code.ptr;
+    pthread_cleanup_pop(1);
+    return 0;
 }
 
 void
 thread::cleanup (void *_args)
 {
-    check_r(_args);
-
-    thread *_p = (thread *)_args;
-    _p->m_running = false;
+    thread_data * _data = (thread_data *)_args;
+    safe_release(_data);
 }
 
 //int

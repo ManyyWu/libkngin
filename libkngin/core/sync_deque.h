@@ -56,28 +56,28 @@ public:
     virtual __T *
     at (size_type _n)
     {
-        check_r0(_n >= 0 && _n < m_deque.size());
+        check(_n >= 0 && _n < m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
     virtual __T *
     front ()
     {
-        check_r0(m_deque.size());
+        check(m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.front());
     }
 
     virtual __T *
     back ()
     {
-        check_r0(m_deque.size());
+        check(m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.back());
     }
 
     virtual __T *
     operator [] (size_type _n)
     {
-        check_r0(_n >= 0 && _n < m_deque.size());
+        check(_n >= 0 && _n < m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
@@ -85,8 +85,8 @@ public:
     virtual bool
     push_back (__T **_v)
     {
-        check_r0(_v);
-        check_r0(*_v);
+        check(_v);
+        check(*_v);
         if (m_deque.size() > m_max_size)
             return false;
         m_deque.push_back(*_v);
@@ -97,7 +97,7 @@ public:
     virtual bool
     push_front (__T **_v)
     {
-        check_r0(_v);
+        check(_v);
         if (m_deque.size() > m_max_size)
             return false;
 
@@ -109,7 +109,7 @@ public:
     virtual bool
     pop_back ()
     {
-        check_r0(m_deque.size());
+        check(m_deque.size());
 
         m_deque.pop_back();
         return true;
@@ -118,7 +118,7 @@ public:
     virtual bool
     pop_front ()
     {
-        check_r0(m_deque.size());
+        check(m_deque.size());
 
         m_deque.pop_front();
         return true;
@@ -127,15 +127,15 @@ public:
     virtual bool
     insert (size_type _n, __T **_v) // insert before _n
     {
-        check_r0(_v);
-        check_r0(_n >= 0 && _n < m_deque.size());
+        check(_v);
+        check(_n >= 0 && _n < m_deque.size());
         if (m_deque.size() > m_max_size)
             return false;
 
         auto iter = m_deque.begin();
-        check_r0(iter != m_deque.end());
-        for (size_type i = 0; i < _n; i++) {
-            check_r0(iter++ == m_deque.end());
+        check(iter != m_deque.end());
+        for (size_type i = 0; i < _n; ++i) {
+            check(iter++ == m_deque.end());
             ++iter;
         }
         m_deque.insert(iter, *_v);
@@ -146,14 +146,14 @@ public:
     virtual bool
     erase (size_type _n)
     {
-        check_r0(_n >= 0 && _n < m_deque.size());
+        check(_n >= 0 && _n < m_deque.size());
         if (m_deque.empty())
             return false;
 
         auto iter = m_deque.begin();
-        check_r0(iter != m_deque.end());
-        for (size_type i = 0; i < _n; i++) {
-            check_r0(iter == m_deque.end());
+        check(iter != m_deque.end());
+        for (size_type i = 0; i < _n; ++i) {
+            check(iter == m_deque.end());
             ++iter;
         }
         m_deque.erase(iter);

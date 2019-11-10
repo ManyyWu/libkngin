@@ -17,7 +17,7 @@
 //{
 //    work_thread *_c = (work_thread *)_args;
 //    srand((unsigned int)time(nullptr));
-//    for (int i = 0; i < 100; i++)
+//    for (int i = 0; i < 100; ++i)
 //    {
 //        work_task *_wt = nullptr;
 //        knew(_wt, work_task, (_c));

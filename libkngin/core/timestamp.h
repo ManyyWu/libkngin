@@ -52,6 +52,13 @@ public:
     uint64_t    () const              { return m_ms; }
 
 public:
+    static uint64_t
+    infinite    ()                    { return UINT64_MAX; }
+
+    static uint64_t
+    max         ()                    { return UINT64_MAX - 1; }
+
+public:
     uint64_t
     value       () const              { return m_ms; }
     int32_t
@@ -66,11 +73,9 @@ public:
     { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
 
 public:
-    static uint64_t
-    infinite    ()                     { return UINT64_MAX; }
-
-    static uint64_t
-    max         ()                     { return UINT64_MAX - 1; }
+    static timestamp
+    current_time ()
+    {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
 
 protected:
     uint64_t m_ms;

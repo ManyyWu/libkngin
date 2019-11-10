@@ -7,8 +7,9 @@
 #include <pthread.h>
 #endif
 #include <atomic>
+#include <memory>
 #include <functional>
-#include <unistd.h> ///////////
+#include <unistd.h>
 #include "define.h"
 #include "timestamp.h"
 
@@ -16,8 +17,6 @@ __NAMESPACE_BEGIN
 
 class thread {
 public:
-    typedef std::function<int (void)> thr_fn;
-
     union thread_err_code {
         void *ptr;
         int   code;
@@ -26,6 +25,16 @@ public:
 
         explicit
         thread_err_code (int _code) { ptr = nullptr; code = _code; }
+    };
+
+    typedef std::function<int (void)> thr_fn;
+
+    struct thread_data {
+        std::string       name;
+
+        thr_fn            fn;
+
+        thread_data (std::string &_name, thr_fn &&_fn) : name(_name), fn(std::move(_fn)) {}
     };
 
 public:
@@ -38,17 +47,14 @@ public:
     ~thread       ();
 
 public:
-    virtual bool
+    bool
     run           (thr_fn &&_fn);
 
-    virtual bool
+    bool
     join          (int *_err_code);
 
-    virtual bool
-    cancel        ();
-
     bool
-    running       () const        { return m_running; }
+    cancel        ();
 
     bool
     joined        () const        { return m_joined; }
@@ -58,9 +64,6 @@ public:
 
     uint64_t
     get_tid       () const        { return m_tid; }
-
-    int
-    get_err_code  () const        { return m_err_code.code; }
 
     const char *
     name          () const        { return m_name.c_str(); }
@@ -86,9 +89,6 @@ public:
     static void
     exit          (int _err_code) { ::pthread_exit(thread_err_code(_err_code).ptr); }
 
-    void
-    set_err_code  (int _err_code) { m_err_code.code = _err_code; }
-
     bool
     equal_to      (pthread_t _t)  { return ::pthread_equal(_t, m_thr); }
 
@@ -107,13 +107,7 @@ protected:
 
     uint64_t          m_tid;
 
-    thread_err_code   m_err_code;
-
-    std::atomic<bool> m_running;
-
     std::atomic<bool> m_joined;
-
-    thr_fn            m_fn;
 };
 
 __NAMESPACE_END

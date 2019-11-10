@@ -65,7 +65,7 @@ public:
     virtual bool
     push (__T **_v)
     {
-        check_r0(_v);
+        check(_v);
         if (!_v)
             return false;
         if (m_queue.size() > m_max_size)

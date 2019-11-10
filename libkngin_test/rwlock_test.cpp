@@ -24,7 +24,7 @@ static mutex            g_mutex;
 static int
 process1 ()
 {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; ++i) {
         g_rwlock.wrlock();
         print_err("process1: wrlock\n");
         g_rwlock.unlock();
@@ -36,7 +36,7 @@ process1 ()
 static int
 process2 ()
 {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; ++i) {
         g_rwlock.rdlock();
         print_err("----process2: rdlock\n");
         g_rwlock.unlock();
@@ -48,7 +48,7 @@ process2 ()
 static int
 process3 ()
 {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; ++i) {
         g_rwlock.rdlock();
         print_err("--------process3: rdlock\n");
         g_rwlock.unlock();

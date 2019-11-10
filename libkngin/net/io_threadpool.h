@@ -16,20 +16,30 @@
 
 __NAMESPACE_BEGIN
 
+/*
+* I/O thread pool
+* m_core_size: The number of threads whose will not be destroyed when timeout occurs
+* m_max_size:  The number of threads in thread pool
+* m_alive:     The maxinum time a thread can live while idle
+* */
+
 class io_threadpool {
 public:
+    typedef event_loop::queued_fn                   task;
+
+    typedef std::deque<task>                        task_queue;
+
     typedef std::vector<std::unique_ptr<io_thread>> threads;
 
     typedef event_loop::loop_started_cb             loop_started_cb;
 
     typedef event_loop::loop_stopped_cb             loop_stopped_cb;
 
-    typedef event_loop::queued_fn                   task;
 
     typedef std::function<void (io_threadpool *)>   inited_cb;
 
 public:
-    io_threadpool  ();
+    io_threadpool  (uint16_t _num);
 
     ~io_threadpool ();
 
@@ -43,63 +53,23 @@ public:
     void
     add_task       (task &&_task);
 
-    void
-    add_conn       (tcp_connection &_conn);
-
-    void
-    remove_conn    (tcp_connection &_conn);
-
-public:
-    size_t
-    conn_num       ();
-
-    size_t
-    task_num       ();
-
-    uint16_t
-    size           ();
-
-    uint16_t
-    actived        ();
-
-public:
-    void
-    set_max        (uint16_t _n)      { m_max = (std::min<uint16_t>)(_n, 1); }
-    void
-    set_core       (uint16_t _n)      { m_min = (std::max<uint16_t>)(_n, 1); }
-    void
-    set_alive_time (timestamp _alive) { m_alive = _alive; }
-    void
-    set_queue_max  (size_t _n)        { m_queue_size = (std::max<size_t>)(_n, 1); }
-    void
-    set_conn_max   (size_t _n)        { m_conn_size = (std::max<size_t>)(_n, 1); }
-    uint16_t
-    max            () const           { return m_max; }
-    uint16_t
-    core           () const           { return m_min; }
-    timestamp
-    alive_time     () const           { return m_alive; }
-    size_t
-    queue_max      () const           { return m_queue_size; }
-    size_t
-    conn_max       () const           { return m_conn_size; }
+    event_loop *
+    next_loop      ();
 
 protected:
-    size_t            m_size;
-
-    uint16_t          m_max;
-
-    uint16_t          m_min;
-
-    timestamp         m_alive;
-
-    size_t            m_conn_size;
-
-    size_t            m_queue_size;
+    const uint16_t    m_num;
 
     threads           m_threads;
 
+    task_queue        m_taskq;
+
     std::atomic<bool> m_stopped;
+
+    mutex             m_mutex;
+
+    cond              m_cond;
+
+    uint16_t          m_next;
 };
 
 __NAMESPACE_END

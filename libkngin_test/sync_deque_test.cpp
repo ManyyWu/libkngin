@@ -14,7 +14,7 @@ static int
 producer (void *_args)
 {
     sync_deque<string> *_q = (sync_deque<string> *)_args;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; ++i) {
         _q->lock();
         char _buf[20];
         ::sprintf(_buf, "%d", i);

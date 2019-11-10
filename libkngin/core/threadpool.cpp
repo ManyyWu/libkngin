@@ -34,8 +34,8 @@
 //bool
 //thread_pool::run (int _num)
 //{
-//    check_r0(m_stop);
-//    check_r0(!m_running);
+//    check(m_stop);
+//    check(!m_running);
 //    char _name[50];
 //
 //    m_stop = false;
@@ -53,7 +53,7 @@
 //        goto fail;
 //
 //    // create thread pool
-//    for (int i = 0; i < _num; i++) {
+//    for (int i = 0; i < _num; ++i) {
 //        ::snprintf(_name, sizeof(_name),
 //                 "work_thread[%10d-%19lld]", // format: work_thread[pid: serial]
 //                 getpid(), (std::min)(m_serial++, SIZE_MAX));
@@ -115,7 +115,7 @@
 //bool
 //thread_pool::stop ()
 //{
-//    check_r0(m_pool_thread);
+//    check(m_pool_thread);
 //
 //    // stop manager thread
 //    bool _ret = true;
@@ -155,7 +155,7 @@
 //void
 //thread_pool::clear ()
 //{
-//    check_r(m_msg_queue && m_task_queue);
+//    check(m_msg_queue && m_task_queue);
 //    if (m_task_queue) {
 //        m_task_queue->lock();
 //        m_task_queue->clear();
@@ -236,7 +236,7 @@
 //int
 //thread_pool::process (void *_args)
 //{
-//    check_r0(_args);
+//    check(_args);
 //    thread_pool *_pool = (thread_pool *)_args;
 //    _pool->m_running = true;
 //
