@@ -13,17 +13,19 @@ __NAMESPACE_BEGIN
 
 class tcp_server {
 public:
-    typedef std::function<void (tcp_connection &)> new_connection_cb;
+    typedef std::function<void (socket&&)>     new_connection_cb;
 
-    typedef tcp_connection::read_done_cb           read_done_cb;
+    typedef tcp_connection::read_done_cb       read_done_cb;
 
-    typedef tcp_connection::write_done_cb          write_done_cb;
+    typedef tcp_connection::write_done_cb      write_done_cb;
 
-    typedef tcp_connection::read_oob_cb            read_oob_cb;
+    typedef tcp_connection::read_oob_cb        read_oob_cb;
 
-    typedef tcp_connection::close_cb               close_cb;
+    typedef tcp_connection::close_cb           close_cb;
 
-    typedef std::vector<tcp_connection>            tcp_connection_list;
+    typedef std::set<size_t, tcp_connection *> tcp_connection_list;
+
+    typedef std::shared_ptr<tcp_connection>    tcp_connection_ptr;
 
 public:
     tcp_server            () = delete;
@@ -39,23 +41,13 @@ public:
     void
     stop                  ();
 
-    void
-    accepting             ();
-
-public:
-    socket 
-    accept                ();
-
 public:
     bool
-    add_connection        ();
-
-    bool
-    remove_connection     ();
+    remove_connection     (tcp_connection &_conn);
 
 public:
     int
-    broadcast             (tcp_connection_list &_list, buffer &&_buf, bool _self = true); // self
+    broadcast             (tcp_connection_list &_list, buffer &&_buf);
 
 public:
     void
@@ -73,34 +65,31 @@ public:
     void
     set_oob_cb            (read_oob_cb &&_cb)       { m_oob_cb = std::move(_cb); }
 
-public:
+protected:
     event_loop_ptr
     assign_thread         ()                        { return m_threadpool.next_loop(); }
 
 protected:
-    void
-    on_new_connection     (socket &&_conn);
+    socket 
+    accept                ();
 
+protected:
     void
-    on_message            (tcp_connection &_conn);
-
-    void
-    on_send_complete      (tcp_connection &_conn);
+    on_new_connection     (socket &&_sock);
 
     void
     on_close              (tcp_connection &_conn);
 
-    void
-    on_oob                (tcp_connection &_conn);
-
 protected:
+    tcp_server_opts     m_opts;
+
     io_threadpool       m_threadpool;
 
-#ifndef NDEBUG
     tcp_connection_list m_connections;
-#endif
 
-    tcp_connection      m_listener;
+    tcp_connection_ptr  m_listener;
+
+    address             m_listen_addr;
 
     new_connection_cb   m_new_connection_cb;
 
@@ -111,6 +100,10 @@ protected:
     read_oob_cb         m_oob_cb;
 
     close_cb            m_close_cb;
+
+    std::atomic<bool>   m_stopped;
+
+    mutex               m_mutex;
 };
 
 __NAMESPACE_END

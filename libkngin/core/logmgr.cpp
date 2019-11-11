@@ -25,8 +25,20 @@ log_mgr::log_mgr ()
 
     try {
         // reserved type
-        m_log_set.push_back(new log(__LOG_FILE_MEMORY, __LOG_MODE_FILE));
-        m_log_set.push_back(new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH));
+        log *_memory_log = new log(__LOG_FILE_MEMORY, __LOG_MODE_FILE);
+        try {
+            m_log_set.push_back(_memory_log );
+        } catch (...) {
+            safe_release(_memory_log);
+            throw;
+        }
+        log *_server_log = new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
+        try {
+            m_log_set.push_back(_server_log);
+        } catch (...) {
+            safe_release(_memory_log);
+            throw;
+        }
         log_mgr::m_inited = true;
     } catch (...) {
         for (auto _iter : m_log_set) {
@@ -61,7 +73,14 @@ log_mgr::add (const std::string &_filename, __LOG_MODE _mode)
     assert(log_mgr::m_inited);
     m_logfile_set.push_back(_filename);
     int _index = m_log_set.size();
-    m_log_set.push_back(new log((__LOG_FILE)_index, _mode));
+    log *_new_log = new log((__LOG_FILE)_index, _mode);
+    try {
+        m_log_set.push_back(_new_log);
+    } catch (...) {
+        safe_release(_new_log);
+        throw;
+    }
+
     return _index;
 }
 

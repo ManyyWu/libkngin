@@ -32,12 +32,12 @@ public:
     //typedef std::function<void (void)>                               readable_cb;
 
 public:
-    tcp_connection  () = delete;
+    tcp_connection    () = delete;
 
-    tcp_connection  (event_loop *_loop, k::socket &&_socket,
-                     address &&_local_addr, address &&_peer_addr);
+    tcp_connection    (event_loop *_loop, k::socket &&_socket,
+                       address &&_local_addr, address &&_peer_addr);
 
-    ~tcp_connection ();
+    ~tcp_connection   ();
 
 public:
     bool
@@ -150,6 +150,9 @@ protected:
     buffer            m_out_buf;
 
     buffer *          m_in_buf;
+
+protected:
+    friend class tcp_connection;
 };
 
 __NAMESPACE_END

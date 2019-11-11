@@ -80,10 +80,10 @@ public:
 
 public:
     bool
-    localaddr     (address &_addr, uint16_t &_port)
+    localaddr     (address &_addr)
     { socklen_t _len = sizeof(_addr.m_sa); return ::getsockname(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
     bool
-    peeraddr      (address &_addr, uint16_t &_port)
+    peeraddr      (address &_addr)
     { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
 };
 

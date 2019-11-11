@@ -7,12 +7,12 @@
 __NAMESPACE_BEGIN
 
 struct tcp_server_opts {
-    bool opt_allow_ipv6;
+    bool     allow_ipv6;
+    uint16_t thread_num;
 };
 
 struct udp_server_opts {
-    bool opt_allow_ipv6;
-    bool max_connection;
+    bool allow_ipv6;
     bool thread_num;
 };
 

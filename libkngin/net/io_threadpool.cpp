@@ -16,7 +16,7 @@ __NAMESPACE_BEGIN
 
 io_threadpool::io_threadpool (uint16_t _num)
     try
-    : m_num(_num),
+    : m_num((std::max<uint16_t>)(_num, 1)),
       m_threads(),
       m_taskq(),
       m_stopped(true),

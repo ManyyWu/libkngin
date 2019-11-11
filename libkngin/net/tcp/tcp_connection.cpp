@@ -45,8 +45,12 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
 
 tcp_connection::~tcp_connection ()
 {
-    if (m_connected)
-        this->close();
+    if (connected())
+        log_error("the TCP connection must be closed before object disconstructing");
+
+    //if (m_connected)
+    //    this->close();
+    // FIXME; wait for m_connected to be false
 }
 
 bool
@@ -164,6 +168,7 @@ tcp_connection::on_read ()
         m_event.update();
         if (m_read_done_cb)
             m_read_done_cb(std::ref(*this), *m_in_buf, m_in_buf->readable());
+        m_in_buf = nullptr;
     } else {
         if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
             return;
@@ -179,11 +184,13 @@ tcp_connection::on_close ()
     check(m_connected);
     m_loop->check_thread();
 
-    if (m_close_cb)
-        m_close_cb(std::ref(*this));
     m_event.remove();
     m_socket.close();
+    m_in_buf = nullptr;
     m_connected = false;
+    
+    if (m_close_cb)
+        m_close_cb(std::ref(*this));
 }
 
 void
@@ -219,7 +226,7 @@ tcp_connection::on_error()
         log_error("sockopts::error() error");
     else
         log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
-    m_loop->run_in_loop(std::bind(&tcp_connection::on_close, this));
+    on_close();
 }
 
 __NAMESPACE_END

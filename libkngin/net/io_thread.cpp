@@ -35,20 +35,24 @@ io_thread::~io_thread ()
 bool
 io_thread::run ()
 {
-    local_lock _lock(m_mutex);
-    if (!thread::run(std::bind(&io_thread::process, this)))
-        return false;
-    while (!m_loop->looping())
-        m_cond.wait();
+    {
+        local_lock _lock(m_mutex);
+        if (!thread::run(std::bind(&io_thread::process, this)))
+            return false;
+        while (!m_loop->looping())
+            m_cond.wait();
+    }
     return true;
 }
 
 void
 io_thread::stop ()
 {
-    local_lock _lock(m_mutex);
-    m_loop->stop();
-    join(nullptr);
+    {
+        local_lock _lock(m_mutex);
+        m_loop->stop();
+        join(nullptr);
+    }
 }
 
 int

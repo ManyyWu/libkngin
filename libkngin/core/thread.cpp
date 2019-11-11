@@ -47,8 +47,7 @@ thread::~thread ()
 bool
 thread::run (thr_fn &&_fn)
 {
-    thread_data *_data = new thread_data(m_name, std::move(_fn));
-    int _ret = ::pthread_create(&m_thr, nullptr, thread::start, _data);
+    int _ret = ::pthread_create(&m_thr, nullptr, thread::start, new thread_data(m_name, std::move(_fn)));
     if (_ret)
         log_fatal("::pthread_create(), name = \"%s\", return %d - %s", m_name.c_str(), _ret, strerror(_ret));
     else

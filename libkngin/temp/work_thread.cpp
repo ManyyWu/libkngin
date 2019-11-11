@@ -42,7 +42,7 @@
 //        log_fatal("::thread::run() error, name = \"%s\"", m_name.c_str());
 //        return false;
 //    }
-//    log_info("work thread \"%s\" running", m_name.c_str());
+//    log_info("work thread \"%s\" is running", m_name.c_str());
 //    return true;
 //}
 //
