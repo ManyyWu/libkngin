@@ -36,7 +36,6 @@ test ()
 
 #warning "包装系统api， 取消所有头文件引用, k::core::api, k::net::api"
 #warning "std::function &&改&"
-#warning "handle 改 on_xxx"
 #warning "xxx_cb 改"
 #warning "返回值处理"
 }

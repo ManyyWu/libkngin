@@ -122,7 +122,7 @@ protected:
             inet_addrstr _client_addr_str;
             log_info("s: connected to client: %s:%hu", _client_addr.addrstr(_client_addr_str),
                     _client_addr.port());
-            m_conn = new tcp_connection(m_loop, std::move(_client_sock),
+            m_conn = new tcp_connection(m_loop.get(), std::move(_client_sock),
                                         std::move(address(_server_addr)), std::move(address(_client_addr)));
 
             // set callback

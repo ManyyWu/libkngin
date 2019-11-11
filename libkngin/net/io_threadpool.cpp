@@ -75,8 +75,7 @@ io_threadpool::add_task (task &&_task)
 {
     check(_task);
 
-    event_loop *_next = next_loop();
-
+    event_loop_ptr _next = next_loop();
     {
         local_lock _lock(m_mutex);
         if (_next && _next->looping())
@@ -84,8 +83,7 @@ io_threadpool::add_task (task &&_task)
     }
 }
 
-
-event_loop *
+io_threadpool::event_loop_ptr
 io_threadpool::next_loop ()
 {
     {

@@ -24,36 +24,40 @@ public:
     typedef tcp_connection::close_cb               close_cb;
 
 public:
-    tcp_server  () = delete;
+    tcp_server        () = delete;
 
-    tcp_server  (address &&_listen_addr, const tcp_server_opts &_opts)
+    tcp_server        (address &&_listen_addr, const tcp_server_opts &_opts)
 
-    ~tcp_server ();
+    ~tcp_server       ();
 
 public:
     void
-    run            ();
+    run               ();
 
     void
-    stop           ();
+    stop              ();
 
     void
-    accepting      ();
+    accepting         ();
 
 public:
-
-    //accept         ();
-
-public:
-    // remove_connection
+    socket 
+    accept            ();
 
 public:
-    // broadcast (connection_list &_list, buffer &&_buf)
+    bool
+    add_connection    ();
+
+    bool
+    remove_connection ();
 
 public:
-    // threadpoll
+    int
+    broadcast         (connection_list &_list, buffer &&_buf); // self
 
-    // set,get thread num
+public:
+    event_loop_ptr
+    get_next_loop     ();
 
 public:
     void
