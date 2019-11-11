@@ -18,10 +18,10 @@
 __NAMESPACE_BEGIN
 
 tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
-                                address &&_local_addr, address &&_peer_addr)
+                                address &_local_addr, address &_peer_addr)
     try
     : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
-      m_connected(true), m_local_addr(std::move(_local_addr)), m_peer_addr(std::move(_peer_addr)),
+      m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
       m_write_done_cb(nullptr), m_read_done_cb(nullptr), m_oob_cb(nullptr), m_close_cb(nullptr),
       m_out_buf(), m_in_buf(nullptr)
 {

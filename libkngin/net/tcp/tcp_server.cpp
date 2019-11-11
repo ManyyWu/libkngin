@@ -5,13 +5,13 @@
 
 __NAMESPACE_BEGIN
 
-tcp_server::tcp_server (address &&_listen_addr, const tcp_server_opts &_opts)
+tcp_server::tcp_server (const tcp_server_opts &_opts)
     try 
     : m_opts(_opts),
       m_threadpool(_opts.thread_num),
       m_connections(),
       m_listener(nullptr),
-      m_listen_addr(std::move(_listen_addr)),
+      m_listen_addr(),
       m_new_connection_cb(nullptr),
       m_write_done_cb(nullptr),
       m_read_done_cb(nullptr),
@@ -28,17 +28,31 @@ tcp_server::tcp_server (address &&_listen_addr, const tcp_server_opts &_opts)
 tcp_server::~tcp_server ()
 {
     if (!m_connections.empty())
-        log_warning("there are still have %" PRIu64 " connections not been removed in tcp_server", m_fd_set.size());
+        log_warning("there are still have %" PRIu64
+                    " connections not been removed in tcp_server",
+                    m_connections.size());
     if (m_listener->connected())
         m_listener->close();
     if (!m_stopped)
         m_threadpool.stop();
 }
 
-void
+bool
 tcp_server::run ()
 {
     check(m_stopped);
+
+    // init address
+    //address::str2sockaddr(m_opts.addrstr);
+
+    // bind
+    socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
+
+    // listen
+
+    // run threadpool
+
+    // start listener
 
     log_info("TCP server is running");
 }
@@ -51,13 +65,13 @@ tcp_server::stop ()
     log_info("TCP server has stopped");
 }
 
-bool
+void
 tcp_server::remove_connection (tcp_connection &_conn)
 {
     check(!m_stopped);
 
     if (_conn.connected())
-        _conn.stop();
+        _conn.close();
     else
         on_close(_conn);
 }
@@ -66,17 +80,16 @@ int
 tcp_server::broadcast (tcp_connection_list &_list, buffer &&_buf)
 {
     check(!m_stopped);
+    return 0;
 }
 
 void
 tcp_server::on_new_connection (socket &&_sock)
 {
-    check(_sock);
     check(!m_stopped);
-    
+
     // FIXME: stop accepting when connections reach to the maximum number
 
-    // create a new connection
     address _local_addr, _peer_addr;
     _sock.localaddr(_local_addr);
     _sock.peeraddr(_peer_addr);
@@ -85,7 +98,8 @@ tcp_server::on_new_connection (socket &&_sock)
         address _local_addr, _peer_addr;
         _sock.localaddr(_local_addr);
         _sock.peeraddr(_peer_addr);
-        _conn = new tcp_connection(assign_thread(), std::move(socket), _local_addr, _peer_addr);
+        _conn = new tcp_connection(assign_thread().get(), std::move(_sock),
+                                   _local_addr, _peer_addr);
         _conn->set_read_done_cb(m_read_done_cb);
         _conn->set_write_done_cb(m_write_done_cb);
         _conn->set_oob_cb(m_oob_cb);
@@ -93,10 +107,11 @@ tcp_server::on_new_connection (socket &&_sock)
 
         {
             local_lock _lock(m_mutex);
-            m_connections.insert[];
+            m_connections[_conn->serial()] = _conn;
         }
-    } catch (...) {
         _conn = nullptr;
+    } catch (...) {
+        safe_release(_conn);
         throw;
     }
 
@@ -112,7 +127,7 @@ tcp_server::on_close (tcp_connection &_conn)
 
     {
         local_lock _lock(m_mutex);
-        m_connections.erase(_conn.socket.fd());
+        m_connections.erase(_conn.serial());
     }
 }
 
@@ -120,4 +135,3 @@ __NAMESPACE_END
 
 // signal ergent
 // adjust size of epoll_event_set
-// wait for looping

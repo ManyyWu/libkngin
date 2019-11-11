@@ -22,7 +22,7 @@ typedef std::array<char, INET6_ADDRSTRLEN> inet6_addrstr;
 
 class address {
 public:
-    address    () = default;
+    address    ()                         {  }
     address    (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; }
     address    (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; }
     address    (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }

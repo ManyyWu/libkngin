@@ -1,6 +1,7 @@
 #ifndef _TCP_SERVER_H_
 #define _TCP_SERVER_H_
 
+#include <unordered_map>
 #include "define.h"
 #include "tcp_connection.h"
 #include "tcp_server.h"
@@ -13,36 +14,40 @@ __NAMESPACE_BEGIN
 
 class tcp_server {
 public:
-    typedef std::function<void (socket&&)>     new_connection_cb;
+    typedef std::function<void (socket&&)>            new_connection_cb;
 
-    typedef tcp_connection::read_done_cb       read_done_cb;
+    typedef tcp_connection::read_done_cb              read_done_cb;
 
-    typedef tcp_connection::write_done_cb      write_done_cb;
+    typedef tcp_connection::write_done_cb             write_done_cb;
 
-    typedef tcp_connection::read_oob_cb        read_oob_cb;
+    typedef tcp_connection::read_oob_cb               read_oob_cb;
 
-    typedef tcp_connection::close_cb           close_cb;
+    typedef tcp_connection::close_cb                  close_cb;
 
-    typedef std::set<size_t, tcp_connection *> tcp_connection_list;
+    typedef std::shared_ptr<tcp_connection>           tcp_connection_ptr;
 
-    typedef std::shared_ptr<tcp_connection>    tcp_connection_ptr;
+    typedef io_thread::event_loop_ptr                 event_loop_ptr;
+
+    typedef std::vector<tcp_connection *>             tcp_connection_list;
+
+    typedef std::unordered_map<int, tcp_connection *> tcp_connection_map;
 
 public:
     tcp_server            () = delete;
 
-    tcp_server            (address &&_listen_addr, const tcp_server_opts &_opts)
+    tcp_server            (const tcp_server_opts &_opts);
 
     ~tcp_server           ();
 
 public:
-    void
+    bool
     run                   ();
 
     void
     stop                  ();
 
 public:
-    bool
+    void
     remove_connection     (tcp_connection &_conn);
 
 public:
@@ -81,29 +86,29 @@ protected:
     on_close              (tcp_connection &_conn);
 
 protected:
-    tcp_server_opts     m_opts;
+    const tcp_server_opts m_opts;
 
-    io_threadpool       m_threadpool;
+    io_threadpool         m_threadpool;
 
-    tcp_connection_list m_connections;
+    tcp_connection_map    m_connections;
 
-    tcp_connection_ptr  m_listener;
+    tcp_connection_ptr    m_listener;
 
-    address             m_listen_addr;
+    address               m_listen_addr;
 
-    new_connection_cb   m_new_connection_cb;
+    new_connection_cb     m_new_connection_cb;
 
-    write_done_cb       m_write_done_cb;
+    write_done_cb         m_write_done_cb;
 
-    read_done_cb        m_read_done_cb;
+    read_done_cb          m_read_done_cb;
 
-    read_oob_cb         m_oob_cb;
+    read_oob_cb           m_oob_cb;
 
-    close_cb            m_close_cb;
+    close_cb              m_close_cb;
 
-    std::atomic<bool>   m_stopped;
+    std::atomic<bool>     m_stopped;
 
-    mutex               m_mutex;
+    mutex                 m_mutex;
 };
 
 __NAMESPACE_END

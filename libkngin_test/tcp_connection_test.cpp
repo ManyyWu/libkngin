@@ -27,7 +27,7 @@ client ()
     uint16_t     _port = SERVER_PORT;
 
     address _server_addr;
-    assert(address::str2sockaddr(_addr_str, _port,_server_addr));
+    assert(address::str2sockaddr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     log_info("c: connecting...");
@@ -86,11 +86,11 @@ public:
     }
 
 public:
-    bool
+    void
     run ()
     {
         io_thread::run();
-        return m_server_thr.run(std::bind(&mythread::process, this));
+        m_server_thr.run(std::bind(&mythread::process, this));
     }
 
 protected:
@@ -103,7 +103,7 @@ protected:
             uint16_t     _port = SERVER_PORT;
 
             address _server_addr;
-            assert(address::str2sockaddr(_addr_str, _port,_server_addr));
+            assert(address::str2sockaddr(_addr_str, _port, _server_addr));
 
             k::socket _server_sock(socket::IPV4_TCP);
             assert(sockopts::set_reuseaddr(_server_sock, true));
@@ -123,7 +123,7 @@ protected:
             log_info("s: connected to client: %s:%hu", _client_addr.addrstr(_client_addr_str),
                     _client_addr.port());
             m_conn = new tcp_connection(m_loop.get(), std::move(_client_sock),
-                                        std::move(address(_server_addr)), std::move(address(_client_addr)));
+                                        _server_addr, _client_addr);
 
             // set callback
             m_conn->set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
@@ -144,7 +144,7 @@ protected:
                 _conn.close();
             });
             m_conn->set_close_cb([] (tcp_connection &_conn) {
-                log_info("s: on_close: fd = %d", _conn.socket().fd());
+                log_info("s: on_close: fd = %d", _conn.serial());
             });
 
             // recv
@@ -158,6 +158,7 @@ protected:
                 m_conn->close();
             throw;
         }
+        return 0;
     }
 
 protected:

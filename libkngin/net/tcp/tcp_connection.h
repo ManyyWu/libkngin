@@ -35,7 +35,7 @@ public:
     tcp_connection    () = delete;
 
     tcp_connection    (event_loop *_loop, k::socket &&_socket,
-                       address &&_local_addr, address &&_peer_addr);
+                       address &_local_addr, address &_peer_addr);
 
     ~tcp_connection   ();
 
@@ -63,22 +63,22 @@ public:
 
 public:
     void
-    set_read_done_cb  (read_done_cb &&_cb)  { m_read_done_cb = std::move(_cb); }
+    set_read_done_cb  (const read_done_cb &_cb)  { m_read_done_cb = _cb; }
 
     void
-    set_write_done_cb (write_done_cb &&_cb) { m_write_done_cb = std::move(_cb); }
+    set_write_done_cb (const write_done_cb &_cb) { m_write_done_cb = _cb; }
 
     void
-    set_close_cb      (close_cb &&_cb)      { m_close_cb = std::move(_cb); }
+    set_close_cb      (const close_cb &_cb)      { m_close_cb = _cb; }
 
     void
-    set_oob_cb        (read_oob_cb &&_cb)   { m_oob_cb = std::move(_cb); }
+    set_oob_cb        (const read_oob_cb &_cb)   { m_oob_cb = _cb; }
 
 //    void
-//    set_readable_cb   (readable_cb &&_cb)   { m_readable_cb = std::move(_cb); }
+//    set_readable_cb   (const readable_cb &_cb)   { m_readable_cb = _cb; }
 //
 //    void
-//    set_writeable_cb  (writeable_cb &&_cb)   { m_writeable_cb = std::move(_cb); }
+//    set_writeable_cb  (const writeable_cb &_cb)   { m_writeable_cb = _cb; }
 
 public:
     bool
@@ -122,6 +122,9 @@ public:
     const address &
     peer_addr  () { return m_peer_addr; }
 
+    int
+    serial     () { return m_socket.fd(); }
+
 protected:
     event_loop *      m_loop;
 
@@ -150,9 +153,6 @@ protected:
     buffer            m_out_buf;
 
     buffer *          m_in_buf;
-
-protected:
-    friend class tcp_connection;
 };
 
 __NAMESPACE_END
