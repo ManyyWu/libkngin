@@ -63,6 +63,14 @@ basic_buffer::copy_to (basic_buffer &_buf) const
     _buf.m_arr.assign(m_arr.begin(), m_arr.end());
 }
 
+void
+basic_buffer::swap (basic_buffer &_buf)
+{
+    std::swap(m_ridx, _buf.m_ridx);
+    std::swap(m_widx, _buf.m_widx);
+    m_arr.swap(_buf.m_arr);
+}
+
 const std::string &
 basic_buffer::dump ()
 {

@@ -32,6 +32,6 @@ typedef SSIZE_T ssize_t;
 #endif
 
 // for log
-//#define __LOG_RELATIVE_PATH
+#define __LOG_RELATIVE_PATH
 
 #endif /* _DEFINE_H_ */

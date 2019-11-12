@@ -60,7 +60,7 @@ epoller_event::remove ()
 void
 epoller_event::handle_events (uint32_t _flags)
 {
-    //log_debug("epoller_event::handle_events() fd = %d, flags = %d", m_filefd->fd(), m_flags);
+    log_debug("epoller_event::handle_events() fd = %d, flags = %d", m_filefd->fd(), m_flags);
 
     check(m_registed);
     if (EPOLLHUP & _flags) // RST

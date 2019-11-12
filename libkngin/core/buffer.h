@@ -106,6 +106,9 @@ public:
     void
     copy_to     (basic_buffer &_buf) const;
 
+    void
+    swap        (basic_buffer &_buf);
+
 public:
     size_t
     size      () const          { return m_arr.size(); }

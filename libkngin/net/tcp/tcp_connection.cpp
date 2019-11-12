@@ -50,7 +50,7 @@ tcp_connection::~tcp_connection ()
 }
 
 bool
-tcp_connection::send (const buffer &_buf)
+tcp_connection::send (buffer &_buf)
 {
     check(m_connected);
     if (m_out_buf.readable())
@@ -58,7 +58,8 @@ tcp_connection::send (const buffer &_buf)
 
     m_event.enable_write();
     m_event.update();
-    _buf.copy_to(m_out_buf);
+    m_out_buf.clear();
+    _buf.swap(m_out_buf);
     if (m_loop->in_loop_thread())
         handle_write();
     else
@@ -161,7 +162,6 @@ tcp_connection::handle_read ()
         // done
         m_event.disable_read();
         m_event.update();
-        m_in_buf->clear();
         if (m_read_done_cb)
             m_read_done_cb(std::ref(*this), *m_in_buf, m_in_buf->readable());
     } else {
