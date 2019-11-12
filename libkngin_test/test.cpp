@@ -10,10 +10,16 @@
 #include <array>
 #include <memory>
 #include <cstring>
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/eventfd.h>
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
+#include <netdb.h>
+#else
+#include <Winsock2.h>
+#include <Windows.h>
+#endif
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/lock.h"
@@ -29,13 +35,39 @@ using namespace k;
 using namespace std;
 using namespace std::placeholders;
 
-
 void
 test ()
 {
-
 #warning "包装系统api， 取消所有头文件引用, k::core::api, k::net::api"
 #warning "std::function &&改&"
 #warning "xxx_cb 改"
 #warning "返回值处理"
+
+    addrinfo *_list = nullptr;
+    addrinfo _info;
+    memset(&_info, 0, sizeof(_info));
+    _info.ai_flags = AI_PASSIVE;
+    _info.ai_family = AF_UNSPEC;
+    _info.ai_socktype = 0;
+
+    int _ret = getaddrinfo(/*"127.0.0.1"*/ nullptr, "20000", &_info, &_list);
+    if (_ret) {
+        cerr << "getaddrinfo() error - " << strerror(errno) << endl;
+        return;
+    }
+
+    addrinfo *_temp = _list;
+    while (_temp) {
+        char _name[INET6_ADDRSTRLEN];
+        char _port[10];
+        _ret = getnameinfo(_temp->ai_addr, _temp->ai_addrlen, _name, INET6_ADDRSTRLEN, _port, 10, 0);
+        if (_ret) {
+            cerr << "getnameinfo() error - " << strerror(errno) << endl;
+            return;
+        }
+        cerr << "name: " << _name << ", port: " << _port << endl;
+        _temp = _temp->ai_next;
+    }
+
+    freeaddrinfo(_list);
 }
