@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <utility>
 #include <array>
+#include <cstring>
 
 __NAMESPACE_BEGIN
 
@@ -17,12 +18,11 @@ union __sockaddr {
     struct sockaddr_in6 sa_in6;
 };
 
-typedef std::array<char, INET_ADDRSTRLEN>  inet_addrstr;
-typedef std::array<char, INET6_ADDRSTRLEN> inet6_addrstr;
-
 class address {
 public:
     address    ()                         {  }
+    address    (const sockaddr &_sa)      { memcpy(&m_sa, &_sa, sizeof(sockaddr)); }
+    address    (const sockaddr &&_sa)     { memcpy(&m_sa, &_sa, sizeof(sockaddr)); }
     address    (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; }
     address    (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; }
     address    (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
@@ -39,15 +39,16 @@ public:
     size       () const;
 
     const char *
-    addrstr    (inet_addrstr &_s) const;
-
-    const char *
-    addrstr    (inet6_addrstr &_s) const;
+    addrstr    (std::string &_s) const;
 
     uint16_t
     port       () const;
 
 public:
+    address &
+    operator = (const sockaddr &_sa)      { memcpy(&m_sa, &_sa, sizeof(sockaddr)); return *this; }
+    address &
+    operator = (const sockaddr &&_sa)     { memcpy(&m_sa, &_sa, sizeof(sockaddr)); return *this; }
     address &
     operator = (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; return *this; }
     address &
@@ -70,29 +71,23 @@ public:
 
 public:
     static bool
-    str2sockaddr   (const inet_addrstr &_addrstr, uint16_t _port, address &_addr);
+    str2sockaddr   (const std::string &_addrstr, uint16_t _port, address &_addr);
 
     static bool
-    str2sockaddr   (const inet6_addrstr &_addrstr, uint16_t _port, address &_addr);
-
-    static bool
-    str2sockaddr   (const inet_addrstr &&_addrstr, uint16_t _port, address &_addr);
-
-    static bool
-    str2sockaddr   (const inet6_addrstr &&_addrstr, uint16_t _port, address &_addr);
+    str2sockaddr   (const std::string &&_addrstr, uint16_t _port, address &_addr);
 
 public:
     static bool
-    check_sockaddr (const inet_addrstr &_addrstr);
+    check_inet_addrstr  (const std::string &_addrstr);
 
     static bool
-    check_sockaddr (const inet6_addrstr &_addrstr);
+    check_inet_addrstr  (const std::string &&_addrstr);
 
     static bool
-    check_sockaddr (const inet_addrstr &&_addrstr);
+    check_inet6_addrstr (const std::string &_addrstr);
 
     static bool
-    check_sockaddr (const inet6_addrstr &&_addrstr);
+    check_inet6_addrstr (const std::string &&_addrstr);
 
 protected:
     __sockaddr m_sa;

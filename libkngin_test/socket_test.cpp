@@ -23,8 +23,8 @@ using namespace k;
 static int
 client (void *_args)
 {
-    inet_addrstr _addr_str = {SERVER_ADDR};
-    uint16_t     _port = SERVER_PORT;
+    std::string _addr_str = {SERVER_ADDR};
+    uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port, _server_addr));
@@ -60,16 +60,16 @@ static int
 server (void *_args)
 {
     bool _ok = true;
-    inet_addrstr _addr_str = {SERVER_ADDR};
-    uint16_t     _port = SERVER_PORT;
+    std::string _addr_str = {SERVER_ADDR};
+    uint16_t    _port = SERVER_PORT;
+    address     _server_addr;
 
-    address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     assert(sockopts::set_reuseaddr(_server_sock, true));
     assert(sockopts::set_reuseport(_server_sock, true));
-    inet_addrstr _a;
+    std::string _a;
     log_debug("server_addr: %s:%hu", _server_addr.addrstr(_a), _server_addr.port());
     if (_server_sock.bind(_server_addr) < 0)
         log_error("%s", strerror(errno));
@@ -79,7 +79,7 @@ server (void *_args)
     while (_ok) {
         address _client_addr;
         k::socket _client_sock(_server_sock.accept(_client_addr));
-        inet_addrstr _client_addr_str;
+        std::string _client_addr_str;
         log_info("connect to: %s:%d", _client_addr.addrstr(_client_addr_str),
                 _client_addr.port());
         // write

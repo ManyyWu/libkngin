@@ -16,6 +16,7 @@
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #else
 #include <Winsock2.h>
 #include <Windows.h>
@@ -50,7 +51,7 @@ test ()
     _info.ai_family = AF_UNSPEC;
     _info.ai_socktype = 0;
 
-    int _ret = getaddrinfo(/*"127.0.0.1"*/ nullptr, "20000", &_info, &_list);
+    int _ret = getaddrinfo("192.168.0.2", "20000", &_info, &_list);
     if (_ret < 0) {
         cerr << "getaddrinfo() error - " << strerror(errno) << endl;
         return;
@@ -65,7 +66,10 @@ test ()
             cerr << "getnameinfo() error - " << strerror(errno) << endl;
             return;
         }
-        cerr << "name: " << _name << ", port: " << _port << endl;
+        char _ip[INET6_ADDRSTRLEN];
+        inet_ntop(_temp->ai_addr->sa_family, (in_addr *)(&(((sockaddr_in *)(_temp->ai_addr))->sin_addr)), _ip, sizeof(_ip));
+        cerr << strerror(errno) << endl;
+        cerr << "name: " << _name << ", ip: " << _ip << ", port: " << _port << endl;
         _temp = _temp->ai_next;
     }
 

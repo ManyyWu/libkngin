@@ -210,7 +210,7 @@ tcp_connection::on_oob ()
     if (m_oob_cb)
         m_oob_cb(std::ref(*this), _buf.read_uint8());
     else {
-        inet_addrstr _addrstr;
+        std::string _addrstr;
         log_warning("unhandled oob data from %s:%hu", m_local_addr.addrstr(_addrstr), m_local_addr.port());
     }
 }

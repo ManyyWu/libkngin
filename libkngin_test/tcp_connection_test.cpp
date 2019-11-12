@@ -23,8 +23,8 @@ using namespace k;
 static int
 client ()
 {
-    inet_addrstr _addr_str = {SERVER_ADDR};
-    uint16_t     _port = SERVER_PORT;
+    std::string _addr_str = {SERVER_ADDR};
+    uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
     assert(address::str2sockaddr(_addr_str, _port, _server_addr));
@@ -99,8 +99,8 @@ protected:
     {
         try {
             // init server
-            inet_addrstr _addr_str = {SERVER_ADDR};
-            uint16_t     _port = SERVER_PORT;
+            std::string _addr_str = {SERVER_ADDR};
+            uint16_t    _port = SERVER_PORT;
 
             address _server_addr;
             assert(address::str2sockaddr(_addr_str, _port, _server_addr));
@@ -108,7 +108,7 @@ protected:
             k::socket _server_sock(socket::IPV4_TCP);
             assert(sockopts::set_reuseaddr(_server_sock, true));
             assert(sockopts::set_reuseport(_server_sock, true));
-            inet_addrstr _a;
+            std::string _a;
             log_info("s: server_addr: %s:%hu", _server_addr.addrstr(_a), _server_addr.port());
             if (_server_sock.bind(_server_addr) < 0)
                 log_error("s: %s", strerror(errno));
@@ -119,7 +119,7 @@ protected:
             // create a connection
             address _client_addr;
             k::socket _client_sock(_server_sock.accept(_client_addr));
-            inet_addrstr _client_addr_str;
+            std::string _client_addr_str;
             log_info("s: connected to client: %s:%hu", _client_addr.addrstr(_client_addr_str),
                     _client_addr.port());
             m_conn = new tcp_connection(m_loop.get(), std::move(_client_sock),
@@ -127,7 +127,7 @@ protected:
 
             // set callback
             m_conn->set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
-                inet_addrstr _client_addr_str;
+                std::string _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
                          _conn.peer_addr().addrstr(_client_addr_str), _port,
@@ -137,7 +137,7 @@ protected:
                 check(_conn.send(_outbuf));
             });
             m_conn->set_write_done_cb([] (tcp_connection &_conn) {
-                inet_addrstr _client_addr_str;
+                std::string _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_write_done: to %s:%d",
                          _conn.peer_addr().addrstr(_client_addr_str), _port);

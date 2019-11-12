@@ -35,7 +35,7 @@ socket::socket (int _fd)
 }
 
 socket::socket (INET_PROTOCOL _proto)
-    : filefd(::socket(is_bits_set(_proto, 1) ? AF_INET6 : AF_INET,
+    : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0))
 {
     //log_debug("new socket, fd = %d", m_fd);

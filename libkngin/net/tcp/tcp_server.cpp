@@ -1,3 +1,6 @@
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <socket.h>
 #include "define.h"
 #include "tcp_server.h"
 #include "common.h"
@@ -43,18 +46,36 @@ tcp_server::run ()
     check(m_stopped);
 
     // init address
-    //address::str2sockaddr(m_opts.addrstr);
+    if (!parse_addr(m_opts.name, m_opts.port))
+        return false;
 
     // bind
     socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
 
     // listen
+    if (!_sock.listen(m_opts.backlog)) {
+        log_error("socket::listen() error - %s:%d", strerror(errno), errno);
+        return false;
+    }
 
     // run threadpool
+    m_threadpool.start();
 
     // start listener
+    m_listener = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
+                                                  m_listen_addr, m_listen_addr);
+    m_listener->set_read_done_cb(m_read_done_cb);
+    m_listener->set_write_done_cb(m_write_done_cb);
+    m_listener->set_oob_cb(m_oob_cb);
+    m_listener->set_close_cb(m_close_cb);
 
+    {
+        local_lock _lock(m_mutex);
+        m_connections[0] = m_listener;
+    }
     log_info("TCP server is running");
+
+    return true;
 }
 
 void
@@ -66,12 +87,12 @@ tcp_server::stop ()
 }
 
 void
-tcp_server::remove_connection (tcp_connection &_conn)
+tcp_server::remove_connection (tcp_connection_ptr _conn)
 {
     check(!m_stopped);
 
-    if (_conn.connected())
-        _conn.close();
+    if (_conn->connected())
+        _conn->close();
     else
         on_close(_conn);
 }
@@ -81,6 +102,37 @@ tcp_server::broadcast (tcp_connection_list &_list, buffer &&_buf)
 {
     check(!m_stopped);
     return 0;
+}
+
+bool
+tcp_server::parse_addr (const std::string &_name, uint16_t _port)
+{
+    __sockaddr _sa;
+    addrinfo   _ai;
+    addrinfo * _ai_list;
+    bzero(&_sa, sizeof(__sockaddr));
+    bzero(&_ai, sizeof(addrinfo));
+    _ai.ai_flags = AI_PASSIVE;
+    _ai.ai_family = AF_UNSPEC;
+    _ai.ai_protocol = 0;
+    int _ret = ::getaddrinfo(_name.c_str(), std::to_string(_port).c_str(), &_ai, &_ai_list);
+    if (_ret) {
+        log_error("getaddrinfo() error - %s:%d", strerror(errno), errno);
+        return false;
+    }
+    if (!_ai_list) {
+        log_error("invalid name or port");
+        return false;
+    }
+    m_listen_addr = *(_ai_list->ai_addr);
+    //addrinfo *_res = _ai_list;
+    //while (_res) {
+    //    ::getnameinfo(_res->ai_addr, _res->ai_addrlen, nullptr, 0, nullptr, 0, 0);
+    //    _res = _res->ai_next;
+    //}
+
+    freeaddrinfo(_ai_list);
+    return true;
 }
 
 void
@@ -93,26 +145,17 @@ tcp_server::on_new_connection (socket &&_sock)
     address _local_addr, _peer_addr;
     _sock.localaddr(_local_addr);
     _sock.peeraddr(_peer_addr);
-    tcp_connection *_conn = nullptr;
-    try {
-        address _local_addr, _peer_addr;
-        _sock.localaddr(_local_addr);
-        _sock.peeraddr(_peer_addr);
-        _conn = new tcp_connection(assign_thread().get(), std::move(_sock),
-                                   _local_addr, _peer_addr);
-        _conn->set_read_done_cb(m_read_done_cb);
-        _conn->set_write_done_cb(m_write_done_cb);
-        _conn->set_oob_cb(m_oob_cb);
-        _conn->set_close_cb(m_close_cb);
 
-        {
-            local_lock _lock(m_mutex);
-            m_connections[_conn->serial()] = _conn;
-        }
-        _conn = nullptr;
-    } catch (...) {
-        safe_release(_conn);
-        throw;
+    tcp_connection_ptr _conn = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
+                                             _local_addr, _peer_addr);
+    _conn->set_read_done_cb(m_read_done_cb);
+    _conn->set_write_done_cb(m_write_done_cb);
+    _conn->set_oob_cb(m_oob_cb);
+    _conn->set_close_cb(m_close_cb);
+
+    {
+        local_lock _lock(m_mutex);
+        m_connections[_conn->serial()] = _conn;
     }
 
     if (m_new_connection_cb)
@@ -120,14 +163,14 @@ tcp_server::on_new_connection (socket &&_sock)
 }
 
 void
-tcp_server::on_close (tcp_connection &_conn)
+tcp_server::on_close (tcp_connection_ptr _conn)
 {
     if (m_close_cb)
-        m_close_cb(_conn);
+        m_close_cb(*_conn);
 
     {
         local_lock _lock(m_mutex);
-        m_connections.erase(_conn.serial());
+        m_connections.erase(_conn->serial());
     }
 }
 

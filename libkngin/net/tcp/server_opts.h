@@ -8,9 +8,10 @@
 __NAMESPACE_BEGIN
 
 struct tcp_server_opts {
-    std::string address;
+    std::string name;
     uint16_t    port;
     bool        allow_ipv6;
+    int         backlog;
     uint16_t    thread_num;
 };
 
