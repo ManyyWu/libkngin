@@ -51,7 +51,7 @@ test ()
     _info.ai_socktype = 0;
 
     int _ret = getaddrinfo(/*"127.0.0.1"*/ nullptr, "20000", &_info, &_list);
-    if (_ret) {
+    if (_ret < 0) {
         cerr << "getaddrinfo() error - " << strerror(errno) << endl;
         return;
     }
@@ -61,7 +61,7 @@ test ()
         char _name[INET6_ADDRSTRLEN];
         char _port[10];
         _ret = getnameinfo(_temp->ai_addr, _temp->ai_addrlen, _name, INET6_ADDRSTRLEN, _port, 10, 0);
-        if (_ret) {
+        if (_ret < 0) {
             cerr << "getnameinfo() error - " << strerror(errno) << endl;
             return;
         }

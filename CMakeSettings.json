@@ -1,16 +1,16 @@
-{
+﻿{
   "configurations": [
     {
       "name": "Linux-Debug",
       "generator": "Unix Makefiles",
       "remoteMachineName": "${defaultRemoteMachineName}",
       "configurationType": "Debug",
-      "remoteCMakeListsRoot": "/home/manyy/vs/libkngin/${name}",
+      "remoteCMakeListsRoot": "/home/manyy/libkngin-vs/${name}",
       "cmakeExecutable": "/usr/bin/cmake",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "remoteBuildRoot": "/home/manyy/vs/libkngin/${name}/build",
-      "remoteInstallRoot": "/home/manyy/vs/libkngin/${name}/build/install",
+      "remoteBuildRoot": "/home/manyy/ligkngin-vs/build/${name}",
+      "remoteInstallRoot": "/home/manyy/ligkngin-vs/install/${name}",
       "remoteCopySources": true,
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
