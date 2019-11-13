@@ -17,6 +17,7 @@ tcp_server_test ()
     };
 
     tcp_server _s(_opts);
+
     check(_s.run());
-    thread::sleep(1000);
+    thread::sleep(3000);
 }

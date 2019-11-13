@@ -34,12 +34,13 @@ address::size () const
     return (inet6() ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in));
 }
 
-const char *
-address::addrstr (std::string &_s) const
+std::string
+address::addrstr () const
 {
-    check(!inet6());
     char _buf[INET_ADDRSTRLEN];
-    return (_s = ::inet_ntop(AF_INET, &(m_sa.sa_in.sin_addr), _buf, sizeof(sockaddr_in))).c_str();
+    return std::string(::inet_ntop(AF_INET, &(m_sa.sa_in.sin_addr),
+                                   _buf, sizeof(sockaddr_in))
+                       ? _buf : "");
 }
 
 uint16_t

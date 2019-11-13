@@ -38,42 +38,32 @@ tcp_server::run ()
 {
     check(m_stopped);
 
+    // run threadpool
+    m_threadpool.start();
+
+    // create listen socket
+    socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
+
+    // start listener
+    m_listener = std::make_shared<listener>(assign_thread().get(), std::move(_sock));
+    m_listener->set_accept_cb(std::bind(&tcp_server::on_new_connection, this, std::placeholders::_1));
+    m_listener->set_error_cb(std::bind(&tcp_server::on_listener_error, this, std::ref(*m_listener)));
+
     // init address
     if (!parse_addr(m_opts.name, m_opts.port))
         return false;
 
     // bind
-    socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
-
-    // set nonblocking
-    if (!_sock.set_nonblock())
-        return false;
-
-    // set closeexec
-    if (!_sock.set_closeexec())
+    if (!m_listener->bind(m_listen_addr))
         return false;
 
     // listen
-    if (_sock.listen(m_opts.backlog) < 0) {
-        log_error("socket::listen() error - %s:%d", strerror(errno), errno);
+    if (!m_listener->listen(m_opts.backlog))
         return false;
-    }
-
-    // run threadpool
-    m_threadpool.start();
-
-    // start listener
-    m_listener = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
-                                                  m_listen_addr, m_listen_addr);
-//    m_listener->set_read_done_cb(std::bind(&tcp_server::on_new_connection, this));
-    m_listener->set_write_done_cb(nullptr);
-    m_listener->set_oob_cb(nullptr);
-    m_listener->set_close_cb(nullptr);
 
     m_stopped = false;
 
     log_info("TCP server is running");
-
     return true;
 }
 
@@ -175,12 +165,17 @@ void
 tcp_server::on_close (tcp_connection_ptr _conn)
 {
     if (m_close_cb)
-        m_close_cb(*_conn);
+        m_close_cb(std::ref(*_conn));
 
     {
         local_lock _lock(m_mutex);
         m_connections.erase(_conn->serial());
     }
+}
+
+void
+tcp_server::on_listener_error (listener &_listener)
+{
 
 }
 

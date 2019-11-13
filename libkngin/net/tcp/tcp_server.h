@@ -8,6 +8,7 @@
 #include "address.h"
 #include "event_loop.h"
 #include "server_opts.h"
+#include "listener.h"
 #include "io_threadpool.h"
 
 __NAMESPACE_BEGIN
@@ -15,8 +16,6 @@ __NAMESPACE_BEGIN
 class tcp_server {
 public:
     typedef std::shared_ptr<tcp_connection>             tcp_connection_ptr;
-
-    typedef std::function<void (socket&&)>              new_connection_cb;
 
     typedef std::function<void (tcp_connection_ptr)>    connection_establish_cb;
 
@@ -29,6 +28,8 @@ public:
     typedef tcp_connection::close_cb                    close_cb;
 
     typedef io_thread::event_loop_ptr                   event_loop_ptr;
+
+    typedef std::shared_ptr<listener>                   listener_ptr;
 
     typedef std::vector<tcp_connection *>               tcp_connection_list;
 
@@ -77,9 +78,6 @@ protected:
     assign_thread               ()                              { return m_threadpool.next_loop(); }
 
 protected:
-    socket 
-    accept                      ();
-
     bool
     parse_addr                  (const std::string &_name, uint16_t _port);
 
@@ -90,6 +88,9 @@ protected:
     void
     on_close                    (tcp_connection_ptr _conn);
 
+    void
+    on_listener_error           (listener &_conn);
+
 protected:
     const tcp_server_opts   m_opts;
 
@@ -97,7 +98,7 @@ protected:
 
     tcp_connection_map      m_connections;
 
-    tcp_connection_ptr      m_listener;
+    listener_ptr            m_listener;
 
     address                 m_listen_addr;
 

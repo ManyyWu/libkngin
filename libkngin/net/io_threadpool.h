@@ -38,6 +38,9 @@ public:
     typedef io_thread::event_loop_ptr               event_loop_ptr;
 
 public:
+    io_threadpool  () = delete;
+
+    explicit
     io_threadpool  (uint16_t _num);
 
     ~io_threadpool ();

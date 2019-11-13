@@ -38,8 +38,8 @@ public:
     int
     size       () const;
 
-    const char *
-    addrstr    (std::string &_s) const;
+    std::string
+    addrstr    () const;
 
     uint16_t
     port       () const;

@@ -35,7 +35,7 @@ public:
     tcp_connection    () = delete;
 
     tcp_connection    (event_loop *_loop, k::socket &&_socket,
-                       address &_local_addr, address &_peer_addr);
+                       const address &_local_addr, const address &_peer_addr);
 
     ~tcp_connection   ();
 

@@ -43,6 +43,7 @@ test ()
 #warning "std::function &&改&"
 #warning "xxx_cb 改"
 #warning "返回值处理"
+#warning "connection接口引用改指针"
 /*
     addrinfo *_list = nullptr;
     addrinfo _info;

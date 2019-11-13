@@ -18,7 +18,7 @@
 __NAMESPACE_BEGIN
 
 tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
-                                address &_local_addr, address &_peer_addr)
+                                const address &_local_addr, const address &_peer_addr)
     try
     : m_loop(_loop), 
       m_socket(std::move(_socket)), 
@@ -47,10 +47,9 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.disable_oob();
     m_event.start();
 
-    std::string _s;
-    log_debug("new connection [%s:%d-%s:%d]", 
-              m_local_addr.addrstr(_s), m_local_addr.port(),
-              m_peer_addr.addrstr(_s), m_peer_addr.port());
+    log_debug("new connection [%s:%d-%s:%d]",
+              m_local_addr.addrstr().c_str(), m_local_addr.port(),
+              m_peer_addr.addrstr().c_str(), m_peer_addr.port());
 } catch (...) {
     log_fatal("tcp_connection::tcp_connection() error");
     throw;
@@ -61,8 +60,6 @@ tcp_connection::~tcp_connection ()
     if (m_connected)
         log_error("the TCP connection must be closed before object disconstructing");
 
-    //if (m_connected)
-    //    this->close();
     // FIXME; wait for m_connected to be false
 }
 
@@ -202,10 +199,9 @@ tcp_connection::on_close ()
     m_in_buf = nullptr;
     m_connected = false;
     
-    std::string _s;
-    log_debug("connection [%s:%d-%s:%d] closed", 
-              m_local_addr.addrstr(_s), m_local_addr.port(),
-              m_peer_addr.addrstr(_s), m_peer_addr.port());
+    log_debug("connection [%s:%d-%s:%d] closed",
+              m_local_addr.addrstr().c_str(), m_local_addr.port(),
+              m_peer_addr.addrstr().c_str(), m_peer_addr.port());
 
     if (m_close_cb)
         m_close_cb(std::ref(*this));
@@ -228,8 +224,8 @@ tcp_connection::on_oob ()
     if (m_oob_cb)
         m_oob_cb(std::ref(*this), _buf.read_uint8());
     else {
-        std::string _addrstr;
-        log_warning("unhandled oob data from %s:%hu", m_local_addr.addrstr(_addrstr), m_local_addr.port());
+        log_warning("unhandled oob data from %s:%hu",
+                    m_local_addr.addrstr().c_str(), m_local_addr.port());
     }
 }
 

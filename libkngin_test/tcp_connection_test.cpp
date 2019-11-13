@@ -109,7 +109,7 @@ protected:
             assert(sockopts::set_reuseaddr(_server_sock, true));
             assert(sockopts::set_reuseport(_server_sock, true));
             std::string _a;
-            log_info("s: server_addr: %s:%hu", _server_addr.addrstr(_a), _server_addr.port());
+            log_info("s: server_addr: %s:%hu", _server_addr.addrstr().c_str(), _server_addr.port());
             if (_server_sock.bind(_server_addr) < 0)
                 log_error("s: %s", strerror(errno));
             if (_server_sock.listen(5) < 0)
@@ -119,28 +119,25 @@ protected:
             // create a connection
             address _client_addr;
             k::socket _client_sock(_server_sock.accept(_client_addr));
-            std::string _client_addr_str;
-            log_info("s: connected to client: %s:%hu", _client_addr.addrstr(_client_addr_str),
+            log_info("s: connected to client: %s:%hu", _client_addr.addrstr().c_str(),
                     _client_addr.port());
             m_conn = new tcp_connection(m_loop.get(), std::move(_client_sock),
                                         _server_addr, _client_addr);
 
             // set callback
             m_conn->set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
-                std::string _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
-                         _conn.peer_addr().addrstr(_client_addr_str), _port,
+                         _conn.peer_addr().addrstr().c_str(), _port,
                          _buf.dump().c_str(), _size);
                 buffer _outbuf(4);
                 _outbuf.write_uint32(_port);
                 check(_conn.send(_outbuf));
             });
             m_conn->set_write_done_cb([] (tcp_connection &_conn) {
-                std::string _client_addr_str;
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_write_done: to %s:%d",
-                         _conn.peer_addr().addrstr(_client_addr_str), _port);
+                         _conn.peer_addr().addrstr().c_str(), _port);
                 _conn.close();
             });
             m_conn->set_close_cb([] (tcp_connection &_conn) {
