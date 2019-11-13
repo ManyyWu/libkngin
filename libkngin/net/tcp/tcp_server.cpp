@@ -15,7 +15,6 @@ tcp_server::tcp_server (const tcp_server_opts &_opts)
       m_connections(),
       m_listener(nullptr),
       m_listen_addr(),
-      m_new_connection_cb(nullptr),
       m_write_done_cb(nullptr),
       m_read_done_cb(nullptr),
       m_oob_cb(nullptr),
@@ -30,14 +29,8 @@ tcp_server::tcp_server (const tcp_server_opts &_opts)
 
 tcp_server::~tcp_server ()
 {
-    if (!m_connections.empty())
-        log_warning("there are still have %" PRIu64
-                    " connections not been removed in tcp_server",
-                    m_connections.size());
-    if (m_listener->connected())
-        m_listener->close();
     if (!m_stopped)
-        m_threadpool.stop();
+        stop();
 }
 
 bool
@@ -61,7 +54,7 @@ tcp_server::run ()
         return false;
 
     // listen
-    if (!_sock.listen(m_opts.backlog)) {
+    if (_sock.listen(m_opts.backlog) < 0) {
         log_error("socket::listen() error - %s:%d", strerror(errno), errno);
         return false;
     }
@@ -72,15 +65,13 @@ tcp_server::run ()
     // start listener
     m_listener = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
                                                   m_listen_addr, m_listen_addr);
-    m_listener->set_read_done_cb(m_read_done_cb);
-    m_listener->set_write_done_cb(m_write_done_cb);
-    m_listener->set_oob_cb(m_oob_cb);
-    m_listener->set_close_cb(m_close_cb);
+//    m_listener->set_read_done_cb(std::bind(&tcp_server::on_new_connection, this));
+    m_listener->set_write_done_cb(nullptr);
+    m_listener->set_oob_cb(nullptr);
+    m_listener->set_close_cb(nullptr);
 
-    {
-        local_lock _lock(m_mutex);
-        m_connections[0] = m_listener;
-    }
+    m_stopped = false;
+
     log_info("TCP server is running");
 
     return true;
@@ -90,6 +81,18 @@ void
 tcp_server::stop ()
 {
     check(!m_stopped);
+    log_info("stopping TCP server");
+
+    {
+        local_lock _lock(m_mutex);
+        for (auto _iter : m_connections)
+            _iter.second->close();
+    }
+    m_listener->close();
+    thread::sleep(1000);
+    if (!m_stopped)
+        m_threadpool.stop();
+    m_stopped = true;
 
     log_info("TCP server has stopped");
 }
@@ -152,7 +155,6 @@ tcp_server::on_new_connection (socket &&_sock)
     address _local_addr, _peer_addr;
     _sock.localaddr(_local_addr);
     _sock.peeraddr(_peer_addr);
-
     tcp_connection_ptr _conn = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
                                              _local_addr, _peer_addr);
     _conn->set_read_done_cb(m_read_done_cb);
@@ -165,8 +167,8 @@ tcp_server::on_new_connection (socket &&_sock)
         m_connections[_conn->serial()] = _conn;
     }
 
-    if (m_new_connection_cb)
-        m_new_connection_cb(std::move(_sock));
+    if (m_connection_establish_cb)
+        m_connection_establish_cb(_conn);
 }
 
 void
@@ -179,6 +181,7 @@ tcp_server::on_close (tcp_connection_ptr _conn)
         local_lock _lock(m_mutex);
         m_connections.erase(_conn->serial());
     }
+
 }
 
 __NAMESPACE_END

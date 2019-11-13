@@ -20,10 +20,18 @@ __NAMESPACE_BEGIN
 tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
                                 address &_local_addr, address &_peer_addr)
     try
-    : m_loop(_loop), m_socket(std::move(_socket)), m_event(_loop, &m_socket),
-      m_connected(true), m_local_addr(_local_addr), m_peer_addr(_peer_addr),
-      m_write_done_cb(nullptr), m_read_done_cb(nullptr), m_oob_cb(nullptr), m_close_cb(nullptr),
-      m_out_buf(), m_in_buf(nullptr)
+    : m_loop(_loop), 
+      m_socket(std::move(_socket)), 
+      m_event(_loop, &m_socket),
+      m_connected(true), 
+      m_local_addr(_local_addr), 
+      m_peer_addr(_peer_addr),
+      m_write_done_cb(nullptr), 
+      m_read_done_cb(nullptr), 
+      m_oob_cb(nullptr), 
+      m_close_cb(nullptr),
+      m_out_buf(), 
+      m_in_buf(nullptr)
 {
     check(_loop);
     m_socket.set_closeexec(true);
@@ -38,6 +46,11 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.disable_read();
     m_event.disable_oob();
     m_event.start();
+
+    std::string _s;
+    log_debug("new connection [%s:%d-%s:%d]", 
+              m_local_addr.addrstr(_s), m_local_addr.port(),
+              m_peer_addr.addrstr(_s), m_peer_addr.port());
 } catch (...) {
     log_fatal("tcp_connection::tcp_connection() error");
     throw;
@@ -45,7 +58,7 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
 
 tcp_connection::~tcp_connection ()
 {
-    if (connected())
+    if (m_connected)
         log_error("the TCP connection must be closed before object disconstructing");
 
     //if (m_connected)
@@ -189,6 +202,11 @@ tcp_connection::on_close ()
     m_in_buf = nullptr;
     m_connected = false;
     
+    std::string _s;
+    log_debug("connection [%s:%d-%s:%d] closed", 
+              m_local_addr.addrstr(_s), m_local_addr.port(),
+              m_peer_addr.addrstr(_s), m_peer_addr.port());
+
     if (m_close_cb)
         m_close_cb(std::ref(*this));
 }

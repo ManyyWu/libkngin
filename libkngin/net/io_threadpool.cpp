@@ -68,6 +68,7 @@ io_threadpool::stop ()
         m_taskq.clear();
     }
     m_stopped = true;
+    log_info("thread pool stopped");
 }
 
 void
