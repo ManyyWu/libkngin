@@ -43,7 +43,7 @@ test ()
 #warning "std::function &&改&"
 #warning "xxx_cb 改"
 #warning "返回值处理"
-
+/*
     addrinfo *_list = nullptr;
     addrinfo _info;
     memset(&_info, 0, sizeof(_info));
@@ -64,6 +64,7 @@ test ()
         _ret = getnameinfo(_temp->ai_addr, _temp->ai_addrlen, _name, INET6_ADDRSTRLEN, _port, 10, 0);
         if (_ret < 0) {
             cerr << "getnameinfo() error - " << strerror(errno) << endl;
+            freeaddrinfo(_list);
             return;
         }
         char _ip[INET6_ADDRSTRLEN];
@@ -74,4 +75,5 @@ test ()
     }
 
     freeaddrinfo(_list);
+    */
 }

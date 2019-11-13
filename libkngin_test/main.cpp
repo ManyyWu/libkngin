@@ -47,6 +47,9 @@ tcp_connection_test ();
 extern void
 io_threadpool_test ();
 
+extern void
+tcp_server_test ();
+
 void
 test ();
 
@@ -107,6 +110,10 @@ int main()
 
 //        cerr << "********************* io_threadpool_test ***************\n";
 //        io_threadpool_test ();
+//        cerr << "********************************************************\n";
+
+//        cerr << "********************* tcp_server_test ******************\n";
+        tcp_server_test ();
 //        cerr << "********************************************************\n";
 
 //        cerr << "********************* test *****************************\n";

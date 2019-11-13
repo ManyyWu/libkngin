@@ -52,6 +52,14 @@ tcp_server::run ()
     // bind
     socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
 
+    // set nonblocking
+    if (!_sock.set_nonblock())
+        return false;
+
+    // set closeexec
+    if (!_sock.set_closeexec())
+        return false;
+
     // listen
     if (!_sock.listen(m_opts.backlog)) {
         log_error("socket::listen() error - %s:%d", strerror(errno), errno);
@@ -107,10 +115,8 @@ tcp_server::broadcast (tcp_connection_list &_list, buffer &&_buf)
 bool
 tcp_server::parse_addr (const std::string &_name, uint16_t _port)
 {
-    __sockaddr _sa;
     addrinfo   _ai;
     addrinfo * _ai_list;
-    bzero(&_sa, sizeof(__sockaddr));
     bzero(&_ai, sizeof(addrinfo));
     _ai.ai_flags = AI_PASSIVE;
     _ai.ai_family = AF_UNSPEC;
@@ -122,6 +128,7 @@ tcp_server::parse_addr (const std::string &_name, uint16_t _port)
     }
     if (!_ai_list) {
         log_error("invalid name or port");
+        freeaddrinfo(_ai_list);
         return false;
     }
     m_listen_addr = *(_ai_list->ai_addr);
