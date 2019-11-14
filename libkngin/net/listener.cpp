@@ -71,10 +71,17 @@ listener::close ()
 void
 listener::on_accept ()
 {
+    check(!m_closed);
+    m_loop->check_thread();
+
     address _peer_addr;
     int _fd = m_socket.accept(_peer_addr);
     if (_fd < 0) {
-        log_error("socket::accept() error - %s:%d", strerror(errno), errno);
+        if (EMFILE == _fd) {
+            log_error("");
+        } else {
+            log_error("socket::accept() error - %s:%d", strerror(errno), errno);
+        }
         return;
     }
 
