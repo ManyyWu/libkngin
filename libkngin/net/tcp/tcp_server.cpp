@@ -164,13 +164,13 @@ tcp_server::on_new_connection (socket &&_sock)
 void
 tcp_server::on_close (tcp_connection_ptr _conn)
 {
-    if (m_close_cb)
-        m_close_cb(std::ref(*_conn));
-
     {
         local_lock _lock(m_mutex);
         m_connections.erase(_conn->serial());
     }
+
+    if (m_close_cb)
+        m_close_cb(std::ref(*_conn));
 }
 
 void

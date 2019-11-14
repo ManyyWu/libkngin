@@ -12,7 +12,7 @@
 #include "timer.h"
 
 #ifndef NDEBUG
-#define EPOLLER_TIMEOUT 1000
+#define EPOLLER_TIMEOUT 10000
 #else
 #define EPOLLER_TIMEOUT 3000
 #endif

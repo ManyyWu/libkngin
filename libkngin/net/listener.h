@@ -1,6 +1,7 @@
 #include <functional>
 #include "define.h"
 #include "socket.h"
+#include "filefd.h"
 
 __NAMESPACE_BEGIN
 
@@ -59,6 +60,8 @@ protected:
     accept_cb         m_accept_cb;
 
     error_cb          m_error_cb;
+
+    int               m_idle_file;
 };
 
 

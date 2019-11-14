@@ -1,4 +1,6 @@
 #include <functional>
+#include <unistd.h>
+#include <fcntl.h>
 #include "define.h"
 #include "socket.h"
 #include "listener.h"
@@ -15,11 +17,15 @@ listener::listener (event_loop *_loop, k::socket &&_socket)
       m_closed(false),
       m_listen_addr(),
       m_accept_cb(nullptr),
-      m_error_cb(nullptr)
+      m_error_cb(nullptr),
+      m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     check(_loop);
+    check(m_idle_file);
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
+    sockopts::set_reuseport(m_socket, true);
+    sockopts::set_reuseaddr(m_socket, true);
     m_event.set_read_cb(std::bind(&listener::on_accept, this));
     m_event.set_error_cb(std::bind(&listener::on_error, this));
 } catch (...) {
@@ -78,7 +84,10 @@ listener::on_accept ()
     int _fd = m_socket.accept(_peer_addr);
     if (_fd < 0) {
         if (EMFILE == _fd) {
-            log_error("");
+            ::close(m_idle_file);
+            ::close(m_socket.accept(_peer_addr));
+            m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            log_error("the process already has the maximum number of files open");
         } else {
             log_error("socket::accept() error - %s:%d", strerror(errno), errno);
         }
