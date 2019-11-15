@@ -54,6 +54,19 @@ close:
         }
     }
 
+    // read
+    {
+        buffer _buf(4);
+        int _ret = _server_sock.read(_buf, _buf.writeable());
+        if (_ret < 0) {
+            log_error("c: %s", strerror(errno));
+            goto close;
+        }
+        if (!_ret)
+            goto close;
+        log_info("c: read integer %d", _reply = _buf.peek_uint32());
+    }
+
     return 0;
 }
 
@@ -92,18 +105,28 @@ public:
         log_info("readed %d bytes from connection [%s:%d - %s:%d], data: %s", 
                  _size,
                  _conn.local_addr().addrstr().c_str(), 
+                 _conn.local_addr().port(),
                  _conn.peer_addr().addrstr().c_str(), 
-                 _buf.dump());
-        _conn.send(_buf);
+                 _conn.peer_addr().port(),
+                 _buf.dump().c_str());
+        m_buf.resize(4);
+        m_buf.reset();
+        m_buf.write_uint32(_conn.peer_addr().port());
+        _conn.send(m_buf);
     }
 
     void
     on_write_done (tcp_connection &_conn)
     {
-        log_info("connection [%s:%d - %s:%d] writen done",
+        log_info("connection [%s:%d - %s:%d] written done",
                  _conn.local_addr().addrstr().c_str(), 
-                 _conn.peer_addr().addrstr().c_str()
+                 _conn.local_addr().port(),
+                 _conn.peer_addr().addrstr().c_str(),
+                 _conn.peer_addr().port()
                  );
+        m_buf.resize(4);
+        m_buf.reset();
+        _conn.recv(m_buf);
     }
 
     void
@@ -117,8 +140,11 @@ public:
     {
         log_info("new connection [%s:%d - %s:%d]",
                  _conn->local_addr().addrstr().c_str(), 
-                 _conn->peer_addr().addrstr().c_str()
+                 _conn->local_addr().port(),
+                 _conn->peer_addr().addrstr().c_str(),
+                 _conn->peer_addr().port()
                  );
+        m_buf.resize(4);
         m_buf.reset();
         m_buf.write_uint32(_conn->peer_addr().port());
         _conn->send(m_buf);

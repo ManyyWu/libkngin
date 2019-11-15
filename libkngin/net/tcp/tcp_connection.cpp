@@ -47,9 +47,9 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.disable_oob();
     m_event.start();
 
-    log_debug("new connection [%s:%d-%s:%d]",
-              m_local_addr.addrstr().c_str(), m_local_addr.port(),
-              m_peer_addr.addrstr().c_str(), m_peer_addr.port());
+    //log_debug("new connection [%s:%d-%s:%d]",
+    //          m_local_addr.addrstr().c_str(), m_local_addr.port(),
+    //          m_peer_addr.addrstr().c_str(), m_peer_addr.port());
 } catch (...) {
     log_fatal("tcp_connection::tcp_connection() error");
     throw;
@@ -148,8 +148,11 @@ tcp_connection::on_write ()
         m_out_buf.clear();
         if (m_write_done_cb)
             m_write_done_cb(std::ref(*this));
+    } else if (!_size) {
+        on_close();
+        return;
     } else {
-        if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
+        if (((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock()) || EINTR == errno)
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
         on_error();
@@ -161,7 +164,7 @@ void
 tcp_connection::on_read ()
 {
     check(m_connected);
-    check(m_in_buf);
+    // check(m_in_buf); // client closed
     m_loop->check_thread();
 
     size_t _writeable_bytes = m_in_buf->writeable();
@@ -179,8 +182,11 @@ tcp_connection::on_read ()
         if (m_read_done_cb)
             m_read_done_cb(std::ref(*this), *m_in_buf, m_in_buf->readable());
         m_in_buf = nullptr;
+    } else if (!_size) {
+        on_close();
+        return;
     } else {
-        if ((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock())
+        if (((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock()) || EINTR == errno)
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
         on_error();
@@ -199,9 +205,9 @@ tcp_connection::on_close ()
     m_in_buf = nullptr;
     m_connected = false;
     
-    log_debug("connection [%s:%d-%s:%d] closed",
-              m_local_addr.addrstr().c_str(), m_local_addr.port(),
-              m_peer_addr.addrstr().c_str(), m_peer_addr.port());
+    //log_debug("connection [%s:%d-%s:%d] closed",
+    //          m_local_addr.addrstr().c_str(), m_local_addr.port(),
+    //          m_peer_addr.addrstr().c_str(), m_peer_addr.port());
 
     if (m_close_cb)
         m_close_cb(std::ref(*this));

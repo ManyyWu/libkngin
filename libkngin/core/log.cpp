@@ -176,7 +176,7 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
             goto fail;
         } else if ((size_t)_ret != _str_len) {
              write_stderr2(LOG_LEVEL_FATAL,
-                                 __log_format("ERROR", "the content been writen to \"%s\" are too short, "
+                                 __log_format("ERROR", "the content been written to \"%s\" are too short, "
                                               "and the disk space may be insufficient"),
                                  _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
             ::fclose(_fplog);
