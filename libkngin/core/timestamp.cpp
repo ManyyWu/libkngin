@@ -6,7 +6,6 @@
 #include <time.h>
 #include <algorithm>
 #include "timestamp.h"
-#include "define.h"
 
 #ifdef __FILENAME__
 #undef __FILENAME__

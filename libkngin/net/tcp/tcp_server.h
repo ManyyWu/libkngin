@@ -15,25 +15,25 @@ __NAMESPACE_BEGIN
 
 class tcp_server {
 public:
-    typedef std::shared_ptr<tcp_connection>             tcp_connection_ptr;
+    typedef std::shared_ptr<tcp_connection>                  tcp_connection_ptr;
 
-    typedef std::function<void (tcp_connection_ptr)>    connection_establish_cb;
+    typedef std::function<void (tcp_connection_ptr)>         connection_establish_cb;
 
-    typedef tcp_connection::read_done_cb                read_done_cb;
+    typedef tcp_connection::read_done_cb                     read_done_cb;
 
-    typedef tcp_connection::write_done_cb               write_done_cb;
+    typedef tcp_connection::write_done_cb                    write_done_cb;
 
-    typedef tcp_connection::read_oob_cb                 read_oob_cb;
+    typedef tcp_connection::read_oob_cb                      read_oob_cb;
 
-    typedef tcp_connection::close_cb                    close_cb;
+    typedef tcp_connection::close_cb                         close_cb;
 
-    typedef io_thread::event_loop_ptr                   event_loop_ptr;
+    typedef io_thread::event_loop_ptr                        event_loop_ptr;
 
-    typedef std::shared_ptr<listener>                   listener_ptr;
+    typedef std::shared_ptr<listener>                        listener_ptr;
 
-    typedef std::vector<tcp_connection *>               tcp_connection_list;
+    typedef std::vector<tcp_connection *>                    tcp_connection_list;
 
-    typedef std::unordered_map<int, tcp_connection_ptr> tcp_connection_map;
+    typedef std::unordered_map<uint32_t, tcp_connection_ptr> tcp_connection_map;
 
 public:
     tcp_server                  () = delete;

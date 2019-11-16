@@ -18,9 +18,10 @@ typedef SSIZE_T ssize_t;
 #define __DUMP_ERROR_MSG
 
 // namespace
-#define __NAMESPACE_BEGIN namespace k {
-#define __NAMESPACE_END   };
-#define __USING_NAMESPACE using namespace k;
+#define __NAMESPACE_BEGIN     namespace k {
+#define __NAMESPACE_END       };
+#define __API_NAMESPACE_BEGIN namespace api {
+#define __API_NAMESPACE_END   };
 
 // queue
 #define QUEUE_MAX     (size_t)(SIZE_MAX)

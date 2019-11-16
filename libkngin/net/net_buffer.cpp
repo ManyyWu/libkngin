@@ -1,10 +1,10 @@
-#ifndef _WIN32
+#ifdef _WIN32
+#else
 #include <sys/uio.h>
 #endif
 #include <list>
 #include <memory>
 #include <vector>
-#include "define.h"
 #include "exception.h"
 #include "buffer.h"
 #include "net_buffer.h"

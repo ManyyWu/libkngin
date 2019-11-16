@@ -1,14 +1,11 @@
 #include <cstdio>
 #include <cstdarg>
 #include <cerrno>
+#include <cstring>
 #include <ctime>
-#include "define.h"
-#include "error.h"
 #include "log.h"
-#include "logfile.h"
 #include "logmgr.h"
 #include "common.h"
-#include "define.h"
 #include "lock.h"
 #include "timestamp.h"
 
@@ -16,7 +13,11 @@ __NAMESPACE_BEGIN
 
 log::log (__LOG_FILE _filetype, __LOG_MODE _mode /* = __LOG_MODE_FILE */)
     try
-    : m_mutex(), m_mode(_mode), m_filetype(_filetype)
+    : m_mutex(),
+      m_mode(_mode),
+      m_filetype(_filetype),
+      m_disable_info(false),
+      m_disable_debug(false)
 {
 } catch (...) {
     throw;
@@ -29,7 +30,7 @@ log::fatal (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
-    assert(!"log fatal");
+    //assert(!"log fatal");
     return _ret;
 }
 
@@ -40,7 +41,7 @@ log::error (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
-    assert(!"log error");
+    //assert(!"log error");
     return _ret;
 }
 
@@ -57,6 +58,9 @@ log::warning (const char *_fmt, ...)
 bool
 log::info (const char *_fmt, ...)
 {
+    if (m_disable_info)
+        return true;
+
     va_list _vl;
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_INFO, _fmt, _vl);
@@ -67,6 +71,9 @@ log::info (const char *_fmt, ...)
 bool
 log::debug (const char *_fmt, ...)
 {
+    if (m_disable_debug)
+        return true;
+
     va_list _vl;
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_DEBUG, _fmt, _vl);

@@ -1,10 +1,7 @@
 #ifdef _WIN32
 #else
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
-#include "define.h"
-#include "error.h"
 #include "exception.h"
 #include "address.h"
 #include "common.h"

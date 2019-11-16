@@ -2,7 +2,6 @@
 #include <ctime>
 #include <atomic>
 #include <mutex>
-#include "define.h"
 #include "thread.h"
 #include "common.h"
 #include "lock.h"
@@ -63,13 +62,13 @@ mutex_test ()
     ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        knew(thrs[i], thread, (""));
+        thrs[i] = new thread("");
         thrs[i]->run(process_mutex);
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(nullptr);
-        kdelete(thrs[i]);
+        safe_release(thrs[i]);
     }
 
     timespec ts2;
@@ -82,13 +81,13 @@ mutex_test ()
     ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        knew(thrs[i], thread, (""));
+        thrs[i] = new thread("");
         thrs[i]->run(process_std_mutex);
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(nullptr);
-        kdelete(thrs[i]);
+        safe_release(thrs[i]);
     }
 
     ::timespec_get(&ts2, TIME_UTC);
@@ -100,13 +99,13 @@ mutex_test ()
     ::timespec_get(&ts1, TIME_UTC);
 
     for (int i = 0; i < THR_NUM; ++i) {
-        knew(thrs[i], thread, (""));
+        thrs[i] = new thread("");
         thrs[i]->run(process_atomic);
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
         thrs[i]->join(nullptr);
-        kdelete(thrs[i]);
+        safe_release(thrs[i]);
     }
 
     ::timespec_get(&ts2, TIME_UTC);

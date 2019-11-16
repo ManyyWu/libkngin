@@ -1,11 +1,9 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include "define.h"
-#include "error.h"
+#include "cstring"
 #include "exception.h"
 #include "common.h"
-#include "logfile.h"
 #include "buffer.h"
 #include "memory.h"
 

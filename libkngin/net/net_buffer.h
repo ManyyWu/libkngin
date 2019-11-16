@@ -1,7 +1,8 @@
 #ifndef _NET_BUFFER_H_
 #define _NET_BUFFER_H_
 
-#ifndef _WIN32
+#ifdef _WIN32
+#else
 #include <sys/uio.h>
 #endif
 #include <list>

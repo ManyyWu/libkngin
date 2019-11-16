@@ -1,4 +1,4 @@
-#include "mylogfile.h"
+#include "common.h"
 
 #ifdef __FILENAME__
 #undef __FILENAME__

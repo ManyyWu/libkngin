@@ -40,7 +40,7 @@ client (void *_args)
         buffer _buf(4);
         if (_server_sock.read(_buf, _buf.writeable()) < 0)
             log_error("%s", strerror(errno));
-        log_info("read integer %s", _buf.peek_int32());
+        log_info("read integer %d", _buf.peek_int32());
     }
     std::cerr << "> ";
     std::cin >> _reply;

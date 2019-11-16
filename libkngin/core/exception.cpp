@@ -1,7 +1,6 @@
 #include <exception>
 #include <stdexcept>
 #include <string>
-#include "define.h"
 #include "exception.h"
 #include "common.h"
 

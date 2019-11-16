@@ -111,19 +111,20 @@ private:
 
 public:
     k::socket &
-    socket     () { return m_socket; }
-
-    //event_loop *
-    //loop       () { return m_loop; }
+    socket      ()       { return m_socket; }
 
     const address &
-    local_addr () { return m_local_addr; }
+    local_addr  () const { return m_local_addr; }
 
     const address &
-    peer_addr  () { return m_peer_addr; }
+    peer_addr   () const { return m_peer_addr; }
 
-    int
-    serial     () { return m_socket.fd(); }
+    uint64_t
+    serial      () const { return m_serial; }
+
+protected:
+    uint64_t
+    next_serial ()       { return m_next_serial++; }
 
 protected:
     event_loop *      m_loop;
@@ -153,6 +154,11 @@ protected:
     buffer            m_out_buf;
 
     buffer *          m_in_buf;
+
+    uint64_t          m_serial;
+
+protected:
+    static uint64_t   m_next_serial;
 };
 
 __NAMESPACE_END

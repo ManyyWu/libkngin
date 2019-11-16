@@ -1,12 +1,16 @@
 #ifndef _EPOLL_H_
 #define _EPOLL_H_
 
+#ifdef _WIN32
+#else
+#include <sys/epoll.h>
+#endif
 #ifndef NDEBUG
 #include <set>
 #endif
-#include <sys/epoll.h>
 #include <vector>
 #include "define.h"
+#include "mutex.h"
 #include "timestamp.h"
 #include "epoller_event.h"
 
@@ -61,6 +65,8 @@ protected:
 protected:
 #ifndef NDEBUG
     std::set<int> m_fd_set;
+
+    mutex         m_mutex;
 #endif
 
     event_loop *  m_loop;

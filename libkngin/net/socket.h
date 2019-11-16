@@ -2,16 +2,11 @@
 #define _SOCKET_H_
 
 #ifdef _WIN32
-#include <WinSock2.h>
-#include <WS2tcpip.h>
-#include <Windows.h>
 #else
-#include <unistd.h>
-#include <sys/socket.h>
+#include <socket.h>
 #endif
 #include <memory>
 #include <vector>
-#include "define.h"
 #include "filefd.h"
 #include "bits.h"
 #include "buffer.h"

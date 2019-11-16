@@ -1,7 +1,8 @@
-#include <functional>
-#include <unistd.h>
+#ifdef _WIN32
+#else
 #include <fcntl.h>
-#include "define.h"
+#endif
+#include <functional>
 #include "socket.h"
 #include "listener.h"
 #include "sockopts.h"

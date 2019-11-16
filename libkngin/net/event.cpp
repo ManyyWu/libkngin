@@ -1,6 +1,8 @@
+#ifdef _WIN32
+#else
 #include <sys/eventfd.h>
-#include "define.h"
-#include "error.h"
+#endif
+#include <cstring>
 #include "event.h"
 #include "filefd.h"
 #include "common.h"

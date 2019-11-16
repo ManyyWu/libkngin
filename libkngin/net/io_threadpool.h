@@ -58,6 +58,9 @@ public:
     event_loop_ptr
     next_loop      ();
 
+    event_loop_ptr
+    get_loop       (size_t _idx);
+
 protected:
     const uint16_t    m_num;
 

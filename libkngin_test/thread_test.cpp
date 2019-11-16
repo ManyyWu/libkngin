@@ -9,35 +9,21 @@
 
 using namespace k;
 
-class mythread : public thread {
-public:
-    mythread ()
-        : thread("")
-    {
-    }
+static int
+process1 ()
+{
+    ::fprintf(stderr, "process1\n");
 
-    virtual
-    ~mythread ()
-    {
-    }
+    return 0;
+}
 
-public:
-    static int
-    process1 ()
-    {
-        ::fprintf(stderr, "process1\n");
+static int
+process2 ()
+{
+    ::fprintf(stderr, "process1\n");
 
-        return 0;
-    }
-
-    static int
-    process2 ()
-    {
-        ::fprintf(stderr, "process1\n");
-
-        return 0;
-    }
-};
+    return 0;
+}
 
 extern void
 thread_test ()
@@ -54,10 +40,10 @@ thread_test ()
     t2.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);
 
-    mythread thr1;
-    mythread thr2;
-    thr1.run(mythread::process1);
-    thr2.run(mythread::process2);
+    thread thr1("");
+    thread thr2("");
+    thr1.run(process1);
+    thr2.run(process2);
 
     thr1.join(&ret);
     ::fprintf(stderr, "join: %d\n", ret);

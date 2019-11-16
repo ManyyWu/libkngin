@@ -5,11 +5,11 @@
 #include "pthread.h"
 #else
 #include <pthread.h>
+#include <unistd.h>
 #endif
 #include <atomic>
 #include <memory>
 #include <functional>
-#include <unistd.h>
 #include "define.h"
 #include "timestamp.h"
 

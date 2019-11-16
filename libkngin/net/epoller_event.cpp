@@ -1,7 +1,5 @@
-#include "define.h"
 #include "epoller_event.h"
 #include "event_loop.h"
-#include "logfile.h"
 #include "common.h"
 #include "filefd.h"
 

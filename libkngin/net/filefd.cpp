@@ -1,13 +1,9 @@
 #ifdef _WIN32
-#include <winsock2.h>
-#include <Windows.h>
 #else
 #include <unistd.h>
-#include <sys/uio.h>
 #include <fcntl.h>
 #endif
-#include "define.h"
-#include "error.h"
+#include <cstring>
 #include "filefd.h"
 #include "common.h"
 #include "buffer.h"

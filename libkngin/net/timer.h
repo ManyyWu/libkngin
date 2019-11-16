@@ -1,7 +1,10 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#ifdef _WIN32
+#else
 #include <sys/timerfd.h>
+#endif
 #include "define.h"
 #include "filefd.h"
 #include "timestamp.h"

@@ -3,7 +3,6 @@
 
 #include <list>
 #include "define.h"
-#include "buffer.h"
 #include "net_buffer.h"
 
 #define __fd_valid(__fd)   (__fd >= 0)

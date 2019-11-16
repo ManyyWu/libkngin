@@ -2,7 +2,7 @@
 #include <atomic>
 #include <memory>
 #include <functional>
-#include "define.h"
+#include <algorithm>
 #include "io_thread.h"
 #include "exception.h"
 #include "io_threadpool.h"
@@ -22,7 +22,7 @@ io_threadpool::io_threadpool (uint16_t _num)
       m_stopped(true),
       m_mutex(),
       m_cond(&m_mutex),
-      m_next(0)
+      m_next(1)
 {
 } catch (...) {
     log_fatal("io_threadpool::io_threadpool() error");
@@ -91,10 +91,24 @@ io_threadpool::next_loop ()
         local_lock _lock(m_mutex);
         if (m_threads.empty())
             return nullptr;
-        if (m_next >= m_threads.size())
+        size_t _size = m_threads.size();
+        if (m_next >= _size)
             m_next = 0;
+        //    m_next = (std::min<size_t>)(_size - 1, 1);
         return m_threads[m_next++]->get_loop();
     }
 }
 
+io_threadpool::event_loop_ptr
+io_threadpool::get_loop (size_t _idx)
+{
+    {
+        local_lock _lock(m_mutex);
+        if (m_threads.empty())
+            return nullptr;
+        size_t _size = m_threads.size();
+        check(_idx < _size);
+        return m_threads[_idx]->get_loop();
+    }
+}
 __NAMESPACE_END

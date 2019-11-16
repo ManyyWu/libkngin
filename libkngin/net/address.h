@@ -1,8 +1,10 @@
 #ifndef _ADDRESS_H_
 #define _ADDRESS_H_
 
+#ifdef _WIN32
+#else
 #include <netinet/in.h>
-#include <utility>
+#endif
 #include <array>
 #include <cstring>
 

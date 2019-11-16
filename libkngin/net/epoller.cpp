@@ -1,12 +1,13 @@
-#include <sys/epoll.h>
+#ifdef _WIN32
+#else
 #include <unistd.h>
+#include <sys/epoll.h>
+#endif
+#include <cstring>
 #include <map>
-#include "define.h"
-#include "error.h"
 #include "common.h"
 #include "timestamp.h"
 #include "exception.h"
-#include "logfile.h"
 #include "epoller.h"
 #include "filefd.h"
 
@@ -22,6 +23,7 @@ epoller::epoller (event_loop *_loop)
     :
 #ifndef NDEBUG
       m_fd_set(),
+      m_mutex(),
 #endif
       m_loop(_loop),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
@@ -94,22 +96,25 @@ epoller::update_event (int _opt, epoller_event *_e)
 
     int _fd = _e->m_filefd->fd();
 #ifndef NDEBUG
-    auto _iter = m_fd_set.find(_fd);
-    if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt) {
-        check(_iter != m_fd_set.end());
-        if (EPOLL_CTL_DEL ==  _opt)
-            m_fd_set.erase(_fd);
-    } else if (EPOLL_CTL_ADD ==  _opt) {
-        check(_iter == m_fd_set.end());
-        m_fd_set.insert(_fd);
-    } else {
-        check(!"invalid epoll_ctl option");
+    {
+        local_lock _lock(m_mutex);
+        auto _iter = m_fd_set.find(_fd);
+        if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt) {
+            check(_iter != m_fd_set.end());
+            if (EPOLL_CTL_DEL ==  _opt)
+                m_fd_set.erase(_fd);
+        } else if (EPOLL_CTL_ADD ==  _opt) {
+            check(_iter == m_fd_set.end());
+            m_fd_set.insert(_fd);
+        } else {
+            check(!"invalid epoll_ctl option");
+        }
     }
 #endif
 
     _e->m_event = {_e->m_flags, (void *)(_e)};
     //log_debug("epoll_ctl: %d, %d, %d", _opt, _fd, _e->m_event.events);
-    if (epoll_ctl(m_epollfd, _opt, _fd, &_e->m_event) < 0) {
+    if (::epoll_ctl(m_epollfd, _opt, _fd, &_e->m_event) < 0) {
         log_error("::epoll_ctl() error - %s:%d", strerror(errno), errno);
         return false;
     }

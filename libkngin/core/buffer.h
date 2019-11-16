@@ -1,14 +1,10 @@
 #ifndef _BUFFER_H_
 #define _BUFFER_H_
 
-#include <algorithm>
 #include <string>
+#include <algorithm>
 #include <vector>
-#include <memory>
 #include "define.h"
-#include "exception.h"
-#include "error.h"
-#include "buffer.h"
 
 __NAMESPACE_BEGIN
 

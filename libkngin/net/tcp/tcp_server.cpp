@@ -1,10 +1,10 @@
-#include <arpa/inet.h>
+#ifdef _WIN32
+#else
 #include <netdb.h>
+#endif
 #include <socket.h>
-#include "define.h"
 #include "tcp_server.h"
 #include "common.h"
-#include "logfile.h"
 
 __NAMESPACE_BEGIN
 
@@ -22,6 +22,10 @@ tcp_server::tcp_server (const tcp_server_opts &_opts)
       m_stopped(true),
       m_mutex()
 {
+    if (_opts.disable_debug)
+        logger()[0].disable_debug();
+    if (_opts.disable_info)
+        logger()[0].disable_info();
 } catch (...) {
     log_fatal("tcp_server::tcp_server() error");
     throw;
@@ -45,7 +49,10 @@ tcp_server::run ()
     socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
 
     // start listener
-    m_listener = std::make_shared<listener>(assign_thread().get(), std::move(_sock));
+    event_loop *_next_loop = m_opts.separate_listen_thread
+                             ? m_threadpool.get_loop(0).get()
+                             : m_threadpool.next_loop().get();
+    m_listener = std::make_shared<listener>(_next_loop, std::move(_sock));
     m_listener->set_accept_cb(std::bind(&tcp_server::on_new_connection, this, std::placeholders::_1));
     m_listener->set_error_cb(std::bind(&tcp_server::on_listener_error, this, std::ref(*m_listener)));
 
@@ -110,7 +117,7 @@ tcp_server::parse_addr (const std::string &_name, uint16_t _port)
 {
     addrinfo   _ai;
     addrinfo * _ai_list;
-    bzero(&_ai, sizeof(addrinfo));
+    ::bzero(&_ai, sizeof(addrinfo));
     _ai.ai_flags = AI_PASSIVE;
     _ai.ai_family = AF_UNSPEC;
     _ai.ai_protocol = 0;
@@ -154,6 +161,13 @@ tcp_server::on_new_connection (socket &&_sock)
 
     {
         local_lock _lock(m_mutex);
+        //log_debug("new[%d] - [localhost - %s:%d]",
+        //          _conn->serial(), _peer_addr.addrstr().c_str(), _peer_addr.port());
+        //for (auto _iter : m_connections)
+        //    log_debug("[%d] - [localhost - %s:%d]",
+        //            _iter.first,
+        //            _iter.second->peer_addr().addrstr().c_str(),
+        //            _iter.second->peer_addr().port());
         m_connections[_conn->serial()] = _conn;
     }
 

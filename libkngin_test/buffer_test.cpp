@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "buffer.h"
+#include "exception.h"
 
 #ifdef __FILENAME__
 #undef __FILENAME__

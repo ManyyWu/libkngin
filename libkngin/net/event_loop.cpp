@@ -1,7 +1,10 @@
-#include <sys/eventfd.h>
-#include <functional>
+#ifdef _WIN32
+#else
 #include <unistd.h>
-#include "define.h"
+#include <sys/eventfd.h>
+#endif
+#include <functional>
+#include <cstring>
 #include "common.h"
 #include "errno.h"
 #include "event_loop.h"
@@ -64,8 +67,8 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
             uint32_t _size = m_epoller.wait(m_events, EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
-            log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
-                      m_thr->name(), _size);
+            //log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
+            //          m_thr->name(), _size);
 
             // process events
             for (uint32_t i = 0; i < _size; ++i)
@@ -80,8 +83,8 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
             }
             for (auto _iter : _fnq)
                 _iter();
-            log_debug("the epoller in thread \"%s\" handled %" PRIu64 " task",
-                      m_thr->name(), _fnq.size());
+            //log_debug("the epoller in thread \"%s\" handled %" PRIu64 " task",
+            //          m_thr->name(), _fnq.size());
         }
     } catch (...) {
         if (_stop_cb)
@@ -188,7 +191,7 @@ void
 event_loop::wakeup ()
 {
     check(m_looping);
-    log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
+    //log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
     if (m_waker.stopped())
         return;
 

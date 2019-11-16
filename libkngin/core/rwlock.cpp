@@ -3,8 +3,6 @@
 #include <pthread.h>
 #include "pthread.h"
 #endif
-#include "define.h"
-#include "logfile.h"
 #include "common.h"
 #include "timestamp.h"
 #include "rwlock.h"

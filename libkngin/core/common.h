@@ -1,26 +1,17 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#include <new>
-#include <cstdio>
-#include <atomic>
 #define __STDC_FORMAT_MACROS
+#include <new>
 #include <inttypes.h>
-#include "logfile.h"
 #include "define.h"
+#include "logfile.h"
 #include "assert.h"
 
 __NAMESPACE_BEGIN
 
-#ifndef NDEBUG
-#define knew(__p, __t, __e)       (__p) = new(std::nothrow) __t __e
-#define kdelete(__p)              do { delete (__p); (__p) = nullptr; } while (false)
-#define knew_array(__p, __t, __n) (__p) = new(std::nothrow) __t[__n]
-#define kdelete_array(__p)        do { delete[] (__p); (__p) = nullptr; } while (false)
-#define kdelete_this(__p)         delete (this)
 #define safe_release(__p)         do { delete (__p); (__p) = nullptr; } while (false)
-#else
-#endif
+#define safe_release_array(__p)   do { delete [] (__p); (__p) = nullptr; } while (false)
 
 /*
  * Log for assert

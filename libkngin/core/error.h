@@ -9,7 +9,7 @@
 #include "timestamp.h"
 
 __NAMESPACE_BEGIN
-
+/*
 enum __ERROR_CODE {
     E_SUCCESS               = 0x00000000, // success
 
@@ -96,7 +96,7 @@ private:
 };
 
 #define err2str(_code) __sys_err::what((_code))
-
+*/
 __NAMESPACE_END
 
 #endif /* _ERROR_H_ */

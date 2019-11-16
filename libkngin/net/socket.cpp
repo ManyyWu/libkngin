@@ -1,21 +1,10 @@
 #ifdef _WIN32
-#include <WinSock2.h>
-#include <WS2tcpip.h>
-#include <Windows.h>
-#pragma comment(lib, "ws2_32.lib")
 #else
-#include <unistd.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/uio.h>
+#include <socket.h>
 #endif
 #include <memory>
 #include <vector>
-#include "define.h"
-#include "error.h"
 #include "filefd.h"
-#include "logfile.h"
 #include "buffer.h"
 #include "socket.h"
 #include "address.h"
@@ -50,7 +39,7 @@ socket::socket (socket &&_s)
 void
 socket::rd_shutdown ()
 { 
-    int _ret = ::shutdown(m_fd, SHUT_RD); 
+    int _ret = ::shutdown(m_fd, SHUT_RD);
     if (_ret < 0)
         log_error("::shutdown(SHUT_RD) error - %s:%d", strerror(errno), errno);
 }
@@ -58,7 +47,7 @@ socket::rd_shutdown ()
 void
 socket::wr_shutdown ()
 { 
-    int _ret = ::shutdown(m_fd, SHUT_WR); 
+    int _ret = ::shutdown(m_fd, SHUT_WR);
     if (_ret < 0)
         log_error("::shutdown(SHUT_WR) error - %s:%d", strerror(errno), errno);
 }
@@ -88,8 +77,8 @@ socket::sendto (const address &_addr, buffer &_buf, size_t _nbytes, int _flags)
 {
     check(_buf.readable(_nbytes));
     ssize_t _size = ::sendto(m_fd, (const char *)_buf.data(), _nbytes, _flags,
-                    (const sockaddr *)&(_addr.sa()), 
-                    _addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+                             (const sockaddr *)&(_addr.sa()),
+                             _addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
     if (_size > 0)
         _buf.rreset(_buf.rindex() + _size);
     return _size;
@@ -102,8 +91,8 @@ socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags)
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
     check(_buf.writeable() >= _nbytes);
     ssize_t _size = ::recvfrom(m_fd, (char *)_buf.data(), _nbytes, _flags,
-                              (sockaddr *)&(_addr.sa()), 
-                              &_addr_len);
+                               (sockaddr *)&(_addr.sa()),
+                               &_addr_len);
     if (_size > 0)
         _buf.wreset(_buf.windex() + _size);
     return _size;

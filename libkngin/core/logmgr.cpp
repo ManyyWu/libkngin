@@ -1,7 +1,5 @@
 #include <iostream>
 #include <cassert>
-#include "define.h"
-#include "error.h"
 #include "exception.h"
 #include "log.h"
 #include "logmgr.h"
@@ -14,7 +12,6 @@ std::atomic<bool>       log_mgr::m_inited(false);
 log_mgr::__log_set     log_mgr::m_log_set;
 
 log_mgr::__logfile_set log_mgr::m_logfile_set = {
-    "kngin_memory",
     "kngin_server", // default
 };
 
@@ -25,18 +22,11 @@ log_mgr::log_mgr ()
 
     try {
         // reserved type
-        log *_memory_log = new log(__LOG_FILE_MEMORY, __LOG_MODE_FILE);
-        try {
-            m_log_set.push_back(_memory_log );
-        } catch (...) {
-            safe_release(_memory_log);
-            throw;
-        }
         log *_server_log = new log(__LOG_FILE_SERVER, __LOG_MODE_BOTH);
         try {
             m_log_set.push_back(_server_log);
         } catch (...) {
-            safe_release(_memory_log);
+            safe_release(_server_log);
             throw;
         }
         log_mgr::m_inited = true;

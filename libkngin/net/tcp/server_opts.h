@@ -13,6 +13,9 @@ struct tcp_server_opts {
     bool        allow_ipv6;
     int         backlog;
     uint16_t    thread_num;
+    bool        disable_debug;
+    bool        disable_info;
+    bool        separate_listen_thread;
 };
 
 struct udp_server_opts {

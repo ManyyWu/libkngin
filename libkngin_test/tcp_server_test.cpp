@@ -1,13 +1,17 @@
+#include <iostream>
 #include <string>
 #include <functional>
+#include <unordered_map>
+#include <memory>
+#include <ctime>
 #include "tcp_server.h"
 #include "thread.h"
 #include "common.h"
 
 using namespace k;
 
-//#define SERVER_ADDR "192.168.0.2"
-#define SERVER_ADDR "127.0.0.1"
+#define SERVER_ADDR "192.168.0.2"
+//#define SERVER_ADDR "127.0.0.1"
 #define SERVER_PORT 20000
 
 static int
@@ -75,7 +79,10 @@ class test_server {
 public:
     test_server (const tcp_server_opts &_opts)
         : m_server(_opts),
-          m_buf(4)
+          m_bufs(),
+          m_mutex(),
+          m_savetime(time(NULL)),
+          m_times(0)
     {
     }
 
@@ -109,10 +116,18 @@ public:
                  _conn.peer_addr().addrstr().c_str(), 
                  _conn.peer_addr().port(),
                  _buf.dump().c_str());
-        m_buf.resize(4);
-        m_buf.reset();
-        m_buf.write_uint32(_conn.peer_addr().port());
-        _conn.send(m_buf);
+
+        std::shared_ptr<buffer> _buf1 = nullptr;
+        {
+            local_lock _lock(m_mutex);
+            _buf1 = m_bufs[_conn.serial()];
+        }
+        check(_buf1);
+
+        _buf1->resize(4);
+        _buf1->reset();
+        _buf1->write_uint32(_conn.peer_addr().port());
+        _conn.send(*_buf1);
     }
 
     void
@@ -124,30 +139,74 @@ public:
                  _conn.peer_addr().addrstr().c_str(),
                  _conn.peer_addr().port()
                  );
-        m_buf.resize(4);
-        m_buf.reset();
-        _conn.recv(m_buf);
+
+        std::shared_ptr<buffer> _buf = nullptr;
+        {
+            local_lock _lock(m_mutex);
+            _buf = m_bufs[_conn.serial()];
+        }
+        check(_buf);
+
+        _buf->resize(4);
+        _buf->reset();
+        _conn.recv(*_buf);
     }
 
     void
     on_close (const tcp_connection &_conn)
     {
-        log_info("connection [%s:%d - %s:%d] closed");
+        log_info("connection [%s:%d - %s:%d] closed",
+                 _conn.local_addr().addrstr().c_str(),
+                 _conn.local_addr().port(),
+                 _conn.peer_addr().addrstr().c_str(),
+                 _conn.peer_addr().port()
+                 );
+
+        //log_debug("tcp_server_test::on_close [localhost - %s:%d], tid = %d",
+        //          _conn.peer_addr().addrstr().c_str(),
+        //          _conn.peer_addr().port(), thread::tid()
+        //          );
+        {
+            local_lock _lock(m_mutex);
+            m_bufs.erase(_conn.serial());
+        }
     }
 
     void
     on_connection_establish (tcp_server::tcp_connection_ptr _conn)
     {
+        check(_conn);
         log_info("new connection [%s:%d - %s:%d]",
                  _conn->local_addr().addrstr().c_str(), 
                  _conn->local_addr().port(),
                  _conn->peer_addr().addrstr().c_str(),
                  _conn->peer_addr().port()
                  );
-        m_buf.resize(4);
-        m_buf.reset();
-        m_buf.write_uint32(_conn->peer_addr().port());
-        _conn->send(m_buf);
+        uint64_t _size = 0;
+        std::shared_ptr<buffer> _buf = nullptr;
+        {
+            local_lock _lock(m_mutex);
+            m_bufs[_conn->serial()] = std::make_shared<buffer>(4);
+            _buf = m_bufs[_conn->serial()];
+
+            _size = m_bufs.size();
+        }
+        check(_buf);
+
+        _buf->resize(4);
+        _buf->reset();
+        _buf->write_uint32(_conn->peer_addr().port());
+        _conn->send(*_buf);
+
+        if (m_savetime == time(NULL)) {
+            m_times++;
+        } else {
+            log_warning("accepted %" PRIu64 " new connections in last second, "
+                        "current connection num = %" PRIu64,
+                        m_times.load(), _size);
+            m_savetime = time(NULL);
+            m_times = 0;
+        }
     }
 
     void
@@ -156,29 +215,39 @@ public:
     }
 
 protected:
-    tcp_server m_server;
+    tcp_server                                       m_server;
 
-    buffer     m_buf;
+    std::unordered_map<uint64_t, std::shared_ptr<buffer>> m_bufs;
+
+    mutex                                            m_mutex;
+
+    time_t                                           m_savetime;
+
+    std::atomic<uint64_t>                            m_times;
 };
 
 void
 tcp_server_test ()
 {
     tcp_server_opts _opts = {
-        std::string("127.0.0.1"),
-        20000,
-        false,
-        10,
-        1
+        .name                   = std::string(SERVER_ADDR),
+        .port                   = SERVER_PORT,
+        .allow_ipv6             = false,
+        .backlog                = 100,
+        .thread_num             = 3,
+        .disable_debug          = false,
+        .disable_info           = false,
+        .separate_listen_thread = false,
     };
     test_server _s(_opts);
     check(_s.run());
 
-    for (int i = 0; i < 100; i++) {
-        thread _client((std::string("client") + std::to_string(i)).c_str());
-        thread::sleep(1000);
-        _client.run(client);
-        _client.join(nullptr);
-    }
-    thread::sleep(3600000);
+//    for (int i = 0; i < 100; i++) {
+//        thread _client((std::string("client") + std::to_string(i)).c_str());
+//        thread::sleep(1000);
+//        _client.run(client);
+//        _client.join(nullptr);
+//    }
+    std::cin.get();
+    //thread::sleep(3600000);
 }

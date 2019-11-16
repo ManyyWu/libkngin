@@ -4,13 +4,9 @@
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
 #endif
-#include <cstdio>
-#include "define.h"
-#include "error.h"
 #include "filefd.h"
 #include "sockopts.h"
 #include "socket.h"
-#include "logfile.h"
 #include "common.h"
 
 #ifdef __FILENAME__

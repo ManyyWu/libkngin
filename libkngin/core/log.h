@@ -43,8 +43,7 @@ __NAMESPACE_BEGIN
  * Type of log file
  */
 enum __LOG_FILE {          // reserved type
-    __LOG_FILE_MEMORY = 0, // for debugging
-    __LOG_FILE_SERVER,     // default
+    __LOG_FILE_SERVER = 0,     // default
 };
 
 enum __LOG_MODE {
@@ -71,6 +70,19 @@ private:
     log           (__LOG_FILE _filetype, __LOG_MODE _mode = __LOG_MODE_FILE);
 
     ~log          () = default;
+
+public:
+    void
+    disable_info  () { m_disable_info = true; }
+
+    void
+    disable_debug () { m_disable_debug = true; }
+
+    void
+    enable_info   () { m_disable_info = false; }
+
+    void
+    enable_debug  () { m_disable_debug = false; }
 
 public:
     bool
@@ -121,6 +133,10 @@ private:
     __LOG_FILE m_filetype;
 
     char       m_datetime[__LOG_DATETIME_LEN + 1];
+
+    bool       m_disable_info;
+
+    bool       m_disable_debug;
 
 private:
     friend class log_mgr;

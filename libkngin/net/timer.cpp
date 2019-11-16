@@ -1,6 +1,8 @@
+#ifdef _WIN32
+#else
 #include <sys/timerfd.h>
-#include "errno.h"
-#include "define.h"
+#endif
+#include <cstring>
 #include "common.h"
 #include "event_loop.h"
 
