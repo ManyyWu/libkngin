@@ -11,9 +11,15 @@
 __NAMESPACE_BEGIN
 
 epoller_event::epoller_event(event_loop *_loop, filefd *_s)
-    : m_loop(_loop), m_filefd(_s), m_flags(EPOLLHUP | EPOLLERR),
-      m_incb(nullptr), m_outcb(nullptr), m_errcb(nullptr),
-      m_pricb(nullptr), m_closecb(nullptr), m_event({0, nullptr}),
+    : m_loop(_loop),
+      m_filefd(_s),
+      m_flags(EPOLLHUP | EPOLLERR),
+      m_incb(nullptr),
+      m_outcb(nullptr),
+      m_errcb(nullptr),
+      m_pricb(nullptr),
+      m_closecb(nullptr),
+      m_event({0, nullptr}),
       m_registed(false)
 {
     check(_loop && _s);

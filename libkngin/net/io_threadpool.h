@@ -46,7 +46,7 @@ public:
     ~io_threadpool ();
 
 public:
-    void
+    bool
     start          ();
 
     void

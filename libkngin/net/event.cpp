@@ -24,10 +24,9 @@ event::event (event_loop *_loop)
 {
     check(_loop);
     if (__fd_invalid(m_fd)) {
-        log_fatal("eventfd() error - %s:%d", strerror(errno), errno);
+        log_fatal("::eventfd() error - %s:%d", strerror(errno), errno);
         throw exception("event::event() erorr");
     }
-
     //log_debug("new event, fd = %d", m_fd);
 }
 
@@ -57,6 +56,7 @@ event::update ()
 void
 event::notify ()
 {
+    check(!m_stopped);
     buffer _val(8);
     _val.write_uint64(1);
     ssize_t _ret = this->write(_val, 8); // blocked
@@ -77,6 +77,7 @@ event::stop ()
 void
 event::on_event ()
 {
+    check(!m_stopped);
     buffer _val(8);
     ssize_t _ret = this->read(_val, 8); // blocked
     if (_ret < 0)

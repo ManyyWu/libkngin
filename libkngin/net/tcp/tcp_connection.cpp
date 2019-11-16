@@ -34,9 +34,18 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
       m_serial(tcp_connection::next_serial())
 {
     check(_loop);
-    m_socket.set_closeexec(true);
-    m_socket.set_nonblock(true);
-    sockopts::set_ooblinline(m_socket, false);
+    if (!m_socket.set_closeexec(true)) {
+        log_error("socket::set_closeexec(true) error");
+        throw exception("socket::set_closeexec() error");
+    }
+    if (!m_socket.set_nonblock(true)) {
+        log_error("socket::set_nonblock(true) error");
+        throw exception("socket::set_nonblock() error");
+    }
+    if (!sockopts::set_ooblinline(m_socket, false)) {
+        log_error("sockopts::set_ooblinline(false) error");
+        throw exception("sockopts::set_ooblinline() error");
+    }
     m_event.set_read_cb(std::bind(&tcp_connection::on_read, this));
     m_event.set_write_cb(std::bind(&tcp_connection::on_write, this));
     m_event.set_error_cb(std::bind(&tcp_connection::on_error, this));
@@ -227,10 +236,6 @@ tcp_connection::on_close ()
     m_socket.close();
     m_in_buf = nullptr;
     m_connected = false;
-
-    //log_debug("tcp_connection::on_close [%s:%d-%s:%d], m_connected = false;",
-    //          m_local_addr.addrstr().c_str(), m_local_addr.port(),
-    //          m_peer_addr.addrstr().c_str(), m_peer_addr.port());
 
     if (m_close_cb)
         m_close_cb(std::ref(*this));

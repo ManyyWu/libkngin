@@ -3,7 +3,7 @@
 
 #define __STDC_FORMAT_MACROS
 #include <new>
-#include <inttypes.h>
+#include <cinttypes>
 #include "define.h"
 #include "logfile.h"
 #include "assert.h"

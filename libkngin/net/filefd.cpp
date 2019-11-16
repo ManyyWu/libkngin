@@ -15,22 +15,25 @@
 
 __NAMESPACE_BEGIN
 
+int filefd::invalid_fd = __INVALID_FD;
+
 filefd::filefd (int _fd)
     : m_fd(_fd)
 {
-     check(__fd_valid(_fd));
+    if (__fd_invalid(_fd))
+        m_fd = filefd::invalid_fd;
+}
+
+filefd::filefd (filefd &&_fd)
+    : m_fd(_fd.m_fd)
+{
+    _fd.m_fd = filefd::invalid_fd;
 }
 
 filefd::~filefd()
 {
     if (__fd_valid(m_fd))
         this->close();
-}
-
-int
-filefd::fd () const
-{
-    return m_fd;
 }
 
 ssize_t
@@ -82,7 +85,7 @@ filefd::close ()
     int _ret = ::close(m_fd);
     if (_ret < 0)
         log_error("::close() error - %s:%d", strerror(errno), errno);
-    m_fd = __INVALID_FD;
+    m_fd = filefd::invalid_fd;
 }
 
 bool
@@ -120,6 +123,14 @@ bool
 filefd::reuse_addr () const
 {
     return ::fcntl(m_fd, F_GETFL, 0) & O_CLOEXEC;
+}
+
+filefd &
+filefd::operator = (int _fd)
+{
+    check(__fd_valid(_fd));
+    m_fd = _fd;
+    return *this;
 }
 
 __NAMESPACE_END

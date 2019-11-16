@@ -47,7 +47,7 @@ public:
     close          ();
 
     bool
-    closed         () { return __fd_invalid(m_epollfd); }
+    closed         () { return !m_epollfd.valid(); }
 
 protected:
     bool
@@ -71,7 +71,7 @@ protected:
 
     event_loop *  m_loop;
 
-    int           m_epollfd;
+    filefd        m_epollfd;
 
 protected:
     friend class epoller_event;

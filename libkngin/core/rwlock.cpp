@@ -17,11 +17,6 @@ __NAMESPACE_BEGIN
 rwlock::rwlock ()
     : m_rwlock(PTHREAD_RWLOCK_INITIALIZER)
 {
-    int _ret = ::pthread_rwlock_init(&m_rwlock, nullptr);
-    if (_ret) {
-        log_fatal("::pthread_rwlock_init() return %d", _ret);
-        throw exception("rwlock::rwlock() error");
-    }
 }
 
 rwlock::~rwlock ()

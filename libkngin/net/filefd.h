@@ -18,12 +18,17 @@ public:
     explicit
     filefd  (int _fd);
 
+    filefd  (filefd &&_fd);
+
     virtual
     ~filefd ();
 
 public:
+    bool
+    valid         () const { return __fd_valid(m_fd); }
+
     int
-    fd            () const;
+    fd            () const { return m_fd; }
 
     ssize_t
     write         (buffer &_buf, size_t _nbytes);
@@ -52,6 +57,13 @@ public:
 
     bool
     reuse_addr    () const;
+
+public:
+    filefd &
+    operator =    (int _fd);
+
+public:
+    static int invalid_fd;
 
 protected:
     int m_fd;

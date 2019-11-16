@@ -6,7 +6,7 @@
 #else
 #include <sys/time.h>
 #endif
-#include <time.h>
+#include <ctime>
 #include <cstdint>
 #include <limits>
 #include <algorithm>

@@ -24,6 +24,7 @@ io_threadpool::io_threadpool (uint16_t _num)
       m_cond(&m_mutex),
       m_next(1)
 {
+    m_threads.reserve(m_num);
 } catch (...) {
     log_fatal("io_threadpool::io_threadpool() error");
     throw;
@@ -35,24 +36,24 @@ io_threadpool::~io_threadpool ()
         stop();
 }
 
-void
+bool
 io_threadpool::start ()
 {
     check(m_stopped);
 
-    try {
-        for (int i = 0; i < m_num; ++i) {
-            std::string _name = std::string("io_thread_") + std::to_string(i);
-            m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
-            if (!m_threads.back().get()->run())
-                throw exception("io_threadpool::start() error");
+    for (int i = 0; i < m_num; ++i) {
+        std::string _name = std::string("io_thread_") + std::to_string(i);
+        m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
+        if (!m_threads.back().get()->run()) {
+            m_stopped = false;
+            stop();
+            return false;
         }
-    } catch (...) {
-        log_fatal("io_threadpool::start() error");
-        throw;
     }
+
     m_stopped = false;
     log_info("thread pool started");
+    return true;
 }
 
 void
@@ -75,6 +76,7 @@ void
 io_threadpool::add_task (task &&_task)
 {
     check(_task);
+    check(!m_stopped);
 
     event_loop_ptr _next = next_loop();
     {
@@ -87,6 +89,7 @@ io_threadpool::add_task (task &&_task)
 io_threadpool::event_loop_ptr
 io_threadpool::next_loop ()
 {
+    check(!m_stopped);
     {
         local_lock _lock(m_mutex);
         if (m_threads.empty())
@@ -102,6 +105,7 @@ io_threadpool::next_loop ()
 io_threadpool::event_loop_ptr
 io_threadpool::get_loop (size_t _idx)
 {
+    check(!m_stopped);
     {
         local_lock _lock(m_mutex);
         if (m_threads.empty())

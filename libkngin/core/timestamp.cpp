@@ -3,7 +3,7 @@
 #else
 #include <sys/time.h>
 #endif
-#include <time.h>
+#include <ctime>
 #include <algorithm>
 #include "timestamp.h"
 

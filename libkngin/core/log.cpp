@@ -30,7 +30,7 @@ log::fatal (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
-    //assert(!"log fatal");
+    assert(!"log fatal");
     return _ret;
 }
 
@@ -41,7 +41,7 @@ log::error (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
-    //assert(!"log error");
+    assert(!"log error");
     return _ret;
 }
 

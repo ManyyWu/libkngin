@@ -28,8 +28,7 @@ timer::timer (event_loop *_loop)
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw exception("timer::timer() erorr");
     }
-
-    log_debug("new timer, fd = %d", m_fd);
+    //log_debug("new timer, fd = %d", m_fd);
 }
 
 timer::~timer ()
@@ -53,7 +52,6 @@ void
 timer::stop ()
 {
     check(!m_stopped);
-    set_time(0, 0);
     m_event.remove();
     m_stopped = true;
 }
@@ -61,9 +59,7 @@ timer::stop ()
 timestamp
 timer::get_time ()
 {
-    check(__fd_valid(m_fd));
     check(!m_stopped);
-
     itimerspec _its;
     int _ret = timerfd_gettime(m_fd, &_its);
     if (_ret < 0)
@@ -74,9 +70,7 @@ timer::get_time ()
 void
 timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
-    check(__fd_valid(m_fd));
     check(!m_stopped);
-
     itimerspec _its;
     _val.to_timespec(_its.it_value);
     _interval.to_timespec(_its.it_interval);
@@ -89,6 +83,7 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 void
 timer::on_timeout ()
 {
+    check(!m_stopped);
     buffer _val(8);
     ssize_t _ret = this->read(_val, 8); // blocked
     if (_ret < 0)

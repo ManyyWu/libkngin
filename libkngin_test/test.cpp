@@ -31,6 +31,9 @@
 #include "../libkngin/core/sync_queue.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
+#include "../libkngin/net/tcp/tcp_connection.h"
+#include "../libkngin/net/tcp/tcp_server.h"
+#include "../libkngin/net/listener.h"
 
 using namespace k;
 using namespace std;
@@ -40,6 +43,6 @@ void
 test ()
 {
 #warning "返回值处理"
-#warning "检查构造函数throw"
-#warning "RAII"
+#warning "所有cb改const &"
+
 }

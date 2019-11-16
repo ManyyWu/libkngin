@@ -18,8 +18,10 @@ public:
     basic_buffer  (const basic_buffer &) = delete;
 
 protected:
+    explicit
     basic_buffer  (const uint8_arr &_arr, size_t _reserve = 0);
 
+    explicit
     basic_buffer  (uint8_arr &&_arr, size_t _reserve = 0);
 
     ~basic_buffer () = default;
@@ -173,10 +175,13 @@ class buffer : public basic_buffer {
 public:
     buffer     ()
         : basic_buffer(uint8_arr())                              {}
+    explicit
     buffer     (size_t _reserve)
         : basic_buffer(uint8_arr(), _reserve)                    {}
+    explicit
     buffer     (const uint8_arr &_arr, size_t _reserve = 0)
         : basic_buffer(_arr, _reserve)                           {}
+    explicit
     buffer     (uint8_arr &&_arr, size_t _reserve = 0)
         : basic_buffer(std::move(_arr), _reserve)                {}
     buffer     (const buffer &_buf)

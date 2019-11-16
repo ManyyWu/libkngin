@@ -152,8 +152,14 @@ tcp_server::on_new_connection (socket &&_sock)
     address _local_addr, _peer_addr;
     _sock.localaddr(_local_addr);
     _sock.peeraddr(_peer_addr);
-    tcp_connection_ptr _conn = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
-                                             _local_addr, _peer_addr);
+
+    tcp_connection_ptr _conn = nullptr;
+    try {
+        _conn = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
+                                                 _local_addr, _peer_addr);
+    } catch (exception &_e) {
+        log_error("caught an exception when accepting new connection: \"%s\"", _e.what().c_str());
+    }
     _conn->set_read_done_cb(m_read_done_cb);
     _conn->set_write_done_cb(m_write_done_cb);
     _conn->set_oob_cb(m_oob_cb);

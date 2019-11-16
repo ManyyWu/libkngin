@@ -31,7 +31,6 @@ event_loop::event_loop (thread *_thr)
       m_events(RESERVED_EPOLLELR_EVENT),
       m_waker(this)
 {
-    check(__fd_valid(m_waker.fd()));
     check(_thr);
     m_waker.set_nonblock(false);
     m_waker.set_closeexec(true);

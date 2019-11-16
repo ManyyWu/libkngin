@@ -8,6 +8,7 @@
 #include "buffer.h"
 #include "socket.h"
 #include "address.h"
+#include "exception.h"
 #include "event_loop.h"
 
 #ifdef __FILENAME__
@@ -20,6 +21,10 @@ __NAMESPACE_BEGIN
 socket::socket (int _fd)
     : filefd(_fd)
 {
+    if (__fd_invalid(m_fd)) {
+        log_error("::socket() error - invalid file descriptor");
+        throw exception("socket::socket() error");
+    }
     //log_debug("accepted a socket, fd = %d", m_fd);
 }
 
@@ -27,13 +32,17 @@ socket::socket (INET_PROTOCOL _proto)
     : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0))
 {
+    if (__fd_invalid(m_fd)) {
+        log_error("::socket() error - %s:%d", strerror(errno), errno);
+        throw exception("socket::socket() error");
+    }
     //log_debug("new socket, fd = %d", m_fd);
 }
 
 socket::socket (socket &&_s)
     : filefd(_s.m_fd)
 {
-    _s.m_fd = __INVALID_FD;
+    _s.m_fd = filefd::invalid_fd;
 }
 
 void

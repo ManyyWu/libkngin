@@ -67,6 +67,7 @@ server (void *_args)
     assert(address::str2sockaddr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
+    check(_server_sock.valid());
     assert(sockopts::set_reuseaddr(_server_sock, true));
     assert(sockopts::set_reuseport(_server_sock, true));
     log_debug("server_addr: %s:%hu", _server_addr.addrstr().c_str(), _server_addr.port());

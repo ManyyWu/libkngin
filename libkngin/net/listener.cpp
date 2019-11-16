@@ -22,11 +22,18 @@ listener::listener (event_loop *_loop, k::socket &&_socket)
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     check(_loop);
-    check(m_idle_file);
-    m_socket.set_closeexec(true);
-    m_socket.set_nonblock(true);
-    sockopts::set_reuseport(m_socket, true);
-    sockopts::set_reuseaddr(m_socket, true);
+    if (!m_idle_file.valid()) {
+        log_error("::open(\"/dev/null\") error - %s:%d", strerror(errno), errno);
+        throw exception("::open() error");
+    }
+    if (!m_socket.set_closeexec(true)) {
+        log_error("socket::set_closeexec(true) error");
+        throw exception("socket::set_closeexec() error");
+    }
+    if (!m_socket.set_nonblock(true)) {
+        log_error("socket::set_nonblock(true) error");
+        throw exception("socket::set_nonblock() error");
+    }
     m_event.set_read_cb(std::bind(&listener::on_accept, this));
     m_event.set_error_cb(std::bind(&listener::on_error, this));
 } catch (...) {
@@ -45,6 +52,8 @@ listener::~listener()
 bool
 listener::bind (const address &_listen_addr)
 {
+    check(!m_closed);
+
     m_listen_addr = _listen_addr;
     if (m_socket.bind(_listen_addr) < 0) {
         log_error("socket::bind() error - %s:%d", strerror(errno), errno);
@@ -56,6 +65,8 @@ listener::bind (const address &_listen_addr)
 bool
 listener::listen (int _backlog)
 {
+    check(!m_closed);
+
     if (m_socket.listen(_backlog) < 0) {
         log_error("socket::listen() error - %s:%d", strerror(errno), errno);
         return false;
@@ -69,6 +80,7 @@ listener::close ()
 {
     check(!m_closed);
 
+    m_idle_file.close();
     if (m_loop->in_loop_thread())
         on_close();
     else
@@ -85,10 +97,12 @@ listener::on_accept ()
     int _fd = m_socket.accept(_peer_addr);
     if (_fd < 0) {
         if (EMFILE == _fd) {
-            ::close(m_idle_file);
-            ::close(m_socket.accept(_peer_addr));
+            m_idle_file.close();
+            m_idle_file = m_socket.accept(_peer_addr);
+            m_idle_file.close();
             m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-            log_error("the process already has the maximum number of files open");
+            log_warning("the process already has the maximum number of files open, "
+                        "a new connection has been rejected");
         } else {
             log_error("socket::accept() error - %s:%d", strerror(errno), errno);
         }
@@ -98,7 +112,7 @@ listener::on_accept ()
     if (m_accept_cb)
         m_accept_cb(socket(_fd));
     else {
-        log_warning("unaccepted fd %d", _fd);
+        log_warning("unaccepted connection, fd = %d", _fd);
         ::close(_fd);
     }
 }

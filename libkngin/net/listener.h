@@ -1,10 +1,12 @@
+#ifndef _LISTENER_H_
+#define _LISTENER_H_
+
 #include <functional>
 #include "define.h"
 #include "socket.h"
 #include "filefd.h"
 
 __NAMESPACE_BEGIN
-
 
 class listener {
 public:
@@ -61,8 +63,10 @@ protected:
 
     error_cb          m_error_cb;
 
-    int               m_idle_file;
+    filefd            m_idle_file;
 };
 
-
 __NAMESPACE_END
+
+#endif /* _LISTENER_H_ */
+
