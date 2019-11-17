@@ -6,6 +6,7 @@
 #else
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/syscall.h>
 #endif
 #include <atomic>
 #include <memory>
@@ -62,9 +63,6 @@ public:
     pthread_t
     get_interface () const        { return m_thr; }
 
-    uint64_t
-    get_tid       () const        { return m_tid; }
-
     const char *
     name          () const        { return m_name.c_str(); }
 
@@ -73,7 +71,7 @@ public:
 #ifdef _WIN32
     tid           ()              { return ::GetCurrentThreadId(); }
 #else
-    tid           ()              { return ::getpid(); }
+    tid           ()              { return ::syscall(SYS_gettid); }
 #endif
 
     static pthread_t
@@ -104,8 +102,6 @@ protected:
     std::string       m_name;
 
     pthread_t         m_thr;
-
-    uint64_t          m_tid;
 
     std::atomic<bool> m_joined;
 };

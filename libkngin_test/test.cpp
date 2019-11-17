@@ -45,5 +45,5 @@ test ()
 {
 #warning "返回值处理"
 #warning "所有cb改const &"
-#warning "strace"
+
 }

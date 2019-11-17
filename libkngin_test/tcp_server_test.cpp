@@ -116,7 +116,10 @@ public:
                  _conn.peer_addr().addrstr().c_str(), 
                  _conn.peer_addr().port(),
                  _buf.dump().c_str());
-
+        if (1 == _buf.peek_uint32()) {
+           // m_server.stop();
+           // return;
+        }
         std::shared_ptr<buffer> _buf1 = nullptr;
         {
             local_lock _lock(m_mutex);
@@ -155,6 +158,7 @@ public:
     void
     on_close (const tcp_connection &_conn)
     {
+        log_debug("%ld", thread::self());
         log_info("connection [%s:%d - %s:%d] closed",
                  _conn.local_addr().addrstr().c_str(),
                  _conn.local_addr().port(),
@@ -162,10 +166,6 @@ public:
                  _conn.peer_addr().port()
                  );
 
-        //log_debug("tcp_server_test::on_close [localhost - %s:%d], tid = %d",
-        //          _conn.peer_addr().addrstr().c_str(),
-        //          _conn.peer_addr().port(), thread::tid()
-        //          );
         {
             local_lock _lock(m_mutex);
             m_bufs.erase(_conn.serial());
@@ -182,13 +182,12 @@ public:
                  _conn->peer_addr().addrstr().c_str(),
                  _conn->peer_addr().port()
                  );
-        uint64_t _size = 0;
         std::shared_ptr<buffer> _buf = nullptr;
+        uint64_t                _size = 0;
         {
             local_lock _lock(m_mutex);
             m_bufs[_conn->serial()] = std::make_shared<buffer>(4);
             _buf = m_bufs[_conn->serial()];
-
             _size = m_bufs.size();
         }
         check(_buf);
@@ -234,7 +233,7 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 3,
+        .thread_num             = 2,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = false,

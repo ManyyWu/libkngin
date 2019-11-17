@@ -32,8 +32,6 @@ epoller::epoller (event_loop *_loop)
         log_fatal("::epoll_create1() error - %s:%d", strerror(errno), errno);
         throw k::exception("epoller::epoller() error");
     }
-
-    //log_debug("new epoller, fd = %d", m_epollfd);
 }
 
 epoller::~epoller ()
@@ -57,8 +55,6 @@ epoller::wait (epoller::epoll_event_set &_list, timestamp _ms)
 void
 epoller::close ()
 {
-    //log_debug("epoller closed, fd = %d", m_epollfd);
-
 #ifndef NDEBUG
     if (!m_fd_set.empty())
         log_warning("there are still have %" PRIu64 " undeleted fd in epoller", m_fd_set.size());

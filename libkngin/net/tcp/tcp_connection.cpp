@@ -55,10 +55,6 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     m_event.disable_read();
     m_event.disable_oob();
     m_event.start();
-
-    //log_debug("new connection [%s:%d-%s:%d]",
-    //          m_local_addr.addrstr().c_str(), m_local_addr.port(),
-    //          m_peer_addr.addrstr().c_str(), m_peer_addr.port());
 } catch (...) {
     log_fatal("tcp_connection::tcp_connection() error");
     throw;
@@ -66,10 +62,6 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
 
 tcp_connection::~tcp_connection ()
 {
-    log_debug("tcp_connection::~tcp_connection [localhost - %s:%d], tid = %d",
-              peer_addr().addrstr().c_str(),
-              peer_addr().port(), thread::tid()
-              );
     if (m_connected)
         log_error("the TCP connection must be closed before object disconstructing");
 
@@ -163,7 +155,6 @@ tcp_connection::on_write ()
         if (m_write_done_cb)
             m_write_done_cb(std::ref(*this));
     } else if (!_size) {
-        log_debug("on_write");
         on_close();
         return;
     } else {
@@ -183,8 +174,6 @@ tcp_connection::on_read ()
     m_loop->check_thread();
 
     if (!m_in_buf) {
-        //log_debug("tcp_connection::on_read [localhost - %s:%d], m_in_buf = false",
-        //          peer_addr().addrstr().c_str(), peer_addr().port());
         buffer _buf(1);
         ssize_t _size = m_socket.read(_buf, 1);
         check(!_size);
@@ -208,8 +197,6 @@ tcp_connection::on_read ()
             m_read_done_cb(std::ref(*this), *m_in_buf, m_in_buf->readable());
         m_in_buf = nullptr;
     } else if (!_size) {
-//        log_debug("tcp_connection::on_read [localhost - %s:%d], read 0",
-//                  peer_addr().addrstr().c_str(), peer_addr().port());
         on_close();
         return;
     } else {
@@ -226,11 +213,6 @@ tcp_connection::on_close ()
 {
     check(m_connected);
     m_loop->check_thread();
-
-    //log_debug("tcp_connection::on_close [%s:%d-%s:%d], tid = %d",
-    //          m_local_addr.addrstr().c_str(), m_local_addr.port(),
-    //          m_peer_addr.addrstr().c_str(), m_peer_addr.port(), thread::tid()
-    //          );
 
     m_event.remove();
     m_socket.close();

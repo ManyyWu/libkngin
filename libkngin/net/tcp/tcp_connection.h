@@ -2,6 +2,7 @@
 #define _TCP_CONNECTION_H_
 
 #include <functional>
+#include <memory>
 #include <list>
 #include "define.h"
 #include "address.h"
@@ -25,11 +26,13 @@ public:
 
     typedef std::function<void (tcp_connection &, uint8_t)>          read_oob_cb;
 
-    typedef std::function<void (tcp_connection &)>                   close_cb;
+    typedef std::function<void (const tcp_connection &)>             close_cb;
 
     //typedef std::function<void (void)>                               writeable_cb;
 
     //typedef std::function<void (void)>                               readable_cb;
+
+    typedef std::shared_ptr<tcp_connection>                          tcp_connection_ptr;
 
 public:
     tcp_connection    () = delete;
@@ -95,67 +98,67 @@ public:
 
 private:
     void
-    on_write  ();
+    on_write     ();
 
     void
-    on_read   ();
+    on_read      ();
 
     void
-    on_close  ();
+    on_close     ();
 
     void
-    on_oob    ();
+    on_oob       ();
 
     void
-    on_error  ();
+    on_error     ();
 
 public:
     k::socket &
-    socket      ()       { return m_socket; }
+    socket       ()       { return m_socket; }
 
     const address &
-    local_addr  () const { return m_local_addr; }
+    local_addr   () const { return m_local_addr; }
 
     const address &
-    peer_addr   () const { return m_peer_addr; }
+    peer_addr    () const { return m_peer_addr; }
 
     uint64_t
-    serial      () const { return m_serial; }
+    serial       () const { return m_serial; }
 
 protected:
     uint64_t
-    next_serial ()       { return m_next_serial++; }
+    next_serial  ()       { return m_next_serial++; }
 
 protected:
-    event_loop *      m_loop;
+    event_loop *        m_loop;
 
-    k::socket         m_socket;
+    k::socket           m_socket;
 
-    epoller_event     m_event;
+    epoller_event       m_event;
 
-    std::atomic<bool> m_connected;
+    std::atomic<bool>   m_connected;
 
-    address           m_local_addr;
+    address             m_local_addr;
 
-    address           m_peer_addr;
+    address             m_peer_addr;
 
-//    writeable_cb      m_writeable_cb;
+//    writeable_cb        m_writeable_cb;
 
-//    readable_cb       m_readable_cb;
+//    readable_cb         m_readable_cb;
 
-    write_done_cb     m_write_done_cb;
+    write_done_cb       m_write_done_cb;
 
-    read_done_cb      m_read_done_cb;
+    read_done_cb        m_read_done_cb;
 
-    read_oob_cb       m_oob_cb;
+    read_oob_cb         m_oob_cb;
 
-    close_cb          m_close_cb;
+    close_cb            m_close_cb;
 
-    buffer            m_out_buf;
+    buffer              m_out_buf;
 
-    buffer *          m_in_buf;
+    buffer *            m_in_buf;
 
-    uint64_t          m_serial;
+    uint64_t            m_serial;
 
 protected:
     static uint64_t   m_next_serial;

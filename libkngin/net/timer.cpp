@@ -9,9 +9,6 @@
 #ifdef __FILENAME__
 #undef __FILENAME__
 #endif
-#ifdef __FILENAME__
-#undef __FILENAME__
-#endif
 #define __FILENAME__ "libkngin/net/timer.cpp"
 
 __NAMESPACE_BEGIN
@@ -28,7 +25,6 @@ timer::timer (event_loop *_loop)
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw k::exception("timer::timer() erorr");
     }
-    //log_debug("new timer, fd = %d", m_fd);
 }
 
 timer::~timer ()

@@ -64,8 +64,6 @@ epoller_event::remove ()
 void
 epoller_event::on_events (uint32_t _flags)
 {
-    //log_debug("epoller_event::on_events() fd = %d, flags = %d", m_filefd->fd(), m_flags);
-
     check(m_registed);
     if (EPOLLHUP & _flags) // RST
     {
@@ -78,20 +76,12 @@ epoller_event::on_events (uint32_t _flags)
     }
     if ((EPOLLERR & _flags) && m_errcb)
         m_errcb();
-    //else
-    //    log_debug("unhandled event EPOLLERR");
     if ((EPOLLIN & _flags) && m_incb)
         m_incb();
-    //else
-    //    log_debug("unhandled event EPOLLIN");
     if ((EPOLLOUT & _flags) && m_outcb)
         m_outcb();
-    //else
-    //    log_debug("unhandled event EPOLLOUT");
     if ((EPOLLPRI & _flags) && m_pricb)
         m_pricb();
-    //else
-    //    log_debug("unhandled event EPOLLPRI");
 }
 
 __NAMESPACE_END

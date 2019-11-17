@@ -46,7 +46,7 @@ event_loop::~event_loop ()
         stop();
         // FIXME: wait for loop to end
     }
-    
+
     log_debug("loop in thread \"%s\" closed", m_thr->name());
 }
 
@@ -120,13 +120,13 @@ event_loop::looping ()
 void
 event_loop::check_thread ()
 {
+    log_debug("%s:%ld, %ld", m_thr->name(), m_thr->get_interface(), thread::self());
     check(m_thr->equal_to(thread::self()));
 }
 
 bool
 event_loop::in_loop_thread()
 {
-    //log_debug("m_thr:%" PRIu64 ", self:%" PRIu64, m_thr->get_interface(), thread::self());
     return (m_thr->equal_to(thread::self()));
 }
 

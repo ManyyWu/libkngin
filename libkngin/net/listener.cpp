@@ -90,7 +90,8 @@ listener::close ()
 void
 listener::on_accept ()
 {
-    check(!m_closed);
+    if (m_closed)
+        return;
     m_loop->check_thread();
 
     address _peer_addr;

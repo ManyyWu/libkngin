@@ -15,7 +15,7 @@ __NAMESPACE_BEGIN
 
 class tcp_server {
 public:
-    typedef std::shared_ptr<tcp_connection>                  tcp_connection_ptr;
+    typedef tcp_connection::tcp_connection_ptr               tcp_connection_ptr;
 
     typedef std::function<void (tcp_connection_ptr)>         connection_establish_cb;
 
@@ -60,16 +60,12 @@ public:
 public:
     void
     set_connection_establish_cb (connection_establish_cb &&_cb) { m_connection_establish_cb = std::move(_cb); }
-
     void
     set_read_done_cb            (read_done_cb &&_cb)            { m_read_done_cb = std::move(_cb); }
-
     void
     set_write_done_cb           (write_done_cb &&_cb)           { m_write_done_cb = std::move(_cb); }
-
     void
     set_close_cb                (close_cb &&_cb)                { m_close_cb = std::move(_cb); }
-
     void
     set_oob_cb                  (read_oob_cb &&_cb)             { m_oob_cb = std::move(_cb); }
 
@@ -86,7 +82,7 @@ protected:
     on_new_connection           (socket &&_sock);
 
     void
-    on_close                    (tcp_connection_ptr _conn);
+    on_close                    (const tcp_connection &_conn);
 
     void
     on_listener_error           (listener &_conn);

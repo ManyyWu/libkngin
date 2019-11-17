@@ -140,7 +140,7 @@ protected:
                          _conn.peer_addr().addrstr().c_str(), _port);
                 _conn.close();
             });
-            m_conn->set_close_cb([] (tcp_connection &_conn) {
+            m_conn->set_close_cb([] (const tcp_connection &_conn) {
                 log_info("s: on_close: fd = %d", _conn.serial());
             });
 

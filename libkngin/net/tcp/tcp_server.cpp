@@ -80,12 +80,19 @@ tcp_server::stop ()
     check(!m_stopped);
     log_info("stopping TCP server");
 
+    m_listener->close();
+    thread::sleep(1000);
     {
         local_lock _lock(m_mutex);
+        log_debug("size: %d", m_connections.size());
+        for (auto _iter : m_connections)
+                    log_debug("%s:%d, connected = %d",
+                    _iter.second->local_addr().addrstr().c_str(),
+                    _iter.second->local_addr().port(),
+                    _iter.second->connected());
         for (auto _iter : m_connections)
             _iter.second->close();
     }
-    m_listener->close();
     thread::sleep(1000);
     if (!m_stopped)
         m_threadpool.stop();
@@ -102,7 +109,7 @@ tcp_server::remove_connection (tcp_connection_ptr _conn)
     if (_conn->connected())
         _conn->close();
     else
-        on_close(_conn);
+        on_close(*_conn);
 }
 
 int
@@ -160,25 +167,22 @@ tcp_server::on_new_connection (socket &&_sock)
     } catch (const k::exception &_e) {
         log_error("caught an exception when accepting new connection: \"%s\"", _e.what().c_str());
         log_dump(_e.dump());
+        return;
     } catch (const std::exception &_e) {
         log_fatal("caught an std::exception when accepting new connection: \"%s\"", _e.what());
+        return;
     } catch (...) {
         log_fatal("caught an undefined exception when accepting new connection");
+        return;
     }
     _conn->set_read_done_cb(m_read_done_cb);
     _conn->set_write_done_cb(m_write_done_cb);
     _conn->set_oob_cb(m_oob_cb);
-    _conn->set_close_cb(m_close_cb);
+    _conn->set_close_cb(std::bind(&tcp_server::on_close, this, std::placeholders::_1));
+    //_conn->set_close_cb(m_close_cb);
 
     {
         local_lock _lock(m_mutex);
-        //log_debug("new[%d] - [localhost - %s:%d]",
-        //          _conn->serial(), _peer_addr.addrstr().c_str(), _peer_addr.port());
-        //for (auto _iter : m_connections)
-        //    log_debug("[%d] - [localhost - %s:%d]",
-        //            _iter.first,
-        //            _iter.second->peer_addr().addrstr().c_str(),
-        //            _iter.second->peer_addr().port());
         m_connections[_conn->serial()] = _conn;
     }
 
@@ -187,14 +191,14 @@ tcp_server::on_new_connection (socket &&_sock)
 }
 
 void
-tcp_server::on_close (tcp_connection_ptr _conn)
+tcp_server::on_close (const tcp_connection &_conn)
 {
     if (m_close_cb)
-        m_close_cb(std::ref(*_conn));
+        m_close_cb(std::ref(_conn));
 
     {
         local_lock _lock(m_mutex);
-        m_connections.erase(_conn->serial());
+        m_connections.erase(_conn.serial());
     }
 }
 

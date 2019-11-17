@@ -25,7 +25,6 @@ thread::thread (const char *_name)
 #else
       m_thr(0),
 #endif
-      m_tid(0),
       m_joined(false)
 {
 }

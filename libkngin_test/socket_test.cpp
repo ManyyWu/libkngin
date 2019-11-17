@@ -10,9 +10,6 @@
 #ifdef __FILENAME__
 #undef __FILENAME__
 #endif
-#ifdef __FILENAME__
-#undef __FILENAME__
-#endif
 #define __FILENAME__ "libkngin_test/socket_test.cpp"
 
 using namespace k;
