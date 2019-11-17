@@ -23,7 +23,7 @@ socket::socket (int _fd)
 {
     if (__fd_invalid(m_fd)) {
         log_error("::socket() error - invalid file descriptor");
-        throw exception("socket::socket() error");
+        throw k::exception("socket::socket() error");
     }
     //log_debug("accepted a socket, fd = %d", m_fd);
 }
@@ -34,7 +34,7 @@ socket::socket (INET_PROTOCOL _proto)
 {
     if (__fd_invalid(m_fd)) {
         log_error("::socket() error - %s:%d", strerror(errno), errno);
-        throw exception("socket::socket() error");
+        throw k::exception("socket::socket() error");
     }
     //log_debug("new socket, fd = %d", m_fd);
 }

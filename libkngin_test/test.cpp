@@ -17,6 +17,7 @@
 #include <netinet/ip.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <execinfo.h>
 #else
 #include <Winsock2.h>
 #include <Windows.h>
@@ -44,5 +45,5 @@ test ()
 {
 #warning "返回值处理"
 #warning "所有cb改const &"
-
+#warning "strace"
 }

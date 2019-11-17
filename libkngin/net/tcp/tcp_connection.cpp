@@ -36,15 +36,15 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
     check(_loop);
     if (!m_socket.set_closeexec(true)) {
         log_error("socket::set_closeexec(true) error");
-        throw exception("socket::set_closeexec() error");
+        throw k::exception("socket::set_closeexec() error");
     }
     if (!m_socket.set_nonblock(true)) {
         log_error("socket::set_nonblock(true) error");
-        throw exception("socket::set_nonblock() error");
+        throw k::exception("socket::set_nonblock() error");
     }
     if (!sockopts::set_ooblinline(m_socket, false)) {
         log_error("sockopts::set_ooblinline(false) error");
-        throw exception("sockopts::set_ooblinline() error");
+        throw k::exception("sockopts::set_ooblinline() error");
     }
     m_event.set_read_cb(std::bind(&tcp_connection::on_read, this));
     m_event.set_write_cb(std::bind(&tcp_connection::on_write, this));

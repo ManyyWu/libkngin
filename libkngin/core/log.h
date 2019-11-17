@@ -2,16 +2,16 @@
 #define _K_LOG_H_
 
 #include <cstdarg>
+#include <string>
 #include "define.h"
 #include "lock.h"
 
-#define __LOG_FILE_DATE_LEN 19
 #define __LOG_BUF_SIZE      4096
 #define __LOG_FILE_MAX_SIZE 20 * 1024 * 1024 // 20M
 
 // "YYYY/MM/DD hh:mm:ss"
 #define __log_datetime_format         "%04d/%02d/%02d %02d:%02d:%02d"
-#define __LOG_DATETIME_LEN 19
+#define __LOG_DATETIME_LEN 20
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | func[file:line] | fmt \n"
 #define __log_format(__t, __f)        " | " __t " | %s[%s:%d] | " __f
@@ -101,24 +101,29 @@ public:
     debug         (const char *_fmt, ...);
 
     bool
-    log_data      (const char *_data, int _len);
+    log_data      (const std::string &_str);
 
     bool
-    log_assert    (const char *_func, const char *_file, int _line, const char *_exp);
+    log_assert    (const char *_func, const char *_file, size_t _line, const char *_exp);
 
-public:
+private:
     const char *
     get_datetime  ();
 
-private:
     bool
     write_log     (LOG_LEVEL _level, const char *_fmt, va_list _vl);
 
     bool
-    write_logfile (LOG_LEVEL _level, const char *_file, const char *_fmt, int _len);
+    write_logfile (LOG_LEVEL _level, const char *_file, const char *_fmt, size_t _len);
+
+    const char *
+    color_begin   (LOG_LEVEL _level);
+
+    const char *
+    color_end     ();
 
     void
-    write_stderr  (LOG_LEVEL _level, const char *_str, int _len);
+    write_stderr  (LOG_LEVEL _level, const char *_str, size_t _len);
 
     void
     write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...);
@@ -132,7 +137,7 @@ private:
 
     __LOG_FILE m_filetype;
 
-    char       m_datetime[__LOG_DATETIME_LEN + 1];
+    char       m_datetime[__LOG_DATETIME_LEN];
 
     bool       m_disable_info;
 

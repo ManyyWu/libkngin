@@ -52,15 +52,15 @@
 #if !defined(NDEBUG) && defined(__LOG_RELATIVE_PATH)
 #define assert_log(__exp)       logger().inited() ? logger()[k::__LOG_FILE_SERVER].log_assert(__FUNCTION__, __FILENAME__, __LINE__, #__exp) : 0
 #else
-#define assert_log(__exp)       logger().inited() ? logger()[k::__LOG_FILE_SERVER].log_assert(__FUNCTION__, __FILE__, __LINE__, #__exp) : 0
+#define assert_log(__exp) logger().inited() ? logger()[k::__LOG_FILE_SERVER].log_assert(__FUNCTION__, __FILE__, __LINE__, #__exp) : 0
 #endif
-#define log_dump(__data, __len) logger().inited() ? logger()[k::__LOG_FILE_SERVER].log_data((__data), (__len)) : 0
-#define log_fatal               server_fatal
-#define log_error               server_error
-#define log_warning             server_warning
-#define log_info                server_info
+#define log_dump(__str)   logger().inited() ? logger()[k::__LOG_FILE_SERVER].log_data((__str)) : 0
+#define log_fatal         server_fatal
+#define log_error         server_error
+#define log_warning       server_warning
+#define log_info          server_info
 #ifndef NDEBUG
-#define log_debug               server_debug
+#define log_debug         server_debug
 #else
 #define log_debug(__fmt, ...)   (void)(0)
 #endif

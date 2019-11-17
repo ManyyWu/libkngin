@@ -82,14 +82,14 @@ void
 net_buffer::check_readable (size_t _n)
 {
     if (readable() < _n)
-        throw exception("net_buffer::check_readable() - no enought space");
+        throw k::exception("net_buffer::check_readable() - no enought space");
 }
 
 void
 net_buffer::check_writeable (size_t _n)
 {
     if (writeable() < _n)
-        throw exception("net_buffer::check_readable() - no enought space");
+        throw k::exception("net_buffer::check_readable() - no enought space");
 }
 
 __NAMESPACE_END

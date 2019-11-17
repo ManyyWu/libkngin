@@ -24,15 +24,15 @@ listener::listener (event_loop *_loop, k::socket &&_socket)
     check(_loop);
     if (!m_idle_file.valid()) {
         log_error("::open(\"/dev/null\") error - %s:%d", strerror(errno), errno);
-        throw exception("::open() error");
+        throw k::exception("::open() error");
     }
     if (!m_socket.set_closeexec(true)) {
         log_error("socket::set_closeexec(true) error");
-        throw exception("socket::set_closeexec() error");
+        throw k::exception("socket::set_closeexec() error");
     }
     if (!m_socket.set_nonblock(true)) {
         log_error("socket::set_nonblock(true) error");
-        throw exception("socket::set_nonblock() error");
+        throw k::exception("socket::set_nonblock() error");
     }
     m_event.set_read_cb(std::bind(&listener::on_accept, this));
     m_event.set_error_cb(std::bind(&listener::on_error, this));

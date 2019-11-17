@@ -1,4 +1,6 @@
 #include <iostream>
+#include <exception>
+#include "exception.h"
 
 using namespace std;
 
@@ -119,8 +121,11 @@ int main()
         cerr << "********************* tcp_server_test ******************\n";
         tcp_server_test ();
         cerr << "********************************************************\n";
-    } catch (std::exception &e) {
-        cerr << e.what() << endl;
+    } catch (std::exception &_e) {
+        cerr << "caught an error - " << _e.what() << endl;
+    } catch (k::exception &_e) {
+        cerr << "caught an error - " << _e.what() << endl;
+        cerr << _e.dump() << endl;
     } catch (...) {
         cout << "crash!\n";
     }

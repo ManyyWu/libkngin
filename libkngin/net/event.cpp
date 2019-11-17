@@ -25,7 +25,7 @@ event::event (event_loop *_loop)
     check(_loop);
     if (__fd_invalid(m_fd)) {
         log_fatal("::eventfd() error - %s:%d", strerror(errno), errno);
-        throw exception("event::event() erorr");
+        throw k::exception("event::event() erorr");
     }
     //log_debug("new event, fd = %d", m_fd);
 }

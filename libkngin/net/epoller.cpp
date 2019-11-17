@@ -19,7 +19,6 @@
 __NAMESPACE_BEGIN
 
 epoller::epoller (event_loop *_loop)
-    try
     :
 #ifndef NDEBUG
       m_fd_set(),
@@ -31,12 +30,10 @@ epoller::epoller (event_loop *_loop)
     check(_loop);
     if (!m_epollfd.valid()) {
         log_fatal("::epoll_create1() error - %s:%d", strerror(errno), errno);
-        throw exception("epoller::epoller() error");
+        throw k::exception("epoller::epoller() error");
     }
 
     //log_debug("new epoller, fd = %d", m_epollfd);
-} catch (...) {
-    throw;
 }
 
 epoller::~epoller ()

@@ -30,7 +30,7 @@ log::fatal (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
-    assert(!"log fatal");
+    //assert(!"log fatal");
     return _ret;
 }
 
@@ -41,7 +41,7 @@ log::error (const char *_fmt, ...)
     va_start(_vl, _fmt);
     bool _ret = write_log(LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
-    assert(!"log error");
+    //assert(!"log error");
     return _ret;
 }
 
@@ -82,20 +82,21 @@ log::debug (const char *_fmt, ...)
 }
 
 bool
-log::log_data (const char *_data, int _len)
+log::log_data (const std::string &_str)
 {
-    assert(_data && _len);
+    if (_str.empty())
+        return false;
 
     bool _ret = true;
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        _ret = write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _data, _len);
+        _ret = write_logfile(LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _str.c_str(), _str.size());
     if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        write_stderr(LOG_LEVEL_DEBUG, _data, _len);
+        write_stderr(LOG_LEVEL_DEBUG, _str.c_str(), _str.size());
     return _ret;
 }
 
 bool
-log::log_assert (const char *_func, const char *_file, int _line, const char *_exp)
+log::log_assert (const char *_func, const char *_file, size_t _line, const char *_exp)
 {
     return fatal(__log_assert_format, _func, _file, _line, _exp);
 }
@@ -119,34 +120,39 @@ log::write_log (LOG_LEVEL _level, const char *_fmt, va_list _vl)
 {
     assert(_fmt);
 
-    bool _ret = true;
-    char _buf[__LOG_BUF_SIZE + 1];
-    ::strncpy(_buf, get_datetime(), __LOG_DATETIME_LEN + 1);
-    ::vsnprintf(_buf + __LOG_DATETIME_LEN, __LOG_BUF_SIZE - __LOG_DATETIME_LEN, _fmt, _vl);
-    _buf[__LOG_BUF_SIZE] = '\0';
+    auto _func = [_level, _fmt, _vl, this] () -> bool {
+        bool _ret = true;
+        char _buf[__LOG_BUF_SIZE];
 
-    int _len = (int)::strnlen(_buf, __LOG_BUF_SIZE);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
-        _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
-    if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
-        write_stderr(_level, _buf, _len);
-    return _ret;
+        ::strncpy(_buf, get_datetime(), __LOG_DATETIME_LEN);
+        ::vsnprintf(_buf + __LOG_DATETIME_LEN - 1, __LOG_BUF_SIZE - __LOG_DATETIME_LEN, _fmt, _vl);
+        _buf[__LOG_BUF_SIZE - 1] = '\0';
+
+        size_t _len = ::strnlen(_buf, __LOG_BUF_SIZE);
+        if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_FILE == m_mode)
+            _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
+        if (__LOG_MODE_BOTH == m_mode || __LOG_MODE_STDERR == m_mode)
+            write_stderr(_level, _buf, _len);
+        return _ret;
+    };
+
+    if (logger().inited()) {
+        local_lock _lock(m_mutex);
+        return _func();
+    } else {
+        return _func();
+    }
 }
 
 bool
-log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _len)
+log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, size_t _len)
 {
     assert(_str);
-#ifdef __LOG_MUTEX
-    if (logger().inited()) {
-        m_mutex.lock();
-    }
-#endif
 
     bool         _fail = false;
-    int          _ret = 0;
-    char         _buf[__LOG_BUF_SIZE + 1] = {0};
-    char         _filename[FILENAME_MAX + 1];
+    size_t       _ret = 0;
+    char         _buf[__LOG_BUF_SIZE];
+    char         _filename[FILENAME_MAX];
     tm           _tm;
     time_t       _t = ::time(nullptr);
     FILE *       _fplog = nullptr;
@@ -154,110 +160,106 @@ log::write_logfile (LOG_LEVEL _level, const char *_file, const char *_str, int _
 
     __localtime(&_tm, &_t);
     ::snprintf(_filename, FILENAME_MAX, __log_filename_format, _file,
-             _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday);
+               _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday);
     _fplog = ::fopen(_filename, "a");
     if (!_fplog) {
         write_stderr2(LOG_LEVEL_FATAL,
-                            __log_format("FATAL", "failed to open \"%s\" - %s[%#x]"),
-                            _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
-                            ::strerror(errno), errno);
-        goto fail;
+                      __log_format("FATAL", "failed to open \"%s\" - %s[%#x]"),
+                      _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
+                      ::strerror(errno), errno);
+        return false;
     }
 
     ::fseek(_fplog, 0, SEEK_END);
     if (0 == ftell(_fplog)) {
         // write head info
         ::snprintf(_buf, __LOG_BUF_SIZE,
-                 "=========================================================\n"
-                 "current time: %s\n"
-                 "=========================================================\n",
-                 _datetime);
+                   "=========================================================\n"
+                   "current time: %s\n"
+                   "=========================================================\n",
+                   _datetime);
         size_t _str_len = ::strnlen(_buf, __LOG_BUF_SIZE);
-        _ret = (int)::fwrite(_buf, 1, _str_len , _fplog);
+        _ret = ::fwrite(_buf, 1, _str_len , _fplog);
         if (_ret < 0) {
             write_stderr2(LOG_LEVEL_FATAL,
-                                __log_format("FATAL", "failed to write log to \"%s\" - %s[%#x]"),
-                                _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
-                                ::strerror(errno), errno);
-            ::fclose(_fplog);
+                          __log_format("FATAL", "failed to write log to \"%s\" - %s[%#x]"),
+                          _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
+                          ::strerror(errno), errno);
             goto fail;
         } else if ((size_t)_ret != _str_len) {
              write_stderr2(LOG_LEVEL_FATAL,
-                                 __log_format("ERROR", "the content been written to \"%s\" are too short, "
-                                              "and the disk space may be insufficient"),
-                                 _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
-            ::fclose(_fplog);
+                           __log_format("ERROR", "the content been written to \"%s\" are too short, "
+                                        "and the disk space may be insufficient"),
+                           _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
             goto fail;
         }
     }
 
-    _ret = (int)::fwrite(_str, 1, _len, _fplog);
+    _ret = ::fwrite(_str, 1, _len, _fplog);
     if (_ret < 0) {
         write_stderr2(LOG_LEVEL_FATAL,
-                            __log_format("FATAL", "failed to write log to \"%s\" - write %s[%#x]"),
-                            _datetime, __FUNCTION__, __FILE__, __LINE__,
-                            _filename, ::strerror(errno), errno);
-        ::fclose(_fplog);
+                      __log_format("FATAL", "failed to write log to \"%s\" - write %s[%#x]"),
+                      _datetime, __FUNCTION__, __FILE__, __LINE__,
+                      _filename, ::strerror(errno), errno);
         goto fail;
     }
     ::fputc('\n', _fplog);
     ::fflush(_fplog);
-    ::fclose(_fplog);
 
     _fail = true;
 fail:
-#ifdef __LOG_MUTEX
-    if (logger().inited())
-        m_mutex.unlock();
-#endif
+    ::fclose(_fplog);
     return _fail;
 }
 
-void
-log::write_stderr (LOG_LEVEL _level, const char *_str, int _len)
+const char *
+log::color_begin (LOG_LEVEL _level)
 {
-    assert(_str);
-
-#ifdef __LOG_MUTEX
-    if (logger().inited()) {
-        m_mutex.lock();
-    }
-#endif
-
+    const char *_str = nullptr;
 #ifdef _WIN32
 #else
     switch (_level) {
     case LOG_LEVEL_FATAL:
-        ::fputs(__COLOR_FATAL, stderr);
+        _str = __COLOR_FATAL;
         break;
     case LOG_LEVEL_ERROR:
-        ::fputs(__COLOR_ERROR, stderr);
+        _str = __COLOR_ERROR;
         break;
     case LOG_LEVEL_WARNING:
-        ::fputs(__COLOR_WARNING, stderr);
+        _str = __COLOR_WARNING;
         break;
     case LOG_LEVEL_INFO:
-        ::fputs(__COLOR_INFO, stderr);
+        _str = __COLOR_INFO;
         break;
     case LOG_LEVEL_DEBUG:
-        ::fputs(__COLOR_DEBUG, stderr);
+        _str = __COLOR_DEBUG;
         break;
     default:
-        ::fputs(__COLOR_ASSERT, stderr);
+        _str = __COLOR_ASSERT;
         break;
     }
 #endif
-    ::fwrite(_str, 1, _len, stderr);
+    return _str;
+}
+
+const char *
+log::color_end ()
+{
 #ifdef _WIN32
 #else
-    ::fputs(__COLOR_NONE, stderr);
+    return __COLOR_NONE;
 #endif
-    ::fputc('\n', stderr);
+}
 
-#ifdef __LOG_MUTEX
-    if (logger().inited())
-        m_mutex.unlock();
-#endif
+void
+log::write_stderr (LOG_LEVEL _level, const char *_str, size_t _len)
+{
+    assert(_str);
+
+    ::fputs(color_begin(_level), stderr);
+    ::fwrite(_str, 1, _len, stderr);
+    ::fputs(color_end(), stderr);
+    ::fputc('\n', stderr);
 }
 
 void
@@ -265,52 +267,17 @@ log::write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...)
 {
     assert(_fmt);
 
-#ifdef __LOG_MUTEX
-    if (logger().inited()) {
-        m_mutex.lock();
-    }
-#endif
-
     va_list _vl;
-    char _buf[__LOG_BUF_SIZE + 1];
+    char _buf[__LOG_BUF_SIZE];
 
-#ifdef _WIN32
-#else
-    switch (_level) {
-        case LOG_LEVEL_FATAL:
-            ::fputs(__COLOR_FATAL, stderr);
-            break;
-        case LOG_LEVEL_ERROR:
-            ::fputs(__COLOR_ERROR, stderr);
-            break;
-        case LOG_LEVEL_WARNING:
-            ::fputs(__COLOR_WARNING, stderr);
-            break;
-        case LOG_LEVEL_INFO:
-            ::fputs(__COLOR_INFO, stderr);
-            break;
-        case LOG_LEVEL_DEBUG:
-            ::fputs(__COLOR_DEBUG, stderr);
-            break;
-        default:
-            ::fputs(__COLOR_ASSERT, stderr);
-            break;
-    }
-#endif
     va_start(_vl, _fmt);
     ::vsnprintf(_buf, __LOG_BUF_SIZE, _fmt, _vl);
-    ::fwrite(_buf, 1, ::strnlen(_buf, __LOG_BUF_SIZE), stderr);
-#ifdef _WIN32
-#else
-    ::fputs(__COLOR_NONE, stderr);
-#endif
-    ::fputc('\n', stderr);
     va_end(_vl);
 
-#ifdef __LOG_MUTEX
-    if (logger().inited())
-        m_mutex.unlock();
-#endif
+    ::fputs(color_begin(_level), stderr);
+    ::fwrite(_buf, 1, ::strnlen(_buf, __LOG_BUF_SIZE), stderr);
+    ::fputs(__COLOR_NONE, stderr);
+    ::fputc('\n', stderr);
 }
 
 __NAMESPACE_END

@@ -26,7 +26,7 @@ timer::timer (event_loop *_loop)
     check(_loop);
     if (__fd_valid(m_fd)) {
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
-        throw exception("timer::timer() erorr");
+        throw k::exception("timer::timer() erorr");
     }
     //log_debug("new timer, fd = %d", m_fd);
 }

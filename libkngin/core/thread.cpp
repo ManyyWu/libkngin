@@ -99,12 +99,13 @@ thread::start (void *_args)
     try {
         if (_data->fn)
             _data->fn();
-    } catch (const k::exception &e){
-        log_fatal("caught an k::exception in thread \"%s\": %s\n%s",
-                  _data->name.c_str(), e.what().c_str(), e.dump().c_str());
-    } catch (const std::exception &e) {
-        log_fatal("caught an std::exception in thread \"%s\": %s",
-                  _data->name.c_str(), e.what());
+    } catch (const k::exception &_e){
+        log_fatal("caught an k::exception in thread \"%s\": %s",
+                  _data->name.c_str(), _e.what().c_str());
+        log_dump(_e.dump());
+    } catch (const std::exception &_e) {
+        log_fatal("caught an std::exception in thread \"%s\"",
+                  _data->name.c_str(), _e.what());
     } catch (...) {
         log_fatal("caught an undefined exception in thread \"%s\"",
                   _data->name.c_str());

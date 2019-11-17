@@ -157,8 +157,13 @@ tcp_server::on_new_connection (socket &&_sock)
     try {
         _conn = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
                                                  _local_addr, _peer_addr);
-    } catch (exception &_e) {
+    } catch (const k::exception &_e) {
         log_error("caught an exception when accepting new connection: \"%s\"", _e.what().c_str());
+        log_dump(_e.dump());
+    } catch (const std::exception &_e) {
+        log_fatal("caught an std::exception when accepting new connection: \"%s\"", _e.what());
+    } catch (...) {
+        log_fatal("caught an undefined exception when accepting new connection");
     }
     _conn->set_read_done_cb(m_read_done_cb);
     _conn->set_write_done_cb(m_write_done_cb);

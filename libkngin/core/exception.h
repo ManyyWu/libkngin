@@ -2,8 +2,6 @@
 #define _EXCEPTION_H_
 
 #include <string>
-#include <exception>
-#include <stdexcept>
 #include "define.h"
 
 #define __EXP   noexcept(false)

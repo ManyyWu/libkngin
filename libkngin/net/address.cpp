@@ -22,7 +22,7 @@ address::inet6 () const
     else if (AF_INET6 == _addr->sa_family)
         return true;
     else
-        throw exception("unsupported address family");
+        throw k::exception("unsupported address family");
 }
 
 int

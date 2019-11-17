@@ -20,7 +20,7 @@ __sys_err::what (uint32_t _code)
 {
     assert(_code == __sys_err::__err_info_entry[_code]._code);
     if (_code >= E_MAX)
-        throw exception("out of range");
+        throw k::exception("out of range");
     return __sys_err::__err_info_entry[_code]._str;
 }
 */
