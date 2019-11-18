@@ -125,7 +125,7 @@ protected:
                                         _server_addr, _client_addr);
 
             // set callback
-            m_conn->set_read_done_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
+            m_conn->set_message_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
                 uint16_t _port = _conn.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
                          _conn.peer_addr().addrstr().c_str(), _port,
@@ -134,9 +134,9 @@ protected:
                 _outbuf.write_uint32(_port);
                 check(_conn.send(_outbuf));
             });
-            m_conn->set_write_done_cb([] (tcp_connection &_conn) {
+            m_conn->set_sent_cb([] (tcp_connection &_conn) {
                 uint16_t _port = _conn.peer_addr().port();
-                log_info("s: on_write_done: to %s:%d",
+                log_info("s: on_sent: to %s:%d",
                          _conn.peer_addr().addrstr().c_str(), _port);
                 _conn.close();
             });

@@ -60,6 +60,7 @@ log::info (const char *_fmt, ...)
 {
     if (m_disable_info)
         return true;
+        assert(m_disable_info);
 
     va_list _vl;
     va_start(_vl, _fmt);
@@ -107,11 +108,11 @@ log::get_datetime ()
     time_t _t = ::time(nullptr);
     struct tm _tm;
     __localtime(&_tm, &_t);
-    ::snprintf(m_datetime, __LOG_DATETIME_LEN + 1,
+    ::snprintf(m_datetime, __LOG_DATETIME_LEN,
                __log_datetime_format,
                _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
                _tm.tm_hour, _tm.tm_min, _tm.tm_sec);
-    m_datetime[__LOG_DATETIME_LEN] = '\0';
+    m_datetime[__LOG_DATETIME_LEN - 1] = '\0';
     return m_datetime;
 }
 

@@ -25,8 +25,8 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
       m_connected(true), 
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
-      m_write_done_cb(nullptr), 
-      m_read_done_cb(nullptr), 
+      m_sent_cb(nullptr),
+      m_message_cb(nullptr),
       m_oob_cb(nullptr), 
       m_close_cb(nullptr),
       m_out_buf(), 
@@ -75,10 +75,10 @@ tcp_connection::send (buffer &_buf)
     if (m_out_buf.readable())
         return false;
 
-    m_event.enable_write();
-    m_event.update();
     m_out_buf.clear();
     m_out_buf.swap(_buf);
+    m_event.enable_write();
+    m_event.update();
     if (m_loop->in_loop_thread())
         on_write();
     else
@@ -95,6 +95,7 @@ tcp_connection::recv (buffer &_buf)
     m_event.update();
 
     m_in_buf = &_buf;
+    //m_temp_buf.resize(_buf.size());
     if (m_loop->in_loop_thread())
         on_read();
     else
@@ -152,8 +153,8 @@ tcp_connection::on_write ()
         m_event.disable_write();
         m_event.update();
         m_out_buf.clear();
-        if (m_write_done_cb)
-            m_write_done_cb(std::ref(*this));
+        if (m_sent_cb)
+            m_sent_cb(std::ref(*this));
     } else if (!_size) {
         on_close();
         return;
@@ -174,27 +175,27 @@ tcp_connection::on_read ()
     m_loop->check_thread();
 
     if (!m_in_buf) {
-        buffer _buf(1);
-        ssize_t _size = m_socket.read(_buf, 1);
-        check(!_size);
-        on_close();
+        //buffer _buf(1);
+        //ssize_t _size = m_socket.read(_buf, 1);
+        //check(!_size);
+        //on_close();
         return;
     }
 
-    size_t _writeable_bytes = m_in_buf->writeable();
+    size_t _writeable_bytes = m_in_buf.load()->writeable();
     if (!m_event.pollin() || !_writeable_bytes)
         return;
 
     ssize_t _size = m_socket.read(*m_in_buf, _writeable_bytes);
     if (_size > 0) {
-        if (m_in_buf->writeable())
+        if (m_in_buf.load()->writeable())
             return;
 
         // done
         m_event.disable_read();
         m_event.update();
-        if (m_read_done_cb)
-            m_read_done_cb(std::ref(*this), *m_in_buf, m_in_buf->readable());
+        if (m_message_cb)
+            m_message_cb(std::ref(*this), *m_in_buf, m_in_buf.load()->readable());
         m_in_buf = nullptr;
     } else if (!_size) {
         on_close();

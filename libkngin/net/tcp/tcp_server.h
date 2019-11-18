@@ -19,11 +19,11 @@ public:
 
     typedef std::function<void (tcp_connection_ptr)>         connection_establish_cb;
 
-    typedef tcp_connection::read_done_cb                     read_done_cb;
+    typedef tcp_connection::message_cb                       message_cb;
 
-    typedef tcp_connection::write_done_cb                    write_done_cb;
+    typedef tcp_connection::sent_cb                          sent_cb;
 
-    typedef tcp_connection::read_oob_cb                      read_oob_cb;
+    typedef tcp_connection::oob_cb                           oob_cb;
 
     typedef tcp_connection::close_cb                         close_cb;
 
@@ -49,6 +49,9 @@ public:
     void
     stop                        ();
 
+    size_t
+    conn_num                    ();
+
 public:
     void
     remove_connection           (tcp_connection_ptr _conn);
@@ -61,13 +64,13 @@ public:
     void
     set_connection_establish_cb (connection_establish_cb &&_cb) { m_connection_establish_cb = std::move(_cb); }
     void
-    set_read_done_cb            (read_done_cb &&_cb)            { m_read_done_cb = std::move(_cb); }
+    set_message_cb              (message_cb &&_cb)              { m_message_cb = std::move(_cb); }
     void
-    set_write_done_cb           (write_done_cb &&_cb)           { m_write_done_cb = std::move(_cb); }
+    set_sent_cb                 (sent_cb &&_cb)                 { m_sent_cb = std::move(_cb); }
     void
     set_close_cb                (close_cb &&_cb)                { m_close_cb = std::move(_cb); }
     void
-    set_oob_cb                  (read_oob_cb &&_cb)             { m_oob_cb = std::move(_cb); }
+    set_oob_cb                  (oob_cb &&_cb)                  { m_oob_cb = std::move(_cb); }
 
 protected:
     event_loop_ptr
@@ -100,11 +103,11 @@ protected:
 
     connection_establish_cb m_connection_establish_cb;
 
-    write_done_cb           m_write_done_cb;
+    sent_cb                 m_sent_cb;
 
-    read_done_cb            m_read_done_cb;
+    message_cb              m_message_cb;
 
-    read_oob_cb             m_oob_cb;
+    oob_cb                  m_oob_cb;
 
     close_cb                m_close_cb;
 

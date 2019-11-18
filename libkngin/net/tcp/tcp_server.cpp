@@ -15,8 +15,8 @@ tcp_server::tcp_server (const tcp_server_opts &_opts)
       m_connections(),
       m_listener(nullptr),
       m_listen_addr(),
-      m_write_done_cb(nullptr),
-      m_read_done_cb(nullptr),
+      m_sent_cb(nullptr),
+      m_message_cb(nullptr),
       m_oob_cb(nullptr),
       m_close_cb(nullptr),
       m_stopped(true),
@@ -87,12 +87,11 @@ tcp_server::stop ()
     thread::sleep(1000);
     {
         local_lock _lock(m_mutex);
-        log_debug("size: %d", m_connections.size());
-        for (auto _iter : m_connections)
-                    log_debug("%s:%d, connected = %d",
-                    _iter.second->local_addr().addrstr().c_str(),
-                    _iter.second->local_addr().port(),
-                    _iter.second->connected());
+        //for (auto _iter : m_connections)
+        //            log_debug("%s:%d, connected = %d",
+        //            _iter.second->local_addr().addrstr().c_str(),
+        //            _iter.second->local_addr().port(),
+        //            _iter.second->connected());
         for (auto _iter : m_connections)
             _iter.second->close();
     }
@@ -103,6 +102,15 @@ tcp_server::stop ()
     m_stopped = true;
 
     log_info("TCP server has stopped");
+}
+
+size_t
+tcp_server::conn_num ()
+{
+    {
+        local_lock _lock(m_mutex);
+        return m_connections.size();
+    }
 }
 
 void
@@ -179,14 +187,15 @@ tcp_server::on_new_connection (socket &&_sock)
         log_fatal("caught an undefined exception when accepting new connection");
         return;
     }
-    _conn->set_read_done_cb(m_read_done_cb);
-    _conn->set_write_done_cb(m_write_done_cb);
+    _conn->set_message_cb(m_message_cb);
+    _conn->set_sent_cb(m_sent_cb);
     _conn->set_oob_cb(m_oob_cb);
     _conn->set_close_cb(std::bind(&tcp_server::on_close, this, std::placeholders::_1));
 
     {
         local_lock _lock(m_mutex);
         m_connections[_conn->serial()] = _conn;
+        log_warning("size = %d", m_connections.size());
     }
 
     if (m_connection_establish_cb)
@@ -197,11 +206,11 @@ void
 tcp_server::on_close (const tcp_connection &_conn)
 {
     _conn.get_loop()->check_thread();
-
     if (m_close_cb)
         m_close_cb(std::ref(_conn));
 
     {
+                log_warning("on_close: %d", m_connections.size());
         local_lock _lock(m_mutex);
         m_connections.erase(_conn.serial());
     }

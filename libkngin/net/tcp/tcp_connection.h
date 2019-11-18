@@ -20,11 +20,11 @@ __NAMESPACE_BEGIN
 
 class tcp_connection {
 public:
-    typedef std::function<void (tcp_connection &, buffer &, size_t)> read_done_cb;
+    typedef std::function<void (tcp_connection &, buffer &, size_t)> message_cb;
 
-    typedef std::function<void (tcp_connection &)>                   write_done_cb;
+    typedef std::function<void (tcp_connection &)>                   sent_cb;
 
-    typedef std::function<void (tcp_connection &, uint8_t)>          read_oob_cb;
+    typedef std::function<void (tcp_connection &, uint8_t)>          oob_cb;
 
     typedef std::function<void (const tcp_connection &)>             close_cb;
 
@@ -66,16 +66,16 @@ public:
 
 public:
     void
-    set_read_done_cb  (const read_done_cb &_cb)  { m_read_done_cb = _cb; }
+    set_message_cb    (const message_cb &_cb)  { m_message_cb= _cb; }
 
     void
-    set_write_done_cb (const write_done_cb &_cb) { m_write_done_cb = _cb; }
+    set_sent_cb       (const sent_cb &_cb)     { m_sent_cb = _cb; }
 
     void
-    set_close_cb      (const close_cb &_cb)      { m_close_cb = _cb; }
+    set_close_cb      (const close_cb &_cb)    { m_close_cb = _cb; }
 
     void
-    set_oob_cb        (const read_oob_cb &_cb)   { m_oob_cb = _cb; }
+    set_oob_cb        (const oob_cb &_cb)      { m_oob_cb = _cb; }
 
 //    void
 //    set_readable_cb   (const readable_cb &_cb)   { m_readable_cb = _cb; }
@@ -149,17 +149,17 @@ protected:
 
 //    readable_cb         m_readable_cb;
 
-    write_done_cb       m_write_done_cb;
+    sent_cb             m_sent_cb;
 
-    read_done_cb        m_read_done_cb;
+    message_cb          m_message_cb;
 
-    read_oob_cb         m_oob_cb;
+    oob_cb              m_oob_cb;
 
     close_cb            m_close_cb;
 
     buffer              m_out_buf;
 
-    buffer *            m_in_buf;
+    std::atomic<buffer *> m_in_buf;
 
     uint64_t            m_serial;
 

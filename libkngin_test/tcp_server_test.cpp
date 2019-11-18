@@ -89,11 +89,11 @@ public:
     bool
     run ()
     {
-        m_server.set_read_done_cb(std::bind(&test_server::on_read_done, this, 
-                                            std::placeholders::_1, 
-                                            std::placeholders::_2, 
-                                            std::placeholders::_3));
-        m_server.set_write_done_cb(std::bind(&test_server::on_write_done, this, std::placeholders::_1));
+        m_server.set_message_cb(std::bind(&test_server::on_message, this,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2,
+                                          std::placeholders::_3));
+        m_server.set_sent_cb(std::bind(&test_server::on_sent, this, std::placeholders::_1));
         m_server.set_connection_establish_cb(std::bind(&test_server::on_connection_establish, this, std::placeholders::_1));
         m_server.set_oob_cb(std::bind(&test_server::on_oob, this, std::placeholders::_1, std::placeholders::_2));
         m_server.set_close_cb(std::bind(&test_server::on_close, this, std::placeholders::_1));
@@ -107,7 +107,7 @@ public:
     }
 
     void
-    on_read_done (tcp_connection &_conn, buffer &_buf, size_t _size)
+    on_message (tcp_connection &_conn, buffer &_buf, size_t _size)
     {
         log_info("readed %d bytes from connection [%s:%d - %s:%d], data: %s", 
                  _size,
@@ -117,8 +117,8 @@ public:
                  _conn.peer_addr().port(),
                  _buf.dump().c_str());
         if (1 == _buf.peek_uint32()) {
-            m_server.stop();
-            return;
+           // m_server.stop();
+           // return;
         }
         std::shared_ptr<buffer> _buf1 = nullptr;
         {
@@ -134,7 +134,7 @@ public:
     }
 
     void
-    on_write_done (tcp_connection &_conn)
+    on_sent (tcp_connection &_conn)
     {
         log_info("connection [%s:%d - %s:%d] written done",
                  _conn.local_addr().addrstr().c_str(), 
@@ -158,7 +158,6 @@ public:
     void
     on_close (const tcp_connection &_conn)
     {
-        log_debug("%ld", thread::self());
         log_info("connection [%s:%d - %s:%d] closed",
                  _conn.local_addr().addrstr().c_str(),
                  _conn.local_addr().port(),
@@ -202,7 +201,7 @@ public:
         } else {
             log_warning("accepted %" PRIu64 " new connections in last second, "
                         "current connection num = %" PRIu64,
-                        m_times.load(), _size);
+                        m_times.load(), m_server.conn_num());
             m_savetime = time(NULL);
             m_times = 0;
         }
@@ -234,8 +233,8 @@ tcp_server_test ()
         .allow_ipv6             = false,
         .backlog                = 100,
         .thread_num             = 4,
-        .disable_debug          = false,
-        .disable_info           = false,
+        .disable_debug          = true,
+        .disable_info           = true,
         .separate_listen_thread = false,
     };
     test_server _s(_opts);
