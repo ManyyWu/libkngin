@@ -10,8 +10,8 @@
 
 using namespace k;
 
-#define SERVER_ADDR "192.168.0.2"
-//#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "192.168.0.2"
+#define SERVER_ADDR "127.0.0.1"
 #define SERVER_PORT 20000
 
 static int
@@ -117,8 +117,8 @@ public:
                  _conn.peer_addr().port(),
                  _buf.dump().c_str());
         if (1 == _buf.peek_uint32()) {
-           // m_server.stop();
-           // return;
+            m_server.stop();
+            return;
         }
         std::shared_ptr<buffer> _buf1 = nullptr;
         {
@@ -233,7 +233,7 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 2,
+        .thread_num             = 4,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = false,
@@ -241,12 +241,12 @@ tcp_server_test ()
     test_server _s(_opts);
     check(_s.run());
 
-//    for (int i = 0; i < 100; i++) {
-//        thread _client((std::string("client") + std::to_string(i)).c_str());
-//        thread::sleep(1000);
-//        _client.run(client);
-//        _client.join(nullptr);
-//    }
+    //for (int i = 0; i < 10000; i++) {
+    //    thread _client((std::string("client") + std::to_string(i)).c_str());
+    //    _client.run(client);
+    //    _client.join(nullptr);
+    //}
     std::cin.get();
+    _s.stop();
     //thread::sleep(3600000);
 }

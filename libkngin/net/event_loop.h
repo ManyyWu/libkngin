@@ -62,10 +62,10 @@ public:
 
 public:
     void
-    check_thread   ();
+    check_thread   () const;
 
     bool
-    in_loop_thread ();
+    in_loop_thread () const;
 
 protected:
     void

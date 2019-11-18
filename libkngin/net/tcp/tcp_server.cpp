@@ -43,15 +43,18 @@ tcp_server::run ()
     check(m_stopped);
 
     // run threadpool
-    m_threadpool.start();
+    if (!m_threadpool.start())
+        return false;
 
     // create listen socket
     socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
+#warning "catch"
 
     // start listener
     event_loop *_next_loop = m_opts.separate_listen_thread
                              ? m_threadpool.get_loop(0).get()
                              : m_threadpool.next_loop().get();
+    check(_next_loop);
     m_listener = std::make_shared<listener>(_next_loop, std::move(_sock));
     m_listener->set_accept_cb(std::bind(&tcp_server::on_new_connection, this, std::placeholders::_1));
     m_listener->set_error_cb(std::bind(&tcp_server::on_listener_error, this, std::ref(*m_listener)));
@@ -94,6 +97,7 @@ tcp_server::stop ()
             _iter.second->close();
     }
     thread::sleep(1000);
+#warning "fix it"
     if (!m_stopped)
         m_threadpool.stop();
     m_stopped = true;
@@ -105,11 +109,9 @@ void
 tcp_server::remove_connection (tcp_connection_ptr _conn)
 {
     check(!m_stopped);
+    check(_conn->connected());
 
-    if (_conn->connected())
-        _conn->close();
-    else
-        on_close(*_conn);
+    _conn->close();
 }
 
 int
@@ -153,7 +155,7 @@ void
 tcp_server::on_new_connection (socket &&_sock)
 {
     check(!m_stopped);
-
+    m_listener->get_loop()->check_thread();
     // FIXME: stop accepting when connections reach to the maximum number
 
     address _local_addr, _peer_addr;
@@ -161,8 +163,10 @@ tcp_server::on_new_connection (socket &&_sock)
     _sock.peeraddr(_peer_addr);
 
     tcp_connection_ptr _conn = nullptr;
+    event_loop_ptr _next_loop = assign_thread();
+    check(_next_loop);
     try {
-        _conn = std::make_shared<tcp_connection>(assign_thread().get(), std::move(_sock),
+        _conn = std::make_shared<tcp_connection>(_next_loop.get(), std::move(_sock),
                                                  _local_addr, _peer_addr);
     } catch (const k::exception &_e) {
         log_error("caught an exception when accepting new connection: \"%s\"", _e.what().c_str());
@@ -179,7 +183,6 @@ tcp_server::on_new_connection (socket &&_sock)
     _conn->set_write_done_cb(m_write_done_cb);
     _conn->set_oob_cb(m_oob_cb);
     _conn->set_close_cb(std::bind(&tcp_server::on_close, this, std::placeholders::_1));
-    //_conn->set_close_cb(m_close_cb);
 
     {
         local_lock _lock(m_mutex);
@@ -187,12 +190,14 @@ tcp_server::on_new_connection (socket &&_sock)
     }
 
     if (m_connection_establish_cb)
-        m_connection_establish_cb(_conn);
+        _next_loop->run_in_loop(std::bind(m_connection_establish_cb, _conn));
 }
 
 void
 tcp_server::on_close (const tcp_connection &_conn)
 {
+    _conn.get_loop()->check_thread();
+
     if (m_close_cb)
         m_close_cb(std::ref(_conn));
 
@@ -205,10 +210,7 @@ tcp_server::on_close (const tcp_connection &_conn)
 void
 tcp_server::on_listener_error (listener &_listener)
 {
-
+    _listener.get_loop()->check_thread();
 }
 
 __NAMESPACE_END
-
-// signal ergent
-// adjust size of epoll_event_set

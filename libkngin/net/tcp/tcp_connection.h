@@ -125,6 +125,9 @@ public:
     uint64_t
     serial       () const { return m_serial; }
 
+    event_loop *
+    get_loop     () const { return m_loop; }
+
 protected:
     uint64_t
     next_serial  ()       { return m_next_serial++; }

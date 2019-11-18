@@ -22,13 +22,6 @@ public:
     ~listener     ();
 
 public:
-    void
-    set_accept_cb (accept_cb &&_cb) { m_accept_cb = std::move(_cb); }
-
-    void
-    set_error_cb  (error_cb &&_cb)  { m_error_cb = std::move(_cb); }
-
-public:
     bool
     bind          (const address &_listen_addr);
 
@@ -38,7 +31,18 @@ public:
     void
     close         ();
 
-private:
+public:
+    void
+    set_accept_cb (accept_cb &&_cb) { m_accept_cb = std::move(_cb); }
+
+    void
+    set_error_cb  (error_cb &&_cb)  { m_error_cb = std::move(_cb); }
+
+public:
+    event_loop *
+    get_loop      () const          { return m_loop; }
+
+protected:
     void
     on_accept     ();
 

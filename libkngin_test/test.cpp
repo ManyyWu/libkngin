@@ -40,10 +40,17 @@ using namespace k;
 using namespace std;
 using namespace std::placeholders;
 
+bool
+f () {
+    cerr << "test" << endl;
+    return false;
+}
+
 void
 test ()
 {
 #warning "返回值处理"
 #warning "所有cb改const &"
-
+// signal ergent
+// adjust size of epoll_event_set
 }
