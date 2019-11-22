@@ -41,8 +41,8 @@ using namespace std;
 using namespace std::placeholders;
 #warning "返回值处理"
 #warning "所有cb改const &"
-// signal ergent
-// adjust size of epoll_event_set
+#warning "signal ergent"
+#warning "adjust size of epoll_event_set"
 
 /*
 switch (savedErrno)  //检查错误码
