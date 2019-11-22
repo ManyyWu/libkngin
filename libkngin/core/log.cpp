@@ -60,7 +60,6 @@ log::info (const char *_fmt, ...)
 {
     if (m_disable_info)
         return true;
-        assert(m_disable_info);
 
     va_list _vl;
     va_start(_vl, _fmt);

@@ -74,7 +74,7 @@ public:
     mythread ()
         : io_thread("io_thread"),
           m_conn(nullptr),
-          m_buf(4),
+          m_buf(std::make_shared<buffer>(4)),
           m_server_thr("server_thread")
     {
     }
@@ -130,8 +130,9 @@ protected:
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
                          _conn.peer_addr().addrstr().c_str(), _port,
                          _buf.dump().c_str(), _size);
-                buffer _outbuf(4);
-                _outbuf.write_uint32(_port);
+                typedef tcp_connection::buffer_ptr buffer_ptr;
+                buffer_ptr _outbuf = std::make_shared<buffer>(4);
+                _outbuf->write_uint32(_port);
                 check(_conn.send(_outbuf));
             });
             m_conn->set_sent_cb([] (tcp_connection &_conn) {
@@ -159,11 +160,11 @@ protected:
     }
 
 protected:
-    tcp_connection *m_conn;
+    tcp_connection *           m_conn;
 
-    buffer          m_buf;
+    tcp_connection::buffer_ptr m_buf;
 
-    thread          m_server_thr;
+    thread                     m_server_thr;
 };
 
 void

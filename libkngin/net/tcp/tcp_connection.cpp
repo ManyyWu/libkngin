@@ -29,7 +29,7 @@ tcp_connection::tcp_connection (event_loop *_loop, k::socket &&_socket,
       m_message_cb(nullptr),
       m_oob_cb(nullptr), 
       m_close_cb(nullptr),
-      m_out_buf(), 
+      m_out_bufq(),
       m_in_buf(nullptr),
       m_serial(tcp_connection::next_serial())
 {
@@ -69,16 +69,17 @@ tcp_connection::~tcp_connection ()
 }
 
 bool
-tcp_connection::send (buffer &_buf)
+tcp_connection::send (buffer_ptr _buf)
 {
     check(m_connected);
-    if (m_out_buf.readable())
-        return false;
 
-    m_out_buf.clear();
-    m_out_buf.swap(_buf);
-    m_event.enable_write();
-    m_event.update();
+    {
+        local_lock _lock(m_mutex);
+        m_out_bufq.push_front(_buf);
+        m_event.enable_write();
+        m_event.update();
+    }
+
     if (m_loop->in_loop_thread())
         on_write();
     else
@@ -87,15 +88,14 @@ tcp_connection::send (buffer &_buf)
 }
 
 bool
-tcp_connection::recv (buffer &_buf)
+tcp_connection::recv (buffer_ptr _buf)
 {
     check(m_connected);
 
     m_event.enable_read();
     m_event.update();
 
-    m_in_buf = &_buf;
-    //m_temp_buf.resize(_buf.size());
+    m_in_buf = _buf;
     if (m_loop->in_loop_thread())
         on_read();
     else
@@ -140,19 +140,31 @@ tcp_connection::on_write ()
         return;
     m_loop->check_thread();
 
-    size_t _readable_bytes = m_out_buf.readable();
-    if (!m_event.pollout() || !_readable_bytes)
+    buffer_ptr _buf = nullptr;
+    {
+        local_lock _lock(m_mutex);
+        _buf = m_out_bufq.back();
+    }
+
+    size_t _readable_bytes = _buf->readable();
+    check(_readable_bytes);
+    if (!m_event.pollout())
         return;
 
-    ssize_t _size = m_socket.write(m_out_buf, _readable_bytes);
+    ssize_t _size = m_socket.write(*_buf, _readable_bytes);
     if (_size > 0) {
-        if (m_out_buf.readable())
+        if (_buf->readable())
             return;
 
-        // done
-        m_event.disable_write();
-        m_event.update();
-        m_out_buf.clear();
+        // write done
+        {
+            local_lock _lock(m_mutex);
+            m_out_bufq.pop_back();
+            if (m_out_bufq.empty()) {
+                m_event.disable_write();
+                m_event.update();
+            }
+        }
         if (m_sent_cb)
             m_sent_cb(std::ref(*this));
     } else if (!_size) {
@@ -182,21 +194,23 @@ tcp_connection::on_read ()
         return;
     }
 
-    size_t _writeable_bytes = m_in_buf.load()->writeable();
-    if (!m_event.pollin() || !_writeable_bytes)
+    size_t _writeable_bytes = m_in_buf->writeable();
+    check(_writeable_bytes);
+    if (!m_event.pollin())
         return;
 
     ssize_t _size = m_socket.read(*m_in_buf, _writeable_bytes);
     if (_size > 0) {
-        if (m_in_buf.load()->writeable())
+        if (m_in_buf->writeable())
             return;
 
-        // done
+        // read done
         m_event.disable_read();
         m_event.update();
-        if (m_message_cb)
-            m_message_cb(std::ref(*this), *m_in_buf, m_in_buf.load()->readable());
+        buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
+        if (m_message_cb)
+            m_message_cb(std::ref(*this), *_temp_ptr, _temp_ptr->readable());
     } else if (!_size) {
         on_close();
         return;

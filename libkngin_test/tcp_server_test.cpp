@@ -130,7 +130,7 @@ public:
         _buf1->resize(4);
         _buf1->reset();
         _buf1->write_uint32(_conn.peer_addr().port());
-        _conn.send(*_buf1);
+        _conn.send(_buf1);
     }
 
     void
@@ -152,7 +152,7 @@ public:
 
         _buf->resize(4);
         _buf->reset();
-        _conn.recv(*_buf);
+        _conn.recv(_buf);
     }
 
     void
@@ -194,7 +194,7 @@ public:
         _buf->resize(4);
         _buf->reset();
         _buf->write_uint32(_conn->peer_addr().port());
-        _conn->send(*_buf);
+        _conn->send(_buf);
 
         if (m_savetime == time(NULL)) {
             m_times++;
@@ -233,9 +233,9 @@ tcp_server_test ()
         .allow_ipv6             = false,
         .backlog                = 100,
         .thread_num             = 4,
-        .disable_debug          = true,
-        .disable_info           = true,
-        .separate_listen_thread = false,
+        .disable_debug          = false,
+        .disable_info           = false,
+        .separate_listen_thread = true,
     };
     test_server _s(_opts);
     check(_s.run());

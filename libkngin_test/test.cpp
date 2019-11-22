@@ -43,6 +43,7 @@ using namespace std::placeholders;
 #warning "所有cb改const &"
 #warning "signal ergent"
 #warning "adjust size of epoll_event_set"
+#warning "std::error_code"
 
 /*
 switch (savedErrno)  //检查错误码

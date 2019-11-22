@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <memory>
-#include <list>
+#include <deque>
 #include "define.h"
 #include "address.h"
 #include "epoller_event.h"
@@ -34,6 +34,10 @@ public:
 
     typedef std::shared_ptr<tcp_connection>                          tcp_connection_ptr;
 
+    typedef std::shared_ptr<buffer>                                  buffer_ptr;
+
+    typedef std::deque<buffer_ptr>                                   buffer_queue;
+
 public:
     tcp_connection    () = delete;
 
@@ -44,10 +48,10 @@ public:
 
 public:
     bool
-    send              (buffer &_buf);
+    send              (buffer_ptr _buf);
 
     bool
-    recv              (buffer &_buf);
+    recv              (buffer_ptr _buf);
 
     void
     close             ();
@@ -133,35 +137,37 @@ protected:
     next_serial  ()       { return m_next_serial++; }
 
 protected:
-    event_loop *        m_loop;
+    event_loop *      m_loop;
 
-    k::socket           m_socket;
+    k::socket         m_socket;
 
-    epoller_event       m_event;
+    epoller_event     m_event;
 
-    std::atomic<bool>   m_connected;
+    std::atomic<bool> m_connected;
 
-    address             m_local_addr;
+    address           m_local_addr;
 
-    address             m_peer_addr;
+    address           m_peer_addr;
 
-//    writeable_cb        m_writeable_cb;
+//    writeable_cb      m_writeable_cb;
 
-//    readable_cb         m_readable_cb;
+//    readable_cb       m_readable_cb;
 
-    sent_cb             m_sent_cb;
+    sent_cb           m_sent_cb;
 
-    message_cb          m_message_cb;
+    message_cb        m_message_cb;
 
-    oob_cb              m_oob_cb;
+    oob_cb            m_oob_cb;
 
-    close_cb            m_close_cb;
+    close_cb          m_close_cb;
 
-    buffer              m_out_buf;
+    buffer_queue      m_out_bufq;
 
-    std::atomic<buffer *> m_in_buf;
+    buffer_ptr        m_in_buf;
 
-    uint64_t            m_serial;
+    uint64_t          m_serial;
+
+    mutex             m_mutex;
 
 protected:
     static uint64_t   m_next_serial;
