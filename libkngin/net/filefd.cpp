@@ -13,14 +13,14 @@
 #endif
 #define __FILENAME__ "libkngin/net/filefd.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
-int filefd::invalid_fd = __INVALID_FD;
+int filefd::invalid_fd = INVALID_FD;
 
 filefd::filefd (int _fd)
     : m_fd(_fd)
 {
-    if (__fd_invalid(_fd))
+    if (fd_invalid(_fd))
         m_fd = filefd::invalid_fd;
 }
 
@@ -32,7 +32,7 @@ filefd::filefd (filefd &&_fd)
 
 filefd::~filefd()
 {
-    if (__fd_valid(m_fd))
+    if (fd_valid(m_fd))
         this->close();
 }
 
@@ -79,7 +79,7 @@ filefd::readv (net_buffer &_buf, size_t _nbytes)
 void
 filefd::close ()
 {
-    check(__fd_valid(m_fd));
+    check(fd_valid(m_fd));
     int _ret = ::close(m_fd);
     if (_ret < 0)
         log_error("::close() error - %s:%d", strerror(errno), errno);
@@ -126,9 +126,9 @@ filefd::reuse_addr () const
 filefd &
 filefd::operator = (int _fd)
 {
-    check(__fd_valid(_fd));
+    check(fd_valid(_fd));
     m_fd = _fd;
     return *this;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

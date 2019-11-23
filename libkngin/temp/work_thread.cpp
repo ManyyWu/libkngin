@@ -10,7 +10,7 @@
 //#include "thread.h"
 //#include "msg.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //work_thread::work_thread (const char *_name)
 //    : thread(work_thread::process, this, _name ? _name : "work_thread"),
@@ -167,4 +167,4 @@
 //    return 0;
 //}
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END

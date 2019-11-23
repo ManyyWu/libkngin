@@ -8,7 +8,7 @@
 #include "logfile.h"
 #include "assert.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 #define safe_release(__p)         do { delete (__p); (__p) = nullptr; } while (false)
 #define safe_release_array(__p)   do { delete [] (__p); (__p) = nullptr; } while (false)
@@ -43,6 +43,6 @@ is_nullptr_ref (__T &_ref)
     return (nullptr == _ref);
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _COMMON_H_ */

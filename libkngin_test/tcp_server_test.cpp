@@ -21,7 +21,7 @@ client ()
     uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
-    assert(address::str2sockaddr(_addr_str, _port, _server_addr));
+    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     log_info("c: connecting...");
@@ -232,9 +232,9 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 4,
-        .disable_debug          = false,
-        .disable_info           = false,
+        .thread_num             = 1,
+        .disable_debug          = true,
+        .disable_info           = true,
         .separate_listen_thread = true,
     };
     test_server _s(_opts);

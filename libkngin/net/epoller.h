@@ -16,7 +16,7 @@
 
 #define RESERVED_EPOLLELR_EVENT 32
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
 class epoller {
@@ -78,6 +78,6 @@ protected:
     friend class event_loop;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _EPOLL_H_ */

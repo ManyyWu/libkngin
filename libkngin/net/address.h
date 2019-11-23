@@ -8,29 +8,30 @@
 #include <array>
 #include <cstring>
 
-__NAMESPACE_BEGIN
-
-union __address {
-    struct in_addr  addr_inet4;
-    struct in6_addr addr_inet6;
-};
-
-union __sockaddr {
-    struct sockaddr_in  sa_in;
-    struct sockaddr_in6 sa_in6;
-};
+KNGIN_NAMESPACE_K_BEGIN
 
 class address {
 public:
-    address    ()                         {  }
-    address    (const sockaddr &_sa)      { memcpy(&m_sa, &_sa, sizeof(sockaddr)); }
-    address    (const sockaddr &&_sa)     { memcpy(&m_sa, &_sa, sizeof(sockaddr)); }
-    address    (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; }
-    address    (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; }
-    address    (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; }
-    address    (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; }
-    address    (const address &_sa)       { m_sa = _sa.m_sa; }
-    address    (const address &&_sa)      { m_sa = _sa.m_sa; }
+    union in_addr {
+        struct ::in_addr  v4;
+        struct ::in6_addr v6;
+    };
+    
+    union sockaddr {
+        struct ::sockaddr_in  v4;
+        struct ::sockaddr_in6 v6;
+    };
+
+public:
+    address    ()                              {  }
+    address    (const address::sockaddr &_sa)  { memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); }
+    address    (const address::sockaddr &&_sa) { memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); }
+    address    (const ::sockaddr_in &_sa)      { m_sa.v4 = _sa; }
+    address    (const ::sockaddr_in &&_sa)     { m_sa.v4 = _sa; }
+    address    (const ::sockaddr_in6 &_sa)     { m_sa.v6 = _sa; }
+    address    (const ::sockaddr_in6 &&_sa)    { m_sa.v6 = _sa; }
+    address    (const address &_sa)            { m_sa = _sa.m_sa; }
+    address    (const address &&_sa)           { m_sa = _sa.m_sa; }
     ~address   () = default;
 
 public:
@@ -48,35 +49,35 @@ public:
 
 public:
     address &
-    operator = (const sockaddr &_sa)      { memcpy(&m_sa, &_sa, sizeof(sockaddr)); return *this; }
+    operator = (const address::sockaddr &_sa) { memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const sockaddr &&_sa)     { memcpy(&m_sa, &_sa, sizeof(sockaddr)); return *this; }
+    operator = (const address::sockaddr &&_sa){ memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const sockaddr_in &_sa)   { m_sa.sa_in = _sa; return *this; }
+    operator = (const ::sockaddr_in &_sa)     { m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const sockaddr_in &&_sa)  { m_sa.sa_in = _sa; return *this; }
+    operator = (const ::sockaddr_in &&_sa)    { m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const sockaddr_in6 &_sa)  { m_sa.sa_in6 = _sa; return *this; }
+    operator = (const ::sockaddr_in6 &_sa)    { m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const sockaddr_in6 &&_sa) { m_sa.sa_in6 = _sa; return *this; }
+    operator = (const ::sockaddr_in6 &&_sa)   { m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const address &_sa)       { m_sa = _sa.m_sa; return *this; }
+    operator = (const address &_sa)           { m_sa = _sa.m_sa; return *this; }
     address &
-    operator = (const address &&_sa)      { m_sa = _sa.m_sa; return *this; }
+    operator = (const address &&_sa)          { m_sa = _sa.m_sa; return *this; }
 
 public:
-    const __sockaddr &
-    sa         () const                   { return m_sa; }
+    const address::sockaddr &
+    sa         () const                       { return m_sa; }
 
-    __sockaddr &
-    sa         ()                         { return m_sa; }
+    address::sockaddr &
+    sa         ()                             { return m_sa; }
 
 public:
     static bool
-    str2sockaddr   (const std::string &_addrstr, uint16_t _port, address &_addr);
+    addrstr2addr (const std::string &_addrstr, uint16_t _port, address &_addr);
 
     static bool
-    str2sockaddr   (const std::string &&_addrstr, uint16_t _port, address &_addr);
+    addrstr2addr (const std::string &&_addrstr, uint16_t _port, address &_addr);
 
 public:
     static bool
@@ -92,13 +93,13 @@ public:
     check_inet6_addrstr (const std::string &&_addrstr);
 
 protected:
-    __sockaddr m_sa;
+    address::sockaddr m_sa;
 
 protected:
     friend class socket;
     friend class connnection;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _ADDRESS_H_ */

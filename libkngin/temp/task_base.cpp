@@ -3,7 +3,7 @@
 //#include "msg.h"
 //#include "work_thread.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //task_base::task_base (work_thread *_thread, msg *_msg, int _priority /* = 0 */)
 //    : m_thread(_thread), m_msg(_msg), m_priority(_priority)
@@ -50,4 +50,4 @@
 //    m_priority = _priority;
 //}
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END

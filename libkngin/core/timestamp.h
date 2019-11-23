@@ -12,20 +12,20 @@
 #include <algorithm>
 #include "define.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 #ifdef _WIN32
-#define __localtime(__arg1, __arg2) localtime_s((__arg1), (__arg2))
+#define get_localtime(__arg1, __arg2) localtime_s((__arg1), (__arg2))
 #else
-#define __localtime(__arg1, __arg2) localtime_r((__arg2), (__arg1))
+#define get_localtime(__arg1, __arg2) localtime_r((__arg2), (__arg1))
 #endif
 
 class timestamp {
 public:
     timestamp   () = delete;
-    timestamp   (uint64_t _ms) : m_ms(_ms) {}
+    timestamp   (uint64_t _ms)        : m_ms(_ms) {}
     timestamp   (const timestamp &_t) : m_ms(_t.m_ms) {}
-    timestamp   (const timeval &_tv) : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
+    timestamp   (const timeval &_tv)  : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
     timestamp   (const timespec &_ts) : m_ms(_ts.tv_sec * 1000 + _ts.tv_nsec / 1000000) {}
     ~timestamp  () = default;
 
@@ -66,16 +66,13 @@ public:
     uint32_t
     value_uint  () const              { return (uint32_t)std::min<uint64_t>(m_ms, UINT32_MAX); }
     void
-    to_timeval  (timeval &_tv) const
-    { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }
+    to_timeval  (timeval &_tv) const  { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }
     void
-    to_timespec (timespec &_ts) const
-    { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
+    to_timespec (timespec &_ts) const { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
 
 public:
     static timestamp
-    current_time ()
-    {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
+    current_time ()                   {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
 
 protected:
     uint64_t m_ms;
@@ -109,6 +106,6 @@ struct timezone
 int gettimeofday (struct timeval *tv, struct timezone *tz);
 #endif
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _TIMESTAMP_H_ */

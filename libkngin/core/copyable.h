@@ -3,7 +3,7 @@
 
 #include "define.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class copyable {
 protected:
@@ -12,6 +12,6 @@ protected:
     ~copyable () = default;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _COPYABLE_H_ */

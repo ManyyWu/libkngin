@@ -16,12 +16,12 @@
 #endif
 #define __FILENAME__ "libkngin/net/socket.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 socket::socket (int _fd)
     : filefd(_fd)
 {
-    if (__fd_invalid(m_fd)) {
+    if (fd_invalid(m_fd)) {
         log_error("::socket() error - invalid file descriptor");
         throw k::exception("socket::socket() error");
     }
@@ -31,7 +31,7 @@ socket::socket (INET_PROTOCOL _proto)
     : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0))
 {
-    if (__fd_invalid(m_fd)) {
+    if (fd_invalid(m_fd)) {
         log_error("::socket() error - %s:%d", strerror(errno), errno);
         throw k::exception("socket::socket() error");
     }
@@ -84,8 +84,8 @@ socket::sendto (const address &_addr, buffer &_buf, size_t _nbytes, int _flags)
 {
     check(_buf.readable(_nbytes));
     ssize_t _size = ::sendto(m_fd, (const char *)_buf.data(), _nbytes, _flags,
-                             (const sockaddr *)&(_addr.sa()),
-                             _addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+                             (const ::sockaddr *)&(_addr.sa()),
+                             _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size > 0)
         _buf.rreset(_buf.rindex() + _size);
     return _size;
@@ -95,14 +95,14 @@ ssize_t
 socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags)
 {
     check(_buf.writeable(_nbytes));
-    socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().sa_in6) : sizeof(_addr.sa().sa_in));
+    socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     check(_buf.writeable() >= _nbytes);
     ssize_t _size = ::recvfrom(m_fd, (char *)_buf.data(), _nbytes, _flags,
-                               (sockaddr *)&(_addr.sa()),
+                               (::sockaddr *)&(_addr.sa()),
                                &_addr_len);
     if (_size > 0)
         _buf.wreset(_buf.windex() + _size);
     return _size;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

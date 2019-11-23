@@ -12,7 +12,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/rwlock.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 rwlock::rwlock ()
     : m_rwlock(PTHREAD_RWLOCK_INITIALIZER)
@@ -118,4 +118,4 @@ rwlock::get_interface ()
     return &m_rwlock;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

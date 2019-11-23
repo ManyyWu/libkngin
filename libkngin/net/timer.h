@@ -10,7 +10,7 @@
 #include "timestamp.h"
 #include "epoller_event.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
 class timer : public filefd {
@@ -59,5 +59,5 @@ protected:
     std::atomic<bool> m_stopped;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 #endif /* _TIMER_H_ */

@@ -14,9 +14,9 @@
 #endif
 #define __FILENAME__ "libkngin/net/sockopts.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
-const sockopts::__sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
+const sockopts::sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
     { "SO_BROADCAST", SOL_SOCKET,   SO_BROADCAST },
     { "SO_DEBUG",     SOL_SOCKET,   SO_DEBUG     },
     { "SO_DONTROUTE", SOL_SOCKET,   SO_DONTROUTE },
@@ -49,9 +49,9 @@ const sockopts::__sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
 };
 
 bool
-sockopts::get_flag (int _fd, const __sockopts_info &_opt_info, bool &_flag)
+sockopts::get_flag (int _fd, const sockopts_info &_opt_info, bool &_flag)
 {
-    __sockopt_val _value;
+    sockopt_val _value;
     socklen_t _optlen = sizeof(int);
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.i_val, &_optlen);
@@ -64,9 +64,9 @@ sockopts::get_flag (int _fd, const __sockopts_info &_opt_info, bool &_flag)
 }
 
 bool
-sockopts::get_int (int _fd, const __sockopts_info &_opt_info, int &_val)
+sockopts::get_int (int _fd, const sockopts_info &_opt_info, int &_val)
 {
-    __sockopt_val _value;
+    sockopt_val _value;
     socklen_t _optlen = sizeof(int);
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.i_val, &_optlen);
@@ -79,9 +79,9 @@ sockopts::get_int (int _fd, const __sockopts_info &_opt_info, int &_val)
 }
 
 bool
-sockopts::get_linger (int _fd, const __sockopts_info &_opt_info, struct linger &_l)
+sockopts::get_linger (int _fd, const sockopts_info &_opt_info, struct linger &_l)
 {
-    __sockopt_val _value;
+    sockopt_val _value;
     socklen_t _optlen = sizeof(struct linger);
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.linger_val, &_optlen);
@@ -93,9 +93,9 @@ sockopts::get_linger (int _fd, const __sockopts_info &_opt_info, struct linger &
 }
 
 bool
-sockopts::get_timeval (int _fd, const __sockopts_info &_opt_info, struct timeval &_tv)
+sockopts::get_timeval (int _fd, const sockopts_info &_opt_info, struct timeval &_tv)
 {
-    __sockopt_val _value;
+    sockopt_val _value;
     socklen_t _optlen = sizeof(timeval);
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.timeval_val, &_optlen);
@@ -108,13 +108,13 @@ sockopts::get_timeval (int _fd, const __sockopts_info &_opt_info, struct timeval
 }
 
 bool
-sockopts::set_flag (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info)
+sockopts::set_flag (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
     return set_int(_val, _fd, _opt_info);
 }
 
 bool
-sockopts::set_int (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info)
+sockopts::set_int (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
     int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_val.i_val, sizeof(_val.i_val));
@@ -125,7 +125,7 @@ sockopts::set_int (const __sockopt_val &_val, int _fd, const __sockopts_info &_o
 }
 
 bool
-sockopts::set_linger (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info)
+sockopts::set_linger (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
     int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_val.linger_val, sizeof(_val.linger_val));
@@ -136,7 +136,7 @@ sockopts::set_linger (const __sockopt_val &_val, int _fd, const __sockopts_info 
 }
 
 bool
-sockopts::set_timeval (const __sockopt_val &_val, int _fd, const __sockopts_info &_opt_info)
+sockopts::set_timeval (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
     int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_val.timeval_val, sizeof(_val.timeval_val));
@@ -146,4 +146,4 @@ sockopts::set_timeval (const __sockopt_val &_val, int _fd, const __sockopts_info
     return (_ret >= 0);
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

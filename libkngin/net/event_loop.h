@@ -17,7 +17,7 @@
 #define EPOLLER_TIMEOUT 3000
 #endif
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop {
 public:
@@ -25,7 +25,7 @@ public:
 
     typedef std::function<void (void)> loop_stopped_cb;
 
-    typedef std::function<void (void)> queued_fn;
+    typedef std::function<void (void)> task;
 
     typedef event                      waker;
 
@@ -58,7 +58,7 @@ public:
     update_event   (epoller_event *_e);
 
     void
-    run_in_loop    (event_loop::queued_fn &&_fn);
+    run_in_loop    (event_loop::task &&_fn);
 
 public:
     void
@@ -82,13 +82,13 @@ protected:
 
     std::atomic<bool>        m_stop;
 
-    std::deque<queued_fn>    m_fnq;
+    std::deque<task>         m_taskq;
 
     epoller::epoll_event_set m_events;
 
     waker                    m_waker;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _EVENT_LOOP_H_ */

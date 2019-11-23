@@ -13,7 +13,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/event.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 event::event (event_loop *_loop)
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
@@ -23,7 +23,7 @@ event::event (event_loop *_loop)
       m_stopped(true)
 {
     check(_loop);
-    if (__fd_invalid(m_fd)) {
+    if (fd_invalid(m_fd)) {
         log_fatal("::eventfd() error - %s:%d", strerror(errno), errno);
         throw k::exception("event::event() erorr");
     }
@@ -88,4 +88,4 @@ event::on_event ()
             m_event_cb();
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

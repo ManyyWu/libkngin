@@ -8,7 +8,7 @@
 #include "sockopts.h"
 #include "common.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 listener::listener (event_loop *_loop, k::socket &&_socket)
     try
@@ -144,4 +144,4 @@ listener::on_error ()
         m_error_cb(std::ref(*this));
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

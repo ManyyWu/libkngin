@@ -8,7 +8,7 @@
 //#include "mutex.h"
 //#include "cond.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //class work_thread : public thread {
 //public:
@@ -56,6 +56,6 @@
 //    cond               m_cond;
 //};
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END
 //
 //#endif /* _WORK_THREAD */

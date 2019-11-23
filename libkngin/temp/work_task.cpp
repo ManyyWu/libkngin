@@ -4,7 +4,7 @@
 //#include "thread.h"
 //#include "msg.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //work_task::work_task(work_thread *_thread)
 //    : task_base(_thread, nullptr)
@@ -70,4 +70,4 @@
 //    return _msg;
 //}
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END

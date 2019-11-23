@@ -5,7 +5,7 @@
 //#include "common.h"
 //#include "msg.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //msg::msg (task_base *_task)
 //    : m_buf(nullptr), m_size(0), m_type(INVALID_MSG), m_task(_task)
@@ -161,7 +161,7 @@
 //{
 //    uint32_t _len = 80;
 //    _len += 2 * m_size;
-//    _len = (std::min)(_len, (uint32_t)__LOG_BUF_SIZE); // max: 4096
+//    _len = (std::min)(_len, (uint32_t)KNGIN_LOG_BUF_SIZE); // max: 4096
 //
 //    char *_buf = nullptr;
 //    knew_array(_buf, char, ((m_size) + _len));
@@ -186,4 +186,4 @@
 //    kdelete_array(_buf);
 //}
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END

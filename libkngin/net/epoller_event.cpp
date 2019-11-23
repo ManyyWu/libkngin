@@ -8,7 +8,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/epoller_event.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 epoller_event::epoller_event(event_loop *_loop, filefd *_s)
     : m_loop(_loop),
@@ -84,4 +84,4 @@ epoller_event::on_events (uint32_t _flags)
         m_pricb();
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

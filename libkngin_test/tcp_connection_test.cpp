@@ -27,7 +27,7 @@ client ()
     uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
-    assert(address::str2sockaddr(_addr_str, _port, _server_addr));
+    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     log_info("c: connecting...");
@@ -103,7 +103,7 @@ protected:
             uint16_t    _port = SERVER_PORT;
 
             address _server_addr;
-            assert(address::str2sockaddr(_addr_str, _port, _server_addr));
+            assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
             k::socket _server_sock(socket::IPV4_TCP);
             assert(sockopts::set_reuseaddr(_server_sock, true));

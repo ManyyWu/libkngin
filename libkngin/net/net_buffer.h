@@ -11,7 +11,7 @@
 #include "define.h"
 #include "buffer.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 #ifdef _WIN32
 struct iovec {
@@ -71,6 +71,6 @@ protected:
     std::vector<struct iovec> m_iovec;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _NET_BUFFER_H_ */

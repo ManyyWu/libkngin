@@ -6,7 +6,7 @@
 #include <vector>
 #include "define.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class basic_buffer {
 public:
@@ -201,6 +201,6 @@ public:
     { std::swap(m_arr, _buf.m_arr); std::swap(m_widx, _buf.m_widx); std::swap(m_ridx, _buf.m_ridx);}
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _BUFFER_H_ */

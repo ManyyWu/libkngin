@@ -12,7 +12,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/tcp_connection.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 uint64_t tcp_connection::m_next_serial = 0;
 
@@ -186,13 +186,8 @@ tcp_connection::on_read ()
         return;
     m_loop->check_thread();
 
-    if (!m_in_buf) {
-        //buffer _buf(1);
-        //ssize_t _size = m_socket.read(_buf, 1);
-        //check(!_size);
-        //on_close();
+    if (!m_in_buf)
         return;
-    }
 
     size_t _writeable_bytes = m_in_buf->writeable();
     check(_writeable_bytes);
@@ -252,9 +247,9 @@ tcp_connection::on_oob ()
         on_error();
         return;
     }
-    if (m_oob_cb)
+    if (m_oob_cb) {
         m_oob_cb(std::ref(*this), _buf.read_uint8());
-    else {
+    } else {
         log_warning("unhandled oob data from %s:%hu",
                     m_local_addr.addrstr().c_str(), m_local_addr.port());
     }
@@ -274,4 +269,4 @@ tcp_connection::on_error()
     on_close();
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

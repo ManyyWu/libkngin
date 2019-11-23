@@ -14,7 +14,7 @@
 
 #define THREADS_MAX UINT16_MAX
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 /*
 * I/O thread pool
@@ -25,7 +25,7 @@ __NAMESPACE_BEGIN
 
 class io_threadpool {
 public:
-    typedef event_loop::queued_fn                   task;
+    typedef event_loop::task                        task;
 
     typedef std::deque<task>                        task_queue;
 
@@ -77,6 +77,6 @@ protected:
     uint16_t          m_next;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _WORKER_THERAD_POLL_H_ */

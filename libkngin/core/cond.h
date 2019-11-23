@@ -10,7 +10,7 @@
 #include "timestamp.h"
 #include "mutex.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class cond {
 public:
@@ -41,6 +41,6 @@ protected:
     mutex *        m_mutex;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _COND_H_ */

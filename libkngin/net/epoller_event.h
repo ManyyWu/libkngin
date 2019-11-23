@@ -6,7 +6,7 @@
 #include "define.h"
 #include "filefd.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
 class epoller_event {
@@ -113,6 +113,6 @@ protected:
     friend class event_loop;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _EPOLLER_EVENT_H_ */

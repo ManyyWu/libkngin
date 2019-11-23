@@ -9,7 +9,7 @@
 #include "define.h"
 #include "timestamp.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class mutex {
 public:
@@ -40,6 +40,6 @@ protected:
     friend class cond;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _MUTEX_H_ */

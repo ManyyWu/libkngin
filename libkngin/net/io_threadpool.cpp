@@ -12,7 +12,7 @@
 #endif
 #define __FILENAME__ "io_threadpool.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 io_threadpool::io_threadpool (uint16_t _num)
     try
@@ -115,4 +115,4 @@ io_threadpool::get_loop (size_t _idx)
         return m_threads[_idx]->get_loop();
     }
 }
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

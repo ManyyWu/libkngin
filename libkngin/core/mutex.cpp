@@ -12,7 +12,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/mutex.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 mutex::mutex ()
     : m_mutex(PTHREAD_MUTEX_INITIALIZER)
@@ -78,4 +78,4 @@ mutex::get_interface ()
     return &m_mutex;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

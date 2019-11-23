@@ -6,7 +6,7 @@
 #include "socket.h"
 #include "filefd.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class listener {
 public:
@@ -70,7 +70,7 @@ protected:
     filefd            m_idle_file;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _LISTENER_H_ */
 

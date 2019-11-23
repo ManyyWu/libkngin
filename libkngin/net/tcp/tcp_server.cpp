@@ -6,7 +6,7 @@
 #include "tcp_server.h"
 #include "common.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 tcp_server::tcp_server (const tcp_server_opts &_opts)
     try 
@@ -191,11 +191,11 @@ tcp_server::on_new_connection (socket &&_sock)
     _conn->set_sent_cb(m_sent_cb);
     _conn->set_oob_cb(m_oob_cb);
     _conn->set_close_cb(std::bind(&tcp_server::on_close, this, std::placeholders::_1));
+    _conn->set_keepalive(m_opts.keep_alive);
 
     {
         local_lock _lock(m_mutex);
         m_connections[_conn->serial()] = _conn;
-        log_warning("size = %d", m_connections.size());
     }
 
     if (m_connection_establish_cb)
@@ -210,7 +210,6 @@ tcp_server::on_close (const tcp_connection &_conn)
         m_close_cb(std::ref(_conn));
 
     {
-                log_warning("on_close: %d", m_connections.size());
         local_lock _lock(m_mutex);
         m_connections.erase(_conn.serial());
     }
@@ -222,4 +221,4 @@ tcp_server::on_listener_error (listener &_listener)
     _listener.get_loop()->check_thread();
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

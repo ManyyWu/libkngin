@@ -4,7 +4,7 @@
 #include "define.h"
 #include "lock.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class local_lock {
 public:
@@ -17,6 +17,6 @@ protected:
     mutex &m_mutex;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _LOCAL_LOCK_ */

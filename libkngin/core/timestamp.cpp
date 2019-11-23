@@ -12,7 +12,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/timestamp.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 #ifdef _WIN32
 
@@ -53,4 +53,4 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 
 #endif
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

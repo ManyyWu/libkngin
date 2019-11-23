@@ -7,7 +7,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/work_thread.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 io_thread::io_thread (const char *_name)
     try
@@ -65,4 +65,4 @@ io_thread::process ()
     return 0;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

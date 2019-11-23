@@ -6,58 +6,58 @@
 #include "define.h"
 #include "lock.h"
 
-#define __LOG_BUF_SIZE      4096
-#define __LOG_FILE_MAX_SIZE 20 * 1024 * 1024 // 20M
+#define KNGIN_LOG_BUF_SIZE      4096
+#define KNGIN_LOG_FILE_MAX_SIZE 20 * 1024 * 1024 // 20M
 
 // "YYYY/MM/DD hh:mm:ss"
-#define __log_datetime_format         "%04d/%02d/%02d %02d:%02d:%02d"
-#define __LOG_DATETIME_LEN 20
+#define KNGIN_LOG_DATETIME_FORMT              "%04d/%02d/%02d %02d:%02d:%02d"
+#define KNGIN_LOG_DATETIME_LEN 20
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | func[file:line] | fmt \n"
-#define __log_format(__t, __f)        " | " __t " | %s[%s:%d] | " __f
+#define KNGIN_LOG_LOG_FORMAT(__t, __f)        " | " __t " | %s[%s:%d] | " __f
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | fmt \n"
-#define __log_format_noline(__t, __f) " | " __t " | " __f
+#define KNGIN_LOG_LOG_FORMAT_NOLINE(__t, __f) " | " __t " | " __f
 
 // "YYYY-MM-DD"
-#define __log_filename_format         "%s_%04d-%02d-%02d.log"
+#define __log_filename_format                 "%s_%04d-%02d-%02d.log"
 
 // "****** func[file:line] ******"
-#define __log_assert_format           " | ASSERT  | %s[%s:%d] | ****** %s *******"
+#define __log_assert_format                   " | ASSERT  | %s[%s:%d] | ****** %s *******"
 
 // color
 #ifdef _WIN32
 #else
-#define __COLOR_NONE    "\033[0m"
-#define __COLOR_FATAL   "\033[01;32;41m"
-#define __COLOR_ERROR   "\033[01;37;43m"
-#define __COLOR_WARNING "\033[01;31;49m"
-#define __COLOR_INFO    "\033[01;32;49m"
-#define __COLOR_DEBUG   ""
-#define __COLOR_ASSERT  "\033[05;37;41m"
+#define KNGIN_LOG_COLOR_NONE    "\033[0m"
+#define KNGIN_LOG_COLOR_FATAL   "\033[01;32;41m"
+#define KNGIN_LOG_COLOR_ERROR   "\033[01;37;43m"
+#define KNGIN_LOG_COLOR_WARNING "\033[01;31;49m"
+#define KNGIN_LOG_COLOR_INFO    "\033[01;32;49m"
+#define KNGIN_LOG_COLOR_DEBUG   ""
+#define KNGIN_LOG_COLOR_ASSERT  "\033[05;37;41m"
 #endif
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 /*
  * Type of log file
  */
-enum __LOG_FILE {          // reserved type
-    __LOG_FILE_SERVER = 0,     // default
+enum KNGIN_LOG_FILE {          // reserved type
+    KNGIN_LOG_FILE_SERVER = 0, // default
 };
 
-enum __LOG_MODE {
-    __LOG_MODE_FILE = 0,   // only output to file
-    __LOG_MODE_STDERR,     // only output to stderr
-    __LOG_MODE_BOTH        // the above two
+enum KNGIN_LOG_MODE {
+    KNGIN_LOG_MODE_FILE = 0,   // only output to file
+    KNGIN_LOG_MODE_STDERR,     // only output to stderr
+    KNGIN_LOG_MODE_BOTH        // the above two
 };
 
-enum LOG_LEVEL {
-    LOG_LEVEL_FATAL = 0,
-    LOG_LEVEL_ERROR,
-    LOG_LEVEL_WARNING,
-    LOG_LEVEL_INFO,
-    LOG_LEVEL_DEBUG,
+enum KNGIN_LOG_LEVEL {
+    KNGIN_LOG_LEVEL_FATAL = 0,
+    KNGIN_LOG_LEVEL_ERROR,
+    KNGIN_LOG_LEVEL_WARNING,
+    KNGIN_LOG_LEVEL_INFO,
+    KNGIN_LOG_LEVEL_DEBUG,
 };
 
 class log_mgr;
@@ -67,7 +67,7 @@ public:
 
 private:
     explicit
-    log           (__LOG_FILE _filetype, __LOG_MODE _mode = __LOG_MODE_FILE);
+    log           (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode = KNGIN_LOG_MODE_FILE);
 
     ~log          () = default;
 
@@ -111,37 +111,37 @@ private:
     get_datetime  ();
 
     bool
-    write_log     (LOG_LEVEL _level, const char *_fmt, va_list _vl);
+    write_log     (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl);
 
     bool
-    write_logfile (LOG_LEVEL _level, const char *_file, const char *_fmt, size_t _len);
+    write_logfile (KNGIN_LOG_LEVEL _level, const char *_file, const char *_fmt, size_t _len);
 
     const char *
-    color_begin   (LOG_LEVEL _level);
+    color_begin   (KNGIN_LOG_LEVEL _level);
 
     const char *
     color_end     ();
 
     void
-    write_stderr  (LOG_LEVEL _level, const char *_str, size_t _len);
+    write_stderr  (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len);
 
     void
-    write_stderr2 (LOG_LEVEL _level, const char *_fmt, ...);
+    write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...);
 
 private:
-#ifdef __LOG_MUTEX
-    mutex      m_mutex;
+#if (ON == KNGIN_ENABLE_LOG_MUTEX)
+    mutex          m_mutex;
 #endif
 
-    __LOG_MODE m_mode;
+    KNGIN_LOG_MODE m_mode;
 
-    __LOG_FILE m_filetype;
+    KNGIN_LOG_FILE m_filetype;
 
-    char       m_datetime[__LOG_DATETIME_LEN];
+    char           m_datetime[KNGIN_LOG_DATETIME_LEN];
 
-    bool       m_disable_info;
+    bool           m_disable_info;
 
-    bool       m_disable_debug;
+    bool           m_disable_debug;
 
 private:
     friend class log_mgr;
@@ -150,6 +150,6 @@ private:
     logger ();
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _K_LOG_H_ */

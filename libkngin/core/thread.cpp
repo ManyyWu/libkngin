@@ -16,7 +16,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/thread.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 thread::thread (const char *_name)
     : m_name(_name ? _name : ""),
@@ -133,4 +133,4 @@ thread::cleanup (void *_args)
 //    return 0;
 //}
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

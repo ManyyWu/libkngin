@@ -5,11 +5,11 @@
 #include "define.h"
 #include "net_buffer.h"
 
-#define __fd_valid(__fd)   (__fd >= 0)
-#define __fd_invalid(__fd) (__fd < 0)
-#define __INVALID_FD       (-1);
+#define fd_valid(__fd)   (__fd >= 0)
+#define fd_invalid(__fd) (__fd < 0)
+#define INVALID_FD       (-1);
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class filefd {
 public:
@@ -25,7 +25,7 @@ public:
 
 public:
     bool
-    valid         () const { return __fd_valid(m_fd); }
+    valid         () const { return fd_valid(m_fd); }
 
     int
     fd            () const { return m_fd; }
@@ -69,6 +69,6 @@ protected:
     int m_fd;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _FILEFD_H_ */

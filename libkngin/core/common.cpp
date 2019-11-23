@@ -9,7 +9,5 @@
 #endif
 #define __FILENAME__ "libkngin/core/common.cpp"
 
-__NAMESPACE_BEGIN
-
-
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_BEGIN
+KNGIN_NAMESPACE_K_END

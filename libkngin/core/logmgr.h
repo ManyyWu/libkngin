@@ -9,13 +9,13 @@
 #include "exception.h"
 #include "noncopyable.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class log_mgr : public noncopyable {
 public:
-    typedef std::vector<log *>       __log_set;
+    typedef std::vector<log *>       kngin_log_set;
 
-    typedef std::vector<std::string> __logfile_set;
+    typedef std::vector<std::string> kngin_logfile_set;
 
 private:
     log_mgr     ();
@@ -27,7 +27,7 @@ public:
     operator [] (size_t _index);
 
     int
-    add         (const std::string &_filename, __LOG_MODE _mode);
+    add         (const std::string &_filename, KNGIN_LOG_MODE _mode);
 
     std::string &
     filename_at (size_t _index);
@@ -37,9 +37,9 @@ public:
     inited      () const;
 
 protected:
-    static __log_set         m_log_set;
+    static kngin_log_set     m_log_set;
 
-    static __logfile_set     m_logfile_set;
+    static kngin_logfile_set m_logfile_set;
 
     static std::atomic<bool> m_inited;
 
@@ -51,6 +51,6 @@ private:
 log_mgr &
 logger ();
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _LOGMGR_H_ */

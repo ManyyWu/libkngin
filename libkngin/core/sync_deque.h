@@ -18,7 +18,7 @@ using std::iterator;
 #endif
 #define __FILENAME__ "libkngin/core/sync_deque.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 template <class __T>
 class sync_deque {
@@ -259,6 +259,6 @@ protected:
     std::atomic<size_type> m_max_size;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _SYNC_DEQUE_H_ */

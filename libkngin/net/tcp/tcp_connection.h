@@ -16,7 +16,8 @@
 #include "net_buffer.h"
 #include "epoller_event.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
+KNGIN_NAMESPACE_TCP_BEGIN
 
 class tcp_connection {
 public:
@@ -92,13 +93,19 @@ public:
     set_read_lowat  (int _size)  { return sockopts::set_rcvlowat(m_socket, _size); }
 
     bool
-    set_write_lowat (int _size)  { return sockopts::set_sndlowat(m_socket, _size); }
-
-    bool
     read_lowat      (int &_size) { return sockopts::rcvlowat(m_socket, _size); }
 
     bool
+    set_write_lowat (int _size)  { return sockopts::set_sndlowat(m_socket, _size); }
+
+    bool
     write_lowat     (int &_size) { return sockopts::sndlowat(m_socket, _size); }
+
+    bool
+    set_keepalive   (bool _on)   { return sockopts::set_keepalive(m_socket, _on); }
+
+    bool
+    keepalive       (bool &_on)  { return sockopts::keepalive(m_socket, _on); }
 
 private:
     void
@@ -173,6 +180,7 @@ protected:
     static uint64_t   m_next_serial;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_TCP_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _TCP_CONNECTION_H_ */

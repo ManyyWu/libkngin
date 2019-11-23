@@ -13,7 +13,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/cond.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 cond::cond (mutex *_mutex)
     : m_cond(PTHREAD_COND_INITIALIZER), m_mutex(_mutex)
@@ -75,4 +75,4 @@ cond::get_interface ()
     return &m_cond;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

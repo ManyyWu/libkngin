@@ -14,7 +14,7 @@
 #include "event_loop.h"
 #include "address.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class socket : public filefd {
 public:
@@ -42,16 +42,16 @@ public:
 public:
     int
     bind          (const address &_addr)
-    { return ::bind(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
+    { return ::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()); }
     int
     listen        (int _backlog)
     { return ::listen(m_fd, _backlog); }
     int
     accept        (address &_addr)
-    { socklen_t _len = sizeof(_addr.m_sa); return ::accept(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
+    { socklen_t _len = sizeof(_addr.m_sa); return ::accept(m_fd, (::sockaddr *)&(_addr.m_sa), &_len); }
     int
     connect       (const address &_addr)
-    { return ::connect(m_fd, (const sockaddr *)&(_addr.m_sa), _addr.size()); }
+    { return ::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()); }
 
 public:
     void
@@ -76,12 +76,12 @@ public:
 public:
     bool
     localaddr     (address &_addr)
-    { socklen_t _len = sizeof(_addr.m_sa); return ::getsockname(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
+    { socklen_t _len = sizeof(_addr.m_sa); return ::getsockname(m_fd, (::sockaddr *)&(_addr.m_sa), &_len); }
     bool
     peeraddr      (address &_addr)
-    { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (sockaddr *)&(_addr.m_sa), &_len); }
+    { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (::sockaddr *)&(_addr.m_sa), &_len); }
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _SOCKET_H_ */

@@ -18,7 +18,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/event_loop.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 event_loop::event_loop (thread *_thr)
     try
@@ -27,7 +27,7 @@ event_loop::event_loop (thread *_thr)
       m_epoller(this),
       m_looping(false),
       m_stop(false),
-      m_fnq(),
+      m_taskq(),
       m_events(RESERVED_EPOLLELR_EVENT),
       m_waker(this)
 {
@@ -74,11 +74,11 @@ event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
                 ((epoller_event *)(m_events[i].data.ptr))->on_events(m_events[i].events);
 
             // process queued events
-            std::deque<queued_fn> _fnq;
-            if (!m_fnq.empty())
+            std::deque<task> _fnq;
+            if (!m_taskq.empty())
             {
                 local_lock _lock(m_mutex);
-                _fnq.swap(m_fnq);
+                _fnq.swap(m_taskq);
             }
             for (auto _iter : _fnq)
                 _iter();
@@ -124,7 +124,7 @@ event_loop::check_thread () const
 }
 
 bool
-event_loop::in_loop_thread() const
+event_loop::in_loop_thread () const
 {
     return (m_thr->equal_to(thread::self()));
 }
@@ -172,13 +172,13 @@ event_loop::update_event (epoller_event *_e)
 }
 
 void
-event_loop::run_in_loop (event_loop::queued_fn &&_fn)
+event_loop::run_in_loop (event_loop::task &&_fn)
 {
     check(m_looping);
 
     {
         local_lock _lock(m_mutex);
-        m_fnq.push_back(std::move(_fn));
+        m_taskq.push_back(std::move(_fn));
     }
     
     if (!in_loop_thread())
@@ -202,4 +202,4 @@ event_loop::wakeup ()
         log_error("event_loop::wakeup() error, write %" PRId64 " bytes to waker instead of 8", _ret);
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

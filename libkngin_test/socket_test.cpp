@@ -24,7 +24,7 @@ client (void *_args)
     uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
-    assert(address::str2sockaddr(_addr_str, _port, _server_addr));
+    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     if (_server_sock.connect(_server_addr) < 0)
@@ -61,7 +61,7 @@ server (void *_args)
     uint16_t    _port = SERVER_PORT;
     address     _server_addr;
 
-    assert(address::str2sockaddr(_addr_str, _port, _server_addr));
+    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     check(_server_sock.valid());

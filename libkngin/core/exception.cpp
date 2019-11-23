@@ -13,7 +13,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/exception.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 exception::exception (const char *_what)
     : m_str(_what)
@@ -38,4 +38,4 @@ exception::dump_stack ()
                 m_dump_str += std::string("\n") + _stacks[i];
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

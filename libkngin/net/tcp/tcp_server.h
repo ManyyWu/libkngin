@@ -11,7 +11,8 @@
 #include "listener.h"
 #include "io_threadpool.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
+KNGIN_NAMESPACE_TCP_BEGIN
 
 class tcp_server {
 public:
@@ -116,6 +117,7 @@ protected:
     mutex                   m_mutex;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_TCP_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _TCP_SERVER_H_ */

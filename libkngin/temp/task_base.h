@@ -6,7 +6,7 @@
 //#include "noncopyable.h"
 //#include "msg.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //class work_thread;
 //class task_base : noncopyable {
@@ -51,6 +51,6 @@
 //    int                   m_priority;
 //};
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END
 //
 //#endif /* _TASK_BASE_H_ */

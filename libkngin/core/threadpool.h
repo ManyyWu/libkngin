@@ -15,7 +15,7 @@
 #include "lock.h"
 #include "timestamp.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 #define THREAD_NUM_MAX 65535
 
@@ -90,7 +90,7 @@ protected:
     thread *              m_pool_thread;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 */
 
 #endif /* _THREADPOLL_H_ */

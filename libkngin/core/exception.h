@@ -4,10 +4,10 @@
 #include <string>
 #include "define.h"
 
-#define __EXP   noexcept(false)
-#define __NOEXP noexcept(true)
+#define KNGIN_EXP   noexcept(false)
+#define KNGIN_NOEXP noexcept(true)
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class exception {
 public:
@@ -35,6 +35,6 @@ protected:
     std::string m_str;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _EXCEPTION_H_ */

@@ -16,7 +16,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/epoller.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 epoller::epoller (event_loop *_loop)
     :
@@ -108,4 +108,4 @@ epoller::update_event (int _opt, epoller_event *_e)
     return true;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

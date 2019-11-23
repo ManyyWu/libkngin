@@ -14,7 +14,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/net_buffer.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 void
 net_buffer::receive (size_t _n)
@@ -92,4 +92,4 @@ net_buffer::check_writeable (size_t _n)
         throw k::exception("net_buffer::check_readable() - no enought space");
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

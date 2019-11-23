@@ -6,12 +6,11 @@
 #endif
 #define __FILENAME__ "libkngin/core/error.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 /*
 const __sys_err::__err_info
 __sys_err::__err_info_entry[__sys_err::__sys_err_num] = {
-    {E_SUCCESS,       "Success"                     },
-//   [E_SUCCESS] = "Success",
+//    {E_SUCCESS,       "Success"                     },
 //    {E_MAX,           "Max error code"              }
 };
 
@@ -24,4 +23,4 @@ __sys_err::what (uint32_t _code)
     return __sys_err::__err_info_entry[_code]._str;
 }
 */
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

@@ -6,7 +6,7 @@
 //#include "thread.h"
 //#include "msg.h"
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //class work_task : public task_base {
 //public:
@@ -33,6 +33,6 @@
 //    send_reply_msg ();
 //};
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END
 //
 //#endif /* _WORK_TASK_H_ */

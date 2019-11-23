@@ -11,7 +11,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/threadpoll.cpp"
 
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //thread_pool::thread_pool (size_t _qsize, int _thr_max, time_t _alive)
 //    : m_running(false), m_stop(true),
@@ -247,4 +247,4 @@
 //    return 0;
 //}
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END

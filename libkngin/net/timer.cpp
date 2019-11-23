@@ -11,7 +11,7 @@
 #endif
 #define __FILENAME__ "libkngin/net/timer.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 timer::timer (event_loop *_loop)
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
@@ -21,7 +21,7 @@ timer::timer (event_loop *_loop)
       m_stopped(true)
 {
     check(_loop);
-    if (__fd_valid(m_fd)) {
+    if (fd_valid(m_fd)) {
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw k::exception("timer::timer() erorr");
     }
@@ -91,4 +91,4 @@ timer::on_timeout ()
             m_timeout_cb();
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

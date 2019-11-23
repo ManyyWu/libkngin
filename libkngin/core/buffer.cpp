@@ -12,7 +12,7 @@
 #endif
 #define __FILENAME__ "libkngin/core/buffer.cpp"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 basic_buffer::basic_buffer (const uint8_arr &_arr, size_t _reserve /* = 0 */)
     try
@@ -109,4 +109,4 @@ buffer::append (const buffer &_buf)
     return *this;
 }
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END

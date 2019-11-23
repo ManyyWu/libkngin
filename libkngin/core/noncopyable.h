@@ -1,7 +1,7 @@
 #ifndef _NONCOPYABLE_H_
 #define _NONCOPYABLE_H_
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class noncopyable {
 protected:
@@ -17,6 +17,6 @@ public:
     operator =   (const noncopyable &) = delete;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
 #endif /* _NONCOPYABLE_H_ */

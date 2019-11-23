@@ -12,7 +12,7 @@
 //#define __msg_valid(__msg) ((__msg) >= MSG_BEGIN && (__msg) <= MSG_END)
 //#define __both(__a, __b)    (((__a) && (__b)) || (!(__a) || !(__b)))
 //
-//__NAMESPACE_BEGIN
+//KNGIN_NAMESPACE_K_BEGIN
 //
 //class task_base;
 //class msg {
@@ -74,6 +74,6 @@
 //    task_base *m_task;
 //};
 //
-//__NAMESPACE_END
+//KNGIN_NAMESPACE_K_END
 //
 //#endif /* _MSG_H_ */

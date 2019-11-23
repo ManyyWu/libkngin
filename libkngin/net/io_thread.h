@@ -1,5 +1,5 @@
-#ifndef _io_thread_H_
-#define _io_thread_H_
+#ifndef _IO_THREAD_H_
+#define _IO_THREAD_H_
 
 #include <memory>
 #include "define.h"
@@ -7,7 +7,7 @@
 #include "lock.h"
 #include "event_loop.h"
 
-__NAMESPACE_BEGIN
+KNGIN_NAMESPACE_K_BEGIN
 
 class io_thread : public thread {
 public:
@@ -42,6 +42,6 @@ protected:
     cond           m_cond;
 };
 
-__NAMESPACE_END
+KNGIN_NAMESPACE_K_END
 
-#endif /* _io_thread_H_ */
+#endif /* _IO_THREAD_H_ */
