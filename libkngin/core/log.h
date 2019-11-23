@@ -6,8 +6,8 @@
 #include "define.h"
 #include "lock.h"
 
-#define KNGIN_LOG_BUF_SIZE      4096
-#define KNGIN_LOG_FILE_MAX_SIZE 20 * 1024 * 1024 // 20M
+#define KNGIN_LOG_BUF_SIZE                    4096
+#define KNGIN_LOG_FILE_MAX_SIZE               20 * 1024 * 1024 // 20M
 
 // "YYYY/MM/DD hh:mm:ss"
 #define KNGIN_LOG_DATETIME_FORMT              "%04d/%02d/%02d %02d:%02d:%02d"
@@ -20,10 +20,10 @@
 #define KNGIN_LOG_LOG_FORMAT_NOLINE(__t, __f) " | " __t " | " __f
 
 // "YYYY-MM-DD"
-#define __log_filename_format                 "%s_%04d-%02d-%02d.log"
+#define KNGIN_LOG_FILENAME_FORMT              "%s_%04d-%02d-%02d.log"
 
 // "****** func[file:line] ******"
-#define __log_assert_format                   " | ASSERT  | %s[%s:%d] | ****** %s *******"
+#define KNGIN_LOG_ASSERT_FORMAT               " | ASSERT  | %s[%s:%d] | ****** %s *******"
 
 // color
 #ifdef _WIN32

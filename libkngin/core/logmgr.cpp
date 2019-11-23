@@ -7,7 +7,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-std::atomic<bool>       log_mgr::m_inited(false);
+std::atomic<bool>          log_mgr::m_inited(false);
 
 log_mgr::kngin_log_set     log_mgr::m_log_set;
 

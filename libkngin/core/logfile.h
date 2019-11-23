@@ -20,7 +20,7 @@
             if (logger().inited())                                           \
                 logger()[__file_type]                                        \
                     .__level(KNGIN_LOG_LOG_FORMAT_NOLINE(__level_str, __fmt),\
-                                                 ##__VA_ARGS__);             \
+                             ##__VA_ARGS__);                                 \
         } while (false)
 #else
 #define kngin_make_log(__level, __level_str, __file_type, __fmt, ...) \
@@ -37,20 +37,20 @@
             if (logger().inited())                                           \
                 logger()[__file_type]                                        \
                     .__level(KNGIN_LOG_LOG_FORMAT_NOLINE(__level_str, __fmt),\
-                                                 ##__VA_ARGS__);             \
+                             ##__VA_ARGS__);                                 \
         } while (false)
 #endif
 
 // server log
-#define server_fatal(__fmt, ...)\
+#define server_fatal(__fmt, ...)  \
     kngin_make_log(       fatal,   "FATAL  ", k::KNGIN_LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
-#define server_error(__fmt, ...)\
+#define server_error(__fmt, ...)  \
     kngin_make_log(       error,   "ERROR  ", k::KNGIN_LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 #define server_warning(__fmt, ...)\
     kngin_make_log_noline(warning, "WARNING", k::KNGIN_LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
-#define server_info(__fmt, ...)\
+#define server_info(__fmt, ...)   \
     kngin_make_log_noline(info,    "INFO   ", k::KNGIN_LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
-#define server_debug(__fmt, ...)\
+#define server_debug(__fmt, ...)  \
     kngin_make_log(       debug,   "DEBUG  ", k::KNGIN_LOG_FILE_SERVER, __fmt, ##__VA_ARGS__)
 
 // default log
@@ -71,6 +71,7 @@
     logger().inited()                                         \
         ? logger()[k::KNGIN_LOG_FILE_SERVER].log_data((__str))\
         : 0
+
 #define log_fatal   server_fatal
 #define log_error   server_error
 #define log_warning server_warning

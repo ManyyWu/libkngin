@@ -8,6 +8,8 @@
 #include "logfile.h"
 #include "assert.h"
 
+KNGIN_NAMESPACE_K_BEGIN
+
 #define safe_release(__p)         do { delete (__p); (__p) = nullptr; } while (false)
 #define safe_release_array(__p)   do { delete [] (__p); (__p) = nullptr; } while (false)
 
@@ -21,8 +23,6 @@
 #define arg_check(__e) if (!(__e) ? (assert_log(invalid argument, expression (__e) is false), assert((__e)), true) : false)
 #define if_not(__e)    if (!(__e) ? (assert_log(expression (__e) is false), assert((__e)), true) : false)
 #define check(__e)     do { if_not(__e) (void)0; } while (false)
-
-KNGIN_NAMESPACE_K_BEGIN
 
 /*
 * nullptr reference

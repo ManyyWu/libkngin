@@ -98,7 +98,7 @@ log::log_data (const std::string &_str)
 bool
 log::log_assert (const char *_func, const char *_file, size_t _line, const char *_exp)
 {
-    return fatal(__log_assert_format, _func, _file, _line, _exp);
+    return fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
 }
 
 const char *
@@ -159,7 +159,7 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file, const char *_str,
     const char * _datetime = get_datetime();
 
     get_localtime(&_tm, &_t);
-    ::snprintf(_filename, FILENAME_MAX, __log_filename_format, _file,
+    ::snprintf(_filename, FILENAME_MAX, KNGIN_LOG_FILENAME_FORMT, _file,
                _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday);
     _fplog = ::fopen(_filename, "a");
     if (!_fplog) {
