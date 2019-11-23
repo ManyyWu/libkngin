@@ -11,7 +11,7 @@
 
 // "YYYY/MM/DD hh:mm:ss"
 #define KNGIN_LOG_DATETIME_FORMT              "%04d/%02d/%02d %02d:%02d:%02d"
-#define KNGIN_LOG_DATETIME_LEN 20
+#define KNGIN_LOG_DATETIME_LEN                20
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | func[file:line] | fmt \n"
 #define KNGIN_LOG_LOG_FORMAT(__t, __f)        " | " __t " | %s[%s:%d] | " __f
