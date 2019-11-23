@@ -8,7 +8,7 @@
 //
 //    // for server                                              [0x00000001, 0x00010000]
 //    MSG_TYPE_SERVER_CLOSE        = 0x00000001, // close server
-//    MSG_TYPE_SERVER_REMOVE       = 0x00000002, // remove client connection
+//    MSG_TYPE_SERVER_REMOVE       = 0x00000002, // remove client session
 //    MSG_TYPE_SERVER_HEARTBEAT    = 0x00000003, // heartbeat from client
 //
 //    // for user                                                [0x00010001, 0xFFFFFFFF]

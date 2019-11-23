@@ -37,7 +37,7 @@ listener::listener (event_loop *_loop, k::socket &&_socket)
     m_event.set_read_cb(std::bind(&listener::on_accept, this));
     m_event.set_error_cb(std::bind(&listener::on_error, this));
 } catch (...) {
-    log_fatal("tcp_connection::tcp_connection() error");
+    log_fatal("session::session() error");
     throw;
 }
 
@@ -103,7 +103,7 @@ listener::on_accept ()
             m_idle_file.close();
             m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             log_warning("the process already has the maximum number of files open, "
-                        "a new connection has been rejected");
+                        "a new session has been rejected");
         } else {
             log_error("socket::accept() error - %s:%d", strerror(errno), errno);
         }
@@ -113,7 +113,7 @@ listener::on_accept ()
     if (m_accept_cb)
         m_accept_cb(socket(_fd));
     else {
-        log_warning("unaccepted connection, fd = %d", _fd);
+        log_warning("unaccepted session, fd = %d", _fd);
         ::close(_fd);
     }
 }

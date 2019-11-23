@@ -10,7 +10,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
-struct tcp_server_opts {
+struct server_opts {
     std::string name;
     uint16_t    port;
     bool        allow_ipv6             = false;

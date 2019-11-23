@@ -10,7 +10,7 @@
 #include "lock.h"
 #include "event_loop.h"
 #include "io_thread.h"
-#include "tcp_connection.h"
+#include "session.h"
 
 #define THREADS_MAX UINT16_MAX
 

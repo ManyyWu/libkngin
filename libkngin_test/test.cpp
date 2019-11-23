@@ -32,8 +32,8 @@
 #include "../libkngin/core/sync_queue.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
-#include "../libkngin/net/tcp/tcp_connection.h"
-#include "../libkngin/net/tcp/tcp_server.h"
+#include "../libkngin/net/tcp/session.h"
+#include "../libkngin/net/tcp/server.h"
 #include "../libkngin/net/listener.h"
 
 using namespace k;

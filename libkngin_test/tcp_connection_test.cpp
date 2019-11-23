@@ -6,13 +6,13 @@
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/address.h"
-#include "../libkngin/net/tcp/tcp_connection.h"
+#include "../libkngin/net/tcp/session.h"
 #include "../libkngin/net/io_thread.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
 #endif
-#define KNGIN_FILENAME "libkngin_test/tcp_connection_test.cpp"
+#define KNGIN_FILENAME "libkngin_test/session_test.cpp"
 
 using namespace k;
 using namespace k::tcp;
@@ -74,7 +74,7 @@ class mythread : public io_thread {
 public:
     mythread ()
         : io_thread("io_thread"),
-          m_conn(nullptr),
+          m_session(nullptr),
           m_buf(std::make_shared<buffer>(4)),
           m_server_thr("server_thread")
     {
@@ -83,7 +83,6 @@ public:
     virtual
     ~mythread ()
     {
-        delete m_conn;
     }
 
 public:
@@ -117,55 +116,53 @@ protected:
                 log_error("s: %s", strerror(errno));
             log_info("s: listening...");
 
-            // create a connection
+            // create a session
             address _client_addr;
             k::socket _client_sock(_server_sock.accept(_client_addr));
             log_info("s: connected to client: %s:%hu", _client_addr.addrstr().c_str(),
                     _client_addr.port());
-            m_conn = new tcp_connection(m_loop.get(), std::move(_client_sock),
-                                        _server_addr, _client_addr);
+            m_session = std::make_shared<session>(m_loop.get(), std::move(_client_sock),
+                                                  _server_addr, _client_addr);
 
             // set callback
-            m_conn->set_message_cb([] (tcp_connection &_conn, buffer &_buf, size_t _size) {
-                uint16_t _port = _conn.peer_addr().port();
+            m_session->set_message_cb([] (session &_session, buffer &_buf, size_t _size) {
+                uint16_t _port = _session.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
-                         _conn.peer_addr().addrstr().c_str(), _port,
+                         _session.peer_addr().addrstr().c_str(), _port,
                          _buf.dump().c_str(), _size);
-                typedef tcp_connection::buffer_ptr buffer_ptr;
+                typedef session::buffer_ptr buffer_ptr;
                 buffer_ptr _outbuf = std::make_shared<buffer>(4);
                 _outbuf->write_uint32(_port);
-                check(_conn.send(_outbuf));
+                check(_session.send(_outbuf));
             });
-            m_conn->set_sent_cb([] (tcp_connection &_conn) {
-                uint16_t _port = _conn.peer_addr().port();
+            m_session->set_sent_cb([] (session &_session) {
+                uint16_t _port = _session.peer_addr().port();
                 log_info("s: on_sent: to %s:%d",
-                         _conn.peer_addr().addrstr().c_str(), _port);
-                _conn.close();
+                         _session.peer_addr().addrstr().c_str(), _port);
+                thread::sleep(1000);
             });
-            m_conn->set_close_cb([] (const tcp_connection &_conn) {
-                log_info("s: on_close: fd = %d", _conn.serial());
+            m_session->set_close_cb([] (const session &_session) {
+                log_info("s: on_close: fd = %d", _session.serial());
             });
 
             // recv
             {
-                m_conn->recv(m_buf);
+                m_session->recv(m_buf);
             }
-
-            // send
         } catch (...) {
-            if (m_conn)
-                m_conn->close();
+            if (m_session)
+                m_session->close();
             throw;
         }
         return 0;
     }
 
 protected:
-    tcp_connection *           m_conn;
+    tcp::session::session_ptr m_session;
 
-    tcp_connection::buffer_ptr m_buf;
+    session::buffer_ptr       m_buf;
 
-    thread                     m_server_thr;
+    thread                    m_server_thr;
 };
 
 void

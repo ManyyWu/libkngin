@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include <ctime>
-#include "tcp_server.h"
+#include "server.h"
 #include "thread.h"
 #include "common.h"
 
@@ -78,7 +78,7 @@ close:
 
 class test_server {
 public:
-    test_server (const tcp_server_opts &_opts)
+    test_server (const server_opts &_opts)
         : m_server(_opts),
           m_bufs(),
           m_mutex(),
@@ -95,7 +95,7 @@ public:
                                           std::placeholders::_2,
                                           std::placeholders::_3));
         m_server.set_sent_cb(std::bind(&test_server::on_sent, this, std::placeholders::_1));
-        m_server.set_connection_establish_cb(std::bind(&test_server::on_connection_establish, this, std::placeholders::_1));
+        m_server.set_session_cb(std::bind(&test_server::on_new_session, this, std::placeholders::_1));
         m_server.set_oob_cb(std::bind(&test_server::on_oob, this, std::placeholders::_1, std::placeholders::_2));
         m_server.set_close_cb(std::bind(&test_server::on_close, this, std::placeholders::_1));
         return m_server.run();
@@ -108,14 +108,14 @@ public:
     }
 
     void
-    on_message (tcp_connection &_conn, buffer &_buf, size_t _size)
+    on_message (tcp::session &_session, buffer &_buf, size_t _size)
     {
-        log_info("readed %d bytes from connection [%s:%d - %s:%d], data: %s", 
+        log_info("readed %d bytes from session %s:%d - %s:%d], data: %s",
                  _size,
-                 _conn.local_addr().addrstr().c_str(), 
-                 _conn.local_addr().port(),
-                 _conn.peer_addr().addrstr().c_str(), 
-                 _conn.peer_addr().port(),
+                 _session.local_addr().addrstr().c_str(),
+                 _session.local_addr().port(),
+                 _session.peer_addr().addrstr().c_str(),
+                 _session.peer_addr().port(),
                  _buf.dump().c_str());
         if (1 == _buf.peek_uint32()) {
            // m_server.stop();
@@ -124,95 +124,95 @@ public:
         std::shared_ptr<buffer> _buf1 = nullptr;
         {
             local_lock _lock(m_mutex);
-            _buf1 = m_bufs[_conn.serial()];
+            _buf1 = m_bufs[_session.serial()];
         }
         check(_buf1);
 
         _buf1->resize(4);
         _buf1->reset();
-        _buf1->write_uint32(_conn.peer_addr().port());
-        _conn.send(_buf1);
+        _buf1->write_uint32(_session.peer_addr().port());
+        _session.send(_buf1);
     }
 
     void
-    on_sent (tcp_connection &_conn)
+    on_sent (tcp::session &_session)
     {
-        log_info("connection [%s:%d - %s:%d] written done",
-                 _conn.local_addr().addrstr().c_str(), 
-                 _conn.local_addr().port(),
-                 _conn.peer_addr().addrstr().c_str(),
-                 _conn.peer_addr().port()
+        log_info("session [%s:%d - %s:%d] written done",
+                 _session.local_addr().addrstr().c_str(),
+                 _session.local_addr().port(),
+                 _session.peer_addr().addrstr().c_str(),
+                 _session.peer_addr().port()
                  );
 
         std::shared_ptr<buffer> _buf = nullptr;
         {
             local_lock _lock(m_mutex);
-            _buf = m_bufs[_conn.serial()];
+            _buf = m_bufs[_session.serial()];
         }
         check(_buf);
 
         _buf->resize(4);
         _buf->reset();
-        _conn.recv(_buf);
+        _session.recv(_buf);
     }
 
     void
-    on_close (const tcp_connection &_conn)
+    on_close (const tcp::session &_session)
     {
-        log_info("connection [%s:%d - %s:%d] closed",
-                 _conn.local_addr().addrstr().c_str(),
-                 _conn.local_addr().port(),
-                 _conn.peer_addr().addrstr().c_str(),
-                 _conn.peer_addr().port()
+        log_info("session [%s:%d - %s:%d] closed",
+                 _session.local_addr().addrstr().c_str(),
+                 _session.local_addr().port(),
+                 _session.peer_addr().addrstr().c_str(),
+                 _session.peer_addr().port()
                  );
 
         {
             local_lock _lock(m_mutex);
-            m_bufs.erase(_conn.serial());
+            m_bufs.erase(_session.serial());
         }
     }
 
     void
-    on_connection_establish (tcp_server::tcp_connection_ptr _conn)
+    on_new_session (tcp::server::session_ptr _session)
     {
-        check(_conn);
-        log_info("new connection [%s:%d - %s:%d]",
-                 _conn->local_addr().addrstr().c_str(), 
-                 _conn->local_addr().port(),
-                 _conn->peer_addr().addrstr().c_str(),
-                 _conn->peer_addr().port()
+        check(_session);
+        log_info("new session [%s:%d - %s:%d]",
+                 _session->local_addr().addrstr().c_str(),
+                 _session->local_addr().port(),
+                 _session->peer_addr().addrstr().c_str(),
+                 _session->peer_addr().port()
                  );
         std::shared_ptr<buffer> _buf = nullptr;
         {
             local_lock _lock(m_mutex);
-            m_bufs[_conn->serial()] = std::make_shared<buffer>(4);
-            _buf = m_bufs[_conn->serial()];
+            m_bufs[_session->serial()] = std::make_shared<buffer>(4);
+            _buf = m_bufs[_session->serial()];
         }
         check(_buf);
 
         _buf->resize(4);
         _buf->reset();
-        _buf->write_uint32(_conn->peer_addr().port());
-        _conn->send(_buf);
+        _buf->write_uint32(_session->peer_addr().port());
+        _session->send(_buf);
 
         if (m_savetime == time(NULL)) {
             m_times++;
         } else {
-            log_warning("accepted %" PRIu64 " new connections in last second, "
-                        "current connection num = %" PRIu64,
-                        m_times.load(), m_server.conn_num());
+            log_warning("accepted %" PRIu64 " new sessions in last second, "
+                        "current session num = %" PRIu64,
+                        m_times.load(), m_server.session_num());
             m_savetime = time(NULL);
             m_times = 0;
         }
     }
 
     void
-    on_oob (tcp_connection &_conn, uint8_t _data)
+    on_oob (tcp::session &_session, uint8_t _data)
     {
     }
 
 protected:
-    tcp_server             m_server;
+    tcp::server            m_server;
 
     typedef std::unordered_map<uint64_t, std::shared_ptr<buffer>> buffer_map;
     buffer_map             m_bufs;
@@ -227,7 +227,7 @@ protected:
 void
 tcp_server_test ()
 {
-    tcp_server_opts _opts = {
+    tcp::server_opts _opts = {
         .name                   = std::string(SERVER_ADDR),
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
