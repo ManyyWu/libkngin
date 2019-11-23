@@ -83,7 +83,7 @@ public:
     set_oob_cb        (const oob_cb &_cb)      { m_oob_cb = _cb; }
 
 //    void
-//    set_readable_cb   (const readable_cb &_cb)   { m_readable_cb = _cb; }
+//    set_readable_cb   (const readable_cb &_cb)    { m_readable_cb = _cb; }
 //
 //    void
 //    set_writeable_cb  (const writeable_cb &_cb)   { m_writeable_cb = _cb; }
@@ -109,39 +109,39 @@ public:
 
 private:
     void
-    on_write     ();
+    on_write        ();
 
     void
-    on_read      ();
+    on_read         ();
 
     void
-    on_close     ();
+    on_close        ();
 
     void
-    on_oob       ();
+    on_oob          ();
 
     void
-    on_error     ();
+    on_error        ();
 
 public:
     k::socket &
-    socket       ()       { return m_socket; }
+    socket          ()       { return m_socket; }
 
     const address &
-    local_addr   () const { return m_local_addr; }
+    local_addr      () const { return m_local_addr; }
 
     const address &
-    peer_addr    () const { return m_peer_addr; }
+    peer_addr       () const { return m_peer_addr; }
 
     uint64_t
-    serial       () const { return m_serial; }
+    serial          () const { return m_serial; }
 
     event_loop *
-    get_loop     () const { return m_loop; }
+    get_loop        () const { return m_loop; }
 
 protected:
     uint64_t
-    next_serial  ()       { return m_next_serial++; }
+    next_serial     ()       { return m_next_serial++; }
 
 protected:
     event_loop *      m_loop;

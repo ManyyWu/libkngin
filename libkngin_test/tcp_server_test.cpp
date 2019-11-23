@@ -9,6 +9,7 @@
 #include "common.h"
 
 using namespace k;
+using namespace k::tcp;
 
 //#define SERVER_ADDR "192.168.0.2"
 #define SERVER_ADDR "127.0.0.1"

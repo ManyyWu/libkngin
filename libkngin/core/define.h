@@ -1,6 +1,9 @@
 #ifndef _DEFINE_H_
 #define _DEFINE_H_
 
+#define KNGIN_VERSION     010
+#define KNGIN_VERSION_STR "0.1.0"
+
 #if (__cplusplus < 201103L)
 #error c++ version is too low, please build the project using c++11 standard.
 #endif
