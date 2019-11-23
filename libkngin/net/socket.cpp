@@ -11,10 +11,10 @@
 #include "exception.h"
 #include "event_loop.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/socket.cpp"
+#define KNGIN_FILENAME "libkngin/net/socket.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

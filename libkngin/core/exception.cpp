@@ -8,10 +8,10 @@
 #include "exception.h"
 #include "common.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/exception.cpp"
+#define KNGIN_FILENAME "libkngin/core/exception.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

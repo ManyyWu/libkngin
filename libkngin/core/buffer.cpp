@@ -7,10 +7,10 @@
 #include "buffer.h"
 #include "memory.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/buffer.cpp"
+#define KNGIN_FILENAME "libkngin/core/buffer.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

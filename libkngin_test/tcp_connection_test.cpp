@@ -9,10 +9,10 @@
 #include "../libkngin/net/tcp/tcp_connection.h"
 #include "../libkngin/net/io_thread.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin_test/tcp_connection_test.cpp"
+#define KNGIN_FILENAME "libkngin_test/tcp_connection_test.cpp"
 
 using namespace k;
 using namespace k::tcp;

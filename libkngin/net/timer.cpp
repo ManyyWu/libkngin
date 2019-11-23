@@ -6,10 +6,10 @@
 #include "common.h"
 #include "event_loop.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/timer.cpp"
+#define KNGIN_FILENAME "libkngin/net/timer.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

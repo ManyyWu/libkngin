@@ -9,10 +9,10 @@
 #include "buffer.h"
 #include "net_buffer.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/net_buffer.cpp"
+#define KNGIN_FILENAME "libkngin/net/net_buffer.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

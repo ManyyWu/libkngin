@@ -8,10 +8,10 @@
 #include "common.h"
 #include "buffer.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/filefd.cpp"
+#define KNGIN_FILENAME "libkngin/net/filefd.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

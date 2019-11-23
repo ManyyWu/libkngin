@@ -5,10 +5,10 @@
 #include "exception.h"
 #include "common.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/bits.cpp"
+#define KNGIN_FILENAME "libkngin/core/bits.cpp"
 
 #define type_bits(__t)            (sizeof(__t) * 8)
 #define bit_value(__t, __p)       ((__t)1 << (__t)(__p))

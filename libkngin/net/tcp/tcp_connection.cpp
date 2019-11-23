@@ -7,10 +7,10 @@
 #include "epoller.h"
 #include "lock.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/tcp_connection.cpp"
+#define KNGIN_FILENAME "libkngin/core/tcp_connection.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
@@ -175,7 +175,8 @@ tcp_connection::on_write ()
         if (((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock()) || EINTR == errno)
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
-        on_error();
+#warning "process error code"
+            on_error();
         return;
     }
 }
@@ -214,6 +215,7 @@ tcp_connection::on_read ()
         if (((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock()) || EINTR == errno)
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
+#warning "process error code"
         on_error();
         return;
     }

@@ -3,10 +3,10 @@
 #include "buffer.h"
 #include "exception.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin_test/buffer_test.cpp"
+#define KNGIN_FILENAME "libkngin_test/buffer_test.cpp"
 
 using namespace std;
 using namespace k;

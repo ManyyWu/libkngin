@@ -7,10 +7,10 @@
 #include "timestamp.h"
 #include "mutex.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/mutex.cpp"
+#define KNGIN_FILENAME "libkngin/core/mutex.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

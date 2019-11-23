@@ -183,12 +183,10 @@ public:
                  _conn->peer_addr().port()
                  );
         std::shared_ptr<buffer> _buf = nullptr;
-        uint64_t                _size = 0;
         {
             local_lock _lock(m_mutex);
             m_bufs[_conn->serial()] = std::make_shared<buffer>(4);
             _buf = m_bufs[_conn->serial()];
-            _size = m_bufs.size();
         }
         check(_buf);
 
@@ -214,15 +212,16 @@ public:
     }
 
 protected:
-    tcp_server                                       m_server;
+    tcp_server             m_server;
 
-    std::unordered_map<uint64_t, std::shared_ptr<buffer>> m_bufs;
+    typedef std::unordered_map<uint64_t, std::shared_ptr<buffer>> buffer_map;
+    buffer_map             m_bufs;
 
-    mutex                                            m_mutex;
+    mutex                  m_mutex;
 
-    time_t                                           m_savetime;
+    time_t                 m_savetime;
 
-    std::atomic<uint64_t>                            m_times;
+    std::atomic<uint64_t>  m_times;
 };
 
 void
@@ -233,7 +232,7 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 1,
+        .thread_num             = 3,
         .disable_debug          = true,
         .disable_info           = true,
         .separate_listen_thread = true,

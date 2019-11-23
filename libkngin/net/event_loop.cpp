@@ -13,10 +13,10 @@
 #include "epoller.h"
 #include "filefd.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/event_loop.cpp"
+#define KNGIN_FILENAME "libkngin/net/event_loop.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

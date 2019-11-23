@@ -1,10 +1,10 @@
 #include <cassert>
 #include "exception.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/error.cpp"
+#define KNGIN_FILENAME "libkngin/core/error.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 /*

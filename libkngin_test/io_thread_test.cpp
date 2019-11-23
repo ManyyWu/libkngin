@@ -5,10 +5,10 @@
 //#include "work_task.h"
 //#include "msg_test.h"
 //
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin_test/threadpoll_test.cpp"
+#define KNGIN_FILENAME "libkngin_test/threadpoll_test.cpp"
 //
 //using namespace std;
 

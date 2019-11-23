@@ -5,10 +5,10 @@
 #include "thread.h"
 #include "lock.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin_test/rwlock_test.cpp"
+#define KNGIN_FILENAME "libkngin_test/rwlock_test.cpp"
 
 using namespace k;
 

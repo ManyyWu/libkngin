@@ -30,12 +30,12 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_NAMESPACE_UDP_END   };
 
 // params
-#define __lref
-#define __rref
-#define __clref
-#define __crref
-#define __ptr
-#define __cptr
+#define LREF
+#define RREF
+#define CLREF
+#define CRREF
+#define PTR
+#define CPTR
 
 // for MSVC
 #ifdef _WIN32

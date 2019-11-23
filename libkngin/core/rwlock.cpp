@@ -7,10 +7,10 @@
 #include "timestamp.h"
 #include "rwlock.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/rwlock.cpp"
+#define KNGIN_FILENAME "libkngin/core/rwlock.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

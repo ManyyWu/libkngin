@@ -2,10 +2,10 @@
 #include "io_thread.h"
 #include "common.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/work_thread.cpp"
+#define KNGIN_FILENAME "libkngin/net/work_thread.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

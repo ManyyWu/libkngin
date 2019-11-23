@@ -11,10 +11,10 @@
 #include "epoller.h"
 #include "filefd.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/epoller.cpp"
+#define KNGIN_FILENAME "libkngin/net/epoller.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

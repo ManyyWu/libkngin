@@ -6,10 +6,10 @@
 #include "address.h"
 #include "common.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/net/address.cpp"
+#define KNGIN_FILENAME "libkngin/net/address.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

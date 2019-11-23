@@ -7,10 +7,10 @@
 #include <algorithm>
 #include "timestamp.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/timestamp.cpp"
+#define KNGIN_FILENAME "libkngin/core/timestamp.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

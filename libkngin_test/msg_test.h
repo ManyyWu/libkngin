@@ -1,9 +1,9 @@
 //#include "msg.h"
 //
-//#ifdef __FILENAME__
-#undef __FILENAME__
+//#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin_test/msg_test.h"
+#define KNGIN_FILENAME "libkngin_test/msg_test.h"
 //using namespace k;
 //
 //enum ACTION {

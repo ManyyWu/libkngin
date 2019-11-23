@@ -1,9 +1,9 @@
 #include "common.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin_test/log_test.cpp"
+#define KNGIN_FILENAME "libkngin_test/log_test.cpp"
 
 using namespace k;
 

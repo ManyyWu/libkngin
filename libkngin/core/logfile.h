@@ -11,7 +11,7 @@
             if (logger().inited())                                    \
                 logger()[__file_type]                                 \
                     .__level(KNGIN_LOG_LOG_FORMAT(__level_str, __fmt),\
-                             __FUNCTION__, __FILENAME__, __LINE__,    \
+                             __FUNCTION__, KNGIN_FILENAME, __LINE__,  \
                              ##__VA_ARGS__);                          \
         } while (false)
 
@@ -55,10 +55,10 @@
 
 // default log
 #if !defined(NDEBUG) && (ON == KNGIN_LOG_RELATIVE_PATH)
-#define assert_log(__exp)                                \
-    logger().inited()                                    \
-        ? logger()[k::KNGIN_LOG_FILE_SERVER].log_assert( \
-            __FUNCTION__, __FILENAME__, __LINE__, #__exp)\
+#define assert_log(__exp)                                  \
+    logger().inited()                                      \
+        ? logger()[k::KNGIN_LOG_FILE_SERVER].log_assert(   \
+            __FUNCTION__, KNGIN_FILENAME, __LINE__, #__exp)\
         : 0
 #else
 #define assert_log(__exp)                               \

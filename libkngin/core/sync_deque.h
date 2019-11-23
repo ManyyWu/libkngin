@@ -13,10 +13,10 @@
 using std::deque;
 using std::iterator;
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/sync_deque.h"
+#define KNGIN_FILENAME "libkngin/core/sync_deque.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

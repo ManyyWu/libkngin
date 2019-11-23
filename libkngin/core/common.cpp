@@ -4,10 +4,10 @@
 #include "log.h"
 #include "logmgr.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "libkngin/core/common.cpp"
+#define KNGIN_FILENAME "libkngin/core/common.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_K_END

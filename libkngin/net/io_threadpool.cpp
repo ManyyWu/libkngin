@@ -7,10 +7,10 @@
 #include "exception.h"
 #include "io_threadpool.h"
 
-#ifdef __FILENAME__
-#undef __FILENAME__
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
 #endif
-#define __FILENAME__ "io_threadpool.cpp"
+#define KNGIN_FILENAME "io_threadpool.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 
