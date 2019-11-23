@@ -44,7 +44,7 @@ using namespace std::placeholders;
 #warning "signal ergent"
 #warning "adjust size of epoll_event_set"
 #warning "std::error_code"
-
+#warning "noncopyable"
 /*
 switch (savedErrno)  //检查错误码
 {

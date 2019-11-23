@@ -10,9 +10,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class listener {
 public:
-    typedef std::function<void (socket &&)>  accept_cb;
+    typedef std::function<void (k::socket &&)> accept_cb;
 
-    typedef std::function<void (listener &)> error_cb;
+    typedef std::function<void (listener &)>   error_cb;
 
 public:
     listener      () = delete;

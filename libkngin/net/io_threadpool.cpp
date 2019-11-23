@@ -115,4 +115,5 @@ io_threadpool::get_loop (size_t _idx)
         return m_threads[_idx]->get_loop();
     }
 }
+
 KNGIN_NAMESPACE_K_END

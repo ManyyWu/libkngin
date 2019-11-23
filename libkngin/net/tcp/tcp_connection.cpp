@@ -13,6 +13,7 @@
 #define __FILENAME__ "libkngin/core/tcp_connection.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
+KNGIN_NAMESPACE_TCP_BEGIN
 
 uint64_t tcp_connection::m_next_serial = 0;
 
@@ -269,4 +270,5 @@ tcp_connection::on_error()
     on_close();
 }
 
+KNGIN_NAMESPACE_TCP_END
 KNGIN_NAMESPACE_K_END

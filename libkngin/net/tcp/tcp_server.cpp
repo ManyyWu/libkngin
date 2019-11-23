@@ -7,6 +7,7 @@
 #include "common.h"
 
 KNGIN_NAMESPACE_K_BEGIN
+KNGIN_NAMESPACE_TCP_BEGIN
 
 tcp_server::tcp_server (const tcp_server_opts &_opts)
     try 
@@ -221,4 +222,5 @@ tcp_server::on_listener_error (listener &_listener)
     _listener.get_loop()->check_thread();
 }
 
+KNGIN_NAMESPACE_TCP_END
 KNGIN_NAMESPACE_K_END
