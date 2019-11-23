@@ -13,7 +13,10 @@ KNGIN_NAMESPACE_K_BEGIN
 
 log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FILE */)
     try
-    : m_mutex(),
+    :
+#if (ON == KNGIN_ENABLE_LOG_MUTEX)
+      m_mutex(),
+#endif
       m_mode(_mode),
       m_filetype(_filetype),
       m_disable_info(false),
@@ -136,12 +139,13 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
         return _ret;
     };
 
+#if (ON == KNGIN_ENABLE_LOG_MUTEX)
     if (logger().inited()) {
         local_lock _lock(m_mutex);
         return _func();
-    } else {
+    } else
+#endif
         return _func();
-    }
 }
 
 bool
