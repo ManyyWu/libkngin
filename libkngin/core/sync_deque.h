@@ -20,7 +20,7 @@ using std::iterator;
 
 KNGIN_NAMESPACE_K_BEGIN
 
-template <class __T>
+template <class Type>
 class sync_deque {
 public:
     typedef size_t size_type;
@@ -53,28 +53,28 @@ public:
     }
 
 public:
-    virtual __T *
+    virtual Type *
     at (size_type _n)
     {
         check(_n >= 0 && _n < m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
-    virtual __T *
+    virtual Type *
     front ()
     {
         check(m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.front());
     }
 
-    virtual __T *
+    virtual Type *
     back ()
     {
         check(m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.back());
     }
 
-    virtual __T *
+    virtual Type *
     operator [] (size_type _n)
     {
         check(_n >= 0 && _n < m_deque.size());
@@ -83,7 +83,7 @@ public:
 
 public:
     virtual bool
-    push_back (__T **_v)
+    push_back (Type **_v)
     {
         check(_v);
         check(*_v);
@@ -95,7 +95,7 @@ public:
     }
 
     virtual bool
-    push_front (__T **_v)
+    push_front (Type **_v)
     {
         check(_v);
         if (m_deque.size() > m_max_size)
@@ -125,7 +125,7 @@ public:
     }
 
     virtual bool
-    insert (size_type _n, __T **_v) // insert before _n
+    insert (size_type _n, Type **_v) // insert before _n
     {
         check(_v);
         check(_n >= 0 && _n < m_deque.size());
@@ -170,7 +170,7 @@ public:
     virtual void
     clear ()
     {
-        deque<__T *> _deque;
+        deque<Type *> _deque;
         m_deque.swap(_deque);
     }
 
@@ -250,7 +250,7 @@ public:
     }
 
 protected:
-    std::deque<__T *>      m_deque;
+    std::deque<Type *>      m_deque;
 
     mutex                  m_mutex;
 

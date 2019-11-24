@@ -2,8 +2,6 @@
 #else
 #include <execinfo.h>
 #endif
-#include <exception>
-#include <stdexcept>
 #include <string>
 #include "exception.h"
 #include "common.h"
@@ -16,11 +14,9 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 exception::exception (const char *_what)
-    : m_str(_what)
+    : m_what(_what),
+      m_dump_str()
 {
-//#ifndef NDEBUG
-//    check(!"exception");
-//#endif
     dump_stack();
 }
 

@@ -10,33 +10,33 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-#define safe_release(__p)         do { delete (__p); (__p) = nullptr; } while (false)
-#define safe_release_array(__p)   do { delete [] (__p); (__p) = nullptr; } while (false)
+#define safe_release(ptr)       do { delete (ptr); (ptr) = nullptr; } while (false)
+#define safe_release_array(ptr) do { delete [] (ptr); (ptr) = nullptr; } while (false)
 
 /*
  * Log for assert
  * These micro functions are only used for debugging.
  * These micro function will change the execution flow of the caller functions.
  *
- * __e: expression
+ * exp: expression
  */
-#define arg_check(__e) if (!(__e) ? (assert_log(invalid argument, expression (__e) is false), assert((__e)), true) : false)
-#define if_not(__e)    if (!(__e) ? (assert_log(expression (__e) is false), assert((__e)), true) : false)
-#define check(__e)     do { if_not(__e) (void)0; } while (false)
+#define arg_check(exp) if (!(exp) ? (assert_log(invalid argument, expression (exp) is false), assert((exp)), true) : false)
+#define if_not(exp)    if (!(exp) ? (assert_log(expression (exp) is false), assert((exp)), true) : false)
+#define check(exp)     do { if_not(exp) (void)0; } while (false)
 
 /*
 * nullptr reference
 */
-template <typename __T>
-__T &
+template <typename Type>
+Type &
 nullptr_ref ()
 {
-    return *static_cast<__T *>(nullptr);
+    return *static_cast<Type *>(nullptr);
 }
 
-template <typename __T>
+template <typename Type>
 bool
-is_nullptr_ref (__T &_ref)
+is_nullptr_ref (Type &_ref)
 {
     return (nullptr == _ref);
 }

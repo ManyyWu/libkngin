@@ -19,10 +19,10 @@ using std::deque;
 
 KNGIN_NAMESPACE_K_BEGIN
 
-template <class __T>
+template <class Type>
 class sync_queue {
 public:
-    typedef std::unique_ptr<std::deque<__T *>> sync_queue_ptr;
+    typedef std::unique_ptr<std::deque<Type *>> sync_queue_ptr;
 
     typedef size_t                             size_type;
 
@@ -55,7 +55,7 @@ public:
     }
 
 public:
-    virtual __T *
+    virtual Type *
     peek ()
     {
         return (m_queue.empty() ? nullptr : m_queue.back());
@@ -63,7 +63,7 @@ public:
 
 public:
     virtual bool
-    push (__T **_v)
+    push (Type **_v)
     {
         check(_v);
         if (!_v)
@@ -75,10 +75,10 @@ public:
         return true;
     }
 
-    virtual __T *
+    virtual Type *
     pop ()
     {
-        __T *_item = m_queue.empty() ? nullptr : m_queue.back();
+        Type *_item = m_queue.empty() ? nullptr : m_queue.back();
         m_queue.pop_back();
         return _item;
     }
@@ -93,7 +93,7 @@ public:
     virtual void
     clear ()
     {
-        deque<__T *> _deque;
+        deque<Type *> _deque;
         m_queue.swap(_deque);
     }
 
@@ -173,7 +173,7 @@ public:
     }
 
 protected:
-    std::deque<__T *>      m_queue;
+    std::deque<Type *>      m_queue;
 
     mutex                  m_mutex;
 

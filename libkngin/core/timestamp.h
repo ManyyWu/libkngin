@@ -15,9 +15,9 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 #ifdef _WIN32
-#define get_localtime(__arg1, __arg2) localtime_s((__arg1), (__arg2))
+#define get_localtime(arg1, arg2) localtime_s((arg1), (arg2))
 #else
-#define get_localtime(__arg1, __arg2) localtime_r((__arg2), (__arg1))
+#define get_localtime(arg1, arg2) localtime_r((arg2), (arg1))
 #endif
 
 class timestamp {

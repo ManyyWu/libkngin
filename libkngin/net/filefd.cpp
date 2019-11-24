@@ -20,20 +20,16 @@ int filefd::invalid_fd = INVALID_FD;
 filefd::filefd (int _fd)
     : m_fd(_fd)
 {
-    if (fd_invalid(_fd))
-        m_fd = filefd::invalid_fd;
 }
 
 filefd::filefd (filefd &&_fd)
     : m_fd(_fd.m_fd)
 {
-    _fd.m_fd = filefd::invalid_fd;
 }
 
 filefd::~filefd()
 {
-    if (fd_valid(m_fd))
-        this->close();
+    this->close();
 }
 
 ssize_t
@@ -79,7 +75,8 @@ filefd::readv (net_buffer &_buf, size_t _nbytes)
 void
 filefd::close ()
 {
-    check(fd_valid(m_fd));
+    if (fd_valid(m_fd))
+        return;
     int _ret = ::close(m_fd);
     if (_ret < 0)
         log_error("::close() error - %s:%d", strerror(errno), errno);

@@ -5,9 +5,9 @@
 #include "define.h"
 #include "net_buffer.h"
 
-#define fd_valid(__fd)   (__fd >= 0)
-#define fd_invalid(__fd) (__fd < 0)
-#define INVALID_FD       (-1);
+#define fd_valid(fd)   (fd >= 0)
+#define fd_invalid(fd) (fd < 0)
+#define INVALID_FD     (-1);
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -66,7 +66,7 @@ public:
     static int invalid_fd;
 
 protected:
-    int m_fd;
+    int        m_fd;
 };
 
 KNGIN_NAMESPACE_K_END

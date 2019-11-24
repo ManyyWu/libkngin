@@ -144,21 +144,21 @@ protected:
     void
     check_writeable (size_t _n) const;
 
-    template <typename __T> __T
+    template <typename Type> Type
     read (bool _forward = true)
     {
-        check_readable(sizeof(__T));
-        __T _val = *(__T *)(m_arr.data() + m_ridx);
-        m_ridx += _forward ? sizeof(__T) : 0;
+        check_readable(sizeof(Type));
+        Type _val = *(Type *)(m_arr.data() + m_ridx);
+        m_ridx += _forward ? sizeof(Type) : 0;
         return _val;
     }
 
-    template <typename __T> void
-    write (__T _val)
+    template <typename Type> void
+    write (Type _val)
     {
-        check_writeable(sizeof(__T));
-        *(__T*)(m_arr.data() + m_widx) = _val;
-        m_widx += sizeof(__T);
+        check_writeable(sizeof(Type));
+        *(Type*)(m_arr.data() + m_widx) = _val;
+        m_widx += sizeof(Type);
     }
 
 protected:

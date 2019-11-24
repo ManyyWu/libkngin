@@ -45,6 +45,14 @@ using namespace std::placeholders;
 #warning "adjust size of epoll_event_set"
 #warning "std::error_code"
 #warning "noncopyable"
+#warning "buf idx 重新设计"
+#warning "end of __XXXX__"
+#warning "构造函数, 删除多余的log_error, 直接抛出信息和详情, 如果带错误码不需要带详情"
+#warning "同步最好直接返回错误，异步在回调函数中返回"
+#warning "close bind connect 等都有ec版本，不带ec版本"
+#warning "头文件宏改 KNGIN_HEAD_FILE_XXXXX"
+#warning "新建面向应用的错误码，抽象!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#warning "应用层不接触任何底层错误"
 /*
 switch (savedErrno)  //检查错误码
 {

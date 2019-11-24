@@ -17,7 +17,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-#define THREAD_NUM_MAX 65535
+#define KNGIN_THREAD_NUM_MAX 65535
 
 class thread_pool : noncopyable {
 public:

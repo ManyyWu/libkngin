@@ -43,8 +43,8 @@ typedef SSIZE_T ssize_t;
 #endif
 
 // for queues
-#define QUEUE_MAX (size_t)(SIZE_MAX)
-#define QUEUE_MIN (size_t)1
+#define KNGIN_QUEUE_MAX (size_t)(SIZE_MAX)
+#define KNGIN_QUEUE_MIN (size_t)1
 
 // for log
 #define KNGIN_LOG_RELATIVE_PATH OFF

@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <memory>
+#include <exception>
 #include "common.h"
 #include "timestamp.h"
 #include "exception.h"
@@ -102,6 +103,8 @@ thread::start (void *_args)
         log_fatal("caught an k::exception in thread \"%s\": %s",
                   _data->name.c_str(), _e.what().c_str());
         log_dump(_e.dump());
+    } catch (const std::bad_alloc &_e) {
+        exit(1);
     } catch (const std::exception &_e) {
         log_fatal("caught an std::exception in thread \"%s\"",
                   _data->name.c_str(), _e.what());

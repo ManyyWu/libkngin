@@ -11,6 +11,7 @@
 #include "bits.h"
 #include "buffer.h"
 #include "epoller_event.h"
+#include "system_error.h"
 #include "event_loop.h"
 #include "address.h"
 
@@ -26,60 +27,102 @@ public:
     };
 
 public:
-    socket        () = delete;
+    socket      () = delete;
 
     explicit
-    socket        (int _fd);
+    socket      (int _fd);
 
     explicit
-    socket        (INET_PROTOCOL _proto);
+    socket      (INET_PROTOCOL _proto);
 
-    socket        (socket &&_s);
+    socket      (socket &&_s);
 
     virtual
-    ~socket       () = default;
-
-public:
-    int
-    bind          (const address &_addr)
-    { return ::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()); }
-    int
-    listen        (int _backlog)
-    { return ::listen(m_fd, _backlog); }
-    int
-    accept        (address &_addr)
-    { socklen_t _len = sizeof(_addr.m_sa); return ::accept(m_fd, (::sockaddr *)&(_addr.m_sa), &_len); }
-    int
-    connect       (const address &_addr)
-    { return ::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()); }
+    ~socket     () = default;
 
 public:
     void
-    rd_shutdown   ();
+    bind        (const address &_addr);
 
     void
-    wr_shutdown   ();
+    bind        (const address &_addr, std::error_code &_ec);
+
+    void
+    listen      (int _backlog);
+
+    void
+    listen      (int _backlog, std::error_code &_ec);
+
+    void
+    accept      (address &_addr);
+
+    void
+    accept      (address &_addr, std::error_code &_ec);
+
+    void
+    connect     (const address &_addr);
+
+    void
+    connect     (const address &_addr, std::error_code &_ec);
 
 public:
-    ssize_t
-    send          (buffer &_buf, size_t _nbytes, int _flags);
+    void
+    rd_shutdown ();
 
-    ssize_t
-    recv          (buffer &_buf, size_t _nbytes, int _flags);
+    void
+    rd_shutdown (std::error_code &_ec);
 
-    ssize_t
-    sendto        (const address &_addr, buffer &_buf, size_t _nbytes, int _flags);
+    void
+    wr_shutdown ();
 
-    ssize_t
-    recvfrom      (address &_addr, buffer &_buf, size_t _nbytes, int _flags);
+    void
+    wr_shutdown (std::error_code &_ec);
 
 public:
-    bool
-    localaddr     (address &_addr)
-    { socklen_t _len = sizeof(_addr.m_sa); return ::getsockname(m_fd, (::sockaddr *)&(_addr.m_sa), &_len); }
-    bool
-    peeraddr      (address &_addr)
-    { socklen_t _len = sizeof(_addr.m_sa); return ::getpeername(m_fd, (::sockaddr *)&(_addr.m_sa), &_len); }
+    size_t
+    send        (buffer &_buf, size_t &_nbytes, int _flags);
+
+    size_t
+    send        (buffer &_buf, size_t &_nbytes, int _flags,
+                 std::error_code &_ec);
+
+    size_t
+    recv        (buffer &_buf, size_t &_nbytes, int _flags);
+
+    size_t
+    recv        (buffer &_buf, size_t &_nbytes, int _flags,
+                 std::error_code &_ec);
+
+    size_t
+    sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags);
+
+    size_t
+    sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags,
+                 std::error_code &_ec);
+
+    size_t
+    recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags);
+
+    size_t
+    recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags,
+                 std::error_code &_ec);
+
+public:
+    address
+    localaddr   ();
+
+    address
+    localaddr   (std::error_code &_ec);
+
+    address
+    peeraddr    ();
+
+    address
+    peeraddr    (std::error_code &_ec);
+protected:
+    bool m_rd_closed;
+
+    bool m_wr_closed;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -20,7 +20,7 @@ public:
 
 public:
     const std::string &
-    what       () const { return m_str; }
+    what       () const { return m_what; }
 
     const std::string &
     dump       () const { return m_dump_str; }
@@ -30,9 +30,9 @@ protected:
     dump_stack ();
 
 protected:
-    std::string m_dump_str;
+    const std::string m_what;
 
-    std::string m_str;
+    std::string       m_dump_str;
 };
 
 KNGIN_NAMESPACE_K_END
