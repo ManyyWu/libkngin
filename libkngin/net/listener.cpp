@@ -56,7 +56,7 @@ listener::close (error_handler &&_cb)
 }
 
 void
-listener::close (std::error_code &_ec)
+listener::close (error_handler &&_cb)
 {
     assert(!m_closed);
 
