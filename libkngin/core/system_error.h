@@ -4,33 +4,25 @@
 #include <cerrno>
 #endif
 #include <system_error>
-#include "exception.h"
+#include "define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
 inline std::error_code
-int2ec(int32_t _code);
+int2ec     (int32_t _code);
 
 inline std::error_code
-last_error    ();
+last_error ();
 
-class system_error : public k::exception {
-
+class system_error : public std::system_error {
 public:
     system_error  () = delete;
 
     explicit
-    system_error  (const char *_what, std::error_code _sc = k::last_error())
-        : k::exception(_what), m_sc(_sc) {}
+    system_error  (const char *_what, std::error_code _ec = k::last_error())
+        : std::system_error(_ec, _what) {}
 
     ~system_error () = default;
-
-public:
-    const std::system_error &
-    error         () const { return m_sc; }
-
-protected:
-    const std::error_code m_sc;
 };
 
 inline std::error_code

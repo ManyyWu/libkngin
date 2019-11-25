@@ -7,13 +7,13 @@
 #endif
 #include <memory>
 #include <vector>
-#include "filefd.h"
-#include "bits.h"
-#include "buffer.h"
-#include "epoller_event.h"
-#include "system_error.h"
-#include "event_loop.h"
-#include "address.h"
+#include "core/filefd.h"
+#include "core/bits.h"
+#include "net/buffer.h"
+#include "net/epoller_event.h"
+#include "net/system_error.h"
+#include "net/event_loop.h"
+#include "net/address.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -30,95 +30,96 @@ public:
     socket      () = delete;
 
     explicit
-    socket      (int _fd);
+    socket      (int _fd) KNGIN_EXP;
 
     explicit
-    socket      (INET_PROTOCOL _proto);
+    socket      (INET_PROTOCOL _proto) KNGIN_EXP;
 
-    socket      (socket &&_s);
+    socket      (socket &&_s) KNGIN_NOEXP;
 
     virtual
-    ~socket     () = default;
+    ~socket     () KNGIN_NOEXP;
 
 public:
     void
-    bind        (const address &_addr);
+    bind        (const address &_addr) KNGIN_EXP;
 
     void
-    bind        (const address &_addr, std::error_code &_ec);
+    bind        (const address &_addr, std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    listen      (int _backlog);
+    listen      (int _backlog) KNGIN_EXP;
 
     void
-    listen      (int _backlog, std::error_code &_ec);
+    listen      (int _backlog, std::error_code &_ec) KNGIN_NOEXP;
+
+    int
+    accept      (address &_addr) KNGIN_EXP;
+
+    int
+    accept      (address &_addr, std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    accept      (address &_addr);
+    connect     (const address &_addr) KNGIN_EXP;
 
     void
-    accept      (address &_addr, std::error_code &_ec);
-
-    void
-    connect     (const address &_addr);
-
-    void
-    connect     (const address &_addr, std::error_code &_ec);
+    connect     (const address &_addr, std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     void
-    rd_shutdown ();
+    rd_shutdown () KNGIN_EXP;
 
     void
-    rd_shutdown (std::error_code &_ec);
+    rd_shutdown (std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    wr_shutdown ();
+    wr_shutdown () KNGIN_EXP;
 
     void
-    wr_shutdown (std::error_code &_ec);
+    wr_shutdown (std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     size_t
-    send        (buffer &_buf, size_t &_nbytes, int _flags);
+    send        (buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
 
     size_t
     send        (buffer &_buf, size_t &_nbytes, int _flags,
-                 std::error_code &_ec);
+                 std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    recv        (buffer &_buf, size_t &_nbytes, int _flags);
+    recv        (buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
 
     size_t
     recv        (buffer &_buf, size_t &_nbytes, int _flags,
-                 std::error_code &_ec);
+                 std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags);
+    sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
 
     size_t
     sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags,
-                 std::error_code &_ec);
+                 std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags);
+    recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
 
     size_t
     recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags,
-                 std::error_code &_ec);
+                 std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     address
-    localaddr   ();
+    localaddr   () KNGIN_EXP;
 
     address
-    localaddr   (std::error_code &_ec);
+    localaddr   (std::error_code &_ec) KNGIN_NOEXP;
 
     address
-    peeraddr    ();
+    peeraddr    () KNGIN_EXP;
 
     address
-    peeraddr    (std::error_code &_ec);
+    peeraddr    (std::error_code &_ec) KNGIN_NOEXP;
+
 protected:
     bool m_rd_closed;
 

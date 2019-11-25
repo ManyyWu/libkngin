@@ -4,15 +4,16 @@
 #include <functional>
 #include "define.h"
 #include "socket.h"
+#include "system_error.h"
 #include "filefd.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
 class listener {
 public:
-    typedef std::function<void (k::socket &&)> accept_cb;
+    typedef std::function<void (k::socket &&)>    accept_cb;
 
-    typedef std::function<void (listener &)>   error_cb;
+    typedef std::function<void (std::error_code)> error_handler;
 
 public:
     listener      () = delete;
@@ -22,21 +23,22 @@ public:
     ~listener     ();
 
 public:
-    bool
-    bind          (const address &_listen_addr);
-
-    bool
-    listen        (int _backlog);
-
     void
-    close         ();
+    bind          (const address &_listen_addr)
+    { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr); }
+    void
+    bind          (const address &_listen_addr, std::error_code &_ec)
+    { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr, _ec); }
+    void
+    listen        (int _backlog)
+    { assert(!m_closed); m_socket.listen(_backlog); } 
+    void
+    listen        (int _backlog, std::error_code &_ec)
+    { assert(!m_closed); m_socket.listen(_backlog, _ec); } 
 
 public:
     void
-    set_accept_cb (accept_cb &&_cb) { m_accept_cb = std::move(_cb); }
-
-    void
-    set_error_cb  (error_cb &&_cb)  { m_error_cb = std::move(_cb); }
+    close         (error_handler &&_cb);
 
 public:
     event_loop *

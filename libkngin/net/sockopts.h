@@ -74,9 +74,10 @@ public:
     static bool
     set_nonroute   (socket &_s, bool _on)
     { sockopt_val _val{_on}; return sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
-    static bool
-    error          (socket &_s, int &_code)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR], _code); }
+    static std::error_code
+    error          (socket &_s, std::error_code &_ec)
+    { /*return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR], _code);*/ }
+    #warning "return std::error_code for socket, out param return std::error_code from system"
     static bool
     keepalive      (socket &_s, bool &_on)
     { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE], _on); }

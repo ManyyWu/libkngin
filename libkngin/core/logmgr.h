@@ -6,7 +6,6 @@
 #include <atomic>
 #include "log.h"
 #include "define.h"
-#include "exception.h"
 #include "noncopyable.h"
 
 KNGIN_NAMESPACE_K_BEGIN

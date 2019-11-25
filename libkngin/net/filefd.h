@@ -3,6 +3,8 @@
 
 #include <list>
 #include "define.h"
+#include "system_error.h"
+#include "exception.h"
 #include "net_buffer.h"
 
 #define fd_valid(fd)   (fd >= 0)
@@ -16,19 +18,19 @@ public:
     filefd  () = delete;
 
     explicit
-    filefd  (int _fd);
+    filefd  (int _fd) KNGIN_NOEXP;
 
-    filefd  (filefd &&_fd);
+    filefd  (filefd &&_fd) KNGIN_NOEXP;
 
     virtual
-    ~filefd ();
+    ~filefd () KNGIN_NOEXP;
 
 public:
     bool
-    valid         () const { return fd_valid(m_fd); }
+    valid         () const KNGIN_NOEXP { return fd_valid(m_fd); }
 
     int
-    fd            () const { return m_fd; }
+    fd            () const KNGIN_NOEXP { return m_fd; }
 
     ssize_t
     write         (buffer &_buf, size_t _nbytes);

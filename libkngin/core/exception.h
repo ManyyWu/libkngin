@@ -2,6 +2,7 @@
 #define _EXCEPTION_H_
 
 #include <string>
+#include <exception>
 #include "define.h"
 
 #define KNGIN_EXP   noexcept(false)
@@ -9,25 +10,28 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class exception {
+class exception : public std::exception {
 public:
-    exception  () = delete;
+    exception  () = default;
 
     explicit
-    exception  (const char *_what);
+    exception  (const char *_what) KNGIN_EXP;
 
+    virtual
     ~exception () = default;
 
 public:
-    const std::string &
-    what       () const { return m_what; }
+    virtual const char *
+    what       () const KNGIN_NOEXP
+    { return m_what.c_str(); }
 
     const std::string &
-    dump       () const { return m_dump_str; }
+    dump       () const KNGIN_EXP
+    { return m_dump_str; }
 
 protected:
     void
-    dump_stack ();
+    dump_stack () KNGIN_EXP;
 
 protected:
     const std::string m_what;

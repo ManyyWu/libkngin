@@ -29,6 +29,7 @@ filefd::filefd (filefd &&_fd)
 
 filefd::~filefd()
 {
+#warning "log error"
     this->close();
 }
 
