@@ -3,9 +3,9 @@
 
 #include <netinet/tcp.h>
 #include <time.h>
-#include "define.h"
-#include "error.h"
-#include "socket.h"
+#include "core/define.h"
+#include "core/error.h"
+#include "net/socket.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

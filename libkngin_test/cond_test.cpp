@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "thread.h"
-#include "lock.h"
+#include "../libkngin/core/thread.h"
+#include "../libkngin/core/lock.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

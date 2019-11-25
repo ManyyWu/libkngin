@@ -1,6 +1,6 @@
 #include <memory>
-#include "io_thread.h"
-#include "common.h"
+#include "core/common.h"
+#include "net/io_thread.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

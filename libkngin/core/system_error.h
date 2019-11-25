@@ -1,3 +1,6 @@
+#ifndef _SYSTEM_ERROR_H_
+#define _SYSTEM_ERROR_H_
+
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -22,6 +25,7 @@ public:
     system_error  (const char *_what, std::error_code _ec = k::last_error())
         : std::system_error(_ec, _what) {}
 
+    virtual
     ~system_error () = default;
 };
 
@@ -42,3 +46,5 @@ last_error ()
 }
 
 KNGIN_NAMESPACE_K_END
+
+#endif /* _SYSTEM_ERROR_H_ */

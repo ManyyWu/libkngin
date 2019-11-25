@@ -3,11 +3,9 @@
 #include <fcntl.h>
 #endif
 #include <functional>
-#include "socket.h"
-#include "listener.h"
-#include "sockopts.h"
-#include "common.h"
-#include "system_error.h"
+#include "core/common.h"
+#include "net/sockopts.h"
+#include "net/listener.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -44,19 +42,7 @@ listener::~listener()
 }
 
 void
-listener::close (error_handler &&_cb)
-{
-    assert(!m_closed);
-
-    m_idle_file.close();
-    if (m_loop->in_loop_thread())
-        on_close();
-    else
-        m_loop->run_in_loop(std::bind(&listener::on_close, this));
-}
-
-void
-listener::close (error_handler &&_cb)
+listener::close (error_handler &&_cb) KNGIN_EXP
 {
     assert(!m_closed);
 

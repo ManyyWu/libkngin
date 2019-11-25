@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception>
-#include "exception.h"
+#include "../libkngin/core/exception.h"
+#include "../libkngin/core/system_error.h"
 
 using namespace std;
 

@@ -2,8 +2,8 @@
 #define _TCP_SERVER_OPTS_H_
 
 #include <string>
-#include "define.h"
-#include "socket.h"
+#include "core/define.h"
+#include "net/socket.h"
 
 #define DEFAULT_BACKLOG 10
 

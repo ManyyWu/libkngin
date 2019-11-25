@@ -5,9 +5,9 @@
 #include <list>
 #include <memory>
 #include <vector>
-#include "exception.h"
-#include "buffer.h"
-#include "net_buffer.h"
+#include "core/exception.h"
+#include "core/buffer.h"
+#include "net/net_buffer.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

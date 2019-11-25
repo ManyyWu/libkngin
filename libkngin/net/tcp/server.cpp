@@ -2,10 +2,10 @@
 #else
 #include <netdb.h>
 #endif
-#include <socket.h>
-#include <exception>
-#include "server.h"
-#include "common.h"
+#include "core/exception.h"
+#include "core/system_error.h"
+#include "core/common.h"
+#include "net/tcp/server.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
@@ -58,20 +58,20 @@ server::run ()
                              : m_threadpool.next_loop().get();
     check(_next_loop);
     m_listener = std::make_shared<listener>(_next_loop, std::move(_sock));
-    m_listener->set_accept_cb(std::bind(&server::on_new_session, this, std::placeholders::_1));
-    m_listener->set_error_cb(std::bind(&server::on_listener_error, this, std::ref(*m_listener)));
 
     // init address
     if (!parse_addr(m_opts.name, m_opts.port))
         return false;
 
     // bind
-    if (!m_listener->bind(m_listen_addr))
-        return false;
+    m_listener->bind(m_listen_addr);
 
     // listen
-    if (!m_listener->listen(m_opts.backlog))
-        return false;
+    m_listener->listen(m_opts.backlog,
+                            std::bind(&server::on_new_session, this,
+                                      std::placeholders::_1),
+                            std::bind(&server::on_listener_error, this,
+                                      std::ref(*m_listener)));
 
     m_stopped = false;
 
@@ -85,7 +85,8 @@ server::stop ()
     check(!m_stopped);
     log_info("stopping TCP server");
 
-    m_listener->close();
+    m_listener->close([] (std::error_code _ec) {});
+#warning "handle"
     thread::sleep(1000);
     {
         local_lock _lock(m_mutex);
@@ -168,24 +169,29 @@ server::on_new_session (socket &&_sock)
     m_listener->get_loop()->check_thread();
     // FIXME: stop accepting when sessions reach to the maximum number
 
-    address _local_addr, _peer_addr;
-    _sock.localaddr(_local_addr);
-    _sock.peeraddr(_peer_addr);
+    address _local_addr = _sock.localaddr();
+    address _peer_addr = _sock.peeraddr();
 
     session_ptr _session = nullptr;
     event_loop_ptr _next_loop = assign_thread();
     check(_next_loop);
     try {
-        _session = std::make_shared<session>(_next_loop.get(), std::move(_sock),
-                                                 _local_addr, _peer_addr);
+        _session = std::make_shared<session>(_next_loop.get(),
+                                             std::move(_sock),
+                                             _local_addr, _peer_addr);
+    } catch (const k::system_error &_e) {
+        log_error("caught an std::system_error when accepting new session: \"%s:%d\"",
+                  _e.what(), _e.code());
     } catch (const k::exception &_e) {
-        log_error("caught an exception when accepting new session: \"%s\"", _e.what().c_str());
+        log_error("caught an k::exception when accepting new session: \"%s\"",
+                  _e.what());
         log_dump(_e.dump());
         return;
     } catch (const std::bad_alloc &_e) {
         // exit(1);
     } catch (const std::exception &_e) {
-        log_fatal("caught an std::exception when accepting new session: \"%s\"", _e.what());
+        log_fatal("caught an std::exception when accepting new session: \"%s\"",
+                  _e.what());
         return;
     } catch (...) {
         log_fatal("caught an undefined exception when accepting new session");

@@ -4,10 +4,10 @@
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
 #endif
-#include "filefd.h"
-#include "sockopts.h"
-#include "socket.h"
-#include "common.h"
+#include "core/common.h"
+#include "net/filefd.h"
+#include "net/sockopts.h"
+#include "net/socket.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

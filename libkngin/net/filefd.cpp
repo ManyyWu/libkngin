@@ -4,9 +4,9 @@
 #include <fcntl.h>
 #endif
 #include <cstring>
-#include "filefd.h"
-#include "common.h"
-#include "buffer.h"
+#include "core/system_error.h"
+#include "core/common.h"
+#include "net/filefd.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -17,114 +17,201 @@ KNGIN_NAMESPACE_K_BEGIN
 
 int filefd::invalid_fd = INVALID_FD;
 
-filefd::filefd (int _fd)
+filefd::filefd (int _fd) KNGIN_NOEXP
     : m_fd(_fd)
 {
 }
 
-filefd::filefd (filefd &&_fd)
+filefd::filefd (filefd &&_fd) KNGIN_NOEXP
     : m_fd(_fd.m_fd)
 {
 }
 
-filefd::~filefd()
+filefd::~filefd() KNGIN_NOEXP
 {
-#warning "log error"
-    this->close();
+    std::error_code _ec;
+    close(_ec);
+    if (_ec)
+        log_error("::close() error, fd = %d, %s:%d",
+                  m_fd, _ec.message().c_str(), _ec.value());
 }
 
-ssize_t
-filefd::write (buffer &_buf, size_t _nbytes)
+size_t
+filefd::write (buffer &_buf, size_t _nbytes) KNGIN_EXP
 {
-    check(_buf.readable(_nbytes));
+    assert(FD_VALID(m_fd));
+    assert(_buf.readable(_nbytes));
     ssize_t _size = ::write(m_fd, _buf.data() + _buf.rindex(), _nbytes);
-    if (_size > 0)
-        _buf.rreset(_buf.rindex() + _size);
+    if (_size < 0)
+        throw k::system_error("::write() error");
+    _buf.rreset(_buf.rindex() + _size);
     return _size;
-};
+}
 
-ssize_t
-filefd::read (buffer &_buf, size_t _nbytes)
+size_t
+filefd::write (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP
 {
-    check(_buf.writeable(_nbytes));
+    assert(FD_VALID(m_fd));
+    assert(_buf.readable(_nbytes));
+    ssize_t _size = ::write(m_fd, _buf.data() + _buf.rindex(), _nbytes);
+    if (_size < 0) {
+        _ec = last_error();
+        return 0;
+    } else {
+        _ec = std::error_code();
+    }
+    _buf.rreset(_buf.rindex() + _size);
+    return _size;
+}
+
+size_t
+filefd::read (buffer &_buf, size_t _nbytes) KNGIN_EXP
+{
+    assert(FD_VALID(m_fd));
+    assert(_buf.writeable(_nbytes));
     ssize_t _size = ::read(m_fd, _buf.data() + _buf.windex(), _nbytes);
-    if (_size > 0)
-        _buf.wreset(_buf.windex() + _size);
+    if (_size < 0)
+        throw k::system_error("::read() error");
+    _buf.wreset(_buf.windex() + _size);
     return _size;
 }
 
-ssize_t
-filefd::writev (net_buffer &_buf, size_t _nbytes)
+size_t
+filefd::read (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP
 {
-    check(_buf.readable() >= _nbytes);
+    assert(FD_VALID(m_fd));
+    assert(_buf.writeable(_nbytes));
+    ssize_t _size = ::read(m_fd, _buf.data() + _buf.windex(), _nbytes);
+    if (_size < 0) {
+        _ec = last_error();
+        return 0;
+    } else {
+        _ec = std::error_code();
+    }
+    _buf.wreset(_buf.windex() + _size);
+    return _size;
+}
+
+size_t
+filefd::writev (net_buffer &_buf, size_t _nbytes) KNGIN_EXP
+{
+    assert(FD_VALID(m_fd));
+    assert(_buf.readable() >= _nbytes);
     ssize_t _size = ::writev(m_fd, _buf.to_iovec().data(), _nbytes);
-    if (_size > 0)
-        _buf.send(_size);
+    if (_size < 0)
+        throw k::system_error("::writev() error");
+    _buf.send(_size);
     return _size;
 }
 
-ssize_t
-filefd::readv (net_buffer &_buf, size_t _nbytes)
+size_t
+filefd::writev (net_buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP
 {
-    check(_buf.writeable() >= _nbytes);
+    assert(FD_VALID(m_fd));
+    assert(_buf.readable() >= _nbytes);
+    ssize_t _size = ::writev(m_fd, _buf.to_iovec().data(), _nbytes);
+    if (_size < 0) {
+        _ec = last_error();
+        return 0;
+    } else {
+        _ec = std::error_code();
+    }
+    _buf.send(_size);
+    return _size;
+}
+
+size_t
+filefd::readv (net_buffer &_buf, size_t _nbytes) KNGIN_EXP
+{
+    assert(FD_VALID(m_fd));
+    assert(_buf.writeable() >= _nbytes);
     ssize_t _size = ::readv(m_fd, _buf.to_iovec().data(), _nbytes);
-    if (_size > 0)
-        _buf.receive(_size);
+    if (_size < 0)
+        throw k::system_error("::readv() error");
+    _buf.receive(_size);
     return _size;
 }
 
 void
-filefd::close ()
+filefd::close () KNGIN_EXP
 {
-    if (fd_valid(m_fd))
-        return;
-    int _ret = ::close(m_fd);
-    if (_ret < 0)
-        log_error("::close() error - %s:%d", strerror(errno), errno);
+    assert(FD_VALID(m_fd));
+    assert(FD_VALID(m_fd));
+    if (::close(m_fd) < 0)
+        throw k::system_error("::close() error");
     m_fd = filefd::invalid_fd;
 }
 
-bool
-filefd::set_nonblock (bool _on /* = true */)
+void
+filefd::close (std::error_code &_ec) KNGIN_NOEXP
 {
+    assert(FD_VALID(m_fd));
+    assert(FD_VALID(m_fd));
+    _ec = (::close(m_fd) < 0) ? last_error() : std::error_code();
+    m_fd = filefd::invalid_fd;
+}
+
+void
+filefd::set_nonblock (bool _on) KNGIN_EXP
+{
+    assert(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     _flags = _on ? _flags | O_NONBLOCK : _flags & ~O_NONBLOCK;
-    int _ret = ::fcntl(m_fd, F_SETFL, _flags);
-    if (_ret < 0) 
-        log_error("::fcntl() set O_NONBLOCK flag failed - %s:%d", strerror(errno), errno);
-    return (_ret >= 0);
- } 
+    if (::fcntl(m_fd, F_SETFL, _flags) < 0)
+        throw k::system_error("::fcntl() set O_NONBLOCK flag failed");
+}
 
-bool
-filefd::set_closeexec (bool _on /* = true */)
+void
+filefd::set_nonblock (bool _on, std::error_code &_ec) KNGIN_NOEXP
 {
+    assert(FD_VALID(m_fd));
+    int _flags = ::fcntl(m_fd, F_GETFL, 0);
+    _flags = _on ? _flags | O_NONBLOCK : _flags & ~O_NONBLOCK;
+    _ec = (::fcntl(m_fd, F_SETFL, _flags) < 0) ? last_error() : std::error_code();
+}
+
+void
+filefd::set_closeexec (bool _on) KNGIN_EXP
+{
+    assert(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     _flags = _on ? _flags | O_CLOEXEC : _flags & ~O_CLOEXEC;
-    int _ret = ::fcntl(m_fd, F_SETFL, _flags);
-    if (_ret < 0) 
-        log_error("::fcntl() set O_CLOEXEC flag failed - %s:%d", strerror(errno), errno);
-    return (_ret >= 0);
+    if (::fcntl(m_fd, F_SETFL, _flags) < 0)
+        throw k::system_error("::fcntl() set O_CLOEXEC flag failed");
+}
+
+void
+filefd::set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXP
+{
+    assert(FD_VALID(m_fd));
+    int _flags = ::fcntl(m_fd, F_GETFL, 0);
+    _flags = _on ? _flags | O_CLOEXEC : _flags & ~O_CLOEXEC;
+    _ec = (::fcntl(m_fd, F_SETFL, _flags) < 0) ? last_error() : std::error_code();
 }
 
 bool
-filefd::nonblock () const
+filefd::nonblock () const KNGIN_EXP
 {
+    assert(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     if (_flags < 0)
-        log_error("::fcntl() set O_CLOEXEC flag failed - %s:%d", strerror(errno), errno);
-    return _flags & O_NONBLOCK;
+        throw k::system_error("::fcntl() get O_CLOEXEC flag failed");
+    return (_flags & O_NONBLOCK);
 }
 
 bool
-filefd::reuse_addr () const
+filefd::nonblock (std::error_code &_ec) const KNGIN_NOEXP
 {
-    return ::fcntl(m_fd, F_GETFL, 0) & O_CLOEXEC;
+    assert(FD_VALID(m_fd));
+    int _flags = ::fcntl(m_fd, F_GETFL, 0);
+    _ec = (_flags & O_NONBLOCK) ? last_error() : std::error_code();
+    return (_flags & O_NONBLOCK);
 }
 
 filefd &
-filefd::operator = (int _fd)
+filefd::operator = (int _fd) KNGIN_NOEXP
 {
-    check(fd_valid(_fd));
+    assert(FD_VALID(m_fd));
     m_fd = _fd;
     return *this;
 }

@@ -6,11 +6,11 @@
 #include <memory>
 #include <algorithm>
 #include <functional>
-#include "define.h"
-#include "lock.h"
-#include "event_loop.h"
-#include "io_thread.h"
-#include "session.h"
+#include "core/define.h"
+#include "core/lock.h"
+#include "net/event_loop.h"
+#include "net/io_thread.h"
+#include "net/tcp/session.h"
 
 #define THREADS_MAX UINT16_MAX
 
@@ -31,9 +31,9 @@ public:
 
     typedef std::vector<std::unique_ptr<io_thread>> threads;
 
-    typedef event_loop::loop_started_cb             loop_started_cb;
+    typedef event_loop::started_cb                  started_cb;
 
-    typedef event_loop::loop_stopped_cb             loop_stopped_cb;
+    typedef event_loop::stopped_cb                  stopped_cb;
 
     typedef io_thread::event_loop_ptr               event_loop_ptr;
 

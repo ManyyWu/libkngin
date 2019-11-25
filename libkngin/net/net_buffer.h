@@ -8,8 +8,8 @@
 #include <list>
 #include <vector>
 #include <atomic>
-#include "define.h"
-#include "buffer.h"
+#include "core/define.h"
+#include "core/buffer.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

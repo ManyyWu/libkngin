@@ -1,11 +1,11 @@
-#include "session.h"
-#include "common.h"
-#include "socket.h"
-#include "buffer.h"
-#include "net_buffer.h"
-#include "epoller_event.h"
-#include "epoller.h"
-#include "lock.h"
+#include "core/common.h"
+#include "core/lock.h"
+#include "core/buffer.h"
+#include "net/session.h"
+#include "net/socket.h"
+#include "net/net_buffer.h"
+#include "net/epoller_event.h"
+#include "net/epoller.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -35,27 +35,27 @@ session::session (event_loop *_loop, k::socket &&_socket,
       m_serial(session::next_serial())
 {
     check(_loop);
-    if (!m_socket.set_closeexec(true)) {
-        log_error("socket::set_closeexec(true) error");
-        throw k::exception("socket::set_closeexec() error");
-    }
-    if (!m_socket.set_nonblock(true)) {
-        log_error("socket::set_nonblock(true) error");
-        throw k::exception("socket::set_nonblock() error");
-    }
-    if (!sockopts::set_ooblinline(m_socket, false)) {
-        log_error("sockopts::set_ooblinline(false) error");
-        throw k::exception("sockopts::set_ooblinline() error");
-    }
-    m_event.set_read_cb(std::bind(&session::on_read, this));
-    m_event.set_write_cb(std::bind(&session::on_write, this));
-    m_event.set_error_cb(std::bind(&session::on_error, this));
-    m_event.set_close_cb(std::bind(&session::on_close, this));
-    m_event.set_oob_cb(std::bind(&session::on_oob, this));
-    m_event.disable_write();
-    m_event.disable_read();
-    m_event.disable_oob();
-    m_event.start();
+    //if (!m_socket.set_closeexec(true)) {
+    //    log_error("socket::set_closeexec(true) error");
+    //    throw k::exception("socket::set_closeexec() error");
+    //}
+    //if (!m_socket.set_nonblock(true)) {
+    //    log_error("socket::set_nonblock(true) error");
+    //    throw k::exception("socket::set_nonblock() error");
+    //}
+    //if (!sockopts::set_ooblinline(m_socket, false)) {
+    //    log_error("sockopts::set_ooblinline(false) error");
+    //    throw k::exception("sockopts::set_ooblinline() error");
+    //}
+    //m_event.set_read_cb(std::bind(&session::on_read, this));
+    //m_event.set_write_cb(std::bind(&session::on_write, this));
+    //m_event.set_error_cb(std::bind(&session::on_error, this));
+    //m_event.set_close_cb(std::bind(&session::on_close, this));
+    //m_event.set_oob_cb(std::bind(&session::on_oob, this));
+    //m_event.disable_write();
+    //m_event.disable_read();
+    //m_event.disable_oob();
+    //m_event.start();
 } catch (...) {
     log_fatal("session::session() error");
     throw;
@@ -117,21 +117,21 @@ session::close ()
 void
 session::rd_shutdown ()
 {
-    check(m_sessionected);
-    if (m_loop->in_loop_thread())
-        m_socket.rd_shutdown();
-    else
-        m_loop->run_in_loop(std::bind(&socket::rd_shutdown, &m_socket));
+//    check(m_sessionected);
+//    if (m_loop->in_loop_thread())
+//        m_socket.rd_shutdown();
+//    else
+//        m_loop->run_in_loop(std::bind(&socket::rd_shutdown, &m_socket));
 }
 
 void
 session::wr_shutdown ()
 {
-    check(m_sessionected);
-    if (m_loop->in_loop_thread())
-        m_socket.wr_shutdown();
-    else
-        m_loop->run_in_loop(std::bind(&socket::wr_shutdown, &m_socket));
+//    check(m_sessionected);
+//    if (m_loop->in_loop_thread())
+//        m_socket.wr_shutdown();
+//    else
+//        m_loop->run_in_loop(std::bind(&socket::wr_shutdown, &m_socket));
 }
 
 void
@@ -261,15 +261,15 @@ session::on_oob ()
 void
 session::on_error()
 {
-    check(m_sessionected);
-    m_loop->check_thread();
-
-    int _err_code = 0;
-    if (!sockopts::error(m_socket, _err_code))
-        log_error("sockopts::error() error");
-    else
-        log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
-    on_close();
+//    check(m_sessionected);
+//    m_loop->check_thread();
+//
+//    int _err_code = 0;
+//    if (!sockopts::error(m_socket, _err_code))
+//        log_error("sockopts::error() error");
+//    else
+//        log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
+//    on_close();
 }
 
 KNGIN_NAMESPACE_TCP_END

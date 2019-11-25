@@ -1,5 +1,6 @@
 #include <iostream>
-#include "io_threadpool.h"
+#include "../libkngin/core/logfile.h"
+#include "../libkngin/net/io_threadpool.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

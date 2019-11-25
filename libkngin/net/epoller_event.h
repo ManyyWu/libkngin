@@ -3,8 +3,8 @@
 
 #include <functional>
 #include <sys/epoll.h>
-#include "define.h"
-#include "filefd.h"
+#include "core/define.h"
+#include "net/filefd.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

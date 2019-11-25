@@ -6,9 +6,9 @@
 
 #include <cstring>
 #include <memory>
-#include <exception>
 #include "common.h"
 #include "timestamp.h"
+#include "system_error.h"
 #include "exception.h"
 #include "thread.h"
 
@@ -99,9 +99,12 @@ thread::start (void *_args)
     try {
         if (_data->fn)
             _data->fn();
+    } catch (const k::system_error &_e) {
+        log_error("caught an std::system_error in thread \"%s\": \"%s:%d\"",
+                  _data->name.c_str(), _e.what(), _e.code());
     } catch (const k::exception &_e){
         log_fatal("caught an k::exception in thread \"%s\": %s",
-                  _data->name.c_str(), _e.what().c_str());
+                  _data->name.c_str(), _e.what());
         log_dump(_e.dump());
     } catch (const std::bad_alloc &_e) {
         exit(1);

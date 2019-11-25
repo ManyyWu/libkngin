@@ -3,9 +3,9 @@
 
 #include <functional>
 #include <atomic>
-#include "define.h"
-#include "filefd.h"
-#include "epoller_event.h"
+#include "core/define.h"
+#include "net/filefd.h"
+#include "net/epoller_event.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

@@ -2,14 +2,14 @@
 #define _TCP_SERVER_H_
 
 #include <unordered_map>
-#include "define.h"
-#include "session.h"
-#include "server.h"
-#include "address.h"
-#include "event_loop.h"
-#include "server_opts.h"
-#include "listener.h"
-#include "io_threadpool.h"
+#include "core/define.h"
+#include "net/address.h"
+#include "net/event_loop.h"
+#include "net/listener.h"
+#include "net/io_threadpool.h"
+#include "net/tcp/server_opts.h"
+#include "net/tcp/session.h"
+#include "net/tcp/server.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN

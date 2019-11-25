@@ -3,8 +3,9 @@
 #include <sys/timerfd.h>
 #endif
 #include <cstring>
-#include "common.h"
-#include "event_loop.h"
+#include "net/timer.h"
+#include "core/common.h"
+#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -21,7 +22,7 @@ timer::timer (event_loop *_loop)
       m_stopped(true)
 {
     check(_loop);
-    if (fd_valid(m_fd)) {
+    if (FD_VALID(m_fd)) {
         log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
         throw k::exception("timer::timer() erorr");
     }

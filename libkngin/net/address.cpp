@@ -2,9 +2,9 @@
 #else
 #include <arpa/inet.h>
 #endif
-#include "exception.h"
-#include "address.h"
-#include "common.h"
+#include "core/exception.h"
+#include "core/common.h"
+#include "net/address.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

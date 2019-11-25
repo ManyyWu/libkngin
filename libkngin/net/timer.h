@@ -5,10 +5,10 @@
 #else
 #include <sys/timerfd.h>
 #endif
-#include "define.h"
-#include "filefd.h"
-#include "timestamp.h"
-#include "epoller_event.h"
+#include "core/define.h"
+#include "core/timestamp.h"
+#include "net/filefd.h"
+#include "net/epoller_event.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

@@ -4,6 +4,7 @@
 #include <functional>
 #include <cassert>
 #include "core/system_error.h"
+#include "net/event_loop.h"
 #include "net/socket.h"
 #include "net/address.h"
 
@@ -11,7 +12,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class listener {
 public:
-    typedef std::function<void (k::socket &&)>    accept_cb;
+    typedef std::function<void (k::socket &&)>    accept_handler;
 
     typedef std::function<void (std::error_code)> error_handler;
 
@@ -24,25 +25,26 @@ public:
 
 public:
     void
-    bind          (const address &_listen_addr)
+    bind          (const address &_listen_addr) KNGIN_EXP
     { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr); }
     void
-    bind          (const address &_listen_addr, std::error_code &_ec)
+    bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
     { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr, _ec); }
     void
-    listen        (int _backlog)
+    listen        (int _backlog, accept_handler &&_accept_cb, error_handler &&_error_cb) KNGIN_EXP
     { assert(!m_closed); m_socket.listen(_backlog); } 
     void
-    listen        (int _backlog, std::error_code &_ec)
+    listen        (int _backlog, std::error_code &_ec) KNGIN_NOEXP
     { assert(!m_closed); m_socket.listen(_backlog, _ec); } 
 
 public:
     void
-    close         (error_handler &&_cb);
+    close         (error_handler &&_cb) KNGIN_EXP;
 
 public:
     event_loop *
-    get_loop      () const          { return m_loop; }
+    get_loop      () const KNGIN_NOEXP
+    { return m_loop; }
 
 protected:
     void
@@ -65,9 +67,9 @@ protected:
 
     address           m_listen_addr;
 
-    accept_cb         m_accept_cb;
+    accept_handler    m_accept_cb;
 
-    error_cb          m_error_cb;
+    error_handler     m_error_cb;
 
     filefd            m_idle_file;
 };

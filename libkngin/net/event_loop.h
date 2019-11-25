@@ -3,13 +3,12 @@
 
 #include <functional>
 #include <deque>
-#include "define.h"
-#include "epoller.h"
-#include "epoller_event.h"
-#include "lock.h"
-#include "thread.h"
-#include "event.h"
-#include "timer.h"
+#include "core/define.h"
+#include "core/lock.h"
+#include "core/thread.h"
+#include "net/epoller.h"
+#include "net/epoller_event.h"
+#include "net/event.h"
 
 #ifndef NDEBUG
 #define EPOLLER_TIMEOUT 10000
@@ -21,13 +20,22 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop {
 public:
-    typedef std::function<void (void)> loop_started_cb;
+    typedef std::function<void (std::error_code)> error_cb;
 
-    typedef std::function<void (void)> loop_stopped_cb;
+    typedef std::function<void (void)>            started_cb;
 
-    typedef std::function<void (void)> task;
+    typedef std::function<void (void)>            stopped_cb;
 
-    typedef event                      waker;
+    typedef std::function<void (void)>            task;
+
+    typedef event                                 waker;
+
+protected:
+    class pimpl {
+
+    };
+
+    typedef std::shared_ptr<event_loop::pimpl> pimpl_ptr;
 
 public:
     event_loop     () = delete;
@@ -39,7 +47,7 @@ public:
 
 public:
     int
-    loop           (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb);
+    loop           (started_cb &&_start_cb, stopped_cb &&_stop_cb);
 
     void
     stop           ();

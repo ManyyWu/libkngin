@@ -2,10 +2,10 @@
 #define _IO_THREAD_H_
 
 #include <memory>
-#include "define.h"
-#include "thread.h"
-#include "lock.h"
-#include "event_loop.h"
+#include "core/define.h"
+#include "core/thread.h"
+#include "core/lock.h"
+#include "net/event_loop.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

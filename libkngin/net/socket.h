@@ -3,16 +3,14 @@
 
 #ifdef _WIN32
 #else
-#include <socket.h>
+#include <sys/socket.h>
 #endif
 #include <memory>
 #include <vector>
-#include "core/filefd.h"
-#include "core/bits.h"
+#include "core/buffer.h"
 #include "core/system_error.h"
-#include "net/buffer.h"
+#include "net/filefd.h"
 #include "net/epoller_event.h"
-#include "net/event_loop.h"
 #include "net/address.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -80,32 +78,34 @@ public:
 
 public:
     size_t
-    send        (buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
+    send        (buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP;
 
     size_t
-    send        (buffer &_buf, size_t &_nbytes, int _flags,
+    send        (buffer &_buf, size_t _nbytes, int _flags,
                  std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    recv        (buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
+    recv        (buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP;
 
     size_t
-    recv        (buffer &_buf, size_t &_nbytes, int _flags,
+    recv        (buffer &_buf, size_t _nbytes, int _flags,
                  std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
+    sendto      (const address &_addr, buffer &_buf, size_t _nbytes,
+                 int _flags) KNGIN_EXP;
 
     size_t
-    sendto      (const address &_addr, buffer &_buf, size_t &_nbytes, int _flags,
-                 std::error_code &_ec) KNGIN_NOEXP;
+    sendto      (const address &_addr, buffer &_buf, size_t _nbytes,
+                 int _flags, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags) KNGIN_EXP;
+    recvfrom    (address &_addr, buffer &_buf, size_t _nbytes,
+                 int _flags) KNGIN_EXP;
 
     size_t
-    recvfrom    (address &_addr, buffer &_buf, size_t &_nbytes, int _flags,
-                 std::error_code &_ec) KNGIN_NOEXP;
+    recvfrom    (address &_addr, buffer &_buf, size_t _nbytes,
+                 int _flags, std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     address

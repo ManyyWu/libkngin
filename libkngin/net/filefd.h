@@ -2,13 +2,13 @@
 #define _FILEFD_H_
 
 #include <list>
-#include "define.h"
-#include "system_error.h"
-#include "exception.h"
-#include "net_buffer.h"
+#include "core/define.h"
+#include "core/system_error.h"
+#include "core/exception.h"
+#include "net/net_buffer.h"
 
-#define fd_valid(fd)   (fd >= 0)
-#define fd_invalid(fd) (fd < 0)
+#define FD_VALID(fd)   (fd >= 0)
+#define FD_INVALID(fd) (fd < 0)
 #define INVALID_FD     (-1);
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -27,42 +27,60 @@ public:
 
 public:
     bool
-    valid         () const KNGIN_NOEXP { return fd_valid(m_fd); }
+    valid         () const KNGIN_NOEXP { return FD_VALID(m_fd); }
 
     int
     fd            () const KNGIN_NOEXP { return m_fd; }
 
-    ssize_t
-    write         (buffer &_buf, size_t _nbytes);
+    size_t
+    write         (buffer &_buf, size_t _nbytes) KNGIN_EXP;
 
-    ssize_t
-    read          (buffer &_buf, size_t _nbytes);
+    size_t
+    write         (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP;
 
-    ssize_t
-    writev        (net_buffer &_buf, size_t _nbytes);
+    size_t
+    read          (buffer &_buf, size_t _nbytes) KNGIN_EXP;
 
-    ssize_t
-    readv         (net_buffer &_buf, size_t _nbytes);
+    size_t
+    read          (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP;
+
+    size_t
+    writev        (net_buffer &_buf, size_t _nbytes) KNGIN_EXP;
+
+    size_t
+    writev        (net_buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP;
+
+    size_t
+    readv         (net_buffer &_buf, size_t _nbytes) KNGIN_EXP;
 
     void
-    close         ();
+    close         () KNGIN_EXP;
+
+    void
+    close         (std::error_code &_ec) KNGIN_NOEXP;
 
 public:
-    bool
-    set_nonblock  (bool _on = true);
+    void
+    set_nonblock  (bool _on) KNGIN_EXP;
+
+    void
+    set_nonblock  (bool _on, std::error_code &_ec) KNGIN_NOEXP;
+
+    void
+    set_closeexec (bool _on) KNGIN_EXP;
+
+    void
+    set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXP;
 
     bool
-    set_closeexec (bool _on = true);
+    nonblock      () const KNGIN_EXP;
 
     bool
-    nonblock      () const;
-
-    bool
-    reuse_addr    () const;
+    nonblock      (std::error_code &_ec) const KNGIN_NOEXP;
 
 public:
     filefd &
-    operator =    (int _fd);
+    operator =    (int _fd) KNGIN_NOEXP;
 
 public:
     static int invalid_fd;

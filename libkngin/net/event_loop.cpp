@@ -5,13 +5,12 @@
 #endif
 #include <functional>
 #include <cstring>
-#include "common.h"
-#include "errno.h"
-#include "event_loop.h"
-#include "lock.h"
-#include "thread.h"
-#include "epoller.h"
-#include "filefd.h"
+#include "core/common.h"
+#include "core/lock.h"
+#include "core/thread.h"
+#include "net/event_loop.h"
+#include "net/epoller.h"
+#include "net/filefd.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -51,7 +50,7 @@ event_loop::~event_loop ()
 }
 
 int
-event_loop::loop (loop_started_cb &&_start_cb, loop_stopped_cb &&_stop_cb)
+event_loop::loop (started_cb &&_start_cb, stopped_cb &&_stop_cb)
 {
     check_thread();
     m_looping = true;

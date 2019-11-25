@@ -5,11 +5,11 @@
 #endif
 #include <cstring>
 #include <map>
-#include "common.h"
-#include "timestamp.h"
-#include "exception.h"
-#include "epoller.h"
-#include "filefd.h"
+#include "core/common.h"
+#include "core/timestamp.h"
+#include "core/exception.h"
+#include "net/epoller.h"
+#include "net/filefd.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

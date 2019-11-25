@@ -3,10 +3,10 @@
 #include <sys/eventfd.h>
 #endif
 #include <cstring>
-#include "event.h"
-#include "filefd.h"
-#include "common.h"
-#include "event_loop.h"
+#include "core/common.h"
+#include "net/event.h"
+#include "net/filefd.h"
+#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -23,7 +23,7 @@ event::event (event_loop *_loop)
       m_stopped(true)
 {
     check(_loop);
-    if (fd_invalid(m_fd)) {
+    if (FD_INVALID(m_fd)) {
         log_fatal("::eventfd() error - %s:%d", strerror(errno), errno);
         throw k::exception("event::event() erorr");
     }
