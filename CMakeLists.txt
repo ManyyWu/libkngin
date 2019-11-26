@@ -12,5 +12,7 @@ set(LIBRARY_OUTPUT_PATH     ${PROJECT_SOURCE_DIR}/build/lib/)
 # set global include directory
 set(KNGIN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/libkngin/" CACHE INTERNAL "project source directory" )
 
+include_directories("${PROJECT_SOURCE_DIR}/libkngin")
+
 add_subdirectory(libkngin)
 add_subdirectory(libkngin_test)
