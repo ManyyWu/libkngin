@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "sync_queue.h"
-#include "thread.h"
+#include "../libkngin/core/sync_queue.h"
+#include "../libkngin/core/thread.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

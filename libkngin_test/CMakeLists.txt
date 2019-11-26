@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 14)
+
+project(libkngin_test LANGUAGES C CXX)
 
 # head files
 include_directories(".")
@@ -11,5 +13,4 @@ file(GLOB KNGIN_TEST_SRC *.cpp)
 add_executable(libkngin_test ${KNGIN_TEST_SRC})
 
 # link
-target_link_libraries(libkngin_test
-                      kngin)
+target_link_libraries(libkngin_test kngin_net)

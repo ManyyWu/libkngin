@@ -1,8 +1,11 @@
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 14)
 
+project(libkngin_core)
+
 # core
-set(KNGIN_CORE_INC_DIR   .)
+#set(KNGIN_CORE_INC_DIR   .)
+#set(INC_DIR "${PROJECT_SOURCE_DIR}/libkngin")
 file(GLOB KNGIN_CORE_SRC "*.cpp")
 
 # show files
@@ -12,8 +15,10 @@ foreach(file IN LISTS KNGIN_CORE_SRC)
 endforeach(file)
 
 # include
-MESSAGE(STATUS "KNGIN_SOURCE_DIR: ${KNGIN_SOURCE_DIR}")
-include_directories(${KNGIN_SOURCE_DIR})
+#include_directories(${KNGIN_SOURCE_DIR})
+#include_directories("${INC_DIR}")
+include_directories(".")
+#include_directories("${PROJECT_SOURCE_DIR}/libkngin/")
 
 # pthread-win32
 set(CMAKE_PREFIX_PATH "../../pthreads_win32" ${CMAKE_PREFIX_PATH})
