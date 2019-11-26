@@ -135,8 +135,8 @@ filefd::readv (net_buffer &_buf, size_t _nbytes) KNGIN_EXP
 void
 filefd::close () KNGIN_EXP
 {
-    assert(FD_VALID(m_fd));
-    assert(FD_VALID(m_fd));
+    if (FD_INVALID(m_fd))
+        return;
     if (::close(m_fd) < 0)
         throw k::system_error("::close() error");
     m_fd = filefd::invalid_fd;
@@ -145,8 +145,8 @@ filefd::close () KNGIN_EXP
 void
 filefd::close (std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
-    assert(FD_VALID(m_fd));
+    if (FD_INVALID(m_fd))
+        return;
     _ec = (::close(m_fd) < 0) ? last_error() : std::error_code();
     m_fd = filefd::invalid_fd;
 }

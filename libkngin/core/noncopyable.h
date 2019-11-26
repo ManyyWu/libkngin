@@ -9,12 +9,12 @@ protected:
 
     ~noncopyable () = default;
 
-public:
-    noncopyable  (const noncopyable &) = delete;
+protected:
+    noncopyable  ( const noncopyable& ) = delete;
 
-public:
-    void
-    operator =   (const noncopyable &) = delete;
+    noncopyable&
+    operator =   ( const noncopyable& ) = delete;
+
 };
 
 KNGIN_NAMESPACE_K_END

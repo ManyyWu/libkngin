@@ -122,9 +122,9 @@ int main()
         cerr << "********************* tcp_server_test ******************\n";
         tcp_server_test ();
         cerr << "********************************************************\n";
-    } catch (std::exception &_e) {
+    } catch (const std::exception &_e) {
         cerr << "caught an error - " << _e.what() << endl;
-    } catch (k::exception &_e) {
+    } catch (const k::exception &_e) {
         cerr << "caught an error - " << _e.what() << endl;
         cerr << _e.dump() << endl;
     } catch (...) {

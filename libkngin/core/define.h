@@ -42,6 +42,10 @@ typedef SSIZE_T ssize_t;
 #pragma warning(disable: 4996)
 #endif
 
+// for exception
+#define KNGIN_EXP   noexcept(false)
+#define KNGIN_NOEXP noexcept(true)
+
 // for queues
 #define KNGIN_QUEUE_MAX (size_t)(SIZE_MAX)
 #define KNGIN_QUEUE_MIN (size_t)1

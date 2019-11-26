@@ -1,6 +1,8 @@
 #include <cstring>
+#include <cassert>
 #include <iostream>
 #include <functional>
+#include "../libkngin/core/thread.h"
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/buffer.h"
 #include "../libkngin/net/socket.h"
@@ -27,7 +29,7 @@ client (void *_args)
     assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
-    if (_server_sock.connect(_server_addr) < 0)
+    _server_sock.connect(_server_addr);
         log_error("%s", strerror(errno));
     log_info("connecting...");
 
@@ -64,14 +66,11 @@ server (void *_args)
     assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
-    check(_server_sock.valid());
     assert(sockopts::set_reuseaddr(_server_sock, true));
     assert(sockopts::set_reuseport(_server_sock, true));
     log_debug("server_addr: %s:%hu", _server_addr.addrstr().c_str(), _server_addr.port());
-    if (_server_sock.bind(_server_addr) < 0)
-        log_error("%s", strerror(errno));
-    if (_server_sock.listen(5) < 0)
-        log_error("%s", strerror(errno));
+    _server_sock.bind(_server_addr);
+    _server_sock.listen(5);
     log_info("listening...");
     while (_ok) {
         address _client_addr;

@@ -1,7 +1,9 @@
 #include <cstring>
 #include <iostream>
 #include <functional>
+#include <cassert>
 #include "../libkngin/core/logfile.h"
+#include "../libkngin/core/common.h"
 #include "../libkngin/core/buffer.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
@@ -32,13 +34,11 @@ client ()
 
     k::socket _server_sock(socket::IPV4_TCP);
     log_info("c: connecting...");
-    if (_server_sock.connect(_server_addr) < 0) {
-        log_error("%s", strerror(errno));
+    _server_sock.connect(_server_addr);
 close:
-        _server_sock.close();
-        log_info("c: client closed");
-        return 0;
-    }
+        //_server_sock.close();
+        //log_info("c: client closed");
+        //return 0;
     log_info("c: connected");
 
     int _reply = 0;
@@ -106,14 +106,12 @@ protected:
             assert(address::addrstr2addr(_addr_str, _port, _server_addr));
 
             k::socket _server_sock(socket::IPV4_TCP);
-            assert(sockopts::set_reuseaddr(_server_sock, true));
-            assert(sockopts::set_reuseport(_server_sock, true));
+            sockopts::set_reuseaddr(_server_sock, true);
+            sockopts::set_reuseport(_server_sock, true);
             std::string _a;
             log_info("s: server_addr: %s:%hu", _server_addr.addrstr().c_str(), _server_addr.port());
-            if (_server_sock.bind(_server_addr) < 0)
-                log_error("s: %s", strerror(errno));
-            if (_server_sock.listen(5) < 0)
-                log_error("s: %s", strerror(errno));
+            _server_sock.bind(_server_addr);
+            _server_sock.listen(5);
             log_info("s: listening...");
 
             // create a session

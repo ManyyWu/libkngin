@@ -53,6 +53,8 @@ using namespace std::placeholders;
 #warning "头文件宏改 KNGIN_HEAD_FILE_XXXXX"
 #warning "新建面向应用的错误码，抽象!!!!!!!!!!!!!!!!!!!!!!!!!!"
 #warning "应用层不接触任何底层错误"
+#warning "private"
+#warning "函数体换行"
 /*
 switch (savedErrno)  //检查错误码
 {

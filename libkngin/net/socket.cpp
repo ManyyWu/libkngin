@@ -11,8 +11,8 @@ KNGIN_NAMESPACE_K_BEGIN
 
 socket::socket (int _fd) KNGIN_EXP
     : filefd(_fd),
-      m_rd_closed(FD_VALID(_fd)),
-      m_wr_closed(FD_VALID(_fd))
+      m_rd_closed(FD_INVALID(_fd)),
+      m_wr_closed(FD_INVALID(_fd))
 {
     if (FD_INVALID(m_fd))
         throw k::exception("socket::socket() error - invalid file descriptor");
@@ -22,8 +22,8 @@ socket::socket (INET_PROTOCOL _proto) KNGIN_EXP
     try
     : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
-      m_rd_closed(FD_VALID(m_fd)),
-      m_wr_closed(FD_VALID(m_fd))
+      m_rd_closed(FD_INVALID(m_fd)),
+      m_wr_closed(FD_INVALID(m_fd))
 {
     if (FD_INVALID(m_fd))
         throw k::system_error("::socket() error");
@@ -50,7 +50,7 @@ socket::~socket () KNGIN_NOEXP
 void
 socket::bind (const address &_addr) KNGIN_EXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     if (::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
         throw k::system_error("::bind() error");
 }
@@ -58,7 +58,7 @@ socket::bind (const address &_addr) KNGIN_EXP
 void
 socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     _ec = (::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
           ? last_error()
           : std::error_code();
@@ -67,7 +67,7 @@ socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 void
 socket::listen (int _backlog) KNGIN_EXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     if (::listen(m_fd, _backlog) < 0)
         throw k::system_error("::listen() error");
 }
@@ -75,14 +75,14 @@ socket::listen (int _backlog) KNGIN_EXP
 void
 socket::listen (int _backlog, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     _ec = (::listen(m_fd, _backlog) < 0) ? last_error() : std::error_code();
 }
 
 int
 socket::accept (address &_addr) KNGIN_EXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
     int _fd = ::accept(m_fd, (::sockaddr *)&(_addr.m_sa), &_len);
     if (_fd < 0)
@@ -93,7 +93,7 @@ socket::accept (address &_addr) KNGIN_EXP
 int
 socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
     int _fd = ::accept(m_fd, (::sockaddr *)&(_addr.m_sa), &_len);
     _ec = (_fd < 0) ? last_error() : std::error_code();
@@ -103,7 +103,7 @@ socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXP
 void
 socket::connect (const address &_addr) KNGIN_EXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     if (::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
         throw k::system_error("::connect() error");
 }
@@ -111,7 +111,7 @@ socket::connect (const address &_addr) KNGIN_EXP
 void
 socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed && !m_rd_closed);
     _ec = (::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
           ? last_error()
           : std::error_code();
@@ -123,6 +123,7 @@ socket::rd_shutdown () KNGIN_EXP
     assert(!m_rd_closed);
     if (::shutdown(m_fd, SHUT_RD) < 0)
         throw k::system_error("::shutdown(SHUT_RD) error");
+    m_rd_closed = true;
 }
 
 void
@@ -130,6 +131,7 @@ socket::rd_shutdown (std::error_code &_ec) KNGIN_NOEXP
 {
     assert(!m_rd_closed);
     _ec = (::shutdown(m_fd, SHUT_RD) < 0 ? last_error() : std::error_code());
+    m_rd_closed = true;
 }
 
 void
@@ -138,6 +140,7 @@ socket::wr_shutdown () KNGIN_EXP
     assert(!m_wr_closed);
     if (::shutdown(m_fd, SHUT_WR) < 0)
         throw k::system_error("::shutdown(SHUT_WR) error");
+    m_wr_closed = true;
 }
 
 void
@@ -145,6 +148,7 @@ socket::wr_shutdown (std::error_code &_ec) KNGIN_NOEXP
 {
     assert(!m_wr_closed);
     _ec = (::shutdown(m_fd, SHUT_WR) < 0 ? last_error() : std::error_code());
+    m_wr_closed = true;
 }
 
 size_t

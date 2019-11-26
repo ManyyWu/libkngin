@@ -9,9 +9,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O0 -Wall -rdynamic")
 set(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/build/bin/)
 set(LIBRARY_OUTPUT_PATH     ${PROJECT_SOURCE_DIR}/build/lib/)
 
-# set global include directory
-set(KNGIN_SOURCE_DIR "${PROJECT_SOURCE_DIR}/libkngin/" CACHE INTERNAL "project source directory" )
-
+# include directories
 include_directories("${PROJECT_SOURCE_DIR}/libkngin")
 
 add_subdirectory(libkngin)

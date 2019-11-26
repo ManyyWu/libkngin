@@ -4,9 +4,9 @@
 #include <unordered_map>
 #include <memory>
 #include <ctime>
-#include "server.h"
-#include "thread.h"
-#include "common.h"
+#include "../libkngin/core/thread.h"
+#include "../libkngin/core/common.h"
+#include "../libkngin/net/tcp/server.h"
 
 using namespace k;
 using namespace k::tcp;
@@ -26,13 +26,11 @@ client ()
 
     k::socket _server_sock(socket::IPV4_TCP);
     log_info("c: connecting...");
-    if (_server_sock.connect(_server_addr) < 0) {
-        log_error("%s", strerror(errno));
+    _server_sock.connect(_server_addr);
 close:
-        _server_sock.close();
-        log_info("c: client closed");
-        return 0;
-    }
+        //_server_sock.close();
+        //log_info("c: client closed");
+        //return 0;
     log_info("c: connected");
 
     // read

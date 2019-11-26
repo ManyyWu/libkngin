@@ -3,14 +3,9 @@
 #include <unistd.h>
 #include <sys/eventfd.h>
 #endif
-#include <functional>
 #include <cstring>
 #include "core/common.h"
-#include "core/lock.h"
-#include "core/thread.h"
 #include "net/event_loop.h"
-#include "net/epoller.h"
-#include "net/filefd.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -19,38 +14,41 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event_loop::event_loop (thread *_thr)
+event_loop::pimpl::pimpl (thread &_thr)
     try
-    : m_thr(_thr),
-      m_mutex(),
-      m_epoller(this),
+    : m_thr_pimpl(_thr.pimpl()),
+      m_epoller(pimpl()),
+      m_waker(pimpl()),
       m_looping(false),
       m_stop(false),
       m_taskq(),
-      m_events(RESERVED_EPOLLELR_EVENT),
-      m_waker(this)
+      m_mutex(),
+      m_events(RESERVED_EPOLLELR_EVENT)
 {
-    check(_thr);
+    if (nullptr == m_thr_pimpl)
+        throw k::exception("event_loop::pimpl::pimpl() - invalid argument");
     m_waker.set_nonblock(false);
     m_waker.set_closeexec(true);
 } catch (...) {
-    log_fatal("event_loop::event_loop() error");
+    log_fatal("event_loop::pimpl::pimpl() error");
     throw;
 }
 
-event_loop::~event_loop ()
+event_loop::pimpl::~pimpl () KNGIN_NOEXP
 {
-    log_debug("wait for loop in thread \"%s\" to end", m_thr->name());
+    log_debug("wait for loop in thread \"%s\" to end", m_thr_pimpl->name());
     if (m_looping) {
         stop();
+#warning "noexp"
         // FIXME: wait for loop to end
     }
 
-    log_debug("loop in thread \"%s\" closed", m_thr->name());
+    log_debug("loop in thread \"%s\" closed", m_thr_pimpl->name());
 }
 
-int
-event_loop::loop (started_cb &&_start_cb, stopped_cb &&_stop_cb)
+void
+event_loop::pimpl::loop (started_handler &&_start_cb,
+                         stopped_handler &&_stop_cb) KNGIN_EXP
 {
     check_thread();
     m_looping = true;
@@ -66,11 +64,12 @@ event_loop::loop (started_cb &&_start_cb, stopped_cb &&_stop_cb)
             if (m_stop)
                 break;
             //log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
-            //          m_thr->name(), _size);
+            //          m_thr_pimpl->name(), _size);
 
             // process events
             for (uint32_t i = 0; i < _size; ++i)
-                ((epoller_event *)(m_events[i].data.ptr))->on_events(m_events[i].events);
+                ignore_exp(static_cast<epoller_event *>(m_events[i].data.ptr)
+                           ->on_events(m_events[i].events));
 
             // process queued events
             std::deque<task> _fnq;
@@ -80,100 +79,99 @@ event_loop::loop (started_cb &&_start_cb, stopped_cb &&_stop_cb)
                 _fnq.swap(m_taskq);
             }
             for (auto _iter : _fnq)
-                _iter();
+                ignore_exp(_iter());
             //log_debug("the epoller in thread \"%s\" handled %" PRIu64 " task",
-            //          m_thr->name(), _fnq.size());
+            //          m_thr_pimpl->name(), _fnq.size());
         }
     } catch (...) {
         if (_stop_cb)
-            _stop_cb();
+            ignore_exp(_stop_cb());
         m_waker.stop();
         m_looping = false;
-        log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
+        log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr_pimpl->name());
         throw;
     }
 
     if (_stop_cb)
-        _stop_cb();
+        ignore_exp(_stop_cb());
     m_waker.stop();
     m_looping = false;
-    log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
-    return 0;
+    log_info("event_loop in thread \"%s\" is stopped", m_thr_pimpl->name());
 }
 
+#include "core/common.h"
 void
-event_loop::stop ()
+event_loop::pimpl::stop () KNGIN_EXP
 {
-    check(m_looping);
+    arg_check(m_looping);
     m_stop = true;
     if (!in_loop_thread())
         wakeup();
 }
 
 bool
-event_loop::looping ()
+event_loop::pimpl::looping () KNGIN_NOEXP
 {
     return m_looping;
 }
 
 void
-event_loop::check_thread () const
+event_loop::pimpl::check_thread () const KNGIN_NOEXP
 {
-    check(m_thr->equal_to(thread::self()));
+    check(m_thr_pimpl->equal_to(thread::ptid()));
 }
 
 bool
-event_loop::in_loop_thread () const
+event_loop::pimpl::in_loop_thread () const KNGIN_NOEXP
 {
-    return (m_thr->equal_to(thread::self()));
-}
-
-bool
-event_loop::add_event (epoller_event *_e)
-{
-    check(_e);
-    check(m_looping);
-
-    bool _ret = m_epoller.register_event(_e);
-    if (!_ret)
-        log_fatal("epoller::register_event() erorr");
-    if (!in_loop_thread())
-        wakeup();
-    return _ret;
-}
-
-bool
-event_loop::remove_event (epoller_event *_e)
-{
-    check(_e);
-    check(m_looping);
-
-    bool _ret = m_epoller.remove_event(_e);
-    if (!_ret)
-        log_fatal("epoller::remove_event() erorr");
-    if (!in_loop_thread())
-        wakeup();
-    return _ret;
-}
-
-bool
-event_loop::update_event (epoller_event *_e)
-{
-    check(_e);
-    check(m_looping);
-
-    bool _ret = m_epoller.modify_event(_e);
-    if (!_ret)
-        log_fatal("epoller::modify_event() erorr");
-    if (!in_loop_thread())
-        wakeup();
-    return _ret;
+    return (m_thr_pimpl->equal_to(thread::ptid()));
 }
 
 void
-event_loop::run_in_loop (event_loop::task &&_fn)
+event_loop::pimpl::add_event (epoller_event &_e) KNGIN_EXP
+{
+    arg_check(_e.pimpl());
+    check(m_looping);
+
+    //bool _ret = m_epoller.register_event(_e);
+    //if (!_ret)
+    //    log_fatal("epoller::register_event() erorr");
+    //if (!in_loop_thread())
+    //    wakeup();
+}
+
+void
+event_loop::pimpl::remove_event (epoller_event &_e) KNGIN_EXP
+{
+    arg_check(_e.pimpl());
+    check(m_looping);
+
+    //bool _ret = m_epoller.remove_event(_e.pimpl());
+    //if (!_ret)
+    //    log_fatal("epoller::remove_event() erorr");
+    //if (!in_loop_thread())
+    //    wakeup();
+}
+
+void
+event_loop::pimpl::update_event (epoller_event &_e) KNGIN_EXP
+{
+    arg_check(_e.pimpl());
+    check(m_looping);
+
+    //bool _ret = m_epoller.modify_event(_e.pimpl());
+    //if (!_ret)
+    //    log_fatal("epoller::modify_event() erorr");
+    //if (!in_loop_thread())
+    //    wakeup();
+}
+
+void
+event_loop::pimpl::run_in_loop (event_loop::task &&_fn) KNGIN_EXP
 {
     check(m_looping);
+    if (!_fn)
+        return;
 
     {
         local_lock _lock(m_mutex);
@@ -185,20 +183,23 @@ event_loop::run_in_loop (event_loop::task &&_fn)
 }
 
 void
-event_loop::wakeup ()
+event_loop::pimpl::wakeup () KNGIN_EXP
 {
     check(m_looping);
-    //log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
+    //log_debug("wakeup event_loop in thread \"%s\"", m_thr_pimpl->name());
     if (m_waker.stopped())
         return;
 
     buffer _val(8);
     _val.write_uint64(1);
-    ssize_t _ret = m_waker.write(_val, 8); // blocked
-    if (_ret < 0)
-        log_error("event_loop::wakeup() error - %s:%d", strerror(errno), errno);
+    std::error_code _ec;
+    size_t _ret = m_waker.write(_val, 8, _ec); // blocked
+    if (_ec)
+        log_error("event_loop::pimpl::wakeup() error - %s:%d",
+                  system_error_str(_ec).c_str());
     else if (_ret != sizeof(_ret))
-        log_error("event_loop::wakeup() error, write %" PRId64 " bytes to waker instead of 8", _ret);
+        log_error("event_loop::pimpl::wakeup() error, write %" PRId64
+                  " bytes to waker instead of 8", _ret);
 }
 
 KNGIN_NAMESPACE_K_END

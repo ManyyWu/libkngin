@@ -3,22 +3,14 @@ set(CMAKE_CXX_STANDARD 14)
 
 project(libkngin_core)
 
-# core
-#set(KNGIN_CORE_INC_DIR   .)
-#set(INC_DIR "${PROJECT_SOURCE_DIR}/libkngin")
+# sources
 file(GLOB KNGIN_CORE_SRC "*.cpp")
 
-# show files
+# print source files
 message(STATUS "source files in /libkngin/core:")
 foreach(file IN LISTS KNGIN_CORE_SRC)
     message(STATUS "  >>" ${file})
 endforeach(file)
-
-# include
-#include_directories(${KNGIN_SOURCE_DIR})
-#include_directories("${INC_DIR}")
-include_directories(".")
-#include_directories("${PROJECT_SOURCE_DIR}/libkngin/")
 
 # pthread-win32
 set(CMAKE_PREFIX_PATH "../../pthreads_win32" ${CMAKE_PREFIX_PATH})

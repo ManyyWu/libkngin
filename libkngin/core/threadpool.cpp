@@ -228,7 +228,7 @@
 //thread_pool::set_queue_max(size_t _max)
 //{
 //    // log info
-//    m_queue_size = (std::min)((std::max)(_max, QUEUE_MIN), QUEUE_MAX);
+//    m_queue_size = (std::min)((std::max)(_max, KNGIN_QUEUE_MIN), KNGIN_QUEUE_MAX);
 //}
 //
 //int

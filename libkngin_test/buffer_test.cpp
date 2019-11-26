@@ -25,7 +25,7 @@ buffer_test ()
         b2.write_bytes((uint8_t *)"9876543210", 10);
         b1.append(b2);
         cerr << b1.dump() << endl;
-    } catch (k::exception &e) {
+    } catch (const k::exception &e) {
         cerr << e.what() << endl;
     } catch (...) {
         throw;

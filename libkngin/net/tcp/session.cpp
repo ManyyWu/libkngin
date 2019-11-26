@@ -1,11 +1,11 @@
 #include "core/common.h"
 #include "core/lock.h"
 #include "core/buffer.h"
-#include "net/session.h"
 #include "net/socket.h"
 #include "net/net_buffer.h"
 #include "net/epoller_event.h"
 #include "net/epoller.h"
+#include "net/tcp/session.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
