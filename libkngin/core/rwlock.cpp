@@ -3,9 +3,9 @@
 #include <pthread.h>
 #include "pthread.h"
 #endif
-#include "common.h"
-#include "timestamp.h"
-#include "rwlock.h"
+#include "core/common.h"
+#include "core/timestamp.h"
+#include "core/rwlock.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

@@ -6,8 +6,8 @@
 #else
 #include <pthread.h>
 #endif
-#include "define.h"
-#include "timestamp.h"
+#include "core/define.h"
+#include "core/timestamp.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

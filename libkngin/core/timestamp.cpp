@@ -5,7 +5,7 @@
 #endif
 #include <ctime>
 #include <algorithm>
-#include "timestamp.h"
+#include "core/timestamp.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

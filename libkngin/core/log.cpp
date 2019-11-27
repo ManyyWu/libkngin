@@ -3,11 +3,11 @@
 #include <cerrno>
 #include <cstring>
 #include <ctime>
-#include "log.h"
-#include "logmgr.h"
-#include "common.h"
-#include "lock.h"
-#include "timestamp.h"
+#include "core/log.h"
+#include "core/logmgr.h"
+#include "core/common.h"
+#include "core/lock.h"
+#include "core/timestamp.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

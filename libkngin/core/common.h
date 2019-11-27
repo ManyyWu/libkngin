@@ -5,9 +5,9 @@
 #include <new>
 #include <cinttypes>
 #include <cassert>
-#include "exception.h"
-#include "define.h"
-#include "logfile.h"
+#include "core/exception.h"
+#include "core/define.h"
+#include "core/logfile.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

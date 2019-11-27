@@ -11,6 +11,7 @@ set(LIBRARY_OUTPUT_PATH     ${PROJECT_SOURCE_DIR}/build/lib/)
 
 # include directories
 include_directories("${PROJECT_SOURCE_DIR}/libkngin")
+include_directories("${PROJECT_SOURCE_DIR}/pthreads_win32/include")
 
 add_subdirectory(libkngin)
 add_subdirectory(libkngin_test)

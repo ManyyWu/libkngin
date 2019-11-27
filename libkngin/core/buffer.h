@@ -4,7 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-#include "define.h"
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

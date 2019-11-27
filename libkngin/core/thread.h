@@ -5,10 +5,10 @@
 #include <atomic>
 #include <memory>
 #include <functional>
-#include "define.h"
-#include "noncopyable.h"
-#include "timestamp.h"
-#include "system_error.h"
+#include "core/define.h"
+#include "core/noncopyable.h"
+#include "core/timestamp.h"
+#include "core/system_error.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -24,11 +24,11 @@ public:
         void *ptr;
         int   code;
 
-        thread_err_code ()
+        thread_err_code () KNGIN_NOEXP
         { ptr = nullptr; code = 0; }
 
         explicit
-        thread_err_code (int _code)
+        thread_err_code (int _code) KNGIN_NOEXP
         { ptr = nullptr; code = _code; }
     };
 
@@ -39,7 +39,7 @@ public:
 
         thr_fn            fn;
 
-        thread_data (std::string &_name, thr_fn &&_fn)
+        thread_data (std::string &_name, thr_fn &&_fn) KNGIN_EXP
             : name(_name), fn(std::move(_fn)) {}
     };
 
@@ -48,59 +48,59 @@ public:
         : public noncopyable,
           public std::enable_shared_from_this<thread::pimpl> {
     public:
-        pimpl         ();
+        pimpl         () KNGIN_EXP;
 
         explicit
-        pimpl         (const char *_name);
+        pimpl         (const char *_name) KNGIN_EXP;
 
         virtual
-        ~pimpl        ();
+        ~pimpl        () KNGIN_NOEXP;
 
     public:
         void
-        run           (thr_fn &&_fn);
+        run           (thr_fn &&_fn) KNGIN_EXP;
 
         int
-        join          ();
+        join          ()KNGIN_EXP;
 
         bool
-        cancel        ();
+        cancel        ()KNGIN_EXP;
 
         bool
-        joined        () const
+        joined        () KNGIN_NOEXP const
         { return m_joined; }
 
         pthread_t
-        get_interface () const
+        get_interface () KNGIN_NOEXP const
         { return m_thr; }
 
         const char *
-        name          () const
+        name          () KNGIN_NOEXP const
         { return m_name.c_str(); }
 
     public:
         static uint64_t
-        tid           ();
+        tid           () KNGIN_NOEXP;
 
         static pthread_t
-        ptid          ();
+        ptid          () KNGIN_NOEXP;
 
         static void
-        sleep         (timestamp _ms);
+        sleep         (timestamp _ms) KNGIN_NOEXP;
 
         static void
-        exit          (int _err_code);
+        exit          (int _err_code) KNGIN_NOEXP;
 
         bool
-        equal_to      (pthread_t _t);
+        equal_to      (pthread_t _t) KNGIN_NOEXP;
 
     protected:
         static void *
-        start         (void *_args);
+        start         (void *_args) KNGIN_NOEXP;
 
     protected:
         static void
-        cleanup       (void *_args);
+        cleanup       (void *_args) KNGIN_NOEXP;
 
     protected:
         const std::string m_name;
@@ -114,60 +114,52 @@ public:
     typedef std::shared_ptr<thread::pimpl> thread_pimpl_ptr;
 
 public:
-    thread        ()
+    thread        () KNGIN_EXP
         : m_pimpl(std::make_shared<thread::pimpl>())  {}
 
     explicit
-    thread        (const char *_name)
+    thread        (const char *_name) KNGIN_EXP
         : m_pimpl(std::make_shared<thread::pimpl>(_name)) {}
 
     virtual
-    ~thread       () = default;
+    ~thread       () KNGIN_NOEXP= default;
 
 public:
     void
-    run           (thr_fn &&_fn)
+    run           (thr_fn &&_fn) KNGIN_EXP
     { m_pimpl->run(std::move(_fn)); }
 
     int
-    join          ()
+    join          () KNGIN_EXP
     { return m_pimpl->join(); }
 
     bool
-    cancel        ();
+    cancel        () KNGIN_EXP;
 
     bool
-    joined        () const;
+    joined        () KNGIN_NOEXP const;
 
     pthread_t
-    get_interface () const;
+    get_interface () KNGIN_NOEXP const;
 
     const char *
-    name          () const;
+    name          () KNGIN_NOEXP const;
 
 public:
     static uint64_t
-    tid           ();
+    tid           () KNGIN_NOEXP;
 
     static pthread_t
-    ptid          ();
+    ptid          () KNGIN_NOEXP;
 
     static void
-    sleep         (timestamp _ms);
+    sleep         (timestamp _ms) KNGIN_NOEXP;
 
     static void
-    exit          (int _err_code);
+    exit          (int _err_code) KNGIN_NOEXP;
 
     bool
-    equal_to      (pthread_t _t);
-
-protected:
-    static void *
-    start         (void *_args);
-
-protected:
-    static void
-    cleanup       (void *_args);
+    equal_to      (pthread_t _t) KNGIN_NOEXP;
 
 protected:
     thread_pimpl_ptr m_pimpl;

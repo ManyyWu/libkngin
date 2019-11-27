@@ -3,8 +3,8 @@
 
 #include <cstdarg>
 #include <string>
-#include "define.h"
-#include "lock.h"
+#include "core/define.h"
+#include "core/lock.h"
 
 #define KNGIN_LOG_BUF_SIZE                     4096
 #define KNGIN_LOG_FILE_MAX_SIZE                20 * 1024 * 1024 // 20M

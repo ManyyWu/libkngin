@@ -7,7 +7,7 @@
 #include <cerrno>
 #endif
 #include <system_error>
-#include "define.h"
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

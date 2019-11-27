@@ -4,9 +4,9 @@
 #include <vector>
 #include <string>
 #include <atomic>
-#include "log.h"
-#include "define.h"
-#include "noncopyable.h"
+#include "core/log.h"
+#include "core/define.h"
+#include "core/noncopyable.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

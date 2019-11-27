@@ -1,11 +1,11 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include "cstring"
-#include "exception.h"
-#include "common.h"
-#include "buffer.h"
-#include "memory.h"
+#include "core/cstring"
+#include "core/exception.h"
+#include "core/common.h"
+#include "core/buffer.h"
+#include "core/memory.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

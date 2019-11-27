@@ -1,9 +1,9 @@
 #ifndef _BITS_H_
 #define _BITS_H_
 
-#include "define.h"
-#include "exception.h"
-#include "common.h"
+#include "core/define.h"
+#include "core/exception.h"
+#include "core/common.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

@@ -4,16 +4,16 @@
 #include <vector>
 #include <deque>
 #include <atomic>
-#include "define.h"
-#include "sync_queue.h"
-#include "sync_deque.h"
-#include "work_thread.h"
-#include "task_base.h"
-#include "error.h"
-#include "thread.h"
-#include "msg.h"
-#include "lock.h"
-#include "timestamp.h"
+#include "core/define.h"
+#include "core/sync_queue.h"
+#include "core/sync_deque.h"
+#include "core/work_thread.h"
+#include "core/task_base.h"
+#include "core/error.h"
+#include "core/thread.h"
+#include "core/msg.h"
+#include "core/lock.h"
+#include "core/timestamp.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

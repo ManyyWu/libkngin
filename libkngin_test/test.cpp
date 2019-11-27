@@ -55,6 +55,7 @@ using namespace std::placeholders;
 #warning "应用层不接触任何底层错误"
 #warning "private"
 #warning "函数体换行"
+#warning "析构函数全部KNGIN_NOEXP"
 /*
 switch (savedErrno)  //检查错误码
 {

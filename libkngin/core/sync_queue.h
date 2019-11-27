@@ -4,11 +4,11 @@
 #include <queue>
 #include <atomic>
 #include <memory>
-#include "define.h"
-#include "logfile.h"
-#include "common.h"
-#include "timestamp.h"
-#include "lock.h"
+#include "core/define.h"
+#include "core/logfile.h"
+#include "core/common.h"
+#include "core/timestamp.h"
+#include "core/lock.h"
 
 using std::deque;
 

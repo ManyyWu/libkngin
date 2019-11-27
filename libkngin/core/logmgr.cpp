@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cassert>
-#include "exception.h"
-#include "log.h"
-#include "logmgr.h"
-#include "common.h"
+#include "core/exception.h"
+#include "core/log.h"
+#include "core/logmgr.h"
+#include "core/common.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

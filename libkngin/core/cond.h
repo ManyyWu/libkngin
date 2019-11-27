@@ -6,9 +6,9 @@
 #else
 #include <pthread.h>
 #endif
-#include "define.h"
-#include "timestamp.h"
-#include "mutex.h"
+#include "core/define.h"
+#include "core/timestamp.h"
+#include "core/mutex.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

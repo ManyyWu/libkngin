@@ -1,7 +1,7 @@
 #ifndef _COPYABLE_H_
 #define _COPYABLE_H_
 
-#include "define.h"
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

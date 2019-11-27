@@ -6,7 +6,7 @@
 #endif
 #include <memory>
 #include <type_traits>
-#include "define.h"
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

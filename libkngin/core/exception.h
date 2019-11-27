@@ -3,7 +3,7 @@
 
 #include <string>
 #include <exception>
-#include "define.h"
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

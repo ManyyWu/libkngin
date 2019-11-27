@@ -1,5 +1,5 @@
 #include <cassert>
-#include "exception.h"
+#include "core/exception.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

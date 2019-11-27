@@ -1,9 +1,9 @@
 #ifndef _LOGFILE_H_
 #define _LOGFILE_H_
 
-#include "define.h"
-#include "log.h"
-#include "logmgr.h"
+#include "core/define.h"
+#include "core/log.h"
+#include "core/logmgr.h"
 
 #if !defined(NDEBUG) && (ON == KNGIN_LOG_RELATIVE_PATH)
 #define kngin_make_log(level, level_str, file_type, fmt, ...)   \

@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <limits>
 #include <algorithm>
-#include "define.h"
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #endif
-#include "common.h"
-#include "exception.h"
-#include "thread.h"
+#include "core/common.h"
+#include "core/exception.h"
+#include "core/thread.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

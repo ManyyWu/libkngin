@@ -3,8 +3,8 @@
 #include <execinfo.h>
 #endif
 #include <string>
-#include "exception.h"
-#include "common.h"
+#include "core/exception.h"
+#include "core/common.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
