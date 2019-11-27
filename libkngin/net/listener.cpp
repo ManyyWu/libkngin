@@ -4,6 +4,7 @@
 #endif
 #include <functional>
 #include "core/common.h"
+#include "core/system_error.h"
 #include "net/sockopts.h"
 #include "net/listener.h"
 
@@ -62,7 +63,7 @@ listener::on_accept ()
 
     address _peer_addr;
     std::error_code _ec;
-    int _fd = m_socket.accept(_peer_addr, _ec);
+    filefd _fd(m_socket.accept(_peer_addr, _ec));
     if (_ec) {
         if (std::errc::too_many_files_open == _ec) {
             m_idle_file.close();
@@ -79,10 +80,10 @@ listener::on_accept ()
     }
 
     if (m_accept_cb) {
-        m_accept_cb(socket(_fd));
+        m_accept_cb(socket(_fd.fd()));
     } else {
-        log_warning("unaccepted session, fd = %d", _fd);
-        ::close(_fd);
+        log_warning("unaccepted session, fd = %d", _fd.fd());
+        _fd.close();
     }
 }
 

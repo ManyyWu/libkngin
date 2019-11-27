@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #else
 #include <pthread.h>
-#include "pthread.h"
+#include "pthreads_win32/include/pthread.h"
 #endif
 #include "core/common.h"
 #include "core/timestamp.h"

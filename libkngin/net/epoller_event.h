@@ -110,7 +110,7 @@ protected:
 
 protected:
     friend class epoller;
-    friend class event_loop;
+    friend class event_loop_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

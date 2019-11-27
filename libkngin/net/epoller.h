@@ -8,26 +8,30 @@
 #ifndef NDEBUG
 #include <set>
 #endif
+#include <memory>
 #include <vector>
 #include "core/define.h"
 #include "core/mutex.h"
 #include "core/timestamp.h"
 #include "net/epoller_event.h"
+#include "event_loop.h"
 
 #define RESERVED_EPOLLELR_EVENT 32
 
 KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
-class epoller {
+class epoller : noncopyable {
 public:
-    typedef std::vector<struct epoll_event> epoll_event_set;
+    typedef typename event_loop::event_loop_pimpl_ptr event_loop_pimpl_ptr;
+
+    typedef std::vector<struct epoll_event>           epoll_event_set;
 
 public:
     epoller        () = delete;
 
     explicit
-    epoller        (event_loop *_loop);
+    epoller        (event_loop &_loop);
 
     ~epoller       ();
 
@@ -64,17 +68,18 @@ protected:
 
 protected:
 #ifndef NDEBUG
-    std::set<int> m_fd_set;
+    std::set<int>        m_fd_set;
 
-    mutex         m_mutex;
+    mutex                m_mutex;
 #endif
 
-    event_loop *  m_loop;
+    event_loop_pimpl_ptr m_loop_pimpl;
 
-    filefd        m_epollfd;
+    filefd               m_epollfd;
 
 protected:
     friend class epoller_event;
+
     friend class event_loop;
 };
 

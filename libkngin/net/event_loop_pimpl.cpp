@@ -5,6 +5,7 @@
 #endif
 #include <cstring>
 #include "core/common.h"
+#include "core/system_error.h"
 #include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
@@ -14,11 +15,11 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event_loop::pimpl::pimpl (thread &_thr)
+event_loop_pimpl::event_loop_pimpl (thread &_thr)
     try
     : m_thr_pimpl(_thr.pimpl()),
-      m_epoller(pimpl()),
-      m_waker(pimpl()),
+      m_epoller(self()),
+      m_waker(self()),
       m_looping(false),
       m_stop(false),
       m_taskq(),
@@ -30,16 +31,15 @@ event_loop::pimpl::pimpl (thread &_thr)
     m_waker.set_nonblock(false);
     m_waker.set_closeexec(true);
 } catch (...) {
-    log_fatal("event_loop::pimpl::pimpl() error");
+    log_fatal("event_loop_pimpl::event_loop_pimpl() error");
     throw;
 }
 
-event_loop::pimpl::~pimpl () KNGIN_NOEXP
+event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
 {
     log_debug("wait for loop in thread \"%s\" to end", m_thr_pimpl->name());
     if (m_looping) {
-        stop();
-#warning "noexp"
+        ignore_exp(stop());
         // FIXME: wait for loop to end
     }
 
@@ -47,8 +47,8 @@ event_loop::pimpl::~pimpl () KNGIN_NOEXP
 }
 
 void
-event_loop::pimpl::loop (started_handler &&_start_cb,
-                         stopped_handler &&_stop_cb) KNGIN_EXP
+event_loop_pimpl::loop (started_handler &&_start_cb,
+        stopped_handler &&_stop_cb) KNGIN_EXP
 {
     check_thread();
     m_looping = true;
@@ -101,7 +101,7 @@ event_loop::pimpl::loop (started_handler &&_start_cb,
 
 #include "core/common.h"
 void
-event_loop::pimpl::stop () KNGIN_EXP
+event_loop_pimpl::stop () KNGIN_EXP
 {
     arg_check(m_looping);
     m_stop = true;
@@ -110,25 +110,25 @@ event_loop::pimpl::stop () KNGIN_EXP
 }
 
 bool
-event_loop::pimpl::looping () KNGIN_NOEXP
+event_loop_pimpl::looping () KNGIN_NOEXP
 {
     return m_looping;
 }
 
 void
-event_loop::pimpl::check_thread () const KNGIN_NOEXP
+event_loop_pimpl::check_thread () const KNGIN_NOEXP
 {
     check(m_thr_pimpl->equal_to(thread::ptid()));
 }
 
 bool
-event_loop::pimpl::in_loop_thread () const KNGIN_NOEXP
+event_loop_pimpl::in_loop_thread () const KNGIN_NOEXP
 {
     return (m_thr_pimpl->equal_to(thread::ptid()));
 }
 
 void
-event_loop::pimpl::add_event (epoller_event &_e) KNGIN_EXP
+event_loop_pimpl::add_event (epoller_event &_e) KNGIN_EXP
 {
     arg_check(_e.pimpl());
     check(m_looping);
@@ -141,7 +141,7 @@ event_loop::pimpl::add_event (epoller_event &_e) KNGIN_EXP
 }
 
 void
-event_loop::pimpl::remove_event (epoller_event &_e) KNGIN_EXP
+event_loop_pimpl::remove_event (epoller_event &_e) KNGIN_EXP
 {
     arg_check(_e.pimpl());
     check(m_looping);
@@ -154,7 +154,7 @@ event_loop::pimpl::remove_event (epoller_event &_e) KNGIN_EXP
 }
 
 void
-event_loop::pimpl::update_event (epoller_event &_e) KNGIN_EXP
+event_loop_pimpl::update_event (epoller_event &_e) KNGIN_EXP
 {
     arg_check(_e.pimpl());
     check(m_looping);
@@ -167,7 +167,7 @@ event_loop::pimpl::update_event (epoller_event &_e) KNGIN_EXP
 }
 
 void
-event_loop::pimpl::run_in_loop (event_loop::task &&_fn) KNGIN_EXP
+event_loop_pimpl::run_in_loop (event_loop::task &&_fn) KNGIN_EXP
 {
     check(m_looping);
     if (!_fn)
@@ -177,13 +177,13 @@ event_loop::pimpl::run_in_loop (event_loop::task &&_fn) KNGIN_EXP
         local_lock _lock(m_mutex);
         m_taskq.push_back(std::move(_fn));
     }
-    
+
     if (!in_loop_thread())
         wakeup();
 }
 
 void
-event_loop::pimpl::wakeup () KNGIN_EXP
+event_loop_pimpl::wakeup () KNGIN_EXP
 {
     check(m_looping);
     //log_debug("wakeup event_loop in thread \"%s\"", m_thr_pimpl->name());
@@ -195,10 +195,10 @@ event_loop::pimpl::wakeup () KNGIN_EXP
     std::error_code _ec;
     size_t _ret = m_waker.write(_val, 8, _ec); // blocked
     if (_ec)
-        log_error("event_loop::pimpl::wakeup() error - %s:%d",
+        log_error("event_loop_pimpl::wakeup() error - %s:%d",
                   system_error_str(_ec).c_str());
     else if (_ret != sizeof(_ret))
-        log_error("event_loop::pimpl::wakeup() error, write %" PRId64
+        log_error("event_loop_pimpl::wakeup() error, write %" PRId64
                   " bytes to waker instead of 8", _ret);
 }
 

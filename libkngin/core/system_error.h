@@ -11,6 +11,8 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class system_error;
+
 inline std::error_code
 int2ec           (int32_t _code) KNGIN_EXP;
 
@@ -18,10 +20,13 @@ inline std::error_code
 last_error       () KNGIN_EXP;
 
 inline std::string
-system_error_str (const char *_what, std::error_code &_ec) KNGIN_EXP;
+system_error_str (const k::system_error &_e) KNGIN_EXP;
 
 inline std::string
-system_error_str (std::error_code &_ec) KNGIN_EXP;
+system_error_str (const char *_what, const std::error_code &_ec) KNGIN_EXP;
+
+inline std::string
+system_error_str (const std::error_code &_ec) KNGIN_EXP;
 
 class system_error {
 public:
@@ -64,13 +69,27 @@ last_error () KNGIN_EXP
 }
 
 inline std::string
-system_error_str (const char *_what, std::error_code &_ec) KNGIN_EXP
+system_error_str (const k::system_error &_e) KNGIN_EXP
 {
-    return std::string(_what) + _ec.message() + ":" + std::to_string(_ec.value());
+    return std::string(_e.what())
+                       + " - "
+                       + _e.code().message()
+                       + ":"
+                       + std::to_string(_e.code().value());
 }
 
 inline std::string
-system_error_str (std::error_code &_ec) KNGIN_EXP
+system_error_str (const char *_what, const std::error_code &_ec) KNGIN_EXP
+{
+    return std::string(_what ? _what : "")
+                       + " - "
+                       + _ec.message()
+                       + ":"
+                       + std::to_string(_ec.value());
+}
+
+inline std::string
+system_error_str (const std::error_code &_ec) KNGIN_EXP
 {
     return _ec.message() + ":" + std::to_string(_ec.value());
 }

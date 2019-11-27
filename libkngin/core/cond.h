@@ -2,7 +2,7 @@
 #define _COND_H_
 
 #ifdef _WIN32
-#include "pthread.h"
+#include "pthreads_win32/include/pthread.h"
 #else
 #include <pthread.h>
 #endif

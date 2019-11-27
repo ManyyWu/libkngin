@@ -6,8 +6,9 @@
 #include <cstring>
 #include <map>
 #include "core/common.h"
-#include "core/timestamp.h"
 #include "core/exception.h"
+#include "core/system_error.h"
+#include "net/event_loop.h"
 #include "net/epoller.h"
 #include "net/filefd.h"
 
@@ -18,16 +19,17 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller::epoller (event_loop *_loop)
+epoller::epoller (event_loop &_loop)
     :
 #ifndef NDEBUG
       m_fd_set(),
       m_mutex(),
 #endif
-      m_loop(_loop),
+      m_loop_pimpl(_loop.pimpl()),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
-    check(_loop);
+    if (nullptr == m_loop_pimpl)
+        throw k::exception("epoller::epoller() - invalid argument");
     if (!m_epollfd.valid()) {
         log_fatal("::epoll_create1() error - %s:%d", strerror(errno), errno);
         throw k::exception("epoller::epoller() error");
