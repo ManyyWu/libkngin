@@ -31,10 +31,11 @@ public:
 
     typedef std::function<void (void)>            task;
 
-    typedef event                                 waker;
+    typedef std::shared_ptr<epoller>              epoller_ptr;
 
-public:
-    typedef thread::pimpl                         thread_pimpl;
+    typedef std::shared_ptr<event>                waker_ptr;
+
+    typedef thread::thread_pimpl_ptr              thread_pimpl_ptr;
 
 public:
     event_loop_pimpl  () KNGIN_NOEXP = delete;
@@ -46,7 +47,7 @@ public:
 
 public:
     void
-    loop              (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP;
+    run               (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP;
 
     void
     stop              () KNGIN_EXP;
@@ -76,7 +77,7 @@ public:
 
 public:
     std::shared_ptr<event_loop_pimpl>
-    self              ()
+    self              () KNGIN_EXP
     { return shared_from_this(); }
 
 protected:
@@ -84,11 +85,11 @@ protected:
     wakeup            () KNGIN_EXP;
 
 private:
-    thread_pimpl             m_thr_pimpl;
+    thread_pimpl_ptr         m_thr;
 
-    epoller                  m_epoller;
+    epoller_ptr              m_epoller;
 
-    waker                    m_waker;
+    waker_ptr                m_waker;
 
     std::atomic<bool>        m_looping;
 
@@ -122,8 +123,8 @@ public:
 
 public:
     void
-    loop           (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP
-    { m_pimpl->loop(std::move(_start_cb), std::move(_stop_cb)); }
+    run            (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP
+    { m_pimpl->run(std::move(_start_cb), std::move(_stop_cb)); }
 
     void
     stop           () KNGIN_EXP
@@ -161,7 +162,7 @@ public:
 
 public:
     event_loop_pimpl_ptr
-    pimpl          ()
+    pimpl          () KNGIN_EXP
     { return m_pimpl; }
 
 protected:

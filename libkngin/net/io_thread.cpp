@@ -57,7 +57,7 @@ io_thread::stop ()
 int
 io_thread::process ()
 {
-    m_loop->loop([this] () {
+    m_loop->run([this] () {
         local_lock _lock(m_mutex);
         m_cond.signal();
     }, nullptr);

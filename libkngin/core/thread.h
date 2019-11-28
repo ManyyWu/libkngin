@@ -78,6 +78,11 @@ public:
         bool
         equal_to      (pthread_t _t) KNGIN_NOEXP;
 
+    public:
+        std::shared_ptr<thread::pimpl>
+        self          () KNGIN_EXP
+        { return shared_from_this(); }
+
     protected:
         static void *
         start         (void *_args) KNGIN_NOEXP;
@@ -149,6 +154,11 @@ public:
     bool
     equal_to      (pthread_t _t) KNGIN_NOEXP
     { return m_pimpl->equal_to(_t); }
+
+public:
+    thread_pimpl_ptr
+    pimpl         () KNGIN_EXP
+    { return m_pimpl; }
 
 protected:
     thread_pimpl_ptr m_pimpl;

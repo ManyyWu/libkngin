@@ -53,14 +53,14 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
     );
 }
 
-bool
-thread::pimpl::run (thr_fn &&_fn, std::error_code) KNGIN_EXP
+void
+thread::pimpl::run (thr_fn &&_fn) KNGIN_EXP
 {
-    arg_check(_fn);
+    arg_check(_fn, "");
 
     std::error_code _ec = int2ec(::pthread_create(&m_thr, nullptr,
-                                 thread::pimpl::start,
-                                 new thread::pimpl::thread_data(m_name, std::move(_fn))));
+                                  thread::pimpl::start,
+                                  new thread::pimpl::thread_data(m_name, std::move(_fn))));
     if (_ec) {
         log_fatal("::pthread_create() error, name = \"%s\" - %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
@@ -72,7 +72,8 @@ thread::pimpl::run (thr_fn &&_fn, std::error_code) KNGIN_EXP
 int
 thread::pimpl::join () KNGIN_EXP
 {
-    check(!equal_to(ptid()));
+    if (equal_to(ptid()))
+        throw k::exception("thread::pimpl::join() error - try to join self");
 
     thread_err_code _code;
     std::error_code _ec = int2ec(::pthread_join(m_thr, &_code.ptr));
@@ -80,7 +81,7 @@ thread::pimpl::join () KNGIN_EXP
     if (_ec) {
         log_fatal("::pthread_join(), name = \"%s\" - %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
-        return _ec.value();
+        throw k::exception("pthread_join() error");
     }
     log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), _code.code);
     return _code.code;
@@ -89,14 +90,16 @@ thread::pimpl::join () KNGIN_EXP
 void
 thread::pimpl::cancel () KNGIN_EXP
 {
-    check(!equal_to(ptid()));
+    if (equal_to(ptid()))
+        throw k::exception("thread::pimpl::cancel() error - try to cancel self");
 
     std::error_code _ec = int2ec(::pthread_cancel(m_thr));
-    if (_ec)
+    if (_ec) {
         log_fatal("::pthread_cancel(), name = \"%s\" - %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
-    else
-        log_info("thread \"%s\" canceled", m_name.c_str());
+        throw k::exception("pthread_cancel() error");
+    }
+    log_info("thread \"%s\" canceled", m_name.c_str());
 }
 
 bool
