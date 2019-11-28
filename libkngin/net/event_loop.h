@@ -25,17 +25,17 @@ class event_loop_pimpl
     : public noncopyable,
       public std::enable_shared_from_this<event_loop_pimpl> {
 public:
-    typedef std::function<void (void)>            started_handler;
+    typedef std::function<void (void)> started_handler;
 
-    typedef std::function<void (void)>            stopped_handler;
+    typedef std::function<void (void)> stopped_handler;
 
-    typedef std::function<void (void)>            task;
+    typedef std::function<void (void)> task;
 
-    typedef std::shared_ptr<epoller>              epoller_ptr;
+    typedef std::shared_ptr<epoller>   epoller_ptr;
 
-    typedef std::shared_ptr<event>                waker_ptr;
+    typedef std::shared_ptr<event>     waker_ptr;
 
-    typedef thread::thread_pimpl_ptr              thread_pimpl_ptr;
+    typedef thread::thread_pimpl_ptr   thread_pimpl_ptr;
 
 public:
     event_loop_pimpl  () KNGIN_NOEXP = delete;

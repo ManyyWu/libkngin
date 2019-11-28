@@ -99,15 +99,17 @@ public:
         std::atomic<bool> m_joined;
     };
 
-    typedef std::shared_ptr<thread::pimpl> thread_pimpl_ptr;
+    typedef thread::pimpl                 thread_pimpl;
+
+    typedef std::shared_ptr<thread_pimpl> thread_pimpl_ptr;
 
 public:
     thread        () KNGIN_EXP
-        : m_pimpl(std::make_shared<thread::pimpl>())  {}
+        : m_pimpl(std::make_shared<thread_pimpl>())  {}
 
     explicit
     thread        (const char *_name) KNGIN_EXP
-        : m_pimpl(std::make_shared<thread::pimpl>(_name)) {}
+        : m_pimpl(std::make_shared<thread_pimpl>(_name)) {}
 
     virtual
     ~thread       () KNGIN_NOEXP = default;
