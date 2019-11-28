@@ -14,18 +14,18 @@
 #include "core/mutex.h"
 #include "core/timestamp.h"
 #include "net/epoller_event.h"
-#include "event_loop.h"
 
 #define RESERVED_EPOLLELR_EVENT 32
 
 KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
+class event_loop_pimpl;
 class epoller : noncopyable {
 public:
-    typedef typename event_loop::event_loop_pimpl_ptr event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
-    typedef std::vector<struct epoll_event>           epoll_event_set;
+    typedef std::vector<struct epoll_event>   epoll_event_set;
 
 public:
     epoller        () = delete;

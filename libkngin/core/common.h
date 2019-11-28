@@ -33,7 +33,7 @@ KNGIN_NAMESPACE_K_BEGIN
                             ? (assert_log(expression (exp) is false), assert((exp)), true)\
                             : false)
 #define check(exp)      do { if_not(exp) (void)0; } while (false)
-#define ignore_exp(exp) try { {exp;} } catch (...) { log_warning("caught an error be ignored"); }
+#define ignore_exp(exp) try { {exp;} } catch (...) { log_warning("caught an exception be ignored"); }
 
 /*
 * nullptr reference

@@ -22,8 +22,8 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop_pimpl
-        : public noncopyable,
-          public std::enable_shared_from_this<event_loop_pimpl> {
+    : public noncopyable,
+      public std::enable_shared_from_this<event_loop_pimpl> {
 public:
     typedef std::function<void (void)>            started_handler;
 
@@ -46,8 +46,7 @@ public:
 
 public:
     void
-    loop              (started_handler &&_start_cb,
-                       stopped_handler &&_stop_cb) KNGIN_EXP;
+    loop              (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP;
 
     void
     stop              () KNGIN_EXP;
@@ -104,11 +103,13 @@ private:
 
 class event_loop : public noncopyable {
 public:
-    typedef event_loop_pimpl::started_handler      started_handler;
+    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
-    typedef event_loop_pimpl::stopped_handler      stopped_handler;
+    typedef event_loop_pimpl::started_handler started_handler;
 
-    typedef event_loop_pimpl::task                 task;
+    typedef event_loop_pimpl::stopped_handler stopped_handler;
+
+    typedef event_loop_pimpl::task            task;
 
 public:
     event_loop     () KNGIN_NOEXP = delete;
@@ -156,7 +157,7 @@ public:
 
     bool
     in_loop_thread () const KNGIN_NOEXP
-    { m_pimpl->in_loop_thread(); }
+    { return m_pimpl->in_loop_thread(); }
 
 public:
     event_loop_pimpl_ptr

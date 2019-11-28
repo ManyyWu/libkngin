@@ -43,19 +43,20 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
 {
     if (!m_joined)
         return;
-    std::error_code _ec;
-    ignore_exp(_ec = int2ec(::pthread_detach(m_thr)));
-    if (_ec)
-        log_fatal("::pthread_detach() error, name = \"%s\" - %s",
-                   m_name.c_str(), system_error_str(_ec).c_str());
-    else
-        log_info("thread \"%s\" has detached", m_name.c_str());
+    ignore_exp(
+        std::error_code _ec = int2ec(::pthread_detach(m_thr));
+        if (_ec)
+            log_fatal("::pthread_detach() error, name = \"%s\" - %s",
+                       m_name.c_str(), system_error_str(_ec).c_str());
+        else
+            log_info("thread \"%s\" has detached", m_name.c_str());
+    );
 }
 
-void
-thread::pimpl::run (thr_fn &&_fn) KNGIN_EXP
+bool
+thread::pimpl::run (thr_fn &&_fn, std::error_code) KNGIN_EXP
 {
-    check(_fn);
+    arg_check(_fn);
 
     std::error_code _ec = int2ec(::pthread_create(&m_thr, nullptr,
                                  thread::pimpl::start,
@@ -63,7 +64,7 @@ thread::pimpl::run (thr_fn &&_fn) KNGIN_EXP
     if (_ec) {
         log_fatal("::pthread_create() error, name = \"%s\" - %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
-        throw _ec;
+        throw k::exception("::pthread_create() error");
     }
     log_info("thread \"%s\" is running", m_name.c_str());
 }
@@ -133,8 +134,8 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
         if (_data->fn)
             _data->fn();
     } catch (const k::system_error &_e) {
-        log_error("caught an std::system_error in thread \"%s\" : %s",
-                  _data->name.c_str(), system_error_str(_e).c_str());
+        ignore_exp(log_error("caught an std::system_error in thread \"%s\" : %s",
+                   _data->name.c_str(), system_error_str(_e).c_str()));
     } catch (const k::exception &_e){
         log_fatal("caught an k::exception in thread \"%s\": %s",
                   _data->name.c_str(), _e.what());

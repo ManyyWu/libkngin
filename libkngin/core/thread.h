@@ -5,7 +5,6 @@
 #include <atomic>
 #include <memory>
 #include <functional>
-#include <system_error>
 #include "core/define.h"
 #include "core/noncopyable.h"
 #include "core/timestamp.h"

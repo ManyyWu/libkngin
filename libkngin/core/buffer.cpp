@@ -1,7 +1,7 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include "core/cstring"
+#include <cstring>
 #include "core/exception.h"
 #include "core/common.h"
 #include "core/buffer.h"

@@ -29,7 +29,7 @@ epoller::epoller (event_loop &_loop)
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
     if (nullptr == m_loop_pimpl)
-        throw k::exception("epoller::epoller() - invalid argument");
+        throw k::exception("invalid argument");
     if (!m_epollfd.valid()) {
         log_fatal("::epoll_create1() error - %s:%d", strerror(errno), errno);
         throw k::exception("epoller::epoller() error");

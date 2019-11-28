@@ -27,7 +27,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
       m_events(RESERVED_EPOLLELR_EVENT)
 {
     if (nullptr == m_thr_pimpl)
-        throw k::exception("event_loop::pimpl::pimpl() - invalid argument");
+        throw k::exception("invalid argument");
     m_waker.set_nonblock(false);
     m_waker.set_closeexec(true);
 } catch (...) {
