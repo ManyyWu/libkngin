@@ -4,6 +4,7 @@
 #endif
 #include <cstring>
 #include "core/common.h"
+#include "core/system_error.h"
 #include "net/event.h"
 #include "net/filefd.h"
 #include "net/event_loop.h"
@@ -16,6 +17,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 event::event (event_loop *_loop)
+    try
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(_loop),
       m_event_cb(nullptr),
@@ -23,16 +25,17 @@ event::event (event_loop *_loop)
       m_stopped(true)
 {
     check(_loop);
-    if (FD_INVALID(m_fd)) {
-        log_fatal("::eventfd() error - %s:%d", strerror(errno), errno);
-        throw k::exception("event::event() erorr");
-    }
+    if (FD_INVALID(m_fd))
+        throw k::system_error("event::event() erorr");
+} catch (...) {
+    log_fatal("event::event() error");
+    throw;
 }
 
 event::~event()
 {
     if (!m_stopped)
-        m_event.remove();
+        ignore_exp(m_event.remove());
 }
 
 void

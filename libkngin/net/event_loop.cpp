@@ -35,12 +35,10 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
 
 event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
 {
-    log_debug("wait for loop in thread \"%s\" to end", m_thr->name());
     if (m_looping) {
         ignore_exp(stop());
         // FIXME: wait for loop to end
     }
-
     log_debug("loop in thread \"%s\" closed", m_thr->name());
 }
 
@@ -102,17 +100,18 @@ event_loop_pimpl::run (started_handler &&_start_cb,
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
 }
 
-#include "core/common.h"
 void
 event_loop_pimpl::stop () KNGIN_EXP
 {
-    check(m_looping);
+    if (m_looping)
+        return;
     check(m_epoller);
     check(m_waker);
 
     m_stop = true;
     if (!in_loop_thread())
         wakeup();
+    
 }
 
 bool

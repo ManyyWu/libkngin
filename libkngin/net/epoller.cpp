@@ -20,6 +20,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 epoller::epoller (event_loop &_loop)
+    try
     :
 #ifndef NDEBUG
       m_fd_set(),
@@ -30,15 +31,16 @@ epoller::epoller (event_loop &_loop)
 {
     if (nullptr == m_loop_pimpl)
         throw k::exception("invalid argument");
-    if (!m_epollfd.valid()) {
-        log_fatal("::epoll_create1() error - %s:%d", strerror(errno), errno);
-        throw k::exception("epoller::epoller() error");
-    }
+    if (!m_epollfd.valid())
+        throw k::system_error("::epoll_create1() error");
+} catch (...) {
+    log_fatal("epoller::epoller() error");
+    throw;
 }
 
 epoller::~epoller ()
 {
-     this->close();
+     ignore_exp(this->close());
 }
 
 uint32_t

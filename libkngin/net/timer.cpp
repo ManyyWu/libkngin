@@ -5,6 +5,7 @@
 #include <cstring>
 #include "net/timer.h"
 #include "core/common.h"
+#include "core/system_error.h"
 #include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
@@ -15,6 +16,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 timer::timer (event_loop *_loop)
+    try
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
       m_timeout_cb(nullptr),
@@ -22,16 +24,17 @@ timer::timer (event_loop *_loop)
       m_stopped(true)
 {
     check(_loop);
-    if (FD_VALID(m_fd)) {
-        log_fatal("timerfd_create() error - %s:%d", strerror(errno), errno);
-        throw k::exception("timer::timer() erorr");
-    }
+    if (FD_VALID(m_fd))
+        throw k::system_error("::timerfd_create() erorr");
+} catch (...) {
+    log_fatal("timer::timer() error");
+    throw;
 }
 
 timer::~timer ()
 {
     if (!m_stopped)
-        m_event.remove();
+        ignore_exp(m_event.remove());
 }
 
 void

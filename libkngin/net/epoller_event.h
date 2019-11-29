@@ -16,11 +16,11 @@ public:
     typedef int                        epollfd;
 
 public:
-    epoller_event  () = delete;
+    epoller_event  () KNGIN_NOEXP = delete;
 
-    epoller_event  (event_loop *_loop, filefd *_s);
+    epoller_event  (event_loop *_loop, filefd *_s) KNGIN_NOEXP;
 
-    ~epoller_event ();
+    ~epoller_event () KNGIN_NOEXP;
 
 public:
     void

@@ -12,7 +12,7 @@ KNGIN_NAMESPACE_K_BEGIN
 io_thread::io_thread (const char *_name)
     try
     : thread(_name),
-      m_loop(std::make_shared<event_loop>(this)),
+      m_loop(nullptr),
       m_mutex(),
       m_cond(&m_mutex)
 {
@@ -24,24 +24,19 @@ io_thread::io_thread (const char *_name)
 io_thread::~io_thread ()
 {
     if (m_loop && m_loop->looping())
-        m_loop->stop();
-    if (!m_joined) {
-        log_warning("unjoined thread \"%s\"", name());
-        join(nullptr);
-    }
+        ignore_exp(m_loop->stop());
 }
 
-bool
+void
 io_thread::run ()
 {
     {
         local_lock _lock(m_mutex);
-        if (!thread::run(std::bind(&io_thread::process, this)))
-            return false;
+        m_loop = std::make_shared<event_loop>(thread::pimpl());
+        thread::run(std::bind(&io_thread::process, this));
         while (!m_loop->looping())
             m_cond.wait();
     }
-    return true;
 }
 
 void
@@ -50,7 +45,7 @@ io_thread::stop ()
     {
         local_lock _lock(m_mutex);
         m_loop->stop();
-        join(nullptr);
+        join();
     }
 }
 

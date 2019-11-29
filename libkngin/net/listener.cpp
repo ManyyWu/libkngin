@@ -22,15 +22,14 @@ listener::listener (event_loop *_loop, k::socket &&_socket)
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     check(_loop);
-    if (!m_idle_file.valid()) {
+    if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
-    }
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
     m_event.set_read_cb(std::bind(&listener::on_accept, this));
     m_event.set_error_cb(std::bind(&listener::on_error, this));
 } catch (...) {
-    log_fatal("session::session() error");
+    log_fatal("listener::listener() error");
     throw;
 }
 

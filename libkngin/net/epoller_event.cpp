@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller_event::epoller_event(event_loop *_loop, filefd *_s)
+epoller_event::epoller_event(event_loop *_loop, filefd *_s) KNGIN_NOEXP
     : m_loop(_loop),
       m_filefd(_s),
       m_flags(EPOLLHUP | EPOLLERR),
@@ -28,7 +28,7 @@ epoller_event::epoller_event(event_loop *_loop, filefd *_s)
 epoller_event::~epoller_event ()
 {
     if (m_registed)
-        this->remove();
+        ignore_exp(this->remove());
 }
 
 void

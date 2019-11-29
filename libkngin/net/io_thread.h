@@ -21,7 +21,7 @@ public:
     ~io_thread ();
 
 public:
-    bool
+    void
     run        ();
 
     void

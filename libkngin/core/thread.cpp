@@ -18,17 +18,22 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 thread::pimpl::pimpl () KNGIN_EXP
-      : m_name(""),
+    try
+    : m_name(""),
 #ifdef _WIN32
-        m_thr({nullptr, 0}),
+      m_thr({nullptr, 0}),
 #else
-        m_thr(0),
+      m_thr(0),
 #endif
-        m_joined(false)
+      m_joined(false)
 {
+} catch (...) {
+    log_fatal("thread::pimpl::pimpl() error");
+    throw;
 }
 
 thread::pimpl::pimpl (const char *_name) KNGIN_EXP
+    try
     : m_name(_name ? _name : ""),
 #ifdef _WIN32
       m_thr({nullptr, 0}),
@@ -37,6 +42,9 @@ thread::pimpl::pimpl (const char *_name) KNGIN_EXP
 #endif
       m_joined(false)
 {
+} catch (...) {
+    log_fatal("thread::pimpl::pimpl() error");
+    throw;
 }
 
 thread::pimpl::~pimpl () KNGIN_NOEXP
