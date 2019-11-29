@@ -28,16 +28,16 @@ public:
     typedef std::vector<struct epoll_event>   epoll_event_set;
 
 public:
-    epoller        () = delete;
+    epoller        () KNGIN_NOEXP = delete;
 
     explicit
-    epoller        (event_loop &_loop);
+    epoller        (event_loop &_loop) KNGIN_EXP;
 
-    ~epoller       ();
+    ~epoller       () KNGIN_NOEXP;
 
 public:
     uint32_t
-    wait           (epoller::epoll_event_set &_list, timestamp _ms);
+    wait           (epoller::epoll_event_set &_list, timestamp _ms) KNGIN_EXP;
 
 public:
     void
@@ -48,23 +48,27 @@ public:
 
 public:
     void
-    close          ();
+    close          () KNGIN_EXP;
 
     bool
-    closed         () { return !m_epollfd.valid(); }
+    closed         () KNGIN_NOEXP
+    { return !m_epollfd.valid(); }
 
 protected:
-    bool
-    register_event (epoller_event *_e) { return update_event(EPOLL_CTL_ADD, _e); }
+    void
+    register_event (epoller_event *_e) KNGIN_EXP
+    { update_event(EPOLL_CTL_ADD, _e); }
 
-    bool
-    remove_event   (epoller_event *_e) { return update_event(EPOLL_CTL_DEL, _e); }
+    void
+    remove_event   (epoller_event *_e) KNGIN_EXP
+    { update_event(EPOLL_CTL_DEL, _e); }
 
-    bool
-    modify_event   (epoller_event *_e) { return update_event(EPOLL_CTL_MOD, _e); }
+    void
+    modify_event   (epoller_event *_e) KNGIN_EXP
+    { update_event(EPOLL_CTL_MOD, _e); }
 
-    bool
-    update_event   (int _opt, epoller_event *_e);
+    void
+    update_event   (int _opt, epoller_event *_e) KNGIN_EXP;
 
 protected:
 #ifndef NDEBUG
@@ -76,11 +80,6 @@ protected:
     event_loop_pimpl_ptr m_loop_pimpl;
 
     filefd               m_epollfd;
-
-protected:
-    friend class epoller_event;
-
-    friend class event_loop;
 };
 
 KNGIN_NAMESPACE_K_END

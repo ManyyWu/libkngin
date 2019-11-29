@@ -9,108 +9,112 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
+class event_loop_pimpl;
 class epoller_event {
 public:
-    typedef std::function<void (void)> epoller_event_cb;
+    typedef std::shared_ptr<event_loop_pimpl> event_loop_impl_ptr;
 
-    typedef int                        epollfd;
+    typedef std::function<void (void)>       epoller_event_cb;
+
+    typedef int                              epollfd;
 
 public:
     epoller_event  () KNGIN_NOEXP = delete;
 
-    epoller_event  (event_loop *_loop, filefd *_s) KNGIN_NOEXP;
+    epoller_event  (event_loop &_loop, filefd *_s) KNGIN_EXP;
 
     ~epoller_event () KNGIN_NOEXP;
 
 public:
     void
-    set_flags      (int flags) { m_flags = flags; }
+    set_flags      (int flags) KNGIN_NOEXP { m_flags = flags; }
     int
-    flags          () const    { return m_flags; }
+    flags          () const    KNGIN_NOEXP { return m_flags; }
     void
-    enable_read    ()          { m_flags |= EPOLLIN; }
+    enable_read    ()          KNGIN_NOEXP { m_flags |= EPOLLIN; }
     void
-    enable_write   ()          { m_flags |= EPOLLOUT; }
+    enable_write   ()          KNGIN_NOEXP { m_flags |= EPOLLOUT; }
     void
-    enable_oob     ()          { m_flags |= EPOLLPRI; }
+    enable_oob     ()          KNGIN_NOEXP { m_flags |= EPOLLPRI; }
     void
-    enable_once    ()          { m_flags |= EPOLLONESHOT; }
+    enable_once    ()          KNGIN_NOEXP { m_flags |= EPOLLONESHOT; }
     void
-    disable_read   ()          { m_flags &= ~EPOLLIN; }
+    disable_read   ()          KNGIN_NOEXP { m_flags &= ~EPOLLIN; }
     void
-    disable_write  ()          { m_flags &= ~EPOLLOUT; }
+    disable_write  ()          KNGIN_NOEXP { m_flags &= ~EPOLLOUT; }
     void
-    disable_oob    ()          { m_flags &= ~EPOLLPRI; }
+    disable_oob    ()          KNGIN_NOEXP { m_flags &= ~EPOLLPRI; }
     void
-    disable_once   ()          { m_flags &= ~EPOLLONESHOT; }
+    disable_once   ()          KNGIN_NOEXP { m_flags &= ~EPOLLONESHOT; }
     void
-    disable_close  ()          { m_closecb = nullptr; }
+    disable_close  ()          KNGIN_NOEXP { m_closecb = nullptr; }
     void
-    disable_all    ()          { m_flags = EPOLLHUP | EPOLLERR; }
+    disable_all    ()          KNGIN_NOEXP { m_flags = EPOLLHUP | EPOLLERR; }
     bool
-    pollin         () const    { return (m_flags & EPOLLIN); }
+    pollin         () const    KNGIN_NOEXP { return (m_flags & EPOLLIN); }
     bool
-    pollout        () const    { return (m_flags & EPOLLOUT); }
+    pollout        () const    KNGIN_NOEXP { return (m_flags & EPOLLOUT); }
     bool
-    pollpri        () const    { return (m_flags & EPOLLPRI); }
+    pollpri        () const    KNGIN_NOEXP { return (m_flags & EPOLLPRI); }
     bool
-    pollonce       () const    { return (m_flags & EPOLLONESHOT); }
+    pollonce       () const    KNGIN_NOEXP { return (m_flags & EPOLLONESHOT); }
     bool
-    registed       () const    { return m_registed; }
+    registed       () const    KNGIN_NOEXP { return m_registed; }
 
 public:
     void
-    start          ();
+    start          () KNGIN_EXP;
 
     void
-    update         ();
+    update         () KNGIN_EXP;
 
     void
-    stop           ();
+    stop           () KNGIN_EXP;
 
     void
-    remove         ();
+    remove         () KNGIN_EXP;
 
 public:
     void
-    set_read_cb    (epoller_event_cb &&_fn) { m_incb = std::move(_fn); m_flags |= EPOLLIN; }
+    set_read_cb    (epoller_event_cb &&_fn) KNGIN_NOEXP
+    { m_incb = std::move(_fn); m_flags |= EPOLLIN; }
     void
-    set_write_cb   (epoller_event_cb &&_fn) { m_outcb = std::move(_fn); m_flags |= EPOLLOUT; }
+    set_write_cb   (epoller_event_cb &&_fn) KNGIN_NOEXP
+    { m_outcb = std::move(_fn); m_flags |= EPOLLOUT; }
     void
-    set_error_cb   (epoller_event_cb &&_fn) { m_errcb = std::move(_fn); m_flags |= EPOLLERR; }
+    set_error_cb   (epoller_event_cb &&_fn) KNGIN_NOEXP
+    { m_errcb = std::move(_fn); m_flags |= EPOLLERR; }
     void
-    set_oob_cb     (epoller_event_cb &&_fn) { m_pricb = std::move(_fn); m_flags |= EPOLLPRI; }
+    set_oob_cb     (epoller_event_cb &&_fn) KNGIN_NOEXP
+    { m_pricb = std::move(_fn); m_flags |= EPOLLPRI; }
     void
-    set_close_cb   (epoller_event_cb &&_fn) { m_closecb = std::move(_fn); m_flags |= EPOLLHUP; }
+    set_close_cb   (epoller_event_cb &&_fn) KNGIN_NOEXP
+    { m_closecb = std::move(_fn); m_flags |= EPOLLHUP; }
 
 protected:
     void
     on_events  (uint32_t _flags);
 
 protected:
-    event_loop *      m_loop;
+    event_loop_impl_ptr m_loop;
 
-    filefd *          m_filefd;
+    filefd *            m_filefd;
 
-    uint32_t          m_flags;
+    uint32_t            m_flags;
 
-    epoller_event_cb  m_incb;
+    epoller_event_cb    m_incb;
 
-    epoller_event_cb  m_outcb;
+    epoller_event_cb    m_outcb;
 
-    epoller_event_cb  m_errcb;
+    epoller_event_cb    m_errcb;
 
-    epoller_event_cb  m_pricb;
+    epoller_event_cb    m_pricb;
 
-    epoller_event_cb  m_closecb;
+    epoller_event_cb    m_closecb;
 
-    epoll_event       m_event;
+    epoll_event         m_event;
 
-    std::atomic<bool> m_registed;
-
-protected:
-    friend class epoller;
-    friend class event_loop_pimpl;
+    std::atomic<bool>   m_registed;
 };
 
 KNGIN_NAMESPACE_K_END

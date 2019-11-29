@@ -19,7 +19,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller::epoller (event_loop &_loop)
+epoller::epoller (event_loop &_loop) KNGIN_EXP
     try
     :
 #ifndef NDEBUG
@@ -38,27 +38,28 @@ epoller::epoller (event_loop &_loop)
     throw;
 }
 
-epoller::~epoller ()
+epoller::~epoller () KNGIN_NOEXP
 {
      ignore_exp(this->close());
 }
 
 uint32_t
-epoller::wait (epoller::epoll_event_set &_list, timestamp _ms)
+epoller::wait (epoller::epoll_event_set &_list, timestamp _ms) KNGIN_EXP
 {
     check(m_epollfd.valid());
     int _num = ::epoll_wait(m_epollfd.fd(), _list.data(), (int)_list.size(), (int)_ms.value_int());
     if (_num < 0) {
         if (EINTR == errno)
             return 0;
-        log_error("::epoll_wait() error - %s:%d", strerror(errno), errno);
+        throw k::system_error("::epoll_wait() error");
     }
     return std::max(_num, 0);
 }
 
 void
-epoller::close ()
+epoller::close () KNGIN_EXP
 {
+    check(m_epollfd.valid());
 #ifndef NDEBUG
     if (!m_fd_set.empty())
         log_warning("there are still have %" PRIu64 " undeleted fd in epoller", m_fd_set.size());
@@ -66,8 +67,8 @@ epoller::close ()
     m_epollfd.close();
 }
 
-bool
-epoller::update_event (int _opt, epoller_event *_e)
+void
+epoller::update_event (int _opt, epoller_event *_e) KNGIN_EXP
 {
     /*
     * NOTES:
@@ -83,7 +84,8 @@ epoller::update_event (int _opt, epoller_event *_e)
     * in another thread has no effect on select().  In summary, any application that relies on a
     * particular behavior in this scenario must be considered buggy.
     */
-    check(_e);
+    arg_check(_e, "");
+    check(m_epollfd.valid());
 
     int _fd = _e->m_filefd->fd();
 #ifndef NDEBUG
@@ -103,13 +105,10 @@ epoller::update_event (int _opt, epoller_event *_e)
     }
 #endif
 
-    _e->m_event = {_e->m_flags, (void *)(_e)};
+    _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
     //log_debug("epoll_ctl: %d, %d, %d", _opt, _fd, _e->m_event.events);
-    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0) {
-        log_error("::epoll_ctl() error - %s:%d", strerror(errno), errno);
-        return false;
-    }
-    return true;
+    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0)
+        throw k::system_error("::epoll_ctl() error");
 }
 
 KNGIN_NAMESPACE_K_END

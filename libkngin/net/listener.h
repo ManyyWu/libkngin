@@ -4,13 +4,14 @@
 #include <functional>
 #include <cassert>
 #include <system_error>
+#include "core/noncopyable.h"
 #include "net/event_loop.h"
 #include "net/socket.h"
 #include "net/address.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class listener {
+class listener : noncopyable{
 public:
     typedef std::function<void (k::socket &&)>    accept_handler;
 
