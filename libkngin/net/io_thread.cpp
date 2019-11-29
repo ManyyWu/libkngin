@@ -53,7 +53,9 @@ int
 io_thread::process ()
 {
     m_loop->run([this] () {
-        local_lock _lock(m_mutex);
+        {
+            local_lock _lock(m_mutex);
+        }
         m_cond.signal();
     }, nullptr);
 
