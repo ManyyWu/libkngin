@@ -37,7 +37,7 @@
 //fail:
 //        if (this->thread::running()) {
 //            _ret = this->cancel();
-//            _ret = this->join(nullptr);
+//            _ret = this->join();
 //        }
 //        log_fatal("::thread::run() error, name = \"%s\"", m_name.c_str());
 //        return false;

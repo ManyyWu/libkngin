@@ -15,7 +15,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event_loop_pimpl::event_loop_pimpl (thread &_thr)
+event_loop_pimpl::event_loop_pimpl (thread &_thr) KNGIN_EXP
     try
     : m_thr(_thr.pimpl()),
       m_epoller(nullptr),
@@ -139,11 +139,12 @@ event_loop_pimpl::add_event (epoller_event &_e) KNGIN_EXP
     check(m_epoller);
     check(m_waker);
 
-    //bool _ret = m_epoller->register_event(_e);
-    //if (!_ret)
-    //    log_fatal("epoller::register_event() erorr");
-    //if (!in_loop_thread())
-    //    wakeup();
+    log_exp_error(
+        m_epoller->register_event(&_e),
+        "epoller::register_event() erorr"
+    );
+    if (!in_loop_thread())
+        wakeup();
 }
 
 void
@@ -153,11 +154,12 @@ event_loop_pimpl::remove_event (epoller_event &_e) KNGIN_EXP
     check(m_epoller);
     check(m_waker);
 
-    //bool _ret = m_epoller->remove_event(_e.pimpl());
-    //if (!_ret)
-    //    log_fatal("epoller::remove_event() erorr");
-    //if (!in_loop_thread())
-    //    wakeup();
+    log_exp_error(
+        m_epoller->remove_event(&_e),
+        "epoller::remove_event() erorr"
+    );
+    if (!in_loop_thread())
+        wakeup();
 }
 
 void
@@ -167,11 +169,12 @@ event_loop_pimpl::update_event (epoller_event &_e) KNGIN_EXP
     check(m_epoller);
     check(m_waker);
 
-    //bool _ret = m_epoller->modify_event(_e.pimpl());
-    //if (!_ret)
-    //    log_fatal("epoller::modify_event() erorr");
-    //if (!in_loop_thread())
-    //    wakeup();
+    log_exp_error(
+        m_epoller->modify_event(&_e),
+        "epoller::modify_event() erorr"
+    );
+    if (!in_loop_thread())
+        wakeup();
 }
 
 void

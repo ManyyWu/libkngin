@@ -1,27 +1,33 @@
 #ifndef _EPOLLER_EVENT_H_
 #define _EPOLLER_EVENT_H_
 
-#include <functional>
+#ifdef _WIN32
+#else
 #include <sys/epoll.h>
+#endif
+#include <functional>
+#include <memory>
 #include "core/define.h"
+#include "core/noncopyable.h"
 #include "net/filefd.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class epoller;
 class event_loop;
 class event_loop_pimpl;
-class epoller_event {
+class epoller_event : noncopyable {
 public:
-    typedef std::shared_ptr<event_loop_pimpl> event_loop_impl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
-    typedef std::function<void (void)>       epoller_event_cb;
+    typedef std::function<void (void)>        epoller_event_cb;
 
-    typedef int                              epollfd;
+    typedef int                               epollfd;
 
 public:
-    epoller_event  () KNGIN_NOEXP = delete;
+    epoller_event  () = delete;
 
-    epoller_event  (event_loop &_loop, filefd *_s) KNGIN_EXP;
+    epoller_event  (event_loop_pimpl_ptr _loop, filefd *_s) KNGIN_EXP;
 
     ~epoller_event () KNGIN_NOEXP;
 
@@ -93,28 +99,33 @@ public:
 
 protected:
     void
-    on_events  (uint32_t _flags);
+    on_events      (uint32_t _flags) KNGIN_EXP;
 
 protected:
-    event_loop_impl_ptr m_loop;
+    event_loop_pimpl_ptr m_loop;
 
-    filefd *            m_filefd;
+    filefd *             m_filefd;
 
-    uint32_t            m_flags;
+    uint32_t             m_flags;
 
-    epoller_event_cb    m_incb;
+    epoller_event_cb     m_incb;
 
-    epoller_event_cb    m_outcb;
+    epoller_event_cb     m_outcb;
 
-    epoller_event_cb    m_errcb;
+    epoller_event_cb     m_errcb;
 
-    epoller_event_cb    m_pricb;
+    epoller_event_cb     m_pricb;
 
-    epoller_event_cb    m_closecb;
+    epoller_event_cb     m_closecb;
 
-    epoll_event         m_event;
+    epoll_event          m_event;
 
-    std::atomic<bool>   m_registed;
+    std::atomic<bool>    m_registed;
+
+private:
+    friend class epoller;
+
+    friend class event_loop_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -112,7 +112,7 @@ public:
         : m_pimpl(std::make_shared<thread_pimpl>(_name)) {}
 
     virtual
-    ~thread       () KNGIN_NOEXP = default;
+    ~thread       () = default;
 
 public:
     void

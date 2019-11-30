@@ -28,16 +28,16 @@ public:
     typedef std::vector<struct epoll_event>   epoll_event_set;
 
 public:
-    epoller        () KNGIN_NOEXP = delete;
+    epoller        () = delete;
 
     explicit
-    epoller        (event_loop &_loop) KNGIN_EXP;
+    epoller        (event_loop_pimpl_ptr _loop) KNGIN_EXP;
 
     ~epoller       () KNGIN_NOEXP;
 
 public:
     uint32_t
-    wait           (epoller::epoll_event_set &_list, timestamp _ms) KNGIN_EXP;
+    wait           (epoll_event_set &_list, timestamp _ms) KNGIN_EXP;
 
 public:
     void
@@ -54,7 +54,7 @@ public:
     closed         () KNGIN_NOEXP
     { return !m_epollfd.valid(); }
 
-protected:
+public:
     void
     register_event (epoller_event *_e) KNGIN_EXP
     { update_event(EPOLL_CTL_ADD, _e); }

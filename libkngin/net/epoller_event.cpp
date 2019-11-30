@@ -10,9 +10,9 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller_event::epoller_event (event_loop &_loop, filefd *_s) KNGIN_EXP
+epoller_event::epoller_event (event_loop_pimpl_ptr _loop, filefd *_s) KNGIN_EXP
     try
-    : m_loop(_loop.pimpl()),
+    : m_loop(std::move(_loop)),
       m_filefd(_s),
       m_flags(EPOLLHUP | EPOLLERR),
       m_incb(nullptr),
@@ -23,7 +23,7 @@ epoller_event::epoller_event (event_loop &_loop, filefd *_s) KNGIN_EXP
       m_event({0, nullptr}),
       m_registed(false)
 {
-    arg_check(m_loop && _s, "");
+    arg_check(m_loop && _s);
 } catch (...) {
     log_fatal("epoller_event::epoller_event() error");
     throw;
@@ -38,7 +38,7 @@ epoller_event::~epoller_event () KNGIN_NOEXP
 void
 epoller_event::start () KNGIN_EXP
 {
-    m_loop->add_event(this);
+    m_loop->add_event(*this);
     m_registed = true;
 }
 
@@ -46,7 +46,7 @@ void
 epoller_event::update () KNGIN_EXP
 {
     check(m_registed);
-    m_loop->update_event(this);
+    m_loop->update_event(*this);
 }
 
 void
@@ -54,14 +54,14 @@ epoller_event::stop () KNGIN_EXP
 {
     check(m_registed);
     disable_all();
-    m_loop->update_event(this);
+    m_loop->update_event(*this);
 }
 
 void
 epoller_event::remove () KNGIN_EXP
 {
     check(m_registed);
-    m_loop->remove_event(this);
+    m_loop->remove_event(*this);
     m_registed = false;
 }
 
@@ -69,6 +69,7 @@ void
 epoller_event::on_events (uint32_t _flags) KNGIN_EXP
 {
     check(m_registed);
+
     if (EPOLLHUP & _flags) // RST
     {
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());

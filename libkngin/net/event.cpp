@@ -16,15 +16,15 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event::event (event_loop *_loop)
+event::event (event_loop_pimpl_ptr _loop) KNGIN_EXP
     try
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
-      m_loop(_loop),
+      m_loop(std::move(_loop)),
       m_event_cb(nullptr),
-      m_event(_loop, this),
+      m_event(m_loop, this),
       m_stopped(true)
 {
-    check(_loop);
+    arg_check(m_loop);
     if (FD_INVALID(m_fd))
         throw k::system_error("event::event() erorr");
 } catch (...) {
@@ -32,16 +32,18 @@ event::event (event_loop *_loop)
     throw;
 }
 
-event::~event()
+event::~event() KNGIN_NOEXP
 {
     if (!m_stopped)
         ignore_exp(m_event.remove());
 }
 
 void
-event::start (event_cb &&_cb)
+event::start (event_cb &&_cb) KNGIN_EXP
 {
+    arg_check(_cb);
     check(m_stopped);
+
     m_event_cb = std::move(_cb);
     m_event.set_read_cb(std::bind(&event::on_event, this));
     m_event.start();
@@ -49,46 +51,45 @@ event::start (event_cb &&_cb)
 }
 
 void
-event::update ()
+event::update () KNGIN_EXP
 {
     check(!m_stopped);
+
     m_event.update();
 }
 
 void
-event::notify ()
+event::notify () KNGIN_EXP
 {
     check(!m_stopped);
+
     buffer _val(8);
     _val.write_uint64(1);
     ssize_t _ret = this->write(_val, 8); // blocked
     if (_ret < 0)
-        log_error("filefd::write() error - %s:%d", strerror(errno), errno);
-    else if (_ret != sizeof(_ret))
-        log_error("filefd::wakeup() error, written %" PRId64 " bytes instead of 8", _ret);
+        throw k::system_error("filefd::write() error");
 }
 
 void
-event::stop ()
+event::stop () KNGIN_EXP
 {
     check(!m_stopped);
+
     m_event.remove();
     m_stopped = true;
 }
 
 void
-event::on_event ()
+event::on_event () KNGIN_NOEXP
 {
     check(!m_stopped);
+
+    std::error_code _ec;
     buffer _val(8);
-    ssize_t _ret = this->read(_val, 8); // blocked
-    if (_ret < 0)
-        log_error("filefd::read() error - %s:%d", strerror(errno), errno);
-    else if (_ret != sizeof(_ret))
-        log_error("filefd::read() error, readed %" PRId64 " bytes instead of 8", _ret);
-    else
-        if (m_event_cb)
-            m_event_cb();
+    size_t _ret = this->read(_val, 8, _ec); // blocked
+//    if (m_event_cb)
+//        ignore_exp(m_event_cb(_ec));
+#warning "error_code"
 }
 
 KNGIN_NAMESPACE_K_END

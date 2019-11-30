@@ -10,50 +10,51 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
+class event_loop_pimpl;
 class event : public filefd {
 public:
-    typedef epoller_event::epoller_event_cb event_cb;
+    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
+
+    typedef epoller_event::epoller_event_cb   event_cb;
 
 public:
     event        () = delete;
 
     explicit
-    event        (event_loop *_loop);
+    event        (event_loop_pimpl_ptr _loop) KNGIN_EXP;
 
     virtual
-    ~event       ();
+    ~event       () KNGIN_NOEXP;
 
 public:
     void
-    start        (event_cb &&_cb);
+    start        (event_cb &&_cb) KNGIN_EXP;
 
     void
-    update       ();
+    update       () KNGIN_EXP;
 
     void
-    notify       ();
+    notify       () KNGIN_EXP;
 
     void
-    stop         ();
-
-    epoller_event *
-    get_event    () { return &m_event; }
+    stop         () KNGIN_EXP;
 
     bool
-    stopped      () { return m_stopped; }
+    stopped      () KNGIN_NOEXP
+    { return m_stopped; }
 
 protected:
     void
-    on_event     ();
+    on_event     () KNGIN_NOEXP;
 
 protected:
-    event_loop *      m_loop;
+    event_loop_pimpl_ptr m_loop;
 
-    event_cb          m_event_cb;
+    event_cb             m_event_cb;
 
-    epoller_event     m_event;
+    epoller_event        m_event;
 
-    std::atomic<bool> m_stopped;
+    std::atomic<bool>    m_stopped;
 };
 
 KNGIN_NAMESPACE_K_END

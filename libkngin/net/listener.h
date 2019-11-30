@@ -11,8 +11,12 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class listener : noncopyable{
+class listener : noncopyable {
 public:
+    typedef std::shared_ptr<event_loop>           event_loop_ptr;
+
+    typedef event_loop::event_loop_pimpl_ptr      event_loop_pimpl_ptr;
+
     typedef std::function<void (k::socket &&)>    accept_handler;
 
     typedef std::function<void (std::error_code)> error_handler;
@@ -20,9 +24,9 @@ public:
 public:
     listener      () = delete;
 
-    listener      (event_loop *_loop, k::socket &&_socket);
+    listener      (event_loop_ptr _loop, k::socket &&_socket) KNGIN_EXP;
 
-    ~listener     ();
+    ~listener     () KNGIN_NOEXP;
 
 public:
     void
@@ -43,22 +47,22 @@ public:
     close         (error_handler &&_cb) KNGIN_EXP;
 
 public:
-    event_loop *
-    get_loop      () const KNGIN_NOEXP
-    { return m_loop; }
+    void
+    check_thread  () const KNGIN_NOEXP
+    { m_loop->check_thread(); }
 
 protected:
     void
-    on_accept     ();
+    on_accept     () KNGIN_NOEXP;
 
     void
-    on_close      ();
+    on_close      () KNGIN_NOEXP;
 
     void
-    on_error      ();
+    on_error      () KNGIN_NOEXP;
 
 protected:
-    event_loop *      m_loop;
+    event_loop_ptr    m_loop;
 
     k::socket         m_socket;
 

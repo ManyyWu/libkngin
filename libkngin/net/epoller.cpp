@@ -19,14 +19,14 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller::epoller (event_loop &_loop) KNGIN_EXP
+epoller::epoller (event_loop_pimpl_ptr _loop) KNGIN_EXP
     try
     :
 #ifndef NDEBUG
       m_fd_set(),
       m_mutex(),
 #endif
-      m_loop_pimpl(_loop.pimpl()),
+      m_loop_pimpl(std::move(_loop)),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
     if (nullptr == m_loop_pimpl)
@@ -44,7 +44,7 @@ epoller::~epoller () KNGIN_NOEXP
 }
 
 uint32_t
-epoller::wait (epoller::epoll_event_set &_list, timestamp _ms) KNGIN_EXP
+epoller::wait (epoll_event_set &_list, timestamp _ms) KNGIN_EXP
 {
     check(m_epollfd.valid());
     int _num = ::epoll_wait(m_epollfd.fd(), _list.data(), (int)_list.size(), (int)_ms.value_int());
@@ -84,7 +84,7 @@ epoller::update_event (int _opt, epoller_event *_e) KNGIN_EXP
     * in another thread has no effect on select().  In summary, any application that relies on a
     * particular behavior in this scenario must be considered buggy.
     */
-    arg_check(_e, "");
+    arg_check(_e);
     check(m_epollfd.valid());
 
     int _fd = _e->m_filefd->fd();

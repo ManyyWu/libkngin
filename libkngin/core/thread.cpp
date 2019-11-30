@@ -64,7 +64,7 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
 void
 thread::pimpl::run (thr_fn &&_fn) KNGIN_EXP
 {
-    arg_check(_fn, "");
+    arg_check(_fn);
 
     std::error_code _ec = int2ec(::pthread_create(&m_thr, nullptr,
                                   thread::pimpl::start,

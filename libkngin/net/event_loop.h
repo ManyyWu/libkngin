@@ -38,10 +38,10 @@ public:
     typedef thread::thread_pimpl_ptr   thread_pimpl_ptr;
 
 public:
-    event_loop_pimpl  () KNGIN_NOEXP = delete;
+    event_loop_pimpl  () = delete;
 
     explicit
-    event_loop_pimpl  (thread &_thr);
+    event_loop_pimpl  (thread &_thr) KNGIN_EXP;
 
     ~event_loop_pimpl () KNGIN_NOEXP;
 
@@ -113,13 +113,13 @@ public:
     typedef event_loop_pimpl::task            task;
 
 public:
-    event_loop     () KNGIN_NOEXP = delete;
+    event_loop     () = delete;
 
     explicit
     event_loop     (thread &_thr) KNGIN_EXP
         : m_pimpl(std::make_shared<event_loop_pimpl>(_thr)) {}
 
-    ~event_loop    () KNGIN_NOEXP = default;
+    ~event_loop    () = default;
 
 public:
     void

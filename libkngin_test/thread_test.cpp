@@ -32,12 +32,12 @@ thread_test ()
 
     thread t1("");
     t1.run(nullptr);
-    t1.join(&ret);
+    t1.join();
     ::fprintf(stderr, "join: %d\n", ret);
 
     thread t2("");
     t2.run(nullptr);
-    t2.join(&ret);
+    t2.join();
     ::fprintf(stderr, "join: %d\n", ret);
 
     thread thr1("");
@@ -45,8 +45,8 @@ thread_test ()
     thr1.run(process1);
     thr2.run(process2);
 
-    thr1.join(&ret);
+    thr1.join();
     ::fprintf(stderr, "join: %d\n", ret);
-    thr2.join(&ret);
+    thr2.join();
     ::fprintf(stderr, "join: %d\n", ret);
 }

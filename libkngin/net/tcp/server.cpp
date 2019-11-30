@@ -53,9 +53,9 @@ server::run ()
 #warning "catch"
 
     // start listener
-    event_loop *_next_loop = m_opts.separate_listen_thread
-                             ? m_threadpool.get_loop(0).get()
-                             : m_threadpool.next_loop().get();
+    event_loop_ptr _next_loop = m_opts.separate_listen_thread
+                                ? m_threadpool.get_loop(0)
+                                : m_threadpool.next_loop();
     check(_next_loop);
     m_listener = std::make_shared<listener>(_next_loop, std::move(_sock));
 
@@ -166,7 +166,7 @@ void
 server::on_new_session (socket &&_sock)
 {
     check(!m_stopped);
-    m_listener->get_loop()->check_thread();
+    m_listener->check_thread();
     // FIXME: stop accepting when sessions reach to the maximum number
 
     address _local_addr = _sock.localaddr();
@@ -176,7 +176,7 @@ server::on_new_session (socket &&_sock)
     event_loop_ptr _next_loop = assign_thread();
     check(_next_loop);
     try {
-        _session = std::make_shared<session>(_next_loop.get(),
+        _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
     } catch (const k::system_error &_e) {
@@ -215,7 +215,7 @@ server::on_new_session (socket &&_sock)
 void
 server::on_close (const session &_session)
 {
-    _session.get_loop()->check_thread();
+    _session.check_thread();
     if (m_close_cb)
         m_close_cb(std::ref(_session));
 
@@ -228,7 +228,7 @@ server::on_close (const session &_session)
 void
 server::on_listener_error (listener &_listener)
 {
-    _listener.get_loop()->check_thread();
+    _listener.check_thread();
 }
 
 KNGIN_NAMESPACE_TCP_END

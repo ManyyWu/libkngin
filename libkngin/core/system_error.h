@@ -28,18 +28,26 @@ system_error_str (const char *_what, const std::error_code &_ec) KNGIN_EXP;
 inline std::string
 system_error_str (const std::error_code &_ec) KNGIN_EXP;
 
-class system_error {
+class system_error : public std::exception {
 public:
-    system_error  () KNGIN_NOEXP = delete;
+    system_error  () = default;
 
     explicit
-    system_error  (const char *_what,
-                   std::error_code _ec = k::last_error()) KNGIN_EXP
-        : m_what(_what), m_ec(_ec)     {}
+    system_error  (const char *_what, std::error_code _ec = k::last_error()) KNGIN_EXP
+        : m_what(_what), m_ec(_ec) {}
+
+    explicit
+    system_error  (const std::string &_what, std::error_code _ec = k::last_error()) KNGIN_EXP
+            : m_what(_what), m_ec(_ec) {}
+
+    explicit
+    system_error  (std::string &&_what, std::error_code _ec = k::last_error()) KNGIN_EXP
+            : m_what(std::move(_what)), m_ec(_ec) {}
 
     virtual
-    ~system_error () KNGIN_NOEXP = default;
+    ~system_error () = default;
 
+public:
     virtual const char *
     what          () const KNGIN_NOEXP { return m_what.c_str(); }
 

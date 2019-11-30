@@ -15,7 +15,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::timer (event_loop *_loop)
+timer::timer (event_loop_pimpl_ptr _loop) KNGIN_EXP
     try
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
@@ -31,16 +31,19 @@ timer::timer (event_loop *_loop)
     throw;
 }
 
-timer::~timer ()
+timer::~timer () KNGIN_NOEXP
 {
     if (!m_stopped)
         ignore_exp(m_event.remove());
 }
 
 void
-timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool _abs /* = false */)
+timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval,
+              bool _abs /* = false */) KNGIN_EXP
 {
+    arg_check(_timeout_cb);
     check(m_stopped);
+
     m_timeout_cb = std::move(_timeout_cb);
     set_time(_val, _interval, _abs);
     m_event.set_read_cb(std::bind(&timer::on_timeout, this));
@@ -49,50 +52,51 @@ timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval, bool 
 }
 
 void
-timer::stop ()
+timer::stop () KNGIN_EXP
 {
     check(!m_stopped);
+
     m_event.remove();
     m_stopped = true;
 }
 
 timestamp
-timer::get_time ()
+timer::get_time () KNGIN_EXP
 {
     check(!m_stopped);
+
     itimerspec _its;
-    int _ret = timerfd_gettime(m_fd, &_its);
-    if (_ret < 0)
-        log_fatal("timerfd_gettime() error - %s:%d", strerror(errno), errno);
+    std::error_code _ec = int2ec(timerfd_gettime(m_fd, &_its));
+    if (_ec)
+        throw k::system_error("timerfd_gettime() error");
     return _its.it_value;
 }
 
 void
-timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
+timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */) KNGIN_EXP
 {
     check(!m_stopped);
+
     itimerspec _its;
     _val.to_timespec(_its.it_value);
     _interval.to_timespec(_its.it_interval);
-
-    int _ret = timerfd_settime(m_fd, _abs ? TFD_TIMER_ABSTIME : 0, &_its, nullptr);
-    if (_ret < 0)
-        log_fatal("timerfd_settime() error - %s:%d", strerror(errno), errno);
+    std::error_code _ec = int2ec(timerfd_settime(m_fd, _abs ? TFD_TIMER_ABSTIME : 0,
+                                                 &_its, nullptr));
+    if (_ec)
+        throw k::system_error("timerfd_settime() error");
 }
 
 void
-timer::on_timeout ()
+timer::on_timeout () KNGIN_NOEXP
 {
     check(!m_stopped);
+
+    std::error_code _ec;
     buffer _val(8);
-    ssize_t _ret = this->read(_val, 8); // blocked
-    if (_ret < 0)
-        log_error("timer::on_timeout() error - %s:%d", strerror(errno), errno);
-    else if (_ret != sizeof(_ret))
-        log_error("timer::on_timeout() error, read %" PRId64 " bytes instead of 8", _ret);
-    else
-        if (m_timeout_cb)
-            m_timeout_cb();
+    ssize_t _ret = this->read(_val, 8, _ec); // blocked
+//    if (m_timeout_cb)
+//        ignore_exp(m_timeout_cb(_ec));
+#warning "error_code"
 }
 
 KNGIN_NAMESPACE_K_END

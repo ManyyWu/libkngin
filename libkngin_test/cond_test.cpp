@@ -49,6 +49,6 @@ cond_test ()
     thread t2("");
     t1.run(process1);
     t2.run(process2);
-    t1.join(nullptr);
-    t2.join(nullptr);
+    t1.join();
+    t2.join();
 }

@@ -76,10 +76,10 @@ sync_queue_test ()
     t3.run(std::bind(comsumer, &_q));
     t4.run(std::bind(comsumer, &_q));
     t5.run(std::bind(comsumer, &_q));
-    t0.join(nullptr);
-    t1.join(nullptr);
-    t2.join(nullptr);
-    t3.join(nullptr);
-    t4.join(nullptr);
-    t5.join(nullptr);
+    t0.join();
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    t5.join();
 }

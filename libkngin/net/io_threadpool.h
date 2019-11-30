@@ -31,9 +31,9 @@ public:
 
     typedef std::vector<std::unique_ptr<io_thread>> threads;
 
-    typedef event_loop::started_cb                  started_cb;
+    typedef event_loop::started_handler             started_handler;
 
-    typedef event_loop::stopped_cb                  stopped_cb;
+    typedef event_loop::stopped_handler             stopped_handler;
 
     typedef io_thread::event_loop_ptr               event_loop_ptr;
 

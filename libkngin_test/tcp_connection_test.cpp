@@ -119,7 +119,7 @@ protected:
             k::socket _client_sock(_server_sock.accept(_client_addr));
             log_info("s: connected to client: %s:%hu", _client_addr.addrstr().c_str(),
                     _client_addr.port());
-            m_session = std::make_shared<session>(m_loop.get(), std::move(_client_sock),
+            m_session = std::make_shared<session>(m_loop, std::move(_client_sock),
                                                   _server_addr, _client_addr);
 
             // set callback
@@ -172,8 +172,8 @@ tcp_connection_test ()
     thread _client("client");
     thread::sleep(1000);
     _client.run(client);
-    _client.join(nullptr);
+    _client.join();
     _server_thr.get_loop()->stop();
 
-    _server_thr.join(nullptr);
+    _server_thr.join();
 }

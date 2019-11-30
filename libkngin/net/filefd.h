@@ -4,8 +4,9 @@
 #include <list>
 #include <system_error>
 #include "core/define.h"
+#include "core/noncopyable.h"
 #include "core/exception.h"
-#include "net/net_buffer.h"
+#include "core/buffer.h"
 
 #define FD_VALID(fd)   (fd >= 0)
 #define FD_INVALID(fd) (fd < 0)
@@ -13,7 +14,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class filefd {
+class filefd : noncopyable {
 public:
     filefd  () = delete;
 
@@ -33,25 +34,28 @@ public:
     fd            () const KNGIN_NOEXP { return m_fd; }
 
     size_t
-    write         (buffer &_buf, size_t _nbytes) KNGIN_EXP;
+    write         (out_buffer &_buf) KNGIN_EXP;
 
     size_t
-    write         (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP;
+    write         (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    read          (buffer &_buf, size_t _nbytes) KNGIN_EXP;
+    read          (in_buffer &_buf) KNGIN_EXP;
 
     size_t
-    read          (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP;
+    read          (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    writev        (net_buffer &_buf, size_t _nbytes) KNGIN_EXP;
+    writev        (out_vector &_buf) KNGIN_EXP;
 
     size_t
-    writev        (net_buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP;
+    writev        (out_vector &_buf, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    readv         (net_buffer &_buf, size_t _nbytes) KNGIN_EXP;
+    readv         (in_vector &_buf) KNGIN_EXP;
+
+    size_t
+    readv         (in_vector &_buf, std::error_code &_ec) KNGIN_EXP;
 
     void
     close         () KNGIN_EXP;

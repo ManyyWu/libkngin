@@ -67,7 +67,7 @@ mutex_test ()
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join(nullptr);
+        thrs[i]->join();
         safe_release(thrs[i]);
     }
 
@@ -86,7 +86,7 @@ mutex_test ()
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join(nullptr);
+        thrs[i]->join();
         safe_release(thrs[i]);
     }
 
@@ -104,7 +104,7 @@ mutex_test ()
     }
 
     for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join(nullptr);
+        thrs[i]->join();
         safe_release(thrs[i]);
     }
 

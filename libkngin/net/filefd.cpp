@@ -37,58 +37,58 @@ filefd::~filefd() KNGIN_NOEXP
 }
 
 size_t
-filefd::write (buffer &_buf, size_t _nbytes) KNGIN_EXP
+filefd::write (out_buffer &_buf) KNGIN_EXP
 {
     assert(FD_VALID(m_fd));
-    assert(_buf.readable(_nbytes));
-    ssize_t _size = ::write(m_fd, _buf.data() + _buf.rindex(), _nbytes);
+    assert(_buf.size());
+    ssize_t _size = ::write(m_fd, _buf.begin(), _buf.size());
     if (_size < 0)
         throw k::system_error("::write() error");
-    _buf.rreset(_buf.rindex() + _size);
+    _buf -= _size;
     return _size;
 }
 
 size_t
-filefd::write (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP
+filefd::write (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 {
     assert(FD_VALID(m_fd));
-    assert(_buf.readable(_nbytes));
-    ssize_t _size = ::write(m_fd, _buf.data() + _buf.rindex(), _nbytes);
+    assert(_buf.size());
+    ssize_t _size = ::write(m_fd, _buf.begin(), _buf.size());
     if (_size < 0) {
         _ec = last_error();
         return 0;
     } else {
         _ec = std::error_code();
     }
-    _buf.rreset(_buf.rindex() + _size);
+    _buf -= _size;
     return _size;
 }
 
 size_t
-filefd::read (buffer &_buf, size_t _nbytes) KNGIN_EXP
+filefd::read (in_buffer &_buf) KNGIN_EXP
 {
     assert(FD_VALID(m_fd));
-    assert(_buf.writeable(_nbytes));
-    ssize_t _size = ::read(m_fd, _buf.data() + _buf.windex(), _nbytes);
+    assert(_buf.writeable());
+    ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
     if (_size < 0)
         throw k::system_error("::read() error");
-    _buf.wreset(_buf.windex() + _size);
+    _buf += _size;
     return _size;
 }
 
 size_t
-filefd::read (buffer &_buf, size_t _nbytes, std::error_code &_ec) KNGIN_NOEXP
+filefd::read (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 {
     assert(FD_VALID(m_fd));
-    assert(_buf.writeable(_nbytes));
-    ssize_t _size = ::read(m_fd, _buf.data() + _buf.windex(), _nbytes);
+    assert(_buf.writeable());
+    ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
     if (_size < 0) {
         _ec = last_error();
         return 0;
     } else {
         _ec = std::error_code();
     }
-    _buf.wreset(_buf.windex() + _size);
+    _buf += _size;
     return _size;
 }
 
@@ -137,8 +137,10 @@ filefd::close () KNGIN_EXP
 {
     if (FD_INVALID(m_fd))
         return;
-    if (::close(m_fd) < 0)
+    if (::close(m_fd) < 0) {
+        m_fd = filefd::invalid_fd;
         throw k::system_error("::close() error");
+    }
     m_fd = filefd::invalid_fd;
 }
 

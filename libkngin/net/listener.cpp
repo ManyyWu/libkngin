@@ -10,11 +10,11 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::listener (event_loop *_loop, k::socket &&_socket)
+listener::listener (event_loop_ptr _loop, k::socket &&_socket) KNGIN_EXP
     try
-    : m_loop(_loop),
+    : m_loop(std::move(_loop)),
       m_socket(std::move(_socket)),
-      m_event(_loop, &m_socket),
+      m_event(m_loop->pimpl(), &m_socket),
       m_closed(false),
       m_listen_addr(),
       m_accept_cb(nullptr),
@@ -33,7 +33,7 @@ listener::listener (event_loop *_loop, k::socket &&_socket)
     throw;
 }
 
-listener::~listener()
+listener::~listener() KNGIN_NOEXP
 {
     if_not (m_closed)
         log_error("the listener must be closed before object disconstructing");
@@ -54,7 +54,7 @@ listener::close (error_handler &&_cb) KNGIN_EXP
 }
 
 void
-listener::on_accept ()
+listener::on_accept () KNGIN_NOEXP
 {
     if (m_closed)
         return;
@@ -62,13 +62,15 @@ listener::on_accept ()
 
     address _peer_addr;
     std::error_code _ec;
-    filefd _fd(m_socket.accept(_peer_addr, _ec));
+    socket _sock(m_socket.accept(_peer_addr, _ec));
     if (_ec) {
         if (std::errc::too_many_files_open == _ec) {
-            m_idle_file.close();
-            m_idle_file = m_socket.accept(_peer_addr);
-            m_idle_file.close();
-            m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            ignore_exp(
+                m_idle_file.close();
+                m_idle_file = m_socket.accept(_peer_addr);
+                m_idle_file.close();
+                m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            );
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
         } else {
@@ -78,27 +80,31 @@ listener::on_accept ()
         return;
     }
 
-    if (m_accept_cb) {
-        m_accept_cb(socket(_fd.fd()));
-    } else {
-        log_warning("unaccepted session, fd = %d", _fd.fd());
-        _fd.close();
-    }
+    ignore_exp(
+        if (m_accept_cb) {
+            m_accept_cb(std::move(_sock));
+        } else {
+            log_warning("unaccepted session, fd = %d", _sock.fd());
+            _sock.close();
+        }
+    )
 }
 
 void
-listener::on_close () KNGIN_EXP
+listener::on_close () KNGIN_NOEXP
 {
     assert(!m_closed);
     m_loop->check_thread();
 
-    m_event.remove();
-    m_socket.close();
+    ignore_exp(
+        m_event.remove();
+        m_socket.close();
+    );
     m_closed = true;
 }
 
 void
-listener::on_error ()
+listener::on_error () KNGIN_NOEXP
 {
     assert(!m_closed);
     m_loop->check_thread();
@@ -107,9 +113,8 @@ listener::on_error ()
     _error = sockopts::error(m_socket, _ec);
     if (_ec)
         log_error("%s - %d", _ec.message().c_str(), _ec.value());
-    log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
     if (m_error_cb)
-        m_error_cb(_ec);
+        ignore_exp(m_error_cb(_error));
 }
 
 KNGIN_NAMESPACE_K_END

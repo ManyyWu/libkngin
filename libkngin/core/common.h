@@ -3,6 +3,7 @@
 
 #define __STDC_FORMAT_MACROS
 #include <new>
+#include <string>
 #include <cinttypes>
 #include <cassert>
 #include "core/exception.h"
@@ -11,6 +12,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+/* for memory */
 #define safe_release(ptr)       do { delete (ptr); (ptr) = nullptr; } while (false)
 #define safe_release_array(ptr) do { delete [] (ptr); (ptr) = nullptr; } while (false)
 
@@ -21,24 +23,37 @@ KNGIN_NAMESPACE_K_BEGIN
  *
  * exp: expression
  */
-#define arg_check(exp, what) do { if (!(exp) ? assert((exp)), true : false) throw k::exception(what " - invalid argument"); } while (false)
-#define if_not(exp)          if (!(exp) ? (assert_log(expression (exp) is false), assert((exp)), true) : false)
-#define check(exp)           do { if_not(exp) (void)0; } while (false)
-#define ignore_exp(exp)      try { {exp;} } catch (...) { log_warning("caught an exception be ignored"); }
 
-/*
-* nullptr reference
-*/
+/* for arguments */
+inline void
+arg_check_func(bool _exp, const char *_what = nullptr)
+{
+    if (!(_exp) ? assert((_exp)), true : false)
+        throw k::exception((std::string(_what ? "invalid argument" : "%s - invalid argument")
+                           + _what).c_str());
+}
+#define arg_check(exp)             do { arg_check_func(static_cast<bool>((exp))); } while (false)
+#define arg_check2(exp, what)      do { arg_check_func(static_cast<bool>((exp)), (what)); } while (false)
+
+/* for expression checking */
+#define if_not(exp)               if (!(exp) ? (assert_log(expression (exp) is false), assert((exp)), true) : false)
+#define check(exp)                do { if_not(exp) (void)0; } while (false)
+#define ignore_exp(exp)           do { try { {exp;} } catch (...) { log_warning("caught an exception be ignored"); } } while (false)
+#define log_exp_fatal(exp, ...)   do { try { {exp;} } catch (...) { log_fatal("%s", __VA_ARGS__); throw; } } while (false)
+#define log_exp_error(exp, ...)   do { try { {exp;} } catch (...) { log_error("%s", __VA_ARGS__); throw; } } while (false)
+#define log_exp_warning(exp, ...) do { try { {exp;} } catch (...) { log_warning("%", __VA_ARGS__); throw; } } while (false)
+
+/* nullptr reference */
 template <typename Type>
 Type &
-nullptr_ref ()
+nullptr_ref () KNGIN_NOEXP
 {
     return *static_cast<Type *>(nullptr);
 }
 
 template <typename Type>
 bool
-is_nullptr_ref (Type &_ref)
+is_nullptr_ref (Type &_ref) KNGIN_NOEXP
 {
     return (nullptr == _ref);
 }

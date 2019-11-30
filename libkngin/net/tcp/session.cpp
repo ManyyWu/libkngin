@@ -2,7 +2,6 @@
 #include "core/lock.h"
 #include "core/buffer.h"
 #include "net/socket.h"
-#include "net/net_buffer.h"
 #include "net/epoller_event.h"
 #include "net/epoller.h"
 #include "net/tcp/session.h"
@@ -17,12 +16,12 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 uint64_t session::m_next_serial = 0;
 
-session::session (event_loop *_loop, k::socket &&_socket,
-                                const address &_local_addr, const address &_peer_addr)
+session::session (event_loop_ptr _loop, k::socket &&_socket,
+                  const address &_local_addr, const address &_peer_addr)
     try
-    : m_loop(_loop), 
+    : m_loop(std::move(_loop)),
       m_socket(std::move(_socket)), 
-      m_event(_loop, &m_socket),
+      m_event(_loop->pimpl(), &m_socket),
       m_sessionected(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
@@ -176,7 +175,8 @@ session::on_write ()
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
 #warning "process error code"
-            on_error();
+//            on_error(_ec);
+#warning "error_code"
         return;
     }
 }
@@ -216,7 +216,8 @@ session::on_read ()
             return;
         log_error("socket::write() error - %s:%d", strerror(errno), errno);
 #warning "process error code"
-        on_error();
+//        on_error(_ec);
+#warning "error_code"
         return;
     }
 }
@@ -247,7 +248,8 @@ session::on_oob ()
     ssize_t _size = m_socket.recv(_buf, 1, MSG_OOB);
     if (1 != _size) {
         log_error("socket::recv(MSG_OOB) error - %s:%d", strerror(errno), errno);
-        on_error();
+//        on_error(_ec);
+#warning "error_code"
         return;
     }
     if (m_oob_cb) {

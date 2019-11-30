@@ -13,7 +13,6 @@
 #include "net/address.h"
 #include "net/sockopts.h"
 #include "net/epoller.h"
-#include "net/net_buffer.h"
 #include "net/epoller_event.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -35,13 +34,17 @@ public:
 
     typedef std::deque<buffer_ptr>                            buffer_queue;
 
+    typedef std::shared_ptr<event_loop>                       event_loop_ptr;
+
+    typedef event_loop::event_loop_pimpl_ptr                  event_loop_pimpl_ptr;
+
 public:
     session         () = delete;
 
-    session         (event_loop *_loop, k::socket &&_socket,
-                     const address &_local_addr, const address &_peer_addr);
+    session         (event_loop_ptr _loop, k::socket &&_socket,
+                     const address &_local_addr, const address &_peer_addr) KNGIN_EXP;
 
-    ~session        ();
+    ~session        () KNGIN_NOEXP;
 
 public:
     bool
@@ -123,15 +126,16 @@ public:
     uint64_t
     serial          () const                { return m_serial; }
 
-    event_loop *
-    get_loop        () const                { return m_loop; }
+public:
+    bool
+    check_thread    () const                { m_loop->check_thread(); }
 
 protected:
     uint64_t
     next_serial     ()                      { return m_next_serial++; }
 
 protected:
-    event_loop *      m_loop;
+    event_loop_ptr    m_loop;
 
     k::socket         m_socket;
 

@@ -45,10 +45,11 @@ io_threadpool::start ()
     for (int i = 0; i < m_num; ++i) {
         std::string _name = std::string("io_thread_") + std::to_string(i);
         m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
-        if (!m_threads.back().get()->run()) {
+        try {
+            m_threads.back()->run();
+        } catch (...) {
             m_stopped = false;
             stop();
-            return false;
         }
     }
 

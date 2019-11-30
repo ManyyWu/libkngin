@@ -9,13 +9,19 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class exception : public std::exception {
 public:
-    exception  () KNGIN_NOEXP = default;
+    exception  () = default;
 
     explicit
     exception  (const char *_what) KNGIN_EXP;
 
+    explicit
+    exception  (const std::string &_what) KNGIN_EXP;
+
+    explicit
+    exception  (std::string &&_what) KNGIN_EXP;
+
     virtual
-    ~exception () KNGIN_NOEXP = default;
+    ~exception () = default;
 
 public:
     virtual const char *

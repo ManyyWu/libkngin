@@ -20,6 +20,20 @@ exception::exception (const char *_what)
     dump_stack();
 }
 
+exception::exception (const std::string &_what)
+        : m_what(_what),
+          m_dump_str()
+{
+    dump_stack();
+}
+
+exception::exception (std::string &&_what)
+        : m_what(std::move(_what)),
+          m_dump_str()
+{
+    dump_stack();
+}
+
 void
 exception::dump_stack ()
 {

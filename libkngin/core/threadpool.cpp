@@ -80,7 +80,7 @@
 //    // log error
 //    if (m_pool_thread && m_pool_thread->running()) {
 //        m_pool_thread->cancel();
-//        m_pool_thread->join(nullptr);
+//        m_pool_thread->join();
 //        // log error
 //    }
 //    kdelete(m_pool_thread);
@@ -89,7 +89,7 @@
 //        for (auto iter : m_pool) {
 //            if (iter && iter->running()) {
 //                iter->cancel();
-//                iter->join(nullptr);
+//                iter->join();
 //            }
 //            kdelete(iter);
 //        }
@@ -122,7 +122,7 @@
 //            log_fatal("pool manager thread cancel failed");
 //            _ret = false;
 //        }
-//        if_not (m_pool_thread->join(nullptr)) {
+//        if_not (m_pool_thread->join()) {
 //            log_fatal("pool manager thread join failed");
 //            _ret = false;
 //        }
@@ -136,7 +136,7 @@
 //                log_fatal("pool thread cancel failed");
 //                _ret = false;
 //            }
-//            if_not (iter->join(nullptr)) {
+//            if_not (iter->join()) {
 //                log_fatal("pool thread join failed");
 //                _ret = false;
 //            }
