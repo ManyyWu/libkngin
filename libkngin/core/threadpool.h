@@ -19,7 +19,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 #define KNGIN_THREAD_NUM_MAX 65535
 
-class thread_pool : noncopyable {
+class thread_pool : public noncopyable {
 public:
     typedef sync_deque<task_base> task_queue;
 

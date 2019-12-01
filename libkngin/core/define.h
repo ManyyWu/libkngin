@@ -43,7 +43,7 @@ typedef SSIZE_T ssize_t;
 #endif
 
 // for exception
-#define KNGIN_EXP   noexcept(false)
+//#define KNGIN_EXP   noexcept(false)
 #define KNGIN_NOEXP noexcept(true)
 
 // for queues

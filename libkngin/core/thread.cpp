@@ -17,7 +17,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-thread::pimpl::pimpl () KNGIN_EXP
+thread::pimpl::pimpl ()
     try
     : m_name(""),
 #ifdef _WIN32
@@ -32,7 +32,7 @@ thread::pimpl::pimpl () KNGIN_EXP
     throw;
 }
 
-thread::pimpl::pimpl (const char *_name) KNGIN_EXP
+thread::pimpl::pimpl (const char *_name)
     try
     : m_name(_name ? _name : ""),
 #ifdef _WIN32
@@ -62,7 +62,7 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
 }
 
 void
-thread::pimpl::run (thr_fn &&_fn) KNGIN_EXP
+thread::pimpl::run (thr_fn &&_fn)
 {
     arg_check(_fn);
 
@@ -78,7 +78,7 @@ thread::pimpl::run (thr_fn &&_fn) KNGIN_EXP
 }
 
 int
-thread::pimpl::join () KNGIN_EXP
+thread::pimpl::join ()
 {
     if (equal_to(ptid()))
         throw k::exception("thread::pimpl::join() error - try to join self");
@@ -96,7 +96,7 @@ thread::pimpl::join () KNGIN_EXP
 }
 
 void
-thread::pimpl::cancel () KNGIN_EXP
+thread::pimpl::cancel ()
 {
     if (equal_to(ptid()))
         throw k::exception("thread::pimpl::cancel() error - try to cancel self");

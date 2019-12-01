@@ -20,38 +20,40 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class session {
 public:
-    typedef std::function<void (session &, buffer &, size_t)> message_cb;
+    typedef std::function<void (session &, in_buffer &, size_t)> message_cb;
 
-    typedef std::function<void (session &)>                   sent_cb;
+    typedef std::function<void (session &)>                      sent_cb;
 
-    typedef std::function<void (session &, uint8_t)>          oob_cb;
+    typedef std::function<void (session &, uint8_t)>             oob_cb;
 
-    typedef std::function<void (const session &)>             close_cb;
+    typedef std::function<void (const session &)>                close_cb;
 
-    typedef std::shared_ptr<session>                          session_ptr;
+    typedef std::shared_ptr<session>                             session_ptr;
 
-    typedef std::shared_ptr<buffer>                           buffer_ptr;
+    typedef std::shared_ptr<in_buffer>                           in_buffer_ptr;
 
-    typedef std::deque<buffer_ptr>                            buffer_queue;
+    typedef std::shared_ptr<out_buffer>                          out_buffer_ptr;
 
-    typedef std::shared_ptr<event_loop>                       event_loop_ptr;
+    typedef std::deque<out_buffer_ptr>                           out_buffer_queue;
 
-    typedef event_loop::event_loop_pimpl_ptr                  event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop>                          event_loop_ptr;
+
+    typedef event_loop::event_loop_pimpl_ptr                     event_loop_pimpl_ptr;
 
 public:
     session         () = delete;
 
     session         (event_loop_ptr _loop, k::socket &&_socket,
-                     const address &_local_addr, const address &_peer_addr) KNGIN_EXP;
+                     const address &_local_addr, const address &_peer_addr);
 
     ~session        () KNGIN_NOEXP;
 
 public:
     bool
-    send            (buffer_ptr _buf);
+    send            (out_buffer_ptr _buf);
 
     bool
-    recv            (buffer_ptr _buf);
+    recv            (in_buffer_ptr _buf);
 
     void
     close           ();
@@ -127,7 +129,7 @@ public:
     serial          () const                { return m_serial; }
 
 public:
-    bool
+    void
     check_thread    () const                { m_loop->check_thread(); }
 
 protected:
@@ -155,9 +157,9 @@ protected:
 
     close_cb          m_close_cb;
 
-    buffer_queue      m_out_bufq;
+    out_buffer_queue  m_out_bufq;
 
-    buffer_ptr        m_in_buf;
+    in_buffer_ptr     m_in_buf;
 
     uint64_t          m_serial;
 

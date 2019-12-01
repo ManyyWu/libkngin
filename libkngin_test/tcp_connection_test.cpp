@@ -5,6 +5,7 @@
 #include "../libkngin/core/logfile.h"
 #include "../libkngin/core/common.h"
 #include "../libkngin/core/buffer.h"
+#include "../libkngin/core/system_error.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/address.h"
@@ -46,25 +47,30 @@ close:
     std::cin >> _reply;
     // write
     {
-        buffer _buf(4);
-        _buf.write_int32(_reply);
-        if (_server_sock.write(_buf, _buf.readable()) <= 0) {
-                    log_error("c: %s", strerror(errno));
+        char _arr[4];
+        in_buffer(_arr, 4).write_int32(_reply);
+        out_buffer _buf(_arr, 4);
+        std::error_code _ec;
+        _server_sock.write(_buf, _ec);
+        if (_ec) {
+            log_error("c: write error - %s", system_error_str(_ec).c_str());
             goto close;
         }
     }
 
     // read
     {
-        buffer _buf(4);
-        int _ret = _server_sock.read(_buf, _buf.writeable());
-        if (_ret < 0) {
-            log_error("c: %s", strerror(errno));
+        char _arr[4];
+        in_buffer _buf(_arr, 4);
+        std::error_code _ec;
+        if (!_server_sock.read(_buf, _ec))
+            goto close;
+        if (_ec) {
+            log_error("c: read error - %s", system_error_str(_ec).c_str());
             goto close;
         }
-        if (!_ret)
-            goto close;
-        log_info("c: read integer %d", _buf.peek_int32());
+
+        log_info("c: read integer %d", out_buffer(_arr, 4).peek_int32());
     }
 
     return 0;
@@ -75,7 +81,7 @@ public:
     mythread ()
         : io_thread("io_thread"),
           m_session(nullptr),
-          m_buf(std::make_shared<buffer>(4)),
+          m_in_buf(std::make_shared<in_buffer>(m_in_arr, 4)),
           m_server_thr("server_thread")
     {
     }
@@ -123,15 +129,14 @@ protected:
                                                   _server_addr, _client_addr);
 
             // set callback
-            m_session->set_message_cb([] (session &_session, buffer &_buf, size_t _size) {
+            m_session->set_message_cb([this] (session &_session, in_buffer &_buf, size_t _size) {
                 uint16_t _port = _session.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
                          _session.peer_addr().addrstr().c_str(), _port,
                          _buf.dump().c_str(), _size);
-                typedef session::buffer_ptr buffer_ptr;
-                buffer_ptr _outbuf = std::make_shared<buffer>(4);
-                _outbuf->write_uint32(_port);
-                check(_session.send(_outbuf));
+                typedef session::out_buffer_ptr buffer_ptr;
+                in_buffer(m_arr, 4).write_uint32(_port);
+                check(_session.send(std::make_shared<out_buffer>(m_arr, 4)));
             });
             m_session->set_sent_cb([] (session &_session) {
                 uint16_t _port = _session.peer_addr().port();
@@ -145,7 +150,7 @@ protected:
 
             // recv
             {
-                m_session->recv(m_buf);
+                m_session->recv(m_in_buf);
             }
         } catch (...) {
             if (m_session)
@@ -158,7 +163,10 @@ protected:
 protected:
     tcp::session::session_ptr m_session;
 
-    session::buffer_ptr       m_buf;
+    char                      m_arr[4];
+
+    char                      m_in_arr[4];
+    session::in_buffer_ptr    m_in_buf;
 
     thread                    m_server_thr;
 };

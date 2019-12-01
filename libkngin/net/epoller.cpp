@@ -19,7 +19,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller::epoller (event_loop_pimpl_ptr _loop) KNGIN_EXP
+epoller::epoller (event_loop_pimpl_ptr _loop)
     try
     :
 #ifndef NDEBUG
@@ -44,7 +44,7 @@ epoller::~epoller () KNGIN_NOEXP
 }
 
 uint32_t
-epoller::wait (epoll_event_set &_list, timestamp _ms) KNGIN_EXP
+epoller::wait (epoll_event_set &_list, timestamp _ms)
 {
     check(m_epollfd.valid());
     int _num = ::epoll_wait(m_epollfd.fd(), _list.data(), (int)_list.size(), (int)_ms.value_int());
@@ -57,7 +57,7 @@ epoller::wait (epoll_event_set &_list, timestamp _ms) KNGIN_EXP
 }
 
 void
-epoller::close () KNGIN_EXP
+epoller::close ()
 {
     check(m_epollfd.valid());
 #ifndef NDEBUG
@@ -68,7 +68,7 @@ epoller::close () KNGIN_EXP
 }
 
 void
-epoller::update_event (int _opt, epoller_event *_e) KNGIN_EXP
+epoller::update_event (int _opt, epoller_event *_e)
 {
     /*
     * NOTES:

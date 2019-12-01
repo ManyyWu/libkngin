@@ -57,7 +57,7 @@ using namespace std::placeholders;
 #warning "函数体换行"....
 #warning "析构函数全部KNGIN_NOEXP"
 #warning "pthread相关错误直接记录日志抛k::exceptino(除析构函数), 网络错误提供两种选择"
-#warning "system_error_str KNGIN_EXP"
+#warning "system_error_str"
 #warning "信号"
 #warning "pimpl() public, self() public, class pimpl public"
 #warning "参数错误throw k::exception("invalid arguments") 或使用arg_check(), 不添加其他信息"

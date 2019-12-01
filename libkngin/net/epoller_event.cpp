@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller_event::epoller_event (event_loop_pimpl_ptr _loop, filefd *_s) KNGIN_EXP
+epoller_event::epoller_event (event_loop_pimpl_ptr _loop, filefd *_s)
     try
     : m_loop(std::move(_loop)),
       m_filefd(_s),
@@ -36,21 +36,21 @@ epoller_event::~epoller_event () KNGIN_NOEXP
 }
 
 void
-epoller_event::start () KNGIN_EXP
+epoller_event::start ()
 {
     m_loop->add_event(*this);
     m_registed = true;
 }
 
 void
-epoller_event::update () KNGIN_EXP
+epoller_event::update ()
 {
     check(m_registed);
     m_loop->update_event(*this);
 }
 
 void
-epoller_event::stop () KNGIN_EXP
+epoller_event::stop ()
 {
     check(m_registed);
     disable_all();
@@ -58,7 +58,7 @@ epoller_event::stop () KNGIN_EXP
 }
 
 void
-epoller_event::remove () KNGIN_EXP
+epoller_event::remove ()
 {
     check(m_registed);
     m_loop->remove_event(*this);
@@ -66,7 +66,7 @@ epoller_event::remove () KNGIN_EXP
 }
 
 void
-epoller_event::on_events (uint32_t _flags) KNGIN_EXP
+epoller_event::on_events (uint32_t _flags)
 {
     check(m_registed);
 
@@ -74,7 +74,7 @@ epoller_event::on_events (uint32_t _flags) KNGIN_EXP
     {
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
         if (m_closecb)
-            ignore_exp(m_closecb())
+            ignore_exp(m_closecb());
         else
             m_filefd->close();
         return;

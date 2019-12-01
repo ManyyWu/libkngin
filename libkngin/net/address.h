@@ -24,8 +24,8 @@ public:
 
 public:
     address    ()                           {  }
-    address    (const ::sockaddr &_sa)      { memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr &&_sa)     { memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
+    address    (const ::sockaddr &_sa)      { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
+    address    (const ::sockaddr &&_sa)     { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
     address    (const ::sockaddr_in &_sa)   { m_sa.v4 = _sa; }
     address    (const ::sockaddr_in &&_sa)  { m_sa.v4 = _sa; }
     address    (const ::sockaddr_in6 &_sa)  { m_sa.v6 = _sa; }
@@ -49,9 +49,9 @@ public:
 
 public:
     address &
-    operator = (const ::sockaddr &_sa)      { memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
+    operator = (const ::sockaddr &_sa)      { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const ::sockaddr &&_sa)     { memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
+    operator = (const ::sockaddr &&_sa)     { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
     operator = (const ::sockaddr_in &_sa)   { m_sa.v4 = _sa; return *this; }
     address &

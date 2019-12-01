@@ -12,13 +12,13 @@ public:
     exception  () = default;
 
     explicit
-    exception  (const char *_what) KNGIN_EXP;
+    exception  (const char *_what);
 
     explicit
-    exception  (const std::string &_what) KNGIN_EXP;
+    exception  (const std::string &_what);
 
     explicit
-    exception  (std::string &&_what) KNGIN_EXP;
+    exception  (std::string &&_what);
 
     virtual
     ~exception () = default;
@@ -28,11 +28,11 @@ public:
     what       () const KNGIN_NOEXP { return m_what.c_str(); }
 
     const std::string &
-    dump       () const KNGIN_EXP   { return m_dump_str; }
+    dump       () const   { return m_dump_str; }
 
 protected:
     void
-    dump_stack () KNGIN_EXP;
+    dump_stack ();
 
 private:
     const std::string m_what;

@@ -15,7 +15,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::timer (event_loop_pimpl_ptr _loop) KNGIN_EXP
+timer::timer (event_loop_pimpl_ptr _loop)
     try
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
@@ -39,7 +39,7 @@ timer::~timer () KNGIN_NOEXP
 
 void
 timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval,
-              bool _abs /* = false */) KNGIN_EXP
+              bool _abs /* = false */)
 {
     arg_check(_timeout_cb);
     check(m_stopped);
@@ -52,7 +52,7 @@ timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval,
 }
 
 void
-timer::stop () KNGIN_EXP
+timer::stop ()
 {
     check(!m_stopped);
 
@@ -61,7 +61,7 @@ timer::stop () KNGIN_EXP
 }
 
 timestamp
-timer::get_time () KNGIN_EXP
+timer::get_time ()
 {
     check(!m_stopped);
 
@@ -73,7 +73,7 @@ timer::get_time () KNGIN_EXP
 }
 
 void
-timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */) KNGIN_EXP
+timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
     check(!m_stopped);
 
@@ -91,9 +91,10 @@ timer::on_timeout () KNGIN_NOEXP
 {
     check(!m_stopped);
 
+    char _arr[8];
+    in_buffer _buf(_arr, 8);
     std::error_code _ec;
-    buffer _val(8);
-    ssize_t _ret = this->read(_val, 8, _ec); // blocked
+    size_t _ret = this->readn(_buf, _ec); // blocked
 //    if (m_timeout_cb)
 //        ignore_exp(m_timeout_cb(_ec));
 #warning "error_code"

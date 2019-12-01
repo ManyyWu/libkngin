@@ -16,7 +16,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event::event (event_loop_pimpl_ptr _loop) KNGIN_EXP
+event::event (event_loop_pimpl_ptr _loop)
     try
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(std::move(_loop)),
@@ -39,7 +39,7 @@ event::~event() KNGIN_NOEXP
 }
 
 void
-event::start (event_cb &&_cb) KNGIN_EXP
+event::start (event_cb &&_cb)
 {
     arg_check(_cb);
     check(m_stopped);
@@ -51,7 +51,7 @@ event::start (event_cb &&_cb) KNGIN_EXP
 }
 
 void
-event::update () KNGIN_EXP
+event::update ()
 {
     check(!m_stopped);
 
@@ -59,19 +59,31 @@ event::update () KNGIN_EXP
 }
 
 void
-event::notify () KNGIN_EXP
+event::notify ()
 {
     check(!m_stopped);
 
-    buffer _val(8);
-    _val.write_uint64(1);
-    ssize_t _ret = this->write(_val, 8); // blocked
-    if (_ret < 0)
+    char _arr[8];
+    in_buffer(_arr, 8).write_uint64(1);
+    std::error_code _ec;
+    size_t _ret = this->writen(out_buffer(_arr, 8), _ec); // blocked
+    if (_ec)
         throw k::system_error("filefd::write() error");
 }
 
 void
-event::stop () KNGIN_EXP
+event::notify (std::error_code &_ec) KNGIN_NOEXP
+{
+    check(!m_stopped);
+
+    char _arr[8];
+    out_buffer(_arr, 8);
+    in_buffer(_arr, 8).write_uint64(1);
+    this->writen(out_buffer(_arr, 8), _ec); // blocked
+}
+
+void
+event::stop ()
 {
     check(!m_stopped);
 
@@ -84,9 +96,10 @@ event::on_event () KNGIN_NOEXP
 {
     check(!m_stopped);
 
+    char _arr[8];
+    in_buffer _buf(_arr, 8);
     std::error_code _ec;
-    buffer _val(8);
-    size_t _ret = this->read(_val, 8, _ec); // blocked
+    size_t _ret = this->readn(_buf, _ec); // blocked
 //    if (m_event_cb)
 //        ignore_exp(m_event_cb(_ec));
 #warning "error_code"

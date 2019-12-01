@@ -6,6 +6,7 @@
 #include <ctime>
 #include "../libkngin/core/thread.h"
 #include "../libkngin/core/common.h"
+#include "../libkngin/core/system_error.h"
 #include "../libkngin/net/tcp/server.h"
 
 using namespace k;
@@ -27,47 +28,49 @@ client ()
     k::socket _server_sock(socket::IPV4_TCP);
     log_info("c: connecting...");
     _server_sock.connect(_server_addr);
-close:
-        //_server_sock.close();
-        //log_info("c: client closed");
-        //return 0;
     log_info("c: connected");
 
-    // read
     uint32_t _reply;
+
+    // read
     {
-        buffer _buf(4);
-        int _ret = _server_sock.read(_buf, _buf.writeable());
-        if (_ret < 0) {
-            log_error("c: %s", strerror(errno));
-            goto close;
+        char _arr[4];
+        in_buffer _buf(_arr, 4);
+        std::error_code _ec;
+        if (!_server_sock.read(_buf, _ec) || _ec) {
+            log_error("c: read error - %s", system_error_str(_ec).c_str());
+            _server_sock.close();
+            return 0;
         }
-        if (!_ret)
-            goto close;
-        log_info("c: read integer %d", _reply = _buf.peek_uint32());
+        log_info("c: read integer %d", _reply = out_buffer(_arr, 4).peek_uint32());
     }
 
     // write
     {
-        buffer _buf(4);
-        _buf.write_uint32(_reply);
-        if (_server_sock.write(_buf, _buf.readable()) <= 0) {
-                    log_error("c: %s", strerror(errno));
-            goto close;
+        char _arr[4];
+        in_buffer(_arr, 4).write_uint32(_reply);
+        out_buffer _buf(_arr, 4);
+        std::error_code _ec;
+        _server_sock.write(_buf, _ec);
+        if (_ec) {
+            log_error("c: write error - %s", system_error_str(_ec).c_str());
+            _server_sock.close();
+            return 0;
         }
     }
 
     // read
     {
-        buffer _buf(4);
-        int _ret = _server_sock.read(_buf, _buf.writeable());
-        if (_ret < 0) {
-            log_error("c: %s", strerror(errno));
-            goto close;
+        char _arr[4];
+        in_buffer _buf(_arr, 4);
+        std::error_code _ec;
+        if (!_server_sock.read(_buf, _ec) || _ec) {
+            log_error("c: read error - %s", system_error_str(_ec).c_str());
+            _server_sock.close();
+            return 0;
         }
-        if (!_ret)
-            goto close;
-        log_info("c: read integer %d", _reply = _buf.peek_uint32());
+        log_info("c: read integer %d", _reply = out_buffer(_arr, 4).peek_uint32());
+
     }
 
     return 0;
@@ -106,7 +109,7 @@ public:
     }
 
     void
-    on_message (tcp::session &_session, buffer &_buf, size_t _size)
+    on_message (tcp::session &_session, in_buffer &_buf, size_t _size)
     {
         log_info("readed %d bytes from session %s:%d - %s:%d], data: %s",
                  _size,
@@ -115,21 +118,12 @@ public:
                  _session.peer_addr().addrstr().c_str(),
                  _session.peer_addr().port(),
                  _buf.dump().c_str());
-        if (1 == _buf.peek_uint32()) {
+        if (1 == out_buffer(_buf.begin(), 4).peek_uint32()) {
            // m_server.stop();
            // return;
         }
-        std::shared_ptr<buffer> _buf1 = nullptr;
-        {
-            local_lock _lock(m_mutex);
-            _buf1 = m_bufs[_session.serial()];
-        }
-        check(_buf1);
-
-        _buf1->resize(4);
-        _buf1->reset();
-        _buf1->write_uint32(_session.peer_addr().port());
-        _session.send(_buf1);
+        in_buffer(_buf.begin(), 4).write_uint32(_session.peer_addr().port());
+        _session.send(std::make_shared<out_buffer>(_buf.begin(), 4));
     }
 
     void
@@ -142,15 +136,11 @@ public:
                  _session.peer_addr().port()
                  );
 
-        std::shared_ptr<buffer> _buf = nullptr;
+        std::shared_ptr<in_buffer> _buf = nullptr;
         {
             local_lock _lock(m_mutex);
-            _buf = m_bufs[_session.serial()];
+            _buf = std::make_shared<in_buffer>(m_bufs[_session.serial()].get(), 4);
         }
-        check(_buf);
-
-        _buf->resize(4);
-        _buf->reset();
         _session.recv(_buf);
     }
 
@@ -180,17 +170,15 @@ public:
                  _session->peer_addr().addrstr().c_str(),
                  _session->peer_addr().port()
                  );
-        std::shared_ptr<buffer> _buf = nullptr;
+        std::shared_ptr<out_buffer> _buf = nullptr;
+        std::shared_ptr<char *> _arr = nullptr;
         {
             local_lock _lock(m_mutex);
-            m_bufs[_session->serial()] = std::make_shared<buffer>(4);
-            _buf = m_bufs[_session->serial()];
+            m_bufs[_session->serial()] = std::make_shared<char *>(new char[4]);
+            _arr = m_bufs[_session->serial()];
+            _buf = std::make_shared<out_buffer>(_arr.get(), 4);
         }
-        check(_buf);
-
-        _buf->resize(4);
-        _buf->reset();
-        _buf->write_uint32(_session->peer_addr().port());
+        in_buffer(_arr.get(), 4).write_uint32(_session->peer_addr().port());
         _session->send(_buf);
 
         if (m_savetime == time(NULL)) {
@@ -212,7 +200,7 @@ public:
 protected:
     tcp::server            m_server;
 
-    typedef std::unordered_map<uint64_t, std::shared_ptr<buffer>> buffer_map;
+    typedef std::unordered_map<uint64_t, std::shared_ptr<char *>> buffer_map;
     buffer_map             m_bufs;
 
     mutex                  m_mutex;

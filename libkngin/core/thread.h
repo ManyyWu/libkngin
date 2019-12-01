@@ -42,28 +42,28 @@ public:
 
             thr_fn            fn;
 
-            thread_data (const std::string &_name, thr_fn &&_fn) KNGIN_EXP
+            thread_data (const std::string &_name, thr_fn &&_fn)
                     : name(_name), fn(std::move(_fn)) {}
         };
 
     public:
-        pimpl         () KNGIN_EXP;
+        pimpl         ();
 
         explicit
-        pimpl         (const char *_name) KNGIN_EXP;
+        pimpl         (const char *_name);
 
         virtual
         ~pimpl        () KNGIN_NOEXP;
 
     public:
         void
-        run           (thr_fn &&_fn) KNGIN_EXP;
+        run           (thr_fn &&_fn);
 
         int
-        join          () KNGIN_EXP;
+        join          ();
 
         void
-        cancel        () KNGIN_EXP;
+        cancel        ();
 
         bool
         joined        () const KNGIN_NOEXP;
@@ -80,7 +80,7 @@ public:
 
     public:
         std::shared_ptr<thread::pimpl>
-        self          () KNGIN_EXP
+        self          ()
         { return shared_from_this(); }
 
     protected:
@@ -104,11 +104,11 @@ public:
     typedef std::shared_ptr<thread_pimpl> thread_pimpl_ptr;
 
 public:
-    thread        () KNGIN_EXP
+    thread        ()
         : m_pimpl(std::make_shared<thread_pimpl>())  {}
 
     explicit
-    thread        (const char *_name) KNGIN_EXP
+    thread        (const char *_name)
         : m_pimpl(std::make_shared<thread_pimpl>(_name)) {}
 
     virtual
@@ -116,15 +116,15 @@ public:
 
 public:
     void
-    run           (thr_fn &&_fn) KNGIN_EXP
+    run           (thr_fn &&_fn)
     { m_pimpl->run(std::move(_fn)); }
 
     int
-    join          () KNGIN_EXP
+    join          ()
     { return m_pimpl->join(); }
 
     void
-    cancel        () KNGIN_EXP
+    cancel        ()
     { m_pimpl->cancel(); }
 
     bool
@@ -159,7 +159,7 @@ public:
 
 public:
     thread_pimpl_ptr
-    pimpl         () KNGIN_EXP
+    pimpl         ()
     { return m_pimpl; }
 
 protected:

@@ -30,25 +30,24 @@ client (void *_args)
 
     k::socket _server_sock(socket::IPV4_TCP);
     _server_sock.connect(_server_addr);
-        log_error("%s", strerror(errno));
     log_info("connecting...");
 
     // read
     int _reply = 0;
     {
-        buffer _buf(4);
-        if (_server_sock.read(_buf, _buf.writeable()) < 0)
-            log_error("%s", strerror(errno));
-        log_info("read integer %d", _buf.peek_int32());
+        char _arr[4];
+        in_buffer _buf(_arr, 4);
+        _server_sock.read(_buf);
+        log_info("read integer %d", out_buffer(_arr, 4).peek_int32());
     }
     std::cerr << "> ";
     std::cin >> _reply;
     // write
     {
-        buffer _buf(4);
-        _buf.write_int32(_reply);
-        if (_server_sock.write(_buf, _buf.readable()) < 0)
-            log_error("%s", strerror(errno));
+        char _arr[4];
+        in_buffer(_arr, 4).write_int32(_reply);
+        out_buffer _buf(_arr, 4);
+        _server_sock.write(_buf);
     }
 
     _server_sock.close();
@@ -76,23 +75,23 @@ server (void *_args)
         address _client_addr;
         k::socket _client_sock(_server_sock.accept(_client_addr));
         log_info("connect to: %s:%d", _client_addr.addrstr().c_str(),
-                _client_addr.port());
+                 _client_addr.port());
         // write
         {
-            buffer _buf(4);
-            _buf.write_int32(_client_addr.port());
-            if (_client_sock.write(_buf, _buf.readable()) < 0)
-                log_error("%s", strerror(errno));
+            char _arr[4];
+            in_buffer(_arr, 4).write_int32(_client_addr.port());
+            out_buffer _buf(_arr, 4);
+            _client_sock.write(_buf);
         }
         // read
         {
-            buffer _buf(4);
-            if (_client_sock.read(_buf, _buf.writeable()) < 0)
-                log_error("%s", strerror(errno));
-            if (_buf.peek_int32() == 0)
+            char _arr[4];
+            in_buffer _buf(_arr, 4);
+            _client_sock.read(_buf);
+            if (out_buffer(_arr, 4).peek_int32() == 0)
                 _ok = false;
             log_info("read integer %d from client %s:%d",
-                     _buf.peek_int32(),
+                     out_buffer(_arr, 4).peek_int32(),
                      _client_addr.addrstr().c_str(),
                      _client_addr.port());
         }

@@ -14,7 +14,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class filefd : noncopyable {
+class filefd : public noncopyable {
 public:
     filefd  () = delete;
 
@@ -34,50 +34,62 @@ public:
     fd            () const KNGIN_NOEXP { return m_fd; }
 
     size_t
-    write         (out_buffer &_buf) KNGIN_EXP;
+    write         (out_buffer &_buf);
 
     size_t
     write         (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    read          (in_buffer &_buf) KNGIN_EXP;
+    read          (in_buffer &_buf);
 
     size_t
     read          (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    writev        (out_vector &_buf) KNGIN_EXP;
+    writen        (out_buffer &&_buf);
 
     size_t
-    writev        (out_vector &_buf, std::error_code &_ec) KNGIN_NOEXP;
+    writen        (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    readv         (in_vector &_buf) KNGIN_EXP;
+    readn         (in_buffer &_buf);
 
     size_t
-    readv         (in_vector &_buf, std::error_code &_ec) KNGIN_EXP;
+    readn         (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
+
+//    size_t
+//    writev        (out_vector &_buf);
+//
+//    size_t
+//    writev        (out_vector &_buf, std::error_code &_ec) KNGIN_NOEXP;
+//
+//    size_t
+//    readv         (in_vector &_buf);
+//
+//    size_t
+//    readv         (in_vector &_buf, std::error_code &_ec);
 
     void
-    close         () KNGIN_EXP;
+    close         ();
 
     void
     close         (std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     void
-    set_nonblock  (bool _on) KNGIN_EXP;
+    set_nonblock  (bool _on);
 
     void
     set_nonblock  (bool _on, std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    set_closeexec (bool _on) KNGIN_EXP;
+    set_closeexec (bool _on);
 
     void
     set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXP;
 
     bool
-    nonblock      () const KNGIN_EXP;
+    nonblock      () const;
 
     bool
     nonblock      (std::error_code &_ec) const KNGIN_NOEXP;

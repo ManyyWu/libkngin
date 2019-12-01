@@ -1,6 +1,7 @@
 #include "core/common.h"
 #include "core/lock.h"
 #include "core/buffer.h"
+#include "core/system_error.h"
 #include "net/socket.h"
 #include "net/epoller_event.h"
 #include "net/epoller.h"
@@ -69,7 +70,7 @@ session::~session ()
 }
 
 bool
-session::send (buffer_ptr _buf)
+session::send (out_buffer_ptr _buf)
 {
     check(m_sessionected);
 
@@ -88,7 +89,7 @@ session::send (buffer_ptr _buf)
 }
 
 bool
-session::recv (buffer_ptr _buf)
+session::recv (in_buffer_ptr _buf)
 {
     check(m_sessionected);
 
@@ -140,20 +141,22 @@ session::on_write ()
         return;
     m_loop->check_thread();
 
-    buffer_ptr _buf = nullptr;
+    out_buffer_ptr _buf = nullptr;
     {
         local_lock _lock(m_mutex);
+        if (m_out_bufq.empty())
+            return;
         _buf = m_out_bufq.back();
     }
 
-    size_t _readable_bytes = _buf->readable();
-    check(_readable_bytes);
+    check(_buf->size());
     if (!m_event.pollout())
         return;
 
-    ssize_t _size = m_socket.write(*_buf, _readable_bytes);
+    std::error_code _ec;
+    ssize_t _size = m_socket.write(*_buf, _ec);
     if (_size > 0) {
-        if (_buf->readable())
+        if (_buf->size())
             return;
 
         // write done
@@ -171,9 +174,14 @@ session::on_write ()
         on_close();
         return;
     } else {
-        if (((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock()) || EINTR == errno)
+        if (((std::errc::operation_would_block == _ec ||
+              std::errc::resource_unavailable_try_again == _ec
+              ) && m_socket.nonblock()
+             ) || EINTR == errno
+            )
             return;
-        log_error("socket::write() error - %s:%d", strerror(errno), errno);
+        log_error("socket::write() error - %s",
+                  system_error_str(_ec).c_str());
 #warning "process error code"
 //            on_error(_ec);
 #warning "error_code"
@@ -196,7 +204,8 @@ session::on_read ()
     if (!m_event.pollin())
         return;
 
-    ssize_t _size = m_socket.read(*m_in_buf, _writeable_bytes);
+    std::error_code _ec;
+    ssize_t _size = m_socket.read(*m_in_buf, _ec);
     if (_size > 0) {
         if (m_in_buf->writeable())
             return;
@@ -204,17 +213,24 @@ session::on_read ()
         // read done
         m_event.disable_read();
         m_event.update();
-        buffer_ptr _temp_ptr = m_in_buf;
+        in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_cb)
-            m_message_cb(std::ref(*this), *_temp_ptr, _temp_ptr->readable());
+            m_message_cb(std::ref(*this),
+                         std::ref(*_temp_ptr),
+                         _temp_ptr->valid());
     } else if (!_size) {
         on_close();
         return;
     } else {
-        if (((EWOULDBLOCK == errno || EAGAIN == errno) && m_socket.nonblock()) || EINTR == errno)
+        if (((std::errc::operation_would_block == _ec ||
+              std::errc::resource_unavailable_try_again == _ec
+              ) && m_socket.nonblock()
+             ) || EINTR == errno
+            )
             return;
-        log_error("socket::write() error - %s:%d", strerror(errno), errno);
+        log_error("socket::write() error - %s",
+                  system_error_str(_ec).c_str());
 #warning "process error code"
 //        on_error(_ec);
 #warning "error_code"
@@ -244,34 +260,42 @@ session::on_oob ()
     m_loop->check_thread();
 
     //recv
-    buffer _buf(1);
-    ssize_t _size = m_socket.recv(_buf, 1, MSG_OOB);
-    if (1 != _size) {
-        log_error("socket::recv(MSG_OOB) error - %s:%d", strerror(errno), errno);
+    char _data;
+    in_buffer _buf(&_data, 1);
+    std::error_code _ec;
+    ssize_t _size = m_socket.recv(_buf, MSG_OOB, _ec);
+    if (_size)
+        return;
+    if (_ec) {
+        log_error("socket::recv(MSG_OOB) error - %s",
+                  system_error_str(_ec).c_str());
 //        on_error(_ec);
 #warning "error_code"
         return;
     }
     if (m_oob_cb) {
-        m_oob_cb(std::ref(*this), _buf.read_uint8());
+        m_oob_cb(std::ref(*this), _data);
     } else {
         log_warning("unhandled oob data from %s:%hu",
-                    m_local_addr.addrstr().c_str(), m_local_addr.port());
+                    m_local_addr.addrstr().c_str(),
+                    m_local_addr.port());
     }
 }
 
 void
 session::on_error()
 {
-//    check(m_sessionected);
-//    m_loop->check_thread();
-//
-//    int _err_code = 0;
-//    if (!sockopts::error(m_socket, _err_code))
-//        log_error("sockopts::error() error");
-//    else
-//        log_error("handled an socket error, fd = %d - %s:%d", m_socket.fd(), strerror(errno), errno);
-//    on_close();
+    check(m_sessionected);
+    m_loop->check_thread();
+
+    std::error_code _ec;
+    std::error_code _error = sockopts::error(m_socket, _ec);
+    if (_ec)
+        log_error("sockopts::error() error - %s",
+                  system_error_str(_ec).c_str());
+    log_error("handled an socket error, fd = %d - %s",
+              m_socket.fd(), system_error_str(_error).c_str());
+    on_close();
 }
 
 KNGIN_NAMESPACE_TCP_END

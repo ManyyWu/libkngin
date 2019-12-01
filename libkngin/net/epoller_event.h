@@ -7,6 +7,7 @@
 #endif
 #include <functional>
 #include <memory>
+#include <atomic>
 #include "core/define.h"
 #include "core/noncopyable.h"
 #include "net/filefd.h"
@@ -16,7 +17,7 @@ KNGIN_NAMESPACE_K_BEGIN
 class epoller;
 class event_loop;
 class event_loop_pimpl;
-class epoller_event : noncopyable {
+class epoller_event : public noncopyable {
 public:
     typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
@@ -27,7 +28,7 @@ public:
 public:
     epoller_event  () = delete;
 
-    epoller_event  (event_loop_pimpl_ptr _loop, filefd *_s) KNGIN_EXP;
+    epoller_event  (event_loop_pimpl_ptr _loop, filefd *_s);
 
     ~epoller_event () KNGIN_NOEXP;
 
@@ -69,16 +70,16 @@ public:
 
 public:
     void
-    start          () KNGIN_EXP;
+    start          ();
 
     void
-    update         () KNGIN_EXP;
+    update         ();
 
     void
-    stop           () KNGIN_EXP;
+    stop           ();
 
     void
-    remove         () KNGIN_EXP;
+    remove         ();
 
 public:
     void
@@ -99,7 +100,7 @@ public:
 
 protected:
     void
-    on_events      (uint32_t _flags) KNGIN_EXP;
+    on_events      (uint32_t _flags);
 
 protected:
     event_loop_pimpl_ptr m_loop;

@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::listener (event_loop_ptr _loop, k::socket &&_socket) KNGIN_EXP
+listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     try
     : m_loop(std::move(_loop)),
       m_socket(std::move(_socket)),
@@ -42,7 +42,7 @@ listener::~listener() KNGIN_NOEXP
 }
 
 void
-listener::close (error_handler &&_cb) KNGIN_EXP
+listener::close (error_handler &&_cb)
 {
     assert(!m_closed);
 
@@ -87,7 +87,7 @@ listener::on_accept () KNGIN_NOEXP
             log_warning("unaccepted session, fd = %d", _sock.fd());
             _sock.close();
         }
-    )
+    );
 }
 
 void

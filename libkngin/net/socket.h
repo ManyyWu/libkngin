@@ -28,10 +28,10 @@ public:
     socket      () = delete;
 
     explicit
-    socket      (int _fd) KNGIN_EXP;
+    socket      (int _fd);
 
     explicit
-    socket      (INET_PROTOCOL _proto) KNGIN_EXP;
+    socket      (INET_PROTOCOL _proto);
 
     socket      (socket &&_s) KNGIN_NOEXP;
 
@@ -40,82 +40,82 @@ public:
 
 public:
     void
-    bind        (const address &_addr) KNGIN_EXP;
+    bind        (const address &_addr);
 
     void
     bind        (const address &_addr, std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    listen      (int _backlog) KNGIN_EXP;
+    listen      (int _backlog);
 
     void
     listen      (int _backlog, std::error_code &_ec) KNGIN_NOEXP;
 
     int
-    accept      (address &_addr) KNGIN_EXP;
+    accept      (address &_addr);
 
     int
     accept      (address &_addr, std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    connect     (const address &_addr) KNGIN_EXP;
+    connect     (const address &_addr);
 
     void
     connect     (const address &_addr, std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     void
-    rd_shutdown () KNGIN_EXP;
+    rd_shutdown ();
 
     void
     rd_shutdown (std::error_code &_ec) KNGIN_NOEXP;
 
     void
-    wr_shutdown () KNGIN_EXP;
+    wr_shutdown ();
 
     void
     wr_shutdown (std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     size_t
-    send        (buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP;
+    send        (out_buffer &_buf, int _flags);
 
     size_t
-    send        (buffer &_buf, size_t _nbytes, int _flags,
+    send        (out_buffer &_buf, int _flags,
                  std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    recv        (buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP;
+    recv        (in_buffer &_buf, int _flags);
 
     size_t
-    recv        (buffer &_buf, size_t _nbytes, int _flags,
+    recv        (in_buffer &_buf, int _flags,
                  std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    sendto      (const address &_addr, buffer &_buf, size_t _nbytes,
-                 int _flags) KNGIN_EXP;
+    sendto      (const address &_addr, out_buffer &_buf,
+                 int _flags);
 
     size_t
-    sendto      (const address &_addr, buffer &_buf, size_t _nbytes,
+    sendto      (const address &_addr, out_buffer &_buf,
                  int _flags, std::error_code &_ec) KNGIN_NOEXP;
 
     size_t
-    recvfrom    (address &_addr, buffer &_buf, size_t _nbytes,
-                 int _flags) KNGIN_EXP;
+    recvfrom    (address &_addr, in_buffer &_buf,
+                 int _flags);
 
     size_t
-    recvfrom    (address &_addr, buffer &_buf, size_t _nbytes,
+    recvfrom    (address &_addr, in_buffer &_buf,
                  int _flags, std::error_code &_ec) KNGIN_NOEXP;
 
 public:
     address
-    localaddr   () KNGIN_EXP;
+    localaddr   ();
 
     address
     localaddr   (std::error_code &_ec) KNGIN_NOEXP;
 
     address
-    peeraddr    () KNGIN_EXP;
+    peeraddr    ();
 
     address
     peeraddr    (std::error_code &_ec) KNGIN_NOEXP;

@@ -126,7 +126,7 @@ server::remove_session (session_ptr _session)
 }
 
 int
-server::broadcast (session_list &_list, buffer &&_buf)
+server::broadcast (session_list &_list, out_buffer_ptr _buf)
 {
     check(!m_stopped);
     return 0;

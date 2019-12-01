@@ -1,19 +1,13 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#ifdef _WIN32
-#else
-#include <sys/timerfd.h>
-#endif
 #include "core/define.h"
 #include "core/timestamp.h"
 #include "net/filefd.h"
-#include "net/epoller_event.h"
-#include "event_loop.h"
+#include "net/event_loop.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_loop;
 class timer : public filefd {
 public:
     typedef event_loop::event_loop_pimpl_ptr event_loop_pimpl_ptr;
@@ -24,7 +18,7 @@ public:
     timer        () = delete;
 
     explicit
-    timer        (event_loop_pimpl_ptr _loop) KNGIN_EXP;
+    timer        (event_loop_pimpl_ptr _loop);
 
     virtual
     ~timer       () KNGIN_NOEXP;
@@ -32,16 +26,16 @@ public:
 public:
     void
     start        (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval,
-                  bool _abs = false) KNGIN_EXP;
+                  bool _abs = false);
 
     void
-    stop         () KNGIN_EXP;
+    stop         ();
 
     timestamp
-    get_time     () KNGIN_EXP;
+    get_time     ();
 
     void
-    set_time     (timestamp _val, timestamp _interval, bool _abs = false) KNGIN_EXP;
+    set_time     (timestamp _val, timestamp _interval, bool _abs = false);
 
     bool
     stopped      () KNGIN_NOEXP

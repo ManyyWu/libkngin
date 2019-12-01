@@ -11,7 +11,6 @@
 #include "core/noncopyable.h"
 #include "net/epoller_event.h"
 #include "net/epoller.h"
-#include "net/event.h"
 
 #ifndef NDEBUG
 #define EPOLLER_TIMEOUT 10000
@@ -21,6 +20,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class event;
 class event_loop_pimpl
     : public noncopyable,
       public std::enable_shared_from_this<event_loop_pimpl> {
@@ -41,32 +41,32 @@ public:
     event_loop_pimpl  () = delete;
 
     explicit
-    event_loop_pimpl  (thread &_thr) KNGIN_EXP;
+    event_loop_pimpl  (thread &_thr);
 
     ~event_loop_pimpl () KNGIN_NOEXP;
 
 public:
     void
-    run               (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP;
+    run               (started_handler &&_start_cb, stopped_handler &&_stop_cb);
 
     void
-    stop              () KNGIN_EXP;
+    stop              ();
 
     bool
     looping           () KNGIN_NOEXP;
 
 public:
     void
-    add_event         (epoller_event &_e) KNGIN_EXP;
+    add_event         (epoller_event &_e);
 
     void
-    remove_event      (epoller_event &_e) KNGIN_EXP;
+    remove_event      (epoller_event &_e);
 
     void
-    update_event      (epoller_event &_e) KNGIN_EXP;
+    update_event      (epoller_event &_e);
 
     void
-    run_in_loop       (task &&_fn) KNGIN_EXP;
+    run_in_loop       (task &&_fn);
 
 public:
     void
@@ -77,12 +77,12 @@ public:
 
 public:
     std::shared_ptr<event_loop_pimpl>
-    self              () KNGIN_EXP
+    self              ()
     { return shared_from_this(); }
 
 protected:
     void
-    wakeup            () KNGIN_EXP;
+    wakeup            ();
 
 private:
     thread_pimpl_ptr         m_thr;
@@ -116,18 +116,18 @@ public:
     event_loop     () = delete;
 
     explicit
-    event_loop     (thread &_thr) KNGIN_EXP
+    event_loop     (thread &_thr)
         : m_pimpl(std::make_shared<event_loop_pimpl>(_thr)) {}
 
     ~event_loop    () = default;
 
 public:
     void
-    run            (started_handler &&_start_cb, stopped_handler &&_stop_cb) KNGIN_EXP
+    run            (started_handler &&_start_cb, stopped_handler &&_stop_cb)
     { m_pimpl->run(std::move(_start_cb), std::move(_stop_cb)); }
 
     void
-    stop           () KNGIN_EXP
+    stop           ()
     { m_pimpl->stop(); }
 
     bool
@@ -136,19 +136,19 @@ public:
 
 public:
     void
-    add_event      (epoller_event &_e) KNGIN_EXP
+    add_event      (epoller_event &_e)
     { m_pimpl->add_event(_e); }
 
     void
-    remove_event   (epoller_event &_e) KNGIN_EXP
+    remove_event   (epoller_event &_e)
     { m_pimpl->remove_event(_e); }
 
     void
-    update_event   (epoller_event &_e) KNGIN_EXP
+    update_event   (epoller_event &_e)
     { m_pimpl->update_event(_e); }
 
     void
-    run_in_loop    (task &&_fn) KNGIN_EXP
+    run_in_loop    (task &&_fn)
     { m_pimpl->run_in_loop(std::move(_fn)); }
 
 public:
@@ -162,7 +162,7 @@ public:
 
 public:
     event_loop_pimpl_ptr
-    pimpl          () KNGIN_EXP
+    pimpl          ()
     { return m_pimpl; }
 
 protected:

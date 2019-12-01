@@ -9,7 +9,7 @@
 //KNGIN_NAMESPACE_K_BEGIN
 //
 //class work_thread;
-//class task_base : noncopyable {
+//class task_base : public noncopyable {
 //public:
 //    task_base      () = delete;
 //

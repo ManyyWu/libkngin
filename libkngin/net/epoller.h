@@ -21,7 +21,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop;
 class event_loop_pimpl;
-class epoller : noncopyable {
+class epoller : public noncopyable {
 public:
     typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
@@ -31,13 +31,13 @@ public:
     epoller        () = delete;
 
     explicit
-    epoller        (event_loop_pimpl_ptr _loop) KNGIN_EXP;
+    epoller        (event_loop_pimpl_ptr _loop);
 
     ~epoller       () KNGIN_NOEXP;
 
 public:
     uint32_t
-    wait           (epoll_event_set &_list, timestamp _ms) KNGIN_EXP;
+    wait           (epoll_event_set &_list, timestamp _ms);
 
 public:
     void
@@ -48,7 +48,7 @@ public:
 
 public:
     void
-    close          () KNGIN_EXP;
+    close          ();
 
     bool
     closed         () KNGIN_NOEXP
@@ -56,19 +56,19 @@ public:
 
 public:
     void
-    register_event (epoller_event *_e) KNGIN_EXP
+    register_event (epoller_event *_e)
     { update_event(EPOLL_CTL_ADD, _e); }
 
     void
-    remove_event   (epoller_event *_e) KNGIN_EXP
+    remove_event   (epoller_event *_e)
     { update_event(EPOLL_CTL_DEL, _e); }
 
     void
-    modify_event   (epoller_event *_e) KNGIN_EXP
+    modify_event   (epoller_event *_e)
     { update_event(EPOLL_CTL_MOD, _e); }
 
     void
-    update_event   (int _opt, epoller_event *_e) KNGIN_EXP;
+    update_event   (int _opt, epoller_event *_e);
 
 protected:
 #ifndef NDEBUG

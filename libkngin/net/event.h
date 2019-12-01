@@ -5,12 +5,10 @@
 #include <atomic>
 #include "core/define.h"
 #include "net/filefd.h"
-#include "net/epoller_event.h"
+#include "net/event_loop.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_loop;
-class event_loop_pimpl;
 class event : public filefd {
 public:
     typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
@@ -21,23 +19,26 @@ public:
     event        () = delete;
 
     explicit
-    event        (event_loop_pimpl_ptr _loop) KNGIN_EXP;
+    event        (event_loop_pimpl_ptr _loop);
 
     virtual
     ~event       () KNGIN_NOEXP;
 
 public:
     void
-    start        (event_cb &&_cb) KNGIN_EXP;
+    start        (event_cb &&_cb);
 
     void
-    update       () KNGIN_EXP;
+    update       ();
 
     void
-    notify       () KNGIN_EXP;
+    notify       ();
 
     void
-    stop         () KNGIN_EXP;
+    notify       (std::error_code &_ec) KNGIN_NOEXP;
+
+    void
+    stop         ();
 
     bool
     stopped      () KNGIN_NOEXP

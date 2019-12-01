@@ -7,6 +7,7 @@
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/event_loop.h"
+#include "net/event.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -15,7 +16,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event_loop_pimpl::event_loop_pimpl (thread &_thr) KNGIN_EXP
+event_loop_pimpl::event_loop_pimpl (thread &_thr)
     try
     : m_thr(_thr.pimpl()),
       m_epoller(nullptr),
@@ -44,7 +45,7 @@ event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
 
 void
 event_loop_pimpl::run (started_handler &&_start_cb,
-        stopped_handler &&_stop_cb) KNGIN_EXP
+        stopped_handler &&_stop_cb)
 {
     check(m_looping);
     check_thread();
@@ -101,7 +102,7 @@ event_loop_pimpl::run (started_handler &&_start_cb,
 }
 
 void
-event_loop_pimpl::stop () KNGIN_EXP
+event_loop_pimpl::stop ()
 {
     if (m_looping)
         return;
@@ -133,7 +134,7 @@ event_loop_pimpl::in_loop_thread () const KNGIN_NOEXP
 }
 
 void
-event_loop_pimpl::add_event (epoller_event &_e) KNGIN_EXP
+event_loop_pimpl::add_event (epoller_event &_e)
 {
     check(m_looping);
     check(m_epoller);
@@ -148,7 +149,7 @@ event_loop_pimpl::add_event (epoller_event &_e) KNGIN_EXP
 }
 
 void
-event_loop_pimpl::remove_event (epoller_event &_e) KNGIN_EXP
+event_loop_pimpl::remove_event (epoller_event &_e)
 {
     check(m_looping);
     check(m_epoller);
@@ -163,7 +164,7 @@ event_loop_pimpl::remove_event (epoller_event &_e) KNGIN_EXP
 }
 
 void
-event_loop_pimpl::update_event (epoller_event &_e) KNGIN_EXP
+event_loop_pimpl::update_event (epoller_event &_e)
 {
     check(m_looping);
     check(m_epoller);
@@ -178,7 +179,7 @@ event_loop_pimpl::update_event (epoller_event &_e) KNGIN_EXP
 }
 
 void
-event_loop_pimpl::run_in_loop (event_loop::task &&_fn) KNGIN_EXP
+event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
 {
     check(m_looping);
     check(m_epoller);
@@ -196,7 +197,7 @@ event_loop_pimpl::run_in_loop (event_loop::task &&_fn) KNGIN_EXP
 }
 
 void
-event_loop_pimpl::wakeup () KNGIN_EXP
+event_loop_pimpl::wakeup ()
 {
     check(m_looping);
     check(m_epoller);
@@ -205,16 +206,11 @@ event_loop_pimpl::wakeup () KNGIN_EXP
     if (m_waker->stopped())
         return;
 
-    buffer _val(8);
-    _val.write_uint64(1);
     std::error_code _ec;
-    size_t _ret = m_waker->write(_val, 8, _ec); // blocked
+    m_waker->notify(_ec); // blocked
     if (_ec)
         log_error("event_loop_pimpl::wakeup() error - %s:%d",
                   system_error_str(_ec).c_str());
-    else if (_ret != sizeof(_ret))
-        log_error("event_loop_pimpl::wakeup() error, write %" PRId64
-                  " bytes to waker instead of 8", _ret);
 }
 
 KNGIN_NAMESPACE_K_END

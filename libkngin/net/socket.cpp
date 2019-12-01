@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-socket::socket (int _fd) KNGIN_EXP
+socket::socket (int _fd)
     : filefd(_fd),
       m_rd_closed(FD_INVALID(_fd)),
       m_wr_closed(FD_INVALID(_fd))
@@ -19,7 +19,7 @@ socket::socket (int _fd) KNGIN_EXP
         throw k::exception("socket::socket() error - invalid file descriptor");
 }
 
-socket::socket (INET_PROTOCOL _proto) KNGIN_EXP
+socket::socket (INET_PROTOCOL _proto)
     try
     : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
@@ -49,7 +49,7 @@ socket::~socket () KNGIN_NOEXP
 }
 
 void
-socket::bind (const address &_addr) KNGIN_EXP
+socket::bind (const address &_addr)
 {
     assert(!m_wr_closed && !m_rd_closed);
     if (::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
@@ -66,7 +66,7 @@ socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 }
 
 void
-socket::listen (int _backlog) KNGIN_EXP
+socket::listen (int _backlog)
 {
     assert(!m_wr_closed && !m_rd_closed);
     if (::listen(m_fd, _backlog) < 0)
@@ -81,7 +81,7 @@ socket::listen (int _backlog, std::error_code &_ec) KNGIN_NOEXP
 }
 
 int
-socket::accept (address &_addr) KNGIN_EXP
+socket::accept (address &_addr)
 {
     assert(!m_wr_closed && !m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
@@ -102,7 +102,7 @@ socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXP
 }
 
 void
-socket::connect (const address &_addr) KNGIN_EXP
+socket::connect (const address &_addr)
 {
     assert(!m_wr_closed && !m_rd_closed);
     if (::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
@@ -119,7 +119,7 @@ socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 }
 
 void
-socket::rd_shutdown () KNGIN_EXP
+socket::rd_shutdown ()
 {
     assert(!m_rd_closed);
     if (::shutdown(m_fd, SHUT_RD) < 0)
@@ -136,7 +136,7 @@ socket::rd_shutdown (std::error_code &_ec) KNGIN_NOEXP
 }
 
 void
-socket::wr_shutdown () KNGIN_EXP
+socket::wr_shutdown ()
 { 
     assert(!m_wr_closed);
     if (::shutdown(m_fd, SHUT_WR) < 0)
@@ -153,84 +153,82 @@ socket::wr_shutdown (std::error_code &_ec) KNGIN_NOEXP
 }
 
 size_t
-socket::send (buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP
+socket::send (out_buffer &_buf, int _flags)
 {
-#warning "const buffer"
     assert(!m_wr_closed);
-    check(_buf.readable(_nbytes));
-    ssize_t _size = ::send(m_fd, _buf.data(), _buf.readable(_nbytes), _flags);
+    assert(_buf.size());
+    ssize_t _size = ::send(m_fd, _buf.begin(), _buf.size(), _flags);
     if (_size < 0)
         throw k::system_error("::send() error");
-    _buf.rreset(_buf.rindex() + _nbytes);
+    _buf -= _size;
     return _size;
 }
 
 size_t
-socket::send (buffer &_buf, size_t _nbytes, int _flags, std::error_code &_ec) KNGIN_NOEXP
+socket::send (out_buffer &_buf, int _flags, std::error_code &_ec) KNGIN_NOEXP
 {
-#warning "const buffer"
     assert(!m_wr_closed);
-    check(_buf.readable(_nbytes));
-    ssize_t _size = ::send(m_fd, _buf.data(), _buf.readable(_nbytes), _flags);
+    assert(_buf.size());
+    ssize_t _size = ::send(m_fd, _buf.begin(), _buf.size(), _flags);
     if (_size < 0) {
         _ec = last_error();
         return 0;
     } else {
         _ec = std::error_code();
     }
-    _buf.rreset(_buf.rindex() + _nbytes);
+    _buf -= _size;
     return _size;
 }
 
 size_t
-socket::recv (buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP
+socket::recv (in_buffer &_buf, int _flags)
 {
     assert(!m_rd_closed);
-    check(_buf.readable(_nbytes));
-    ssize_t _size = ::recv(m_fd, _buf.data(), _buf.readable(_nbytes), _flags);
+    assert(_buf.writeable());
+    ssize_t _size = ::recv(m_fd, _buf.begin(), _buf.writeable(), _flags);
     if (_size < 0)
         throw k::system_error("::recv() error");
-    _buf.wreset(_buf.windex() + _nbytes);
+    _buf += _size;
     return _size;
 }
 
 size_t
-socket::recv (buffer &_buf, size_t _nbytes, int _flags, std::error_code &_ec) KNGIN_NOEXP
+socket::recv (in_buffer &_buf, int _flags, std::error_code &_ec) KNGIN_NOEXP
 {
     assert(!m_rd_closed);
-    check(_buf.readable(_nbytes));
-    ssize_t _size = ::recv(m_fd, _buf.data(), _buf.readable(_nbytes), _flags);
+    assert(_buf.writeable());
+    ssize_t _size = ::recv(m_fd, _buf.begin(), _buf.writeable(), _flags);
     if (_size < 0) {
         _ec = last_error();
         return 0;
     } else {
         _ec = std::error_code();
     }
-    _buf.wreset(_buf.windex() + _nbytes);
+    _buf += _size;
     return _size;
 }
 
 size_t
-socket::sendto (const address &_addr, buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP
+socket::sendto (const address &_addr, out_buffer &_buf, int _flags)
 {
     assert(!m_wr_closed);
-    check(_buf.readable(_nbytes));
-    ssize_t _size = ::sendto(m_fd, (const char *)_buf.data(), _nbytes, _flags,
+    assert(_buf.size());
+    ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
                              (const ::sockaddr *)&(_addr.sa()),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size < 0)
         throw k::system_error("::sendto() error");
-    _buf.rreset(_buf.rindex() + _size);
+    _buf -= _size;
     return _size;
 }
 
 size_t
-socket::sendto (const address &_addr, buffer &_buf, size_t _nbytes, int _flags,
+socket::sendto (const address &_addr, out_buffer &_buf, int _flags,
                 std::error_code &_ec) KNGIN_NOEXP
 {
     assert(!m_wr_closed);
-    check(_buf.readable(_nbytes));
-    ssize_t _size = ::sendto(m_fd, (const char *)_buf.data(), _nbytes, _flags,
+    assert(_buf.size());
+    ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
                              (const ::sockaddr *)&(_addr.sa()),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size < 0) {
@@ -239,33 +237,33 @@ socket::sendto (const address &_addr, buffer &_buf, size_t _nbytes, int _flags,
     } else {
         _ec = std::error_code();
     }
-    _buf.rreset(_buf.rindex() + _size);
+    _buf -= _size;
     return _size;
 }
 
 size_t
-socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags) KNGIN_EXP
+socket::recvfrom (address &_addr, in_buffer &_buf, int _flags)
 {
     assert(!m_rd_closed);
-    check(_buf.writeable(_nbytes));
+    assert(_buf.writeable());
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
-    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.data(), _buf.writeable(_nbytes), _flags,
+    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
                                (::sockaddr *)&(_addr.sa()),
                                &_addr_len);
     if (_size < 0)
         throw k::system_error("::recvfrom() error");
-    _buf.wreset(_buf.windex() + _size);
+    _buf += _size;
     return _size;
 }
 
 size_t
-socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags,
+socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
                   std::error_code &_ec) KNGIN_NOEXP
 {
     assert(!m_rd_closed);
-    check(_buf.writeable());
+    assert(_buf.writeable());
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
-    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.data(), _buf.writeable(_nbytes), _flags,
+    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
                                (::sockaddr *)&(_addr.sa()),
                                &_addr_len);
     if (_size < 0) {
@@ -274,12 +272,12 @@ socket::recvfrom (address &_addr, buffer &_buf, size_t _nbytes, int _flags,
     } else {
         _ec = std::error_code();
     }
-    _buf.wreset(_buf.windex() + _size);
+    _buf += _size;
     return _size;
 }
 
 address
-socket::localaddr () KNGIN_EXP
+socket::localaddr ()
 {
     assert(!m_wr_closed || !m_rd_closed);
     k::address _addr;
@@ -302,7 +300,7 @@ socket::localaddr (std::error_code &_ec) KNGIN_NOEXP
 }
 
 address
-socket::peeraddr () KNGIN_EXP
+socket::peeraddr ()
 {
     assert(!m_wr_closed || !m_rd_closed);
     k::address _addr;

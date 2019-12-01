@@ -20,19 +20,9 @@ out_buffer::out_buffer() KNGIN_NOEXP
 {
 }
 
-out_buffer::out_buffer (cuint8_arr _arr, size_t _size) KNGIN_EXP
+out_buffer::out_buffer (const void * _arr, size_t _size)
     try
-    : m_arr(_arr),
-      m_size(_size)
-{
-    arg_check(_arr && _size);
-} catch (...) {
-    log_fatal("out_buffer::out_buffer() error");
-}
-
-out_buffer::out_buffer (cint8_arr _arr, size_t _size) KNGIN_EXP
-    try
-    : m_arr(static_cast<cuint8_arr>(static_cast<const void *>(_arr))),
+    : m_arr(static_cast<const unsigned char *>(_arr)),
       m_size(_size)
 {
     arg_check(_arr && _size);
@@ -41,13 +31,14 @@ out_buffer::out_buffer (cint8_arr _arr, size_t _size) KNGIN_EXP
 }
 
 out_buffer::out_buffer(out_buffer &&_buf) KNGIN_NOEXP
+    : m_arr(nullptr), m_size(0)
 {
     std::swap(m_arr, _buf.m_arr);
     std::swap(m_size, _buf.m_size);
 }
 
 size_t
-out_buffer::read_bytes (uint8_arr _p, size_t _n) KNGIN_EXP
+out_buffer::read_bytes (void * _p, size_t _n)
 {
     arg_check(_p && _n);
     check_readable(_n);
@@ -57,18 +48,10 @@ out_buffer::read_bytes (uint8_arr _p, size_t _n) KNGIN_EXP
 }
 
 void
-out_buffer::reset (cuint8_arr _arr, size_t _size) KNGIN_EXP
+out_buffer::reset (const void * _arr, size_t _size)
 {
     arg_check(_arr && _size);
-    m_arr = _arr;
-    m_size = _size;
-}
-
-void
-out_buffer::reset (cint8_arr _arr, size_t _size) KNGIN_EXP
-{
-    arg_check(_arr && _size);
-    m_arr = static_cast<cuint8_arr>(static_cast<const void *>(_arr));
+    m_arr = static_cast<const unsigned char *>(_arr);
     m_size = _size;
 }
 
@@ -80,7 +63,7 @@ out_buffer::swap (out_buffer &_buf) KNGIN_NOEXP
 }
 
 std::string
-out_buffer::dump () KNGIN_EXP
+out_buffer::dump ()
 {
     std::string _result;
     _result.reserve(m_size * 2 + 1);
@@ -99,20 +82,9 @@ in_buffer::in_buffer() KNGIN_NOEXP
 {
 }
 
-in_buffer::in_buffer (uint8_arr _arr, size_t _size) KNGIN_EXP
+in_buffer::in_buffer (void * _arr, size_t _size)
     try
-    : m_arr(_arr),
-      m_size(_size),
-      m_valid(0)
-{
-    arg_check(_arr && _size);
-} catch (...) {
-    log_fatal("in_buffer::in_buffer() error");
-}
-
-in_buffer::in_buffer (int8_arr _arr, size_t _size) KNGIN_EXP
-    try
-    : m_arr(static_cast<uint8_arr>(static_cast<void *>(_arr))),
+    : m_arr(static_cast<unsigned char *>(_arr)),
       m_size(_size),
       m_valid(0)
 {
@@ -122,37 +94,30 @@ in_buffer::in_buffer (int8_arr _arr, size_t _size) KNGIN_EXP
 }
 
 in_buffer::in_buffer (in_buffer &&_buf) KNGIN_NOEXP
+    : m_arr(nullptr),
+      m_size(0),
+      m_valid(0)
 {
     std::swap(m_arr, _buf.m_arr);
     std::swap(m_size, _buf.m_size);
     std::swap(m_valid, _buf.m_valid);
 }
 
-size_t
-in_buffer::write_bytes (uint8_arr _p, size_t _n) KNGIN_EXP
+in_buffer &
+in_buffer::write_bytes (const void * _p, size_t _n)
 {
     arg_check(_p && _n);
     check_readable(_n);
     ::memcpy(m_arr, _p, _n);
     m_valid += _n;
-    return _n;
+    return *this;
 }
 
 void
-in_buffer::reset (uint8_arr _arr, size_t _size) KNGIN_EXP
+in_buffer::reset (void * _arr, size_t _size)
 {
     arg_check(_arr && _size);
-    m_arr = _arr;
-    m_size = _size;
-    m_valid = 0;
-}
-
-
-void
-in_buffer::reset (int8_arr _arr, size_t _size) KNGIN_EXP
-{
-    arg_check(_arr && _size);
-    m_arr = static_cast<uint8_arr>(static_cast<void *>(_arr));
+    m_arr = static_cast<unsigned char *>(_arr);
     m_size = _size;
     m_valid = 0;
 }
@@ -166,7 +131,7 @@ in_buffer::swap (in_buffer &_buf) KNGIN_NOEXP
 }
 
 std::string
-in_buffer::dump () KNGIN_EXP
+in_buffer::dump ()
 {
     std::string _result;
     _result.reserve(m_size * 2 + 1);

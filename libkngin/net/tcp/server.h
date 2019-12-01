@@ -16,6 +16,10 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class server {
 public:
+    typedef session::in_buffer_ptr                    in_buffer_ptr;
+
+    typedef session::out_buffer_ptr                   out_buffer_ptr;
+
     typedef session::session_ptr                      session_ptr;
 
     typedef std::function<void (session_ptr)>         session_cb;
@@ -32,7 +36,7 @@ public:
 
     typedef std::shared_ptr<listener>                 listener_ptr;
 
-    typedef std::vector<session *>                    session_list;
+    typedef std::vector<session_ptr>                  session_list;
 
     typedef std::unordered_map<uint32_t, session_ptr> session_map;
 
@@ -59,7 +63,7 @@ public:
 
 public:
     int
-    broadcast         (session_list &_list, buffer &&_buf);
+    broadcast         (session_list &_list, out_buffer_ptr _buf);
 
 public:
     void
