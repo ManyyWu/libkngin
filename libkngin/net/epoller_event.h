@@ -21,7 +21,7 @@ class epoller_event : public noncopyable {
 public:
     typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
-    typedef std::function<void (void)>        epoller_event_cb;
+    typedef std::function<void (void)>        epoller_event_handler;
 
     typedef int                               epollfd;
 
@@ -54,7 +54,7 @@ public:
     void
     disable_once   ()          KNGIN_NOEXP { m_flags &= ~EPOLLONESHOT; }
     void
-    disable_close  ()          KNGIN_NOEXP { m_closecb = nullptr; }
+    disable_close  ()          KNGIN_NOEXP { m_close_handler = nullptr; }
     void
     disable_all    ()          KNGIN_NOEXP { m_flags = EPOLLHUP | EPOLLERR; }
     bool
@@ -83,45 +83,45 @@ public:
 
 public:
     void
-    set_read_cb    (epoller_event_cb &&_fn) KNGIN_NOEXP
-    { m_incb = std::move(_fn); m_flags |= EPOLLIN; }
+    set_read_handler  (epoller_event_handler &&_fn) KNGIN_NOEXP
+    { m_in_handler = std::move(_fn); m_flags |= EPOLLIN; }
     void
-    set_write_cb   (epoller_event_cb &&_fn) KNGIN_NOEXP
-    { m_outcb = std::move(_fn); m_flags |= EPOLLOUT; }
+    set_write_handler (epoller_event_handler &&_fn) KNGIN_NOEXP
+    { m_out_handler = std::move(_fn); m_flags |= EPOLLOUT; }
     void
-    set_error_cb   (epoller_event_cb &&_fn) KNGIN_NOEXP
-    { m_errcb = std::move(_fn); m_flags |= EPOLLERR; }
+    set_error_handler (epoller_event_handler &&_fn) KNGIN_NOEXP
+    { m_err_handler = std::move(_fn); m_flags |= EPOLLERR; }
     void
-    set_oob_cb     (epoller_event_cb &&_fn) KNGIN_NOEXP
-    { m_pricb = std::move(_fn); m_flags |= EPOLLPRI; }
+    set_oob_handler   (epoller_event_handler &&_fn) KNGIN_NOEXP
+    { m_pri_handler = std::move(_fn); m_flags |= EPOLLPRI; }
     void
-    set_close_cb   (epoller_event_cb &&_fn) KNGIN_NOEXP
-    { m_closecb = std::move(_fn); m_flags |= EPOLLHUP; }
+    set_close_handler (epoller_event_handler &&_fn) KNGIN_NOEXP
+    { m_close_handler = std::move(_fn); m_flags |= EPOLLHUP; }
 
-protected:
+private:
     void
     on_events      (uint32_t _flags);
 
-protected:
-    event_loop_pimpl_ptr m_loop;
+private:
+    event_loop_pimpl_ptr  m_loop;
 
-    filefd *             m_filefd;
+    filefd *              m_filefd;
 
-    uint32_t             m_flags;
+    uint32_t              m_flags;
 
-    epoller_event_cb     m_incb;
+    epoller_event_handler m_in_handler;
 
-    epoller_event_cb     m_outcb;
+    epoller_event_handler m_out_handler;
 
-    epoller_event_cb     m_errcb;
+    epoller_event_handler m_err_handler;
 
-    epoller_event_cb     m_pricb;
+    epoller_event_handler m_pri_handler;
 
-    epoller_event_cb     m_closecb;
+    epoller_event_handler m_close_handler;
 
-    epoll_event          m_event;
+    epoll_event           m_event;
 
-    std::atomic<bool>    m_registed;
+    std::atomic<bool>     m_registed;
 
 private:
     friend class epoller;

@@ -36,7 +36,7 @@ public:
     bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
     { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr, _ec); }
     void
-    listen        (int _backlog, accept_handler &&_accept_cb, error_handler &&_error_cb)
+    listen        (int _backlog)
     { assert(!m_closed); m_socket.listen(_backlog); } 
     void
     listen        (int _backlog, std::error_code &_ec) KNGIN_NOEXP
@@ -44,7 +44,7 @@ public:
 
 public:
     void
-    close         (error_handler &&_cb);
+    close         (error_handler &&_handler);
 
 public:
     void
@@ -72,9 +72,9 @@ protected:
 
     address           m_listen_addr;
 
-    accept_handler    m_accept_cb;
+    accept_handler    m_accept_handler;
 
-    error_handler     m_error_cb;
+    error_handler     m_error_handler;
 
     filefd            m_idle_file;
 };

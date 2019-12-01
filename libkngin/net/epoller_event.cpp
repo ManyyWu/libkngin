@@ -15,11 +15,11 @@ epoller_event::epoller_event (event_loop_pimpl_ptr _loop, filefd *_s)
     : m_loop(std::move(_loop)),
       m_filefd(_s),
       m_flags(EPOLLHUP | EPOLLERR),
-      m_incb(nullptr),
-      m_outcb(nullptr),
-      m_errcb(nullptr),
-      m_pricb(nullptr),
-      m_closecb(nullptr),
+      m_in_handler(nullptr),
+      m_out_handler(nullptr),
+      m_err_handler(nullptr),
+      m_pri_handler(nullptr),
+      m_close_handler(nullptr),
       m_event({0, nullptr}),
       m_registed(false)
 {
@@ -73,21 +73,21 @@ epoller_event::on_events (uint32_t _flags)
     if (EPOLLHUP & _flags) // RST
     {
         log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
-        if (m_closecb)
-            ignore_exp(m_closecb());
+        if (m_close_handler)
+            ignore_exp(m_close_handler());
         else
             m_filefd->close();
         return;
     }
     ignore_exp(
-        if ((EPOLLERR & _flags) && m_errcb)
-            m_errcb();
-        if ((EPOLLIN & _flags) && m_incb)
-            m_incb();
-        if ((EPOLLOUT & _flags) && m_outcb)
-            m_outcb();
-        if ((EPOLLPRI & _flags) && m_pricb)
-            m_pricb();
+        if ((EPOLLERR & _flags) && m_err_handler)
+            m_err_handler();
+        if ((EPOLLIN & _flags) && m_in_handler)
+            m_in_handler();
+        if ((EPOLLOUT & _flags) && m_out_handler)
+            m_out_handler();
+        if ((EPOLLPRI & _flags) && m_pri_handler)
+            m_pri_handler();
     );
 }
 

@@ -44,8 +44,8 @@ event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
 }
 
 void
-event_loop_pimpl::run (started_handler &&_start_cb,
-        stopped_handler &&_stop_cb)
+event_loop_pimpl::run (started_handler &&_start_handler,
+        stopped_handler &&_stop_handler)
 {
     check(m_looping);
     check_thread();
@@ -57,8 +57,8 @@ event_loop_pimpl::run (started_handler &&_start_cb,
         m_waker->set_nonblock(false);
         m_waker->set_closeexec(true);
         m_waker->start(nullptr);
-        if (_start_cb)
-            _start_cb();
+        if (_start_handler)
+            _start_handler();
 
         while (!m_stop) {
             // wait for events
@@ -86,16 +86,16 @@ event_loop_pimpl::run (started_handler &&_start_cb,
             //          m_thr->name(), _fnq.size());
         }
     } catch (...) {
-        if (_stop_cb)
-            ignore_exp(_stop_cb());
+        if (_stop_handler)
+            ignore_exp(_stop_handler());
         m_waker->stop();
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
     }
 
-    if (_stop_cb)
-        ignore_exp(_stop_cb());
+    if (_stop_handler)
+        ignore_exp(_stop_handler());
     m_waker->stop();
     m_looping = false;
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());

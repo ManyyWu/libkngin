@@ -26,10 +26,10 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
       m_sessionected(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
-      m_sent_cb(nullptr),
-      m_message_cb(nullptr),
-      m_oob_cb(nullptr), 
-      m_close_cb(nullptr),
+      m_sent_handler(nullptr),
+      m_message_handler(nullptr),
+      m_oob_handler(nullptr),
+      m_close_handler(nullptr),
       m_out_bufq(),
       m_in_buf(nullptr),
       m_serial(session::next_serial())
@@ -47,11 +47,11 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
     //    log_error("sockopts::set_ooblinline(false) error");
     //    throw k::exception("sockopts::set_ooblinline() error");
     //}
-    //m_event.set_read_cb(std::bind(&session::on_read, this));
-    //m_event.set_write_cb(std::bind(&session::on_write, this));
-    //m_event.set_error_cb(std::bind(&session::on_error, this));
-    //m_event.set_close_cb(std::bind(&session::on_close, this));
-    //m_event.set_oob_cb(std::bind(&session::on_oob, this));
+    //m_event.set_read_handler(std::bind(&session::on_read, this));
+    //m_event.set_write_handler(std::bind(&session::on_write, this));
+    //m_event.set_error_handler(std::bind(&session::on_error, this));
+    //m_event.set_close_handler(std::bind(&session::on_close, this));
+    //m_event.set_oob_handler(std::bind(&session::on_oob, this));
     //m_event.disable_write();
     //m_event.disable_read();
     //m_event.disable_oob();
@@ -168,8 +168,8 @@ session::on_write ()
                 m_event.update();
             }
         }
-        if (m_sent_cb)
-            m_sent_cb(std::ref(*this));
+        if (m_sent_handler)
+            m_sent_handler(std::ref(*this));
     } else if (!_size) {
         on_close();
         return;
@@ -215,8 +215,8 @@ session::on_read ()
         m_event.update();
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
-        if (m_message_cb)
-            m_message_cb(std::ref(*this),
+        if (m_message_handler)
+            m_message_handler(std::ref(*this),
                          std::ref(*_temp_ptr),
                          _temp_ptr->valid());
     } else if (!_size) {
@@ -249,8 +249,8 @@ session::on_close ()
     m_in_buf = nullptr;
     m_sessionected = false;
 
-    if (m_close_cb)
-        m_close_cb(std::ref(*this));
+    if (m_close_handler)
+        m_close_handler(std::ref(*this));
 }
 
 void
@@ -273,8 +273,8 @@ session::on_oob ()
 #warning "error_code"
         return;
     }
-    if (m_oob_cb) {
-        m_oob_cb(std::ref(*this), _data);
+    if (m_oob_handler) {
+        m_oob_handler(std::ref(*this), _data);
     } else {
         log_warning("unhandled oob data from %s:%hu",
                     m_local_addr.addrstr().c_str(),

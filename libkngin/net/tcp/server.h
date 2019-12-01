@@ -22,15 +22,15 @@ public:
 
     typedef session::session_ptr                      session_ptr;
 
-    typedef std::function<void (session_ptr)>         session_cb;
+    typedef std::function<void (session_ptr)>         session_handler;
 
-    typedef session::message_cb                       message_cb;
+    typedef session::message_handler                  message_handler;
 
-    typedef session::sent_cb                          sent_cb;
+    typedef session::sent_handler                     sent_handler;
 
-    typedef session::oob_cb                           oob_cb;
+    typedef session::oob_handler                      oob_handler;
 
-    typedef session::close_cb                         close_cb;
+    typedef session::close_handler                    close_handler;
 
     typedef io_thread::event_loop_ptr                 event_loop_ptr;
 
@@ -67,15 +67,15 @@ public:
 
 public:
     void
-    set_session_cb    (session_cb &&_cb) { m_session_cb = std::move(_cb); }
+    set_session_handler    (session_handler &&_handler) { m_session_handler = std::move(_handler); }
     void
-    set_message_cb    (message_cb &&_cb) { m_message_cb = std::move(_cb); }
+    set_message_handler    (message_handler &&_handler) { m_message_handler = std::move(_handler); }
     void
-    set_sent_cb       (sent_cb &&_cb)    { m_sent_cb = std::move(_cb); }
+    set_sent_handler       (sent_handler &&_handler)    { m_sent_handler = std::move(_handler); }
     void
-    set_close_cb      (close_cb &&_cb)   { m_close_cb = std::move(_cb); }
+    set_close_handler      (close_handler &&_handler)   { m_close_handler = std::move(_handler); }
     void
-    set_oob_cb        (oob_cb &&_cb)     { m_oob_cb = std::move(_cb); }
+    set_oob_handler        (oob_handler &&_handler)     { m_oob_handler = std::move(_handler); }
 
 protected:
     event_loop_ptr
@@ -106,15 +106,15 @@ protected:
 
     address           m_listen_addr;
 
-    session_cb        m_session_cb;
+    session_handler   m_session_handler;
 
-    sent_cb           m_sent_cb;
+    sent_handler      m_sent_handler;
 
-    message_cb        m_message_cb;
+    message_handler   m_message_handler;
 
-    oob_cb            m_oob_cb;
+    oob_handler       m_oob_handler;
 
-    close_cb          m_close_cb;
+    close_handler     m_close_handler;
 
     std::atomic<bool> m_stopped;
 

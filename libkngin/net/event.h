@@ -13,7 +13,7 @@ class event : public filefd {
 public:
     typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
-    typedef epoller_event::epoller_event_cb   event_cb;
+    typedef epoller_event::epoller_event_handler event_handler;
 
 public:
     event        () = delete;
@@ -26,7 +26,7 @@ public:
 
 public:
     void
-    start        (event_cb &&_cb);
+    start        (event_handler &&_handler);
 
     void
     update       ();
@@ -44,14 +44,14 @@ public:
     stopped      () KNGIN_NOEXP
     { return m_stopped; }
 
-protected:
+private:
     void
     on_event     () KNGIN_NOEXP;
 
-protected:
+private:
     event_loop_pimpl_ptr m_loop;
 
-    event_cb             m_event_cb;
+    event_handler        m_event_handler;
 
     epoller_event        m_event;
 

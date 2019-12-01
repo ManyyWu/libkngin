@@ -129,7 +129,7 @@ protected:
                                                   _server_addr, _client_addr);
 
             // set callback
-            m_session->set_message_cb([this] (session &_session, in_buffer &_buf, size_t _size) {
+            m_session->set_message_handler([this] (session &_session, in_buffer &_buf, size_t _size) {
                 uint16_t _port = _session.peer_addr().port();
                 log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
                          _session.peer_addr().addrstr().c_str(), _port,
@@ -138,13 +138,13 @@ protected:
                 in_buffer(m_arr, 4).write_uint32(_port);
                 check(_session.send(std::make_shared<out_buffer>(m_arr, 4)));
             });
-            m_session->set_sent_cb([] (session &_session) {
+            m_session->set_sent_handler([] (session &_session) {
                 uint16_t _port = _session.peer_addr().port();
                 log_info("s: on_sent: to %s:%d",
                          _session.peer_addr().addrstr().c_str(), _port);
                 thread::sleep(1000);
             });
-            m_session->set_close_cb([] (const session &_session) {
+            m_session->set_close_handler([] (const session &_session) {
                 log_info("s: on_close: fd = %d", _session.serial());
             });
 

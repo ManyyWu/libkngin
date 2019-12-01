@@ -17,10 +17,10 @@ server::server (const server_opts &_opts)
       m_sessions(),
       m_listener(nullptr),
       m_listen_addr(),
-      m_sent_cb(nullptr),
-      m_message_cb(nullptr),
-      m_oob_cb(nullptr),
-      m_close_cb(nullptr),
+      m_sent_handler(nullptr),
+      m_message_handler(nullptr),
+      m_oob_handler(nullptr),
+      m_close_handler(nullptr),
       m_stopped(true),
       m_mutex()
 {
@@ -67,14 +67,9 @@ server::run ()
     m_listener->bind(m_listen_addr);
 
     // listen
-    m_listener->listen(m_opts.backlog,
-                            std::bind(&server::on_new_session, this,
-                                      std::placeholders::_1),
-                            std::bind(&server::on_listener_error, this,
-                                      std::ref(*m_listener)));
+    m_listener->listen(m_opts.backlog);
 
     m_stopped = false;
-
     log_info("TCP server is running");
     return true;
 }
@@ -197,10 +192,10 @@ server::on_new_session (socket &&_sock)
         log_fatal("caught an undefined exception when accepting new session");
         return;
     }
-    _session->set_message_cb(m_message_cb);
-    _session->set_sent_cb(m_sent_cb);
-    _session->set_oob_cb(m_oob_cb);
-    _session->set_close_cb(std::bind(&server::on_close, this, std::placeholders::_1));
+    _session->set_message_handler(m_message_handler);
+    _session->set_sent_handler(m_sent_handler);
+    _session->set_oob_handler(m_oob_handler);
+    _session->set_close_handler(std::bind(&server::on_close, this, std::placeholders::_1));
     _session->set_keepalive(m_opts.keep_alive);
 
     {
@@ -208,16 +203,16 @@ server::on_new_session (socket &&_sock)
         m_sessions[_session->serial()] = _session;
     }
 
-    if (m_session_cb)
-        _next_loop->run_in_loop(std::bind(m_session_cb, _session));
+    if (m_session_handler)
+        _next_loop->run_in_loop(std::bind(m_session_handler, _session));
 }
 
 void
 server::on_close (const session &_session)
 {
     _session.check_thread();
-    if (m_close_cb)
-        m_close_cb(std::ref(_session));
+    if (m_close_handler)
+        m_close_handler(std::ref(_session));
 
     {
         local_lock _lock(m_mutex);

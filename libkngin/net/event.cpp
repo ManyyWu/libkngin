@@ -20,7 +20,7 @@ event::event (event_loop_pimpl_ptr _loop)
     try
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(std::move(_loop)),
-      m_event_cb(nullptr),
+      m_event_handler(nullptr),
       m_event(m_loop, this),
       m_stopped(true)
 {
@@ -39,13 +39,13 @@ event::~event() KNGIN_NOEXP
 }
 
 void
-event::start (event_cb &&_cb)
+event::start (event_handler &&_handler)
 {
-    arg_check(_cb);
+    arg_check(_handler);
     check(m_stopped);
 
-    m_event_cb = std::move(_cb);
-    m_event.set_read_cb(std::bind(&event::on_event, this));
+    m_event_handler = std::move(_handler);
+    m_event.set_read_handler(std::bind(&event::on_event, this));
     m_event.start();
     m_stopped = false;
 }
@@ -100,8 +100,8 @@ event::on_event () KNGIN_NOEXP
     in_buffer _buf(_arr, 8);
     std::error_code _ec;
     size_t _ret = this->readn(_buf, _ec); // blocked
-//    if (m_event_cb)
-//        ignore_exp(m_event_cb(_ec));
+//    if (m_event_handler)
+//        ignore_exp(m_event_hadnelr(_ec));
 #warning "error_code"
 }
 

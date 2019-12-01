@@ -19,7 +19,7 @@ timer::timer (event_loop_pimpl_ptr _loop)
     try
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
-      m_timeout_cb(nullptr),
+      m_timeout_handler(nullptr),
       m_event(_loop, this),
       m_stopped(true)
 {
@@ -38,15 +38,15 @@ timer::~timer () KNGIN_NOEXP
 }
 
 void
-timer::start (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval,
+timer::start (timer_handler &&_timeout_handler, timestamp _val, timestamp _interval,
               bool _abs /* = false */)
 {
-    arg_check(_timeout_cb);
+    arg_check(_timeout_handler);
     check(m_stopped);
 
-    m_timeout_cb = std::move(_timeout_cb);
+    m_timeout_handler = std::move(_timeout_handler);
     set_time(_val, _interval, _abs);
-    m_event.set_read_cb(std::bind(&timer::on_timeout, this));
+    m_event.set_read_handler(std::bind(&timer::on_timeout, this));
     m_event.start();
     m_stopped = false;
 }
@@ -95,8 +95,8 @@ timer::on_timeout () KNGIN_NOEXP
     in_buffer _buf(_arr, 8);
     std::error_code _ec;
     size_t _ret = this->readn(_buf, _ec); // blocked
-//    if (m_timeout_cb)
-//        ignore_exp(m_timeout_cb(_ec));
+//    if (m_timeout_handler)
+//        ignore_exp(m_timeout_handler(_ec));
 #warning "error_code"
 }
 

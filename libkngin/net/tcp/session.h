@@ -20,13 +20,13 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class session {
 public:
-    typedef std::function<void (session &, in_buffer &, size_t)> message_cb;
+    typedef std::function<void (session &, in_buffer &, size_t)> message_handler;
 
-    typedef std::function<void (session &)>                      sent_cb;
+    typedef std::function<void (session &)>                      sent_handler;
 
-    typedef std::function<void (session &, uint8_t)>             oob_cb;
+    typedef std::function<void (session &, uint8_t)>             oob_handler;
 
-    typedef std::function<void (const session &)>                close_cb;
+    typedef std::function<void (const session &)>                close_handler;
 
     typedef std::shared_ptr<session>                             session_ptr;
 
@@ -65,39 +65,26 @@ public:
     wr_shutdown     ();
 
     bool
-    connected       ()                      { return m_sessionected; }
-
-public:
-    void
-    set_message_cb  (const message_cb &_cb) { m_message_cb= _cb; }
-
-    void
-    set_sent_cb     (const sent_cb &_cb)    { m_sent_cb = _cb; }
-
-    void
-    set_close_cb    (const close_cb &_cb)   { m_close_cb = _cb; }
-
-    void
-    set_oob_cb      (const oob_cb &_cb)     { m_oob_cb = _cb; }
+    connected       ()           { return m_sessionected; }
 
 public:
     bool
-    set_read_lowat  (int _size)             { return sockopts::set_rcvlowat(m_socket, _size); }
+    set_read_lowat  (int _size)  { return sockopts::set_rcvlowat(m_socket, _size); }
 
     bool
-    read_lowat      (int &_size)            { return sockopts::rcvlowat(m_socket, _size); }
+    read_lowat      (int &_size) { return sockopts::rcvlowat(m_socket, _size); }
 
     bool
-    set_write_lowat (int _size)             { return sockopts::set_sndlowat(m_socket, _size); }
+    set_write_lowat (int _size)  { return sockopts::set_sndlowat(m_socket, _size); }
 
     bool
-    write_lowat     (int &_size)            { return sockopts::sndlowat(m_socket, _size); }
+    write_lowat     (int &_size) { return sockopts::sndlowat(m_socket, _size); }
 
     bool
-    set_keepalive   (bool _on)              { return sockopts::set_keepalive(m_socket, _on); }
+    set_keepalive   (bool _on)   { return sockopts::set_keepalive(m_socket, _on); }
 
     bool
-    keepalive       (bool &_on)             { return sockopts::keepalive(m_socket, _on); }
+    keepalive       (bool &_on)  { return sockopts::keepalive(m_socket, _on); }
 
 private:
     void
@@ -116,25 +103,38 @@ private:
     on_error        ();
 
 public:
+    void
+    set_message_handler (const message_handler &_handler) { m_message_handler= _handler; }
+
+    void
+    set_sent_handler    (const sent_handler &_handler)    { m_sent_handler = _handler; }
+
+    void
+    set_close_handler   (const close_handler &_handler)   { m_close_handler = _handler; }
+
+    void
+    set_oob_handler     (const oob_handler &_handler)     { m_oob_handler = _handler; }
+
+public:
     k::socket &
-    socket          ()                      { return m_socket; }
+    socket          ()       { return m_socket; }
 
     const address &
-    local_addr      () const                { return m_local_addr; }
+    local_addr      () const { return m_local_addr; }
 
     const address &
-    peer_addr       () const                { return m_peer_addr; }
+    peer_addr       () const { return m_peer_addr; }
 
     uint64_t
-    serial          () const                { return m_serial; }
+    serial          () const { return m_serial; }
 
 public:
     void
-    check_thread    () const                { m_loop->check_thread(); }
+    check_thread    () const { m_loop->check_thread(); }
 
 protected:
     uint64_t
-    next_serial     ()                      { return m_next_serial++; }
+    next_serial     ()       { return m_next_serial++; }
 
 protected:
     event_loop_ptr    m_loop;
@@ -149,13 +149,13 @@ protected:
 
     address           m_peer_addr;
 
-    sent_cb           m_sent_cb;
+    sent_handler      m_sent_handler;
 
-    message_cb        m_message_cb;
+    message_handler   m_message_handler;
 
-    oob_cb            m_oob_cb;
+    oob_handler       m_oob_handler;
 
-    close_cb          m_close_cb;
+    close_handler     m_close_handler;
 
     out_buffer_queue  m_out_bufq;
 

@@ -47,7 +47,7 @@ public:
 
 public:
     void
-    run               (started_handler &&_start_cb, stopped_handler &&_stop_cb);
+    run               (started_handler &&_start_handler, stopped_handler &&_stop_handler);
 
     void
     stop              ();
@@ -123,8 +123,8 @@ public:
 
 public:
     void
-    run            (started_handler &&_start_cb, stopped_handler &&_stop_cb)
-    { m_pimpl->run(std::move(_start_cb), std::move(_stop_cb)); }
+    run            (started_handler &&_start_handler, stopped_handler &&_stop_handler)
+    { m_pimpl->run(std::move(_start_handler), std::move(_stop_handler)); }
 
     void
     stop           ()

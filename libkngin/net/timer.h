@@ -12,7 +12,7 @@ class timer : public filefd {
 public:
     typedef event_loop::event_loop_pimpl_ptr event_loop_pimpl_ptr;
 
-    typedef epoller_event::epoller_event_cb  timer_cb;
+    typedef epoller_event::epoller_event_handler timer_handler;
 
 public:
     timer        () = delete;
@@ -25,7 +25,7 @@ public:
 
 public:
     void
-    start        (timer_cb &&_timeout_cb, timestamp _val, timestamp _interval,
+    start        (timer_handler &&_timeout_handler, timestamp _val, timestamp _interval,
                   bool _abs = false);
 
     void
@@ -41,14 +41,14 @@ public:
     stopped      () KNGIN_NOEXP
     { return m_stopped; }
 
-protected:
+private:
     void
     on_timeout   () KNGIN_NOEXP;
 
-protected:
+private:
     event_loop_pimpl_ptr m_loop;
 
-    timer_cb             m_timeout_cb;
+    timer_handler        m_timeout_handler;
 
     epoller_event        m_event;
 

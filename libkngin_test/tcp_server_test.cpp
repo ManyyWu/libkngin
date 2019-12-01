@@ -91,14 +91,14 @@ public:
     bool
     run ()
     {
-        m_server.set_message_cb(std::bind(&test_server::on_message, this,
+        m_server.set_message_handler(std::bind(&test_server::on_message, this,
                                           std::placeholders::_1,
                                           std::placeholders::_2,
                                           std::placeholders::_3));
-        m_server.set_sent_cb(std::bind(&test_server::on_sent, this, std::placeholders::_1));
-        m_server.set_session_cb(std::bind(&test_server::on_new_session, this, std::placeholders::_1));
-        m_server.set_oob_cb(std::bind(&test_server::on_oob, this, std::placeholders::_1, std::placeholders::_2));
-        m_server.set_close_cb(std::bind(&test_server::on_close, this, std::placeholders::_1));
+        m_server.set_sent_handler(std::bind(&test_server::on_sent, this, std::placeholders::_1));
+        m_server.set_session_handler(std::bind(&test_server::on_new_session, this, std::placeholders::_1));
+        m_server.set_oob_handler(std::bind(&test_server::on_oob, this, std::placeholders::_1, std::placeholders::_2));
+        m_server.set_close_handler(std::bind(&test_server::on_close, this, std::placeholders::_1));
         return m_server.run();
     }
 
