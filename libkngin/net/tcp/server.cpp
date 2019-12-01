@@ -195,8 +195,10 @@ server::on_new_session (socket &&_sock)
     _session->set_message_handler(m_message_handler);
     _session->set_sent_handler(m_sent_handler);
     _session->set_oob_handler(m_oob_handler);
-    _session->set_close_handler(std::bind(&server::on_close, this, std::placeholders::_1));
     _session->set_keepalive(m_opts.keep_alive);
+    _session->set_close_handler([this] (const session &_session) {
+        on_close(_session);
+    });
 
     {
         local_lock _lock(m_mutex);
@@ -204,7 +206,9 @@ server::on_new_session (socket &&_sock)
     }
 
     if (m_session_handler)
-        _next_loop->run_in_loop(std::bind(m_session_handler, _session));
+        _next_loop->run_in_loop([this, _session] () {
+            m_session_handler(_session);
+        });
 }
 
 void

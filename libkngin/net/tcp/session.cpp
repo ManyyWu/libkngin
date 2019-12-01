@@ -35,27 +35,18 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
       m_serial(session::next_serial())
 {
     check(_loop);
-    //if (!m_socket.set_closeexec(true)) {
-    //    log_error("socket::set_closeexec(true) error");
-    //    throw k::exception("socket::set_closeexec() error");
-    //}
-    //if (!m_socket.set_nonblock(true)) {
-    //    log_error("socket::set_nonblock(true) error");
-    //    throw k::exception("socket::set_nonblock() error");
-    //}
-    //if (!sockopts::set_ooblinline(m_socket, false)) {
-    //    log_error("sockopts::set_ooblinline(false) error");
-    //    throw k::exception("sockopts::set_ooblinline() error");
-    //}
-    //m_event.set_read_handler(std::bind(&session::on_read, this));
-    //m_event.set_write_handler(std::bind(&session::on_write, this));
-    //m_event.set_error_handler(std::bind(&session::on_error, this));
-    //m_event.set_close_handler(std::bind(&session::on_close, this));
-    //m_event.set_oob_handler(std::bind(&session::on_oob, this));
-    //m_event.disable_write();
-    //m_event.disable_read();
-    //m_event.disable_oob();
-    //m_event.start();
+    m_socket.set_closeexec(true);
+    m_socket.set_nonblock(true);
+    sockopts::set_ooblinline(m_socket, false);
+    m_event.set_read_handler(std::bind(&session::on_read, this));
+    m_event.set_write_handler(std::bind(&session::on_write, this));
+    m_event.set_error_handler(std::bind(&session::on_error, this));
+    m_event.set_close_handler(std::bind(&session::on_close, this));
+    m_event.set_oob_handler(std::bind(&session::on_oob, this));
+    m_event.disable_write();
+    m_event.disable_read();
+    m_event.disable_oob();
+    m_event.start();
 } catch (...) {
     log_fatal("session::session() error");
     throw;
@@ -64,7 +55,8 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
 session::~session ()
 {
     if (m_sessionected)
-        log_error("the TCP session must be closed before object disconstructing");
+        log_error("the TCP session must be closed"
+                  " before object disconstructing");
 
     // FIXME; wait for m_sessionected to be false
 }
@@ -84,7 +76,9 @@ session::send (out_buffer_ptr _buf)
     if (m_loop->in_loop_thread())
         on_write();
     else
-        m_loop->run_in_loop(std::bind(&session::on_write, this));
+        m_loop->run_in_loop([this] () {
+            on_write();
+        });
     return true;
 }
 
@@ -100,7 +94,9 @@ session::recv (in_buffer_ptr _buf)
     if (m_loop->in_loop_thread())
         on_read();
     else
-        m_loop->run_in_loop(std::bind(&session::on_read, this));
+        m_loop->run_in_loop([this] () {
+            on_read();
+        });
     return true;
 }
 
@@ -111,27 +107,33 @@ session::close ()
     if (m_loop->in_loop_thread())
         on_close();
     else
-        m_loop->run_in_loop(std::bind(&session::on_close, this));
+        m_loop->run_in_loop([this] () {
+            on_close();
+        });
 }
 
 void
 session::rd_shutdown ()
 {
-//    check(m_sessionected);
-//    if (m_loop->in_loop_thread())
-//        m_socket.rd_shutdown();
-//    else
-//        m_loop->run_in_loop(std::bind(&socket::rd_shutdown, &m_socket));
+    check(m_sessionected);
+    if (m_loop->in_loop_thread())
+        m_socket.rd_shutdown();
+    else
+        m_loop->run_in_loop([this] () {
+            m_socket.rd_shutdown();
+        });
 }
 
 void
 session::wr_shutdown ()
 {
-//    check(m_sessionected);
-//    if (m_loop->in_loop_thread())
-//        m_socket.wr_shutdown();
-//    else
-//        m_loop->run_in_loop(std::bind(&socket::wr_shutdown, &m_socket));
+    check(m_sessionected);
+    if (m_loop->in_loop_thread())
+        m_socket.wr_shutdown();
+    else
+        m_loop->run_in_loop([this] () {
+            m_socket.wr_shutdown();
+        });
 }
 
 void
@@ -217,8 +219,8 @@ session::on_read ()
         m_in_buf = nullptr;
         if (m_message_handler)
             m_message_handler(std::ref(*this),
-                         std::ref(*_temp_ptr),
-                         _temp_ptr->valid());
+                              std::ref(*_temp_ptr),
+                              _temp_ptr->valid());
     } else if (!_size) {
         on_close();
         return;

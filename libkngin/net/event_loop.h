@@ -47,7 +47,8 @@ public:
 
 public:
     void
-    run               (started_handler &&_start_handler, stopped_handler &&_stop_handler);
+    run               (started_handler &&_start_handler,
+                       stopped_handler &&_stop_handler);
 
     void
     stop              ();

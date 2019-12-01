@@ -33,7 +33,9 @@ io_thread::run ()
     {
         local_lock _lock(m_mutex);
         m_loop = std::make_shared<event_loop>(*this);
-        thread::run(std::bind(&io_thread::process, this));
+        thread::run([this] () -> int {
+            return process();
+        });
         while (!m_loop->looping())
             m_cond.wait();
     }

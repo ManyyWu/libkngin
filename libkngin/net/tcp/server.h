@@ -67,15 +67,15 @@ public:
 
 public:
     void
-    set_session_handler    (session_handler &&_handler) { m_session_handler = std::move(_handler); }
+    set_session_handler (session_handler &&_handler) { m_session_handler = std::move(_handler); }
     void
-    set_message_handler    (message_handler &&_handler) { m_message_handler = std::move(_handler); }
+    set_message_handler (message_handler &&_handler) { m_message_handler = std::move(_handler); }
     void
-    set_sent_handler       (sent_handler &&_handler)    { m_sent_handler = std::move(_handler); }
+    set_sent_handler    (sent_handler &&_handler)    { m_sent_handler = std::move(_handler); }
     void
-    set_close_handler      (close_handler &&_handler)   { m_close_handler = std::move(_handler); }
+    set_close_handler   (close_handler &&_handler)   { m_close_handler = std::move(_handler); }
     void
-    set_oob_handler        (oob_handler &&_handler)     { m_oob_handler = std::move(_handler); }
+    set_oob_handler     (oob_handler &&_handler)     { m_oob_handler = std::move(_handler); }
 
 protected:
     event_loop_ptr

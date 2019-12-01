@@ -50,7 +50,9 @@ listener::close (error_handler &&_handler)
     if (m_loop->in_loop_thread())
         on_close();
     else
-        m_loop->run_in_loop(std::bind(&listener::on_close, this));
+        m_loop->run_in_loop([this] () {
+            on_close();
+        });
 }
 
 void
