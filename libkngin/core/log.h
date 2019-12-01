@@ -104,7 +104,8 @@ public:
     log_data      (const std::string &_str);
 
     bool
-    log_assert    (const char *_func, const char *_file, size_t _line, const char *_exp);
+    log_assert    (const char *_func, const char *_file,
+                   size_t _line, const char *_exp);
 
 private:
     const char *
@@ -114,7 +115,8 @@ private:
     write_log     (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl);
 
     bool
-    write_logfile (KNGIN_LOG_LEVEL _level, const char *_file, const char *_fmt, size_t _len);
+    write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
+                   const char *_fmt, size_t _len);
 
     const char *
     color_begin   (KNGIN_LOG_LEVEL _level);

@@ -16,22 +16,30 @@ public:
         struct ::in_addr  v4;
         struct ::in6_addr v6;
     };
-    
+
     union sockaddr {
         struct ::sockaddr_in  v4;
         struct ::sockaddr_in6 v6;
     };
 
 public:
-    address    ()                           {  }
-    address    (const ::sockaddr &_sa)      { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr &&_sa)     { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr_in &_sa)   { m_sa.v4 = _sa; }
-    address    (const ::sockaddr_in &&_sa)  { m_sa.v4 = _sa; }
-    address    (const ::sockaddr_in6 &_sa)  { m_sa.v6 = _sa; }
-    address    (const ::sockaddr_in6 &&_sa) { m_sa.v6 = _sa; }
-    address    (const address &_sa)         { m_sa = _sa.m_sa; }
-    address    (const address &&_sa)        { m_sa = _sa.m_sa; }
+    address    () {}
+    address    (const ::sockaddr &_sa)
+    { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
+    address    (const ::sockaddr &&_sa)
+    { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
+    address    (const ::sockaddr_in &_sa)
+    { m_sa.v4 = _sa; }
+    address    (const ::sockaddr_in &&_sa)
+    { m_sa.v4 = _sa; }
+    address    (const ::sockaddr_in6 &_sa)
+    { m_sa.v6 = _sa; }
+    address    (const ::sockaddr_in6 &&_sa)
+    { m_sa.v6 = _sa; }
+    address    (const address &_sa)
+    { m_sa = _sa.m_sa; }
+    address    (const address &&_sa)
+    { m_sa = _sa.m_sa; }
     ~address   () = default;
 
 public:
@@ -49,28 +57,38 @@ public:
 
 public:
     address &
-    operator = (const ::sockaddr &_sa)      { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
+    operator = (const ::sockaddr &_sa)
+    { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const ::sockaddr &&_sa)     { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
+    operator = (const ::sockaddr &&_sa)
+    { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const ::sockaddr_in &_sa)   { m_sa.v4 = _sa; return *this; }
+    operator = (const ::sockaddr_in &_sa)
+    { m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in &&_sa)  { m_sa.v4 = _sa; return *this; }
+    operator = (const ::sockaddr_in &&_sa)
+    { m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in6 &_sa)  { m_sa.v6 = _sa; return *this; }
+    operator = (const ::sockaddr_in6 &_sa)
+    { m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in6 &&_sa) { m_sa.v6 = _sa; return *this; }
+    operator = (const ::sockaddr_in6 &&_sa)
+    { m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const address &_sa)         { m_sa = _sa.m_sa; return *this; }
+    operator = (const address &_sa)
+    { m_sa = _sa.m_sa; return *this; }
     address &
-    operator = (const address &&_sa)        { m_sa = _sa.m_sa; return *this; }
+    operator = (const address &&_sa)
+    { m_sa = _sa.m_sa; return *this; }
 
 public:
     const address::sockaddr &
-    sa         () const                     { return m_sa; }
+    sa         () const
+    { return m_sa; }
 
     address::sockaddr &
-    sa         ()                           { return m_sa; }
+    sa         ()
+    { return m_sa; }
 
 public:
     static bool

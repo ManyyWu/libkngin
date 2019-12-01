@@ -23,56 +23,76 @@ KNGIN_NAMESPACE_K_BEGIN
 class timestamp {
 public:
     timestamp   () = delete;
-    timestamp   (uint64_t _ms)        : m_ms(_ms) {}
-    timestamp   (const timestamp &_t) : m_ms(_t.m_ms) {}
-    timestamp   (const timeval &_tv)  : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
-    timestamp   (const timespec &_ts) : m_ms(_ts.tv_sec * 1000 + _ts.tv_nsec / 1000000) {}
+    timestamp   (uint64_t _ms)
+        : m_ms(_ms) {}
+    timestamp   (const timestamp &_t)
+        : m_ms(_t.m_ms) {}
+    timestamp   (const timeval &_tv)
+        : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
+    timestamp   (const timespec &_ts)
+        : m_ms(_ts.tv_sec * 1000 + _ts.tv_nsec / 1000000) {}
     ~timestamp  () = default;
 
 public:
     timestamp &
-    operator =  (timestamp _t)        { m_ms = _t.m_ms; return *this; }
+    operator =  (timestamp _t)
+    { m_ms = _t.m_ms; return *this; }
     timestamp &
-    operator =  (uint64_t _t)         { m_ms = _t; return *this; }
+    operator =  (uint64_t _t)
+    { m_ms = _t; return *this; }
     timestamp &
-    operator =  (const timeval &_tv)  { m_ms = _tv.tv_sec * 1000 + _tv.tv_usec / 1000; return *this; }
+    operator =  (const timeval &_tv)
+    { m_ms = _tv.tv_sec * 1000 + _tv.tv_usec / 1000; return *this; }
     timestamp &
-    operator =  (const timespec &_ts) { m_ms = _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000; return *this; }
+    operator =  (const timespec &_ts)
+    { m_ms = _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000; return *this; }
     timestamp &
-    operator += (timestamp _t)        { m_ms += _t.m_ms; return *this; }
+    operator += (timestamp _t)
+    { m_ms += _t.m_ms; return *this; }
     timestamp &
-    operator -= (timestamp _t)        { m_ms -= _t.m_ms; return *this; }
+    operator -= (timestamp _t)
+    { m_ms -= _t.m_ms; return *this; }
 
 public:
     bool
-    operator == (timestamp _t) const  {return _t.m_ms == m_ms; }
+    operator == (timestamp _t) const
+    {return _t.m_ms == m_ms; }
 
 public:
     operator
-    uint64_t    () const              { return m_ms; }
+    uint64_t    () const
+    { return m_ms; }
 
 public:
     static uint64_t
-    infinite    ()                    { return UINT64_MAX; }
+    infinite    ()
+    { return UINT64_MAX; }
 
     static uint64_t
-    max         ()                    { return UINT64_MAX - 1; }
+    max         ()
+    { return UINT64_MAX - 1; }
 
 public:
     uint64_t
-    value       () const              { return m_ms; }
+    value       () const
+    { return m_ms; }
     int32_t
-    value_int   () const              { return (int)std::min<uint64_t>(m_ms, INT32_MAX); }
+    value_int   () const
+    { return (int)std::min<uint64_t>(m_ms, INT32_MAX); }
     uint32_t
-    value_uint  () const              { return (uint32_t)std::min<uint64_t>(m_ms, UINT32_MAX); }
+    value_uint  () const
+    { return (uint32_t)std::min<uint64_t>(m_ms, UINT32_MAX); }
     void
-    to_timeval  (timeval &_tv) const  { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }
+    to_timeval  (timeval &_tv) const
+    { _tv.tv_sec = m_ms / 1000; _tv.tv_usec = 1000 * (m_ms % 1000); }
     void
-    to_timespec (timespec &_ts) const { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
+    to_timespec (timespec &_ts) const
+    { _ts.tv_sec = m_ms / 1000; _ts.tv_nsec = 1000000 * (m_ms % 1000); }
 
 public:
     static timestamp
-    current_time ()                   {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
+    current_time ()
+    {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
 
 protected:
     uint64_t m_ms;

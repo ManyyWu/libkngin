@@ -86,17 +86,21 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             //          m_thr->name(), _fnq.size());
         }
     } catch (...) {
-        if (_stop_handler)
-            ignore_exp(_stop_handler());
-        m_waker->stop();
+        ignore_exp(
+            if (_stop_handler)
+                (_stop_handler());
+            m_waker->stop();
+        );
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
     }
 
-    if (_stop_handler)
-        ignore_exp(_stop_handler());
-    m_waker->stop();
+    ignore_exp(
+        if (_stop_handler)
+            _stop_handler();
+        m_waker->stop();
+    );
     m_looping = false;
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
 }
@@ -112,7 +116,7 @@ event_loop_pimpl::stop ()
     m_stop = true;
     if (!in_loop_thread())
         wakeup();
-    
+
 }
 
 bool

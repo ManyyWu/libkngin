@@ -25,10 +25,12 @@ public:
 
 public:
     virtual const char *
-    what       () const KNGIN_NOEXP { return m_what.c_str(); }
+    what       () const KNGIN_NOEXP
+    { return m_what.c_str(); }
 
     const std::string &
-    dump       () const   { return m_dump_str; }
+    dump       () const
+    { return m_dump_str; }
 
 protected:
     void

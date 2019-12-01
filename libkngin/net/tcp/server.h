@@ -22,8 +22,6 @@ public:
 
     typedef session::session_ptr                      session_ptr;
 
-    typedef std::function<void (session_ptr)>         session_handler;
-
     typedef session::message_handler                  message_handler;
 
     typedef session::sent_handler                     sent_handler;
@@ -33,6 +31,8 @@ public:
     typedef session::close_handler                    close_handler;
 
     typedef io_thread::event_loop_ptr                 event_loop_ptr;
+
+    typedef std::function<void (session_ptr)>         session_handler;
 
     typedef std::shared_ptr<listener>                 listener_ptr;
 
@@ -67,19 +67,25 @@ public:
 
 public:
     void
-    set_session_handler (session_handler &&_handler) { m_session_handler = std::move(_handler); }
+    set_session_handler (session_handler &&_handler)
+    { m_session_handler = std::move(_handler); }
     void
-    set_message_handler (message_handler &&_handler) { m_message_handler = std::move(_handler); }
+    set_message_handler (message_handler &&_handler)
+    { m_message_handler = std::move(_handler); }
     void
-    set_sent_handler    (sent_handler &&_handler)    { m_sent_handler = std::move(_handler); }
+    set_sent_handler    (sent_handler &&_handler)
+    { m_sent_handler = std::move(_handler); }
     void
-    set_close_handler   (close_handler &&_handler)   { m_close_handler = std::move(_handler); }
+    set_close_handler   (close_handler &&_handler)
+    { m_close_handler = std::move(_handler); }
     void
-    set_oob_handler     (oob_handler &&_handler)     { m_oob_handler = std::move(_handler); }
+    set_oob_handler     (oob_handler &&_handler)
+    { m_oob_handler = std::move(_handler); }
 
 protected:
     event_loop_ptr
-    assign_thread     ()                 { return m_threadpool.next_loop(); }
+    assign_thread     ()
+    { return m_threadpool.next_loop(); }
 
 protected:
     bool

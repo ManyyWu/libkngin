@@ -16,8 +16,7 @@ template<typename _Tp>
 inline std::shared_ptr<_Tp>
 make_shared_array (size_t _num)
 {
-    return std::shared_ptr<_Tp>(new _Tp[_num],
-                                std::default_delete<_Tp[]>());
+    return std::shared_ptr<_Tp>(new _Tp[_num], std::default_delete<_Tp[]>());
 }
 
 #endif

@@ -9,9 +9,11 @@ KNGIN_NAMESPACE_K_BEGIN
 class local_lock {
 public:
     explicit
-    local_lock  (mutex &_m) : m_mutex(_m) { m_mutex.lock(); }
+    local_lock  (mutex &_m)
+        : m_mutex(_m) { m_mutex.lock(); }
 
-    ~local_lock ()                        { m_mutex.unlock(); }
+    ~local_lock ()
+    { m_mutex.unlock(); }
 
 protected:
     mutex &m_mutex;

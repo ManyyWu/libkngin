@@ -28,10 +28,12 @@ public:
 
 public:
     bool
-    valid         () const KNGIN_NOEXP { return FD_VALID(m_fd); }
+    valid         () const KNGIN_NOEXP
+    { return FD_VALID(m_fd); }
 
     int
-    fd            () const KNGIN_NOEXP { return m_fd; }
+    fd            () const KNGIN_NOEXP
+    { return m_fd; }
 
     size_t
     write         (out_buffer &_buf);

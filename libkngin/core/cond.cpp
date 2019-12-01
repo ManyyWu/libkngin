@@ -16,7 +16,8 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 cond::cond (mutex *_mutex)
-    : m_cond(PTHREAD_COND_INITIALIZER), m_mutex(_mutex)
+    : m_cond(PTHREAD_COND_INITIALIZER),
+      m_mutex(_mutex)
 {
 }
 

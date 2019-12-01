@@ -20,9 +20,6 @@ inline std::error_code
 last_error       ();
 
 inline std::string
-system_error_str (const k::system_error &_e);
-
-inline std::string
 system_error_str (const char *_what, const std::error_code &_ec);
 
 inline std::string
@@ -34,25 +31,30 @@ public:
 
     explicit
     system_error  (const char *_what, std::error_code _ec = k::last_error())
-        : m_what(_what), m_ec(_ec) {}
+        : m_what(std::string("k::system_error() ")
+                 + system_error_str(_what, _ec)), m_ec(_ec) {}
 
     explicit
     system_error  (const std::string &_what, std::error_code _ec = k::last_error())
-            : m_what(_what), m_ec(_ec) {}
+        : m_what(std::string("k::system_error() ")
+                 + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
 
     explicit
     system_error  (std::string &&_what, std::error_code _ec = k::last_error())
-            : m_what(std::move(_what)), m_ec(_ec) {}
+        : m_what(std::string("k::system_error() ")
+                 + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
 
     virtual
     ~system_error () = default;
 
 public:
     virtual const char *
-    what          () const KNGIN_NOEXP { return m_what.c_str(); }
+    what          () const KNGIN_NOEXP
+    { return m_what.c_str(); }
 
     virtual const std::error_code
-    code          () const KNGIN_NOEXP { return m_ec; }
+    code          () const KNGIN_NOEXP
+    { return m_ec; }
 
 private:
     const std::string     m_what;
@@ -74,16 +76,6 @@ last_error ()
 #else
     return std::make_error_code(static_cast<std::errc>(errno));
 #endif
-}
-
-inline std::string
-system_error_str (const k::system_error &_e)
-{
-    return std::string(_e.what())
-                       + " - "
-                       + _e.code().message()
-                       + ":"
-                       + std::to_string(_e.code().value());
 }
 
 inline std::string

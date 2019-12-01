@@ -28,7 +28,10 @@ public:
 public:
     sync_deque ()
         try
-        : m_deque(), m_mutex(), m_cond(&m_mutex), m_max_size(KNGIN_QUEUE_MAX)
+        : m_deque(),
+          m_mutex(),
+          m_cond(&m_mutex),
+          m_max_size(KNGIN_QUEUE_MAX)
     {
     } catch (...) {
         log_fatal("sync_deque::sync_deque() error");
@@ -38,7 +41,10 @@ public:
     explicit
     sync_deque (size_type _s)
         try
-        : m_deque(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
+        : m_deque(),
+          m_mutex(),
+          m_cond(&m_mutex),
+          m_max_size(_s)
     {
     } catch (...) {
         log_fatal("sync_deque::sync_deque() error");
@@ -159,7 +165,7 @@ public:
         m_deque.erase(iter);
         return true;
     }
-    
+
 public:
     virtual void
     shrink ()

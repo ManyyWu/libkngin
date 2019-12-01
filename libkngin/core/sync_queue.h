@@ -29,7 +29,10 @@ public:
 public:
     sync_queue ()
         try
-        : m_queue(), m_mutex(), m_cond(&m_mutex), m_max_size(KNGIN_QUEUE_MAX)
+        : m_queue(),
+          m_mutex(),
+          m_cond(&m_mutex),
+          m_max_size(KNGIN_QUEUE_MAX)
     {
     } catch (...) {
         log_fatal("sync_queue::sync_queue() error");
@@ -40,7 +43,10 @@ public:
     explicit
     sync_queue (size_type _s)
         try
-        : m_queue(), m_mutex(), m_cond(&m_mutex), m_max_size(_s)
+        : m_queue(),
+          m_mutex(),
+          m_cond(&m_mutex),
+          m_max_size(_s)
     {
     } catch (...) {
         log_fatal("sync_queue::sync_queue() error");

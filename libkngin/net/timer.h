@@ -25,8 +25,8 @@ public:
 
 public:
     void
-    start        (timer_handler &&_timeout_handler, timestamp _val, timestamp _interval,
-                  bool _abs = false);
+    start        (timer_handler &&_timeout_handler, timestamp _val,
+                  timestamp _interval, bool _abs = false);
 
     void
     stop         ();

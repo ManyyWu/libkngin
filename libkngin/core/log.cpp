@@ -92,14 +92,17 @@ log::log_data (const std::string &_str)
 
     bool _ret = true;
     if (KNGIN_LOG_MODE_BOTH == m_mode || KNGIN_LOG_MODE_FILE == m_mode)
-        _ret = write_logfile(KNGIN_LOG_LEVEL_DEBUG, logger().filename_at(m_filetype).c_str(), _str.c_str(), _str.size());
+        _ret = write_logfile(KNGIN_LOG_LEVEL_DEBUG,
+                             logger().filename_at(m_filetype).c_str(),
+                             _str.c_str(), _str.size());
     if (KNGIN_LOG_MODE_BOTH == m_mode || KNGIN_LOG_MODE_STDERR == m_mode)
         write_stderr(KNGIN_LOG_LEVEL_DEBUG, _str.c_str(), _str.size());
     return _ret;
 }
 
 bool
-log::log_assert (const char *_func, const char *_file, size_t _line, const char *_exp)
+log::log_assert (const char *_func, const char *_file,
+                 size_t _line, const char *_exp)
 {
     return fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
 }
@@ -128,13 +131,20 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
         char _buf[KNGIN_LOG_BUF_SIZE];
 
         ::strncpy(_buf, get_datetime(), KNGIN_LOG_DATETIME_LEN);
-        ::vsnprintf(_buf + KNGIN_LOG_DATETIME_LEN - 1, KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN, _fmt, _vl);
+        ::vsnprintf(_buf + KNGIN_LOG_DATETIME_LEN - 1,
+                    KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN,
+                    _fmt, _vl);
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
 
         size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
-        if (KNGIN_LOG_MODE_BOTH == m_mode || KNGIN_LOG_MODE_FILE == m_mode)
-            _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(), _buf, _len);
-        if (KNGIN_LOG_MODE_BOTH == m_mode || KNGIN_LOG_MODE_STDERR == m_mode)
+        if (KNGIN_LOG_MODE_BOTH == m_mode ||
+            KNGIN_LOG_MODE_FILE == m_mode
+            )
+            _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(),
+                                 _buf, _len);
+        if (KNGIN_LOG_MODE_BOTH == m_mode ||
+            KNGIN_LOG_MODE_STDERR == m_mode
+            )
             write_stderr(_level, _buf, _len);
         return _ret;
     };
@@ -149,7 +159,8 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 }
 
 bool
-log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file, const char *_str, size_t _len)
+log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
+                    const char *_str, size_t _len)
 {
     assert(_str);
 
@@ -192,8 +203,9 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file, const char *_str,
             goto fail;
         } else if ((size_t)_ret != _str_len) {
              write_stderr2(KNGIN_LOG_LEVEL_FATAL,
-                           KNGIN_LOG_LOG_FORMAT("ERROR", "the content been written to \"%s\" are too short, "
-                                        "and the disk space may be insufficient"),
+                           KNGIN_LOG_LOG_FORMAT("ERROR",
+                                                "the content been written to \"%s\" are too short, "
+                                                "and the disk space may be insufficient"),
                            _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
             goto fail;
         }

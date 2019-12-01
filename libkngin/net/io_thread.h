@@ -28,7 +28,8 @@ public:
     stop       ();
 
     event_loop_ptr
-    get_loop   () { return m_loop; }
+    get_loop   ()
+    { return m_loop; }
 
 protected:
     int

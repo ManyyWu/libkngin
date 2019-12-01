@@ -16,14 +16,6 @@ KNGIN_NAMESPACE_K_BEGIN
 #define safe_release(ptr)       do { delete (ptr); (ptr) = nullptr; } while (false)
 #define safe_release_array(ptr) do { delete [] (ptr); (ptr) = nullptr; } while (false)
 
-/*
- * Log for assert
- * These micro functions are only used for debugging.
- * These micro function will change the execution flow of the caller functions.
- *
- * exp: expression
- */
-
 /* for arguments */
 inline void
 arg_check_func(bool _exp, const char *_what = nullptr)

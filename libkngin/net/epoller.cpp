@@ -47,7 +47,8 @@ uint32_t
 epoller::wait (epoll_event_set &_list, timestamp _ms)
 {
     check(m_epollfd.valid());
-    int _num = ::epoll_wait(m_epollfd.fd(), _list.data(), (int)_list.size(), (int)_ms.value_int());
+    int _num = ::epoll_wait(m_epollfd.fd(), _list.data(),
+                            (int)_list.size(), (int)_ms.value_int());
     if (_num < 0) {
         if (EINTR == errno)
             return 0;
@@ -62,7 +63,8 @@ epoller::close ()
     check(m_epollfd.valid());
 #ifndef NDEBUG
     if (!m_fd_set.empty())
-        log_warning("there are still have %" PRIu64 " undeleted fd in epoller", m_fd_set.size());
+        log_warning("there are still have %" PRIu64
+                    " undeleted fd in epoller", m_fd_set.size());
 #endif
     m_epollfd.close();
 }
