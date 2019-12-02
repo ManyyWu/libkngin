@@ -1,4 +1,6 @@
 #include "core/common.h"
+#include "core/exception.h"
+#include "core/system_error.h"
 #include "net/event_loop.h"
 #include "net/epoller_event.h"
 #include "net/filefd.h"
@@ -70,16 +72,16 @@ epoller_event::on_events (uint32_t _flags)
 {
     check(m_registed);
 
-    if (EPOLLHUP & _flags) // RST
-    {
-        log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
-        if (m_close_handler)
-            ignore_exp(m_close_handler());
-        else
-            m_filefd->close();
-        return;
-    }
-    ignore_exp(
+    try {
+        if (EPOLLHUP & _flags) // RST
+        {
+            log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
+            if (m_close_handler)
+                ignore_exp(m_close_handler(std::make_error_code(std::errc::connection_reset)));
+            else
+                m_filefd->close();
+            return;
+        }
         if ((EPOLLERR & _flags) && m_err_handler)
             m_err_handler();
         if ((EPOLLIN & _flags) && m_in_handler)
@@ -88,7 +90,13 @@ epoller_event::on_events (uint32_t _flags)
             m_out_handler();
         if ((EPOLLPRI & _flags) && m_pri_handler)
             m_pri_handler();
-    );
+    } catch (std::exception &_e) {
+        log_fatal("caught an exception in epoller_event::on_event() \"%s\"", _e.what());
+        throw;
+    } catch (...) {
+        log_fatal("caught an undefined exception in epoller_event::on_event()");
+        throw;
+    }
 }
 
 KNGIN_NAMESPACE_K_END

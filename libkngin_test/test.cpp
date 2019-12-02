@@ -60,6 +60,7 @@ using namespace std::placeholders;
 #warning "信号"
 #warning "pimpl() public, self() public, class pimpl public"
 #warning "参数错误throw k::exception("invalid arguments") 或使用arg_check(), 不添加其他信息"
+#warning "final"
 /*
 switch (savedErrno)  //检查错误码
 {

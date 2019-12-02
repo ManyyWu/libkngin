@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <cassert>
+#include <memory>
 #include <system_error>
 #include "core/noncopyable.h"
 #include "net/event_loop.h"
@@ -51,7 +52,7 @@ public:
     check_thread  () const KNGIN_NOEXP
     { m_loop->check_thread(); }
 
-protected:
+private:
     void
     on_accept     () KNGIN_NOEXP;
 
@@ -61,7 +62,7 @@ protected:
     void
     on_error      () KNGIN_NOEXP;
 
-protected:
+private:
     event_loop_ptr    m_loop;
 
     k::socket         m_socket;

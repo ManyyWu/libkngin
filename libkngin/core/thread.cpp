@@ -144,21 +144,14 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
     try {
         if (_data->fn)
             _data->fn();
-    } catch (const k::system_error &_e) {
-        ignore_exp(log_error("caught an std::system_error in thread \"%s\" : %s",
-                   _data->name.c_str(), _e.what()));
-    } catch (const k::exception &_e){
-        log_fatal("caught an k::exception in thread \"%s\": %s",
-                  _data->name.c_str(), _e.what());
-        log_dump(_e.dump());
     } catch (const std::exception &_e) {
-        log_fatal("caught an std::exception in thread \"%s\"",
+        log_fatal("caught an exception in thread \"%s\"",
                   _data->name.c_str(), _e.what());
     } catch (...) {
         log_fatal("caught an undefined exception in thread \"%s\"",
                   _data->name.c_str());
     }
-
+#warning "on_error"
     pthread_cleanup_pop(1);
     return 0;
 }

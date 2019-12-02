@@ -6,6 +6,7 @@
 #include <deque>
 #include "core/define.h"
 #include "core/buffer.h"
+#include "core/noncopyable.h"
 #include "net/address.h"
 #include "net/epoller_event.h"
 #include "net/event_loop.h"
@@ -18,27 +19,27 @@
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
-class session {
+class session : public noncopyable {
 public:
-    typedef std::function<void (session &, in_buffer &, size_t)> message_handler;
+    typedef std::function<void (const session &, std::error_code)> close_handler;
 
-    typedef std::function<void (session &)>                      sent_handler;
+    typedef std::function<void (session &, in_buffer &, size_t)>   message_handler;
 
-    typedef std::function<void (session &, uint8_t)>             oob_handler;
+    typedef std::function<void (session &)>                        sent_handler;
 
-    typedef std::function<void (const session &)>                close_handler;
+    typedef std::function<void (session &, uint8_t)>               oob_handler;
 
-    typedef std::shared_ptr<session>                             session_ptr;
+    typedef std::shared_ptr<session>                               session_ptr;
 
-    typedef std::shared_ptr<in_buffer>                           in_buffer_ptr;
+    typedef std::shared_ptr<in_buffer>                             in_buffer_ptr;
 
-    typedef std::shared_ptr<out_buffer>                          out_buffer_ptr;
+    typedef std::shared_ptr<out_buffer>                            out_buffer_ptr;
 
-    typedef std::deque<out_buffer_ptr>                           out_buffer_queue;
+    typedef std::deque<out_buffer_ptr>                             out_buffer_queue;
 
-    typedef std::shared_ptr<event_loop>                          event_loop_ptr;
+    typedef std::shared_ptr<event_loop>                            event_loop_ptr;
 
-    typedef event_loop::event_loop_pimpl_ptr                     event_loop_pimpl_ptr;
+    typedef event_loop::event_loop_pimpl_ptr                       event_loop_pimpl_ptr;
 
 public:
     session         () = delete;
@@ -93,22 +94,6 @@ public:
     keepalive       (bool &_on)
     { return sockopts::keepalive(m_socket, _on); }
 
-private:
-    void
-    on_write        ();
-
-    void
-    on_read         ();
-
-    void
-    on_close        ();
-
-    void
-    on_oob          ();
-
-    void
-    on_error        ();
-
 public:
     void
     set_message_handler (const message_handler &_handler)
@@ -145,12 +130,28 @@ public:
     check_thread    () const
     { m_loop->check_thread(); }
 
-protected:
+private:
+    void
+    on_write        ();
+
+    void
+    on_read         ();
+
+    void
+    on_oob          ();
+
+    void
+    on_error        ();
+
+    void
+    on_close        (std::error_code _ec);
+
+private:
     uint64_t
     next_serial     ()
     { return m_next_serial++; }
 
-protected:
+private:
     event_loop_ptr    m_loop;
 
     k::socket         m_socket;
@@ -179,7 +180,7 @@ protected:
 
     mutex             m_mutex;
 
-protected:
+private:
     static uint64_t   m_next_serial;
 };
 

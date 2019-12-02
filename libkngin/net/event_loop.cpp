@@ -26,6 +26,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
       m_taskq(),
       m_mutex(),
       m_events(RESERVED_EPOLLELR_EVENT)
+#warning "TODO: RESERVED_EPOLLELR_EVENT param"
 {
     if (nullptr == m_thr)
         throw k::exception("invalid argument");
@@ -70,8 +71,8 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
             // process events
             for (uint32_t i = 0; i < _size; ++i)
-                ignore_exp(static_cast<epoller_event *>(m_events[i].data.ptr)
-                           ->on_events(m_events[i].events));
+                static_cast<epoller_event *>(m_events[i].data.ptr)
+                           ->on_events(m_events[i].events);
 
             // process queued events
             std::deque<task> _fnq;
@@ -81,26 +82,22 @@ event_loop_pimpl::run (started_handler &&_start_handler,
                 _fnq.swap(m_taskq);
             }
             for (auto _iter : _fnq)
-                ignore_exp(_iter());
+                _iter();
             //log_debug("the epoller in thread \"%s\" handled %" PRIu64 " task",
             //          m_thr->name(), _fnq.size());
         }
     } catch (...) {
-        ignore_exp(
-            if (_stop_handler)
-                (_stop_handler());
-            m_waker->stop();
-        );
+        if (_stop_handler)
+            ignore_exp(_stop_handler());
+        ignore_exp(m_waker->stop());
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
     }
 
-    ignore_exp(
-        if (_stop_handler)
-            _stop_handler();
-        m_waker->stop();
-    );
+    if (_stop_handler)
+        ignore_exp(_stop_handler());
+    ignore_exp(m_waker->stop());
     m_looping = false;
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
 }

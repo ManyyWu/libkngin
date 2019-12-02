@@ -41,7 +41,7 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
     m_event.set_read_handler(std::bind(&session::on_read, this));
     m_event.set_write_handler(std::bind(&session::on_write, this));
     m_event.set_error_handler(std::bind(&session::on_error, this));
-    m_event.set_close_handler(std::bind(&session::on_close, this));
+    m_event.set_close_handler(std::bind(&session::on_close, this, std::placeholders::_1));
     m_event.set_oob_handler(std::bind(&session::on_oob, this));
     m_event.disable_write();
     m_event.disable_read();
@@ -105,10 +105,10 @@ session::close ()
 { 
     check(m_sessionected);
     if (m_loop->in_loop_thread())
-        on_close();
+        on_close(std::error_code());
     else
         m_loop->run_in_loop([this] () {
-            on_close();
+            on_close(std::error_code());
         });
 }
 
@@ -152,11 +152,11 @@ session::on_write ()
     }
 
     check(_buf->size());
-    if (!m_event.pollout())
+    if_not (m_event.pollout())
         return;
 
     std::error_code _ec;
-    ssize_t _size = m_socket.write(*_buf, _ec);
+    size_t _size = m_socket.write(*_buf, _ec);
     if (_size > 0) {
         if (_buf->size())
             return;
@@ -173,11 +173,12 @@ session::on_write ()
         if (m_sent_handler)
             m_sent_handler(std::ref(*this));
     } else if (!_size) {
-        on_close();
+        on_close(_ec);
         return;
     } else {
         if (((std::errc::operation_would_block == _ec ||
-              std::errc::resource_unavailable_try_again == _ec
+              std::errc::resource_unavailable_try_again == _ec ||
+              std::errc::interrupted == _ec
               ) && m_socket.nonblock()
              ) || EINTR == errno
             )
@@ -203,11 +204,11 @@ session::on_read ()
 
     size_t _writeable_bytes = m_in_buf->writeable();
     check(_writeable_bytes);
-    if (!m_event.pollin())
+    if_not (m_event.pollin())
         return;
 
     std::error_code _ec;
-    ssize_t _size = m_socket.read(*m_in_buf, _ec);
+    size_t _size = m_socket.read(*m_in_buf, _ec);
     if (_size > 0) {
         if (m_in_buf->writeable())
             return;
@@ -218,15 +219,14 @@ session::on_read ()
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_handler)
-            m_message_handler(std::ref(*this),
-                              std::ref(*_temp_ptr),
-                              _temp_ptr->valid());
+            m_message_handler(std::ref(*this), std::ref(*_temp_ptr), _temp_ptr->valid());
     } else if (!_size) {
-        on_close();
+        on_close(_ec);
         return;
     } else {
         if (((std::errc::operation_would_block == _ec ||
-              std::errc::resource_unavailable_try_again == _ec
+              std::errc::resource_unavailable_try_again == _ec ||
+              std::errc::interrupted == _ec
               ) && m_socket.nonblock()
              ) || EINTR == errno
             )
@@ -241,33 +241,19 @@ session::on_read ()
 }
 
 void
-session::on_close ()
-{
-    check(m_sessionected);
-    m_loop->check_thread();
-
-    m_event.remove();
-    m_socket.close();
-    m_in_buf = nullptr;
-    m_sessionected = false;
-
-    if (m_close_handler)
-        m_close_handler(std::ref(*this));
-}
-
-void
 session::on_oob ()
 {
     check(m_sessionected);
     m_loop->check_thread();
 
+    if_not (m_event.pollpri())
+        return;
+
     //recv
     char _data;
     in_buffer _buf(&_data, 1);
     std::error_code _ec;
-    ssize_t _size = m_socket.recv(_buf, MSG_OOB, _ec);
-    if (_size)
-        return;
+    size_t _size = m_socket.recv(_buf, MSG_OOB, _ec);
     if (_ec) {
         log_error("socket::recv(MSG_OOB) error - %s",
                   system_error_str(_ec).c_str());
@@ -297,7 +283,24 @@ session::on_error()
                   system_error_str(_ec).c_str());
     log_error("handled an socket error, fd = %d - %s",
               m_socket.fd(), system_error_str(_error).c_str());
-    on_close();
+    on_close(_error);
+}
+
+void
+session::on_close (std::error_code _ec)
+{
+    check(m_sessionected);
+    m_loop->check_thread();
+
+    ignore_exp(
+        m_event.remove();
+        m_socket.close();
+        m_in_buf = nullptr;
+        m_sessionected = false;
+
+        if (m_close_handler)
+            m_close_handler(std::cref(*this), _ec);
+    );
 }
 
 KNGIN_NAMESPACE_TCP_END

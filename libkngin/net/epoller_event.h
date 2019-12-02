@@ -8,6 +8,7 @@
 #include <functional>
 #include <memory>
 #include <atomic>
+#include <system_error>
 #include "core/define.h"
 #include "core/noncopyable.h"
 #include "net/filefd.h"
@@ -19,11 +20,13 @@ class event_loop;
 class event_loop_pimpl;
 class epoller_event : public noncopyable {
 public:
-    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl>     event_loop_pimpl_ptr;
 
-    typedef std::function<void (void)>        epoller_event_handler;
+    typedef std::function<void (void)>            epoller_event_handler;
 
-    typedef int                               epollfd;
+    typedef std::function<void (std::error_code)> epoller_close_handler;
+
+    typedef int                                   epollfd;
 
 public:
     epoller_event  () = delete;
@@ -95,7 +98,7 @@ public:
     set_oob_handler   (epoller_event_handler &&_fn) KNGIN_NOEXP
     { m_pri_handler = std::move(_fn); m_flags |= EPOLLPRI; }
     void
-    set_close_handler (epoller_event_handler &&_fn) KNGIN_NOEXP
+    set_close_handler (epoller_close_handler &&_fn) KNGIN_NOEXP
     { m_close_handler = std::move(_fn); m_flags |= EPOLLHUP; }
 
 private:
@@ -117,7 +120,7 @@ private:
 
     epoller_event_handler m_pri_handler;
 
-    epoller_event_handler m_close_handler;
+    epoller_close_handler m_close_handler;
 
     epoll_event           m_event;
 

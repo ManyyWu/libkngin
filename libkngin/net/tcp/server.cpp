@@ -174,23 +174,12 @@ server::on_new_session (socket &&_sock)
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
-    } catch (const k::system_error &_e) {
-        log_error("caught an std::system_error when accepting new session: \"%s:%d\"",
-                  _e.what(), _e.code());
     } catch (const k::exception &_e) {
-        log_error("caught an k::exception when accepting new session: \"%s\"",
-                  _e.what());
-        log_dump(_e.dump());
-        return;
-    } catch (const std::bad_alloc &_e) {
-        // exit(1);
-    } catch (const std::exception &_e) {
-        log_fatal("caught an std::exception when accepting new session: \"%s\"",
-                  _e.what());
-        return;
+        log_error("caught an exception when accepting new session: \"%s\"", _e.what());
+        throw;
     } catch (...) {
         log_fatal("caught an undefined exception when accepting new session");
-        return;
+        throw;
     }
     _session->set_message_handler(m_message_handler);
     _session->set_sent_handler(m_sent_handler);
