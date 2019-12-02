@@ -22,10 +22,10 @@ public:
 
 public:
     uint8_t
-    operator []  (size_t _idx) const KNGIN_NOEXP
+    operator []  (size_t _idx) const
     { check_readable(_idx + 1); return m_arr[_idx]; }
     const unsigned char *
-    get          (size_t _idx) const KNGIN_NOEXP
+    get          (size_t _idx) const
     { check_readable(_idx + 1); return &m_arr[_idx]; }
     const unsigned char *
     begin        () const KNGIN_NOEXP
@@ -87,14 +87,15 @@ public:
     operator =   (out_buffer &) = delete;
 
     out_buffer &
-    operator -=  (size_t _size)
+    operator -=    (size_t _size)
     { check_readable(_size); m_size -= _size; return *this; }
 
-protected:
+public:
     void
     check_readable (size_t _n) const
     { if (m_size < _n) throw k::exception("in_buffer::check_readable() - out of range"); }
 
+protected:
     template <typename Type>
     Type
     read           (bool _forward = true)
@@ -107,7 +108,7 @@ protected:
 private:
     const unsigned char * m_arr;
 
-    size_t     m_size;
+    size_t                m_size;
 };
 
 class in_buffer {
@@ -188,7 +189,7 @@ protected:
 
     template <typename Type>
     in_buffer &
-    write (Type _val)
+    write           (Type _val)
     {
         check_writeable(sizeof(Type));
         m_valid += sizeof(Type);
@@ -199,9 +200,9 @@ protected:
 private:
     unsigned char * m_arr;
 
-    size_t    m_size;
+    size_t          m_size;
 
-    size_t    m_valid;
+    size_t          m_valid;
 };
 
 

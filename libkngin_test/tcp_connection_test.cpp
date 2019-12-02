@@ -144,8 +144,8 @@ protected:
                          _session.peer_addr().addrstr().c_str(), _port);
                 thread::sleep(1000);
             });
-            m_session->set_close_handler([] (const session &_session) {
-                log_info("s: on_close: fd = %d", _session.serial());
+            m_session->set_close_handler([] (const session &_session, std::error_code _ec) {
+                log_info("s: on_close: fd = %d - %s", _session.serial(), system_error_str(_ec).c_str());
             });
 
             // recv

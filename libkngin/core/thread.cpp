@@ -144,6 +144,10 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
     try {
         if (_data->fn)
             _data->fn();
+    } catch (const k::exception &_e) {
+        log_fatal("caught an exception in thread \"%s\"",
+                  _data->name.c_str(), _e.what());
+        log_dump(_e.dump().c_str());
     } catch (const std::exception &_e) {
         log_fatal("caught an exception in thread \"%s\"",
                   _data->name.c_str(), _e.what());

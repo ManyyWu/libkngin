@@ -37,7 +37,7 @@ io_threadpool::~io_threadpool ()
         stop();
 }
 
-bool
+void
 io_threadpool::start ()
 {
     check(m_stopped);
@@ -49,13 +49,13 @@ io_threadpool::start ()
             m_threads.back()->run();
         } catch (...) {
             m_stopped = false;
-            stop();
+            ignore_exp(stop());
+            throw k::exception("thread pool startup failed");
         }
     }
 
-    m_stopped = false;
+    m_stopped = true;
     log_info("thread pool started");
-    return true;
 }
 
 void

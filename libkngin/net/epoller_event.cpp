@@ -77,7 +77,7 @@ epoller_event::on_events (uint32_t _flags)
         {
             log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
             if (m_close_handler)
-                ignore_exp(m_close_handler(std::make_error_code(std::errc::connection_reset)));
+                m_close_handler(std::make_error_code(std::errc::connection_reset));
             else
                 m_filefd->close();
             return;

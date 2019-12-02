@@ -19,6 +19,8 @@
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
+#define KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT SIZE_MAX
+
 class session : public noncopyable {
 public:
     typedef std::function<void (const session &, std::error_code)> close_handler;
@@ -54,7 +56,7 @@ public:
     send            (out_buffer_ptr _buf);
 
     bool
-    recv            (in_buffer_ptr _buf);
+    recv            (in_buffer_ptr _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 
     void
     close           ();
@@ -67,29 +69,24 @@ public:
 
     bool
     connected       ()
-    { return m_sessionected; }
+    { return m_connected; }
 
 public:
     bool
     set_read_lowat  (int _size)
     { return sockopts::set_rcvlowat(m_socket, _size); }
-
     bool
     read_lowat      (int &_size)
     { return sockopts::rcvlowat(m_socket, _size); }
-
     bool
     set_write_lowat (int _size)
     { return sockopts::set_sndlowat(m_socket, _size); }
-
     bool
     write_lowat     (int &_size)
     { return sockopts::sndlowat(m_socket, _size); }
-
     bool
     set_keepalive   (bool _on)
     { return sockopts::set_keepalive(m_socket, _on); }
-
     bool
     keepalive       (bool &_on)
     { return sockopts::keepalive(m_socket, _on); }
@@ -97,7 +94,7 @@ public:
 public:
     void
     set_message_handler (const message_handler &_handler)
-    { m_message_handler= _handler; }
+    { m_message_handler = _handler; }
     void
     set_sent_handler    (const sent_handler &_handler)
     { m_sent_handler = _handler; }
@@ -107,6 +104,8 @@ public:
     void
     set_oob_handler     (const oob_handler &_handler)
     { m_oob_handler = _handler; }
+
+    // TODO: Optimize callback function storage
 
 public:
     k::socket &
@@ -158,7 +157,7 @@ private:
 
     epoller_event     m_event;
 
-    std::atomic<bool> m_sessionected;
+    std::atomic<bool> m_connected;
 
     address           m_local_addr;
 
@@ -175,6 +174,8 @@ private:
     out_buffer_queue  m_out_bufq;
 
     in_buffer_ptr     m_in_buf;
+
+    size_t            m_callback_lowat;
 
     uint64_t          m_serial;
 

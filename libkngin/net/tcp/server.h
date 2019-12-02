@@ -88,7 +88,7 @@ protected:
     { return m_threadpool.next_loop(); }
 
 protected:
-    bool
+    void
     parse_addr        (const std::string &_name, uint16_t _port);
 
 protected:
@@ -96,7 +96,7 @@ protected:
     on_new_session    (socket &&_sock);
 
     void
-    on_close          (const session &_session);
+    on_close          (const session &_session, std::error_code _ec);
 
     void
     on_listener_error (listener &_session);

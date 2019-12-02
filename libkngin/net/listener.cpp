@@ -77,7 +77,7 @@ listener::on_accept () KNGIN_NOEXP
                         "a new session has been rejected");
         } else {
             log_error("socket::accept() error - %s:%d", _ec.message().c_str(), _ec.value());
-#warning "process error code"
+#warning "process error code, callback"
         }
         return;
     }

@@ -45,23 +45,19 @@ server::run ()
     check(m_stopped);
 
     // run threadpool
-    if (!m_threadpool.start())
-        return false;
+    m_threadpool.start();
 
     // create listen socket
     socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
-#warning "catch"
 
     // start listener
     event_loop_ptr _next_loop = m_opts.separate_listen_thread
                                 ? m_threadpool.get_loop(0)
                                 : m_threadpool.next_loop();
-    check(_next_loop);
     m_listener = std::make_shared<listener>(_next_loop, std::move(_sock));
 
     // init address
-    if (!parse_addr(m_opts.name, m_opts.port))
-        return false;
+    parse_addr(m_opts.name, m_opts.port);
 
     // bind
     m_listener->bind(m_listen_addr);
@@ -85,11 +81,6 @@ server::stop ()
     thread::sleep(1000);
     {
         local_lock _lock(m_mutex);
-        //for (auto _iter : m_sessions)
-        //            log_debug("%s:%d, connected = %d",
-        //            _iter.second->local_addr().addrstr().c_str(),
-        //            _iter.second->local_addr().port(),
-        //            _iter.second->connected());
         for (auto _iter : m_sessions)
             _iter.second->close();
     }
@@ -127,7 +118,7 @@ server::broadcast (session_list &_list, out_buffer_ptr _buf)
     return 0;
 }
 
-bool
+void
 server::parse_addr (const std::string &_name, uint16_t _port)
 {
     addrinfo   _ai;
@@ -136,15 +127,20 @@ server::parse_addr (const std::string &_name, uint16_t _port)
     _ai.ai_flags = AI_PASSIVE;
     _ai.ai_family = AF_UNSPEC;
     _ai.ai_protocol = 0;
-    int _ret = ::getaddrinfo(_name.c_str(), std::to_string(_port).c_str(), &_ai, &_ai_list);
+    int _ret = ::getaddrinfo(_name.c_str(),
+                             std::to_string(_port).c_str(),
+                             &_ai, &_ai_list);
     if (_ret) {
-        log_error("getaddrinfo() error - %s:%d", strerror(errno), errno);
-        return false;
+        if (EAI_SYSTEM == _ret)
+            throw k::system_error("::getaddrinfo() error");
+        else
+            throw k::exception((std::string("::getaddrinfo() error - %s")
+                                + gai_strerror(_ret)
+                               ).c_str());
     }
-    if (!_ai_list) {
-        log_error("invalid name or port");
-        freeaddrinfo(_ai_list);
-        return false;
+    if_not (!_ai_list) {
+        ::freeaddrinfo(_ai_list);
+        throw k::exception("invalid name or port");
     }
     m_listen_addr = *(_ai_list->ai_addr);
     //addrinfo *_res = _ai_list;
@@ -153,8 +149,7 @@ server::parse_addr (const std::string &_name, uint16_t _port)
     //    _res = _res->ai_next;
     //}
 
-    freeaddrinfo(_ai_list);
-    return true;
+    ::freeaddrinfo(_ai_list);
 }
 
 void
@@ -174,20 +169,18 @@ server::on_new_session (socket &&_sock)
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
-    } catch (const k::exception &_e) {
+    } catch (const std::exception &_e) {
         log_error("caught an exception when accepting new session: \"%s\"", _e.what());
         throw;
     } catch (...) {
         log_fatal("caught an undefined exception when accepting new session");
         throw;
     }
+    _session->set_keepalive(m_opts.keep_alive);
     _session->set_message_handler(m_message_handler);
     _session->set_sent_handler(m_sent_handler);
     _session->set_oob_handler(m_oob_handler);
-    _session->set_keepalive(m_opts.keep_alive);
-    _session->set_close_handler([this] (const session &_session) {
-        on_close(_session);
-    });
+    _session->set_close_handler(m_close_handler);
 
     {
         local_lock _lock(m_mutex);
@@ -201,11 +194,11 @@ server::on_new_session (socket &&_sock)
 }
 
 void
-server::on_close (const session &_session)
+server::on_close (const session &_session, std::error_code _ec)
 {
     _session.check_thread();
     if (m_close_handler)
-        m_close_handler(std::ref(_session));
+        m_close_handler(std::cref(_session), _ec);
 
     {
         local_lock _lock(m_mutex);
