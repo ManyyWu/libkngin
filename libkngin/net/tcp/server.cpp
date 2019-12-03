@@ -63,7 +63,11 @@ server::run ()
     m_listener->bind(m_listen_addr);
 
     // listen
-    m_listener->listen(m_opts.backlog);
+    m_listener->listen(m_opts.backlog, 
+                       std::bind(&server::on_new_session, this, std::placeholders::_1),
+                       std::bind(&server::on_listener_close, this, std::placeholders::_1));
+    log_info("listening for [%s:%d]", 
+             m_listen_addr.addrstr().c_str(), m_listen_addr.port());
 
     m_stopped = false;
     log_info("TCP server is running");
@@ -138,7 +142,7 @@ server::parse_addr (const std::string &_name, uint16_t _port)
                                 + gai_strerror(_ret)
                                ).c_str());
     }
-    if_not (!_ai_list) {
+    if_not (_ai_list) {
         ::freeaddrinfo(_ai_list);
         throw k::exception("invalid name or port");
     }

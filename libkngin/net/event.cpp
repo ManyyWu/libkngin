@@ -41,7 +41,6 @@ event::~event() KNGIN_NOEXP
 void
 event::start (event_handler &&_handler)
 {
-    arg_check(_handler);
     check(m_stopped);
 
     m_event_handler = std::move(_handler);

@@ -33,15 +33,19 @@ public:
     void
     bind          (const address &_listen_addr)
     { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr); }
+
     void
     bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
     { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr, _ec); }
+
     void
-    listen        (int _backlog)
-    { assert(!m_closed); m_socket.listen(_backlog); } 
+    listen        (int _backlog, accept_handler &&_new_ssesion_handler, 
+                   close_handler &&close_handler);
+
     void
-    listen        (int _backlog, std::error_code &_ec) KNGIN_NOEXP
-    { assert(!m_closed); m_socket.listen(_backlog, _ec); } 
+    listen        (int _backlog, std::error_code &_ec, 
+                   accept_handler &&_handler, 
+                   close_handler &&close_handler) KNGIN_NOEXP;
 
 public:
     void

@@ -48,7 +48,7 @@ void
 event_loop_pimpl::run (started_handler &&_start_handler,
         stopped_handler &&_stop_handler)
 {
-    check(m_looping);
+    check(!m_looping);
     check_thread();
     m_looping = true;
 

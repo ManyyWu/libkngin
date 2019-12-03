@@ -219,8 +219,8 @@ tcp_server_test ()
         .allow_ipv6             = false,
         .backlog                = 100,
         .thread_num             = 3,
-        .disable_debug          = true,
-        .disable_info           = true,
+        .disable_debug          = false,
+        .disable_info           = false,
         .separate_listen_thread = true,
     };
     test_server _s(_opts);

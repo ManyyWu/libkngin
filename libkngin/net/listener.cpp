@@ -21,7 +21,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
       m_close_handler(nullptr),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
-    check(_loop);
+    check(m_loop);
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
     m_socket.set_closeexec(true);
@@ -29,6 +29,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     m_event.set_read_handler(std::bind(&listener::on_accept, this));
     m_event.set_close_handler(std::bind(&listener::on_close, this, std::placeholders::_1));
     m_event.set_error_handler(std::bind(&listener::on_error, this));
+    m_event.start();
 } catch (...) {
     log_fatal("listener::listener() error");
     throw;
@@ -40,6 +41,27 @@ listener::~listener() KNGIN_NOEXP
         log_error("the listener must be closed before object disconstructing");
 
     // FIXME; wait for m_closed to be true
+}
+
+void
+listener::listen (int _backlog, accept_handler &&_new_ssesion_handler, 
+                  close_handler &&_close_handler)
+{
+    assert(!m_closed);
+    m_accept_handler = std::move(_new_ssesion_handler); 
+    m_close_handler = std::move(_close_handler); 
+    m_socket.listen(_backlog);
+}
+
+void
+listener::listen (int _backlog, std::error_code &_ec, 
+                  accept_handler &&_new_sesssion_handler, 
+                  close_handler &&_close_handler) KNGIN_NOEXP
+{
+    assert(!m_closed); 
+    m_accept_handler = std::move(_new_sesssion_handler); 
+    m_close_handler = std::move(_close_handler); 
+    m_socket.listen(_backlog, _ec);
 }
 
 void

@@ -13,7 +13,7 @@
 #include "net/epoller.h"
 
 #ifndef NDEBUG
-#define EPOLLER_TIMEOUT 10000
+#define EPOLLER_TIMEOUT 30000
 #else
 #define EPOLLER_TIMEOUT 3000
 #endif
