@@ -19,7 +19,7 @@ KNGIN_NAMESPACE_K_BEGIN
 event::event (event_loop_pimpl_ptr _loop)
     try
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
-      m_loop(std::move(_loop)),
+      m_loop(_loop),
       m_event_handler(nullptr),
       m_event(m_loop, this),
       m_stopped(true)

@@ -51,7 +51,7 @@ socket::~socket () KNGIN_NOEXP
 void
 socket::bind (const address &_addr)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     if (::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
         throw k::system_error("::bind() error");
 }
@@ -59,7 +59,7 @@ socket::bind (const address &_addr)
 void
 socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     _ec = (::bind(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
           ? last_error()
           : std::error_code();
@@ -68,7 +68,7 @@ socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 void
 socket::listen (int _backlog)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     if (::listen(m_fd, _backlog) < 0)
         throw k::system_error("::listen() error");
 }
@@ -76,14 +76,14 @@ socket::listen (int _backlog)
 void
 socket::listen (int _backlog, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     _ec = (::listen(m_fd, _backlog) < 0) ? last_error() : std::error_code();
 }
 
 int
 socket::accept (address &_addr)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
     int _fd = ::accept(m_fd, (::sockaddr *)&(_addr.m_sa), &_len);
     if (_fd < 0)
@@ -94,7 +94,7 @@ socket::accept (address &_addr)
 int
 socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
     int _fd = ::accept(m_fd, (::sockaddr *)&(_addr.m_sa), &_len);
     _ec = (_fd < 0) ? last_error() : std::error_code();
@@ -104,7 +104,7 @@ socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXP
 void
 socket::connect (const address &_addr)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     if (::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
         throw k::system_error("::connect() error");
 }
@@ -112,7 +112,7 @@ socket::connect (const address &_addr)
 void
 socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    check(!m_wr_closed && !m_rd_closed);
     _ec = (::connect(m_fd, (const ::sockaddr *)&(_addr.m_sa), _addr.size()) < 0)
           ? last_error()
           : std::error_code();
@@ -121,7 +121,7 @@ socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXP
 void
 socket::rd_shutdown ()
 {
-    assert(!m_rd_closed);
+    check(!m_rd_closed);
     if (::shutdown(m_fd, SHUT_RD) < 0)
         throw k::system_error("::shutdown(SHUT_RD) error");
     m_rd_closed = true;
@@ -130,7 +130,7 @@ socket::rd_shutdown ()
 void
 socket::rd_shutdown (std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_rd_closed);
+    check(!m_rd_closed);
     _ec = (::shutdown(m_fd, SHUT_RD) < 0 ? last_error() : std::error_code());
     m_rd_closed = true;
 }
@@ -138,7 +138,7 @@ socket::rd_shutdown (std::error_code &_ec) KNGIN_NOEXP
 void
 socket::wr_shutdown ()
 { 
-    assert(!m_wr_closed);
+    check(!m_wr_closed);
     if (::shutdown(m_fd, SHUT_WR) < 0)
         throw k::system_error("::shutdown(SHUT_WR) error");
     m_wr_closed = true;
@@ -147,7 +147,7 @@ socket::wr_shutdown ()
 void
 socket::wr_shutdown (std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed);
+    check(!m_wr_closed);
     _ec = (::shutdown(m_fd, SHUT_WR) < 0 ? last_error() : std::error_code());
     m_wr_closed = true;
 }
@@ -155,8 +155,8 @@ socket::wr_shutdown (std::error_code &_ec) KNGIN_NOEXP
 size_t
 socket::send (out_buffer &_buf, int _flags)
 {
-    assert(!m_wr_closed);
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(!m_wr_closed);
     ssize_t _size = ::send(m_fd, _buf.begin(), _buf.size(), _flags);
     if (_size < 0)
         throw k::system_error("::send() error");
@@ -167,8 +167,8 @@ socket::send (out_buffer &_buf, int _flags)
 size_t
 socket::send (out_buffer &_buf, int _flags, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed);
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(!m_wr_closed);
     ssize_t _size = ::send(m_fd, _buf.begin(), _buf.size(), _flags);
     if (_size < 0) {
         _ec = last_error();
@@ -183,8 +183,8 @@ socket::send (out_buffer &_buf, int _flags, std::error_code &_ec) KNGIN_NOEXP
 size_t
 socket::recv (in_buffer &_buf, int _flags)
 {
-    assert(!m_rd_closed);
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(!m_rd_closed);
     ssize_t _size = ::recv(m_fd, _buf.begin(), _buf.writeable(), _flags);
     if (_size < 0)
         throw k::system_error("::recv() error");
@@ -195,8 +195,8 @@ socket::recv (in_buffer &_buf, int _flags)
 size_t
 socket::recv (in_buffer &_buf, int _flags, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_rd_closed);
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(!m_rd_closed);
     ssize_t _size = ::recv(m_fd, _buf.begin(), _buf.writeable(), _flags);
     if (_size < 0) {
         _ec = last_error();
@@ -211,8 +211,8 @@ socket::recv (in_buffer &_buf, int _flags, std::error_code &_ec) KNGIN_NOEXP
 size_t
 socket::sendto (const address &_addr, out_buffer &_buf, int _flags)
 {
-    assert(!m_wr_closed);
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(!m_wr_closed);
     ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
                              (const ::sockaddr *)&(_addr.sa()),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
@@ -226,8 +226,8 @@ size_t
 socket::sendto (const address &_addr, out_buffer &_buf, int _flags,
                 std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed);
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(!m_wr_closed);
     ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
                              (const ::sockaddr *)&(_addr.sa()),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
@@ -244,8 +244,8 @@ socket::sendto (const address &_addr, out_buffer &_buf, int _flags,
 size_t
 socket::recvfrom (address &_addr, in_buffer &_buf, int _flags)
 {
-    assert(!m_rd_closed);
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(!m_rd_closed);
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
                                (::sockaddr *)&(_addr.sa()),
@@ -260,8 +260,8 @@ size_t
 socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
                   std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_rd_closed);
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(!m_rd_closed);
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
                                (::sockaddr *)&(_addr.sa()),
@@ -279,7 +279,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
 address
 socket::localaddr ()
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     if (::getsockname(m_fd, (::sockaddr *)&(_addr.m_sa), &_len) < 0)
@@ -290,7 +290,7 @@ socket::localaddr ()
 address
 socket::localaddr (std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     _ec = (::getsockname(m_fd, (::sockaddr *)&(_addr.m_sa), &_len) < 0)
@@ -302,7 +302,7 @@ socket::localaddr (std::error_code &_ec) KNGIN_NOEXP
 address
 socket::peeraddr ()
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     if (::getpeername(m_fd, (::sockaddr *)&(_addr.m_sa), &_len) < 0)
@@ -313,7 +313,7 @@ socket::peeraddr ()
 address
 socket::peeraddr (std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     _ec = (::getpeername(m_fd, (::sockaddr *)&(_addr.m_sa), &_len) < 0)

@@ -137,7 +137,7 @@ thread::pimpl::equal_to (pthread_t _t) KNGIN_NOEXP
 void *
 thread::pimpl::start (void *_args) KNGIN_NOEXP
 {
-    check(_args);
+    assert(_args);
     pthread_cleanup_push(thread::pimpl::cleanup, _args);
     auto _data = static_cast<thread_data *>(_args);
 

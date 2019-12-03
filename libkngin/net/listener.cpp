@@ -12,7 +12,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     try
-    : m_loop(std::move(_loop)),
+    : m_loop(_loop),
       m_socket(std::move(_socket)),
       m_event(m_loop->pimpl(), &m_socket),
       m_closed(false),
@@ -25,7 +25,8 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
     m_socket.set_closeexec(true);
-    m_socket.set_nonblock(true);
+    sockopts::set_reuseaddr(m_socket, true);
+    sockopts::set_reuseport(m_socket, true);
     m_event.set_read_handler(std::bind(&listener::on_accept, this));
     m_event.set_close_handler(std::bind(&listener::on_close, this, std::placeholders::_1));
     m_event.set_error_handler(std::bind(&listener::on_error, this));
@@ -44,12 +45,28 @@ listener::~listener() KNGIN_NOEXP
 }
 
 void
+listener::bind (const address &_listen_addr)
+{
+    check(!m_closed);
+    m_socket.bind(m_listen_addr = _listen_addr);
+    m_socket.set_nonblock(true);
+}
+
+void
+listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
+{
+    check(!m_closed);
+    m_socket.bind(m_listen_addr = _listen_addr, _ec);
+    m_socket.set_nonblock(true);
+}
+
+void
 listener::listen (int _backlog, accept_handler &&_new_ssesion_handler, 
                   close_handler &&_close_handler)
 {
-    assert(!m_closed);
+    check(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
-    m_close_handler = std::move(_close_handler); 
+    m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog);
 }
 
@@ -58,16 +75,16 @@ listener::listen (int _backlog, std::error_code &_ec,
                   accept_handler &&_new_sesssion_handler, 
                   close_handler &&_close_handler) KNGIN_NOEXP
 {
-    assert(!m_closed); 
+    check(!m_closed);
     m_accept_handler = std::move(_new_sesssion_handler); 
-    m_close_handler = std::move(_close_handler); 
+    m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog, _ec);
 }
 
 void
 listener::close ()
 {
-    assert(!m_closed);
+    check(!m_closed);
 
     m_idle_file.close();
     if (m_loop->in_loop_thread())
@@ -87,7 +104,7 @@ listener::on_accept () KNGIN_NOEXP
 
     address _peer_addr;
     std::error_code _ec;
-    socket _sock(m_socket.accept(_peer_addr, _ec));
+    int _sockfd = m_socket.accept(_peer_addr, _ec); // nonblocking
     if (_ec) {
         if (std::errc::too_many_files_open == _ec) {
             ignore_exp(
@@ -98,13 +115,23 @@ listener::on_accept () KNGIN_NOEXP
             );
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
+        } else if (std::errc::resource_unavailable_try_again == _ec ||
+                   std::errc::operation_would_block == _ec ||
+                   std::errc::protocol_error == _ec ||
+                   std::errc::connection_aborted == _ec ||
+                   std::errc::interrupted == _ec) {
+            log_debug("listener::on_accept() ignore error - %s",
+                      system_error_str(_ec).c_str());
+            return;
         } else {
-            log_error("socket::accept() error - %s:%d", _ec.message().c_str(), _ec.value());
+            log_error("socket::accept() error - %s", system_error_str(_ec).c_str());
+            on_close(_ec);
 #warning "process error code, callback"
         }
         return;
     }
 
+    socket _sock(_sockfd);
     ignore_exp(
         if (m_accept_handler) {
             m_accept_handler(std::move(_sock));
@@ -118,7 +145,7 @@ listener::on_accept () KNGIN_NOEXP
 void
 listener::on_close (std::error_code _ec) KNGIN_NOEXP
 {
-    assert(!m_closed);
+    check(!m_closed);
     m_loop->check_thread();
 
     ignore_exp(
@@ -134,15 +161,10 @@ listener::on_close (std::error_code _ec) KNGIN_NOEXP
 void
 listener::on_error () KNGIN_NOEXP
 {
-    assert(!m_closed);
+    check(!m_closed);
     m_loop->check_thread();
 
-    std::error_code _error, _ec;
-    _error = sockopts::error(m_socket, _ec);
-    if (_ec)
-        log_error("handled an error on listener socket %s", system_error_str(_ec));
-
-    on_close(_error);
+    on_accept();
 }
 
 KNGIN_NAMESPACE_K_END

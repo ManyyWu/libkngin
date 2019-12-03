@@ -39,8 +39,8 @@ filefd::~filefd() KNGIN_NOEXP
 size_t
 filefd::write (out_buffer &_buf)
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(FD_VALID(m_fd));
     ssize_t _size = ::write(m_fd, _buf.begin(), _buf.size());
     if (_size < 0)
         throw k::system_error("::write() error");
@@ -51,8 +51,8 @@ filefd::write (out_buffer &_buf)
 size_t
 filefd::write (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(FD_VALID(m_fd));
     ssize_t _size = ::write(m_fd, _buf.begin(), _buf.size());
     if (_size < 0) {
         _ec = last_error();
@@ -67,8 +67,8 @@ filefd::write (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 size_t
 filefd::read (in_buffer &_buf)
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(FD_VALID(m_fd));
     ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
     if (_size < 0)
         throw k::system_error("::read() error");
@@ -79,8 +79,8 @@ filefd::read (in_buffer &_buf)
 size_t
 filefd::read (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(FD_VALID(m_fd));
     ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
     if (_size < 0) {
         _ec = last_error();
@@ -95,8 +95,8 @@ filefd::read (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 size_t
 filefd::writen (out_buffer &&_buf)
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(FD_VALID(m_fd));
     assert(!this->nonblock());
     out_buffer _buffer = std::move(_buf);
     size_t _ret = _buffer.size();
@@ -116,8 +116,8 @@ filefd::writen (out_buffer &&_buf)
 size_t
 filefd::writen (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.size());
+    arg_check(_buf.size());
+    check(FD_VALID(m_fd));
     assert(!this->nonblock());
     out_buffer _buffer = std::move(_buf);
     size_t _ret = _buffer.size();
@@ -137,8 +137,8 @@ filefd::writen (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXP
 size_t
 filefd::readn (in_buffer &_buf)
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(FD_VALID(m_fd));
     assert(!this->nonblock());
     while (_buf.writeable()) {
         ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
@@ -156,8 +156,8 @@ filefd::readn (in_buffer &_buf)
 size_t
 filefd::readn (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
-    assert(_buf.writeable());
+    arg_check(_buf.writeable());
+    check(FD_VALID(m_fd));
     assert(!this->nonblock());
     while (_buf.writeable()) {
         ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
@@ -236,7 +236,7 @@ filefd::close (std::error_code &_ec) KNGIN_NOEXP
 void
 filefd::set_nonblock (bool _on)
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     _flags = _on ? _flags | O_NONBLOCK : _flags & ~O_NONBLOCK;
     if (::fcntl(m_fd, F_SETFL, _flags) < 0)
@@ -246,7 +246,7 @@ filefd::set_nonblock (bool _on)
 void
 filefd::set_nonblock (bool _on, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     _flags = _on ? _flags | O_NONBLOCK : _flags & ~O_NONBLOCK;
     _ec = (::fcntl(m_fd, F_SETFL, _flags) < 0) ? last_error() : std::error_code();
@@ -255,7 +255,7 @@ filefd::set_nonblock (bool _on, std::error_code &_ec) KNGIN_NOEXP
 void
 filefd::set_closeexec (bool _on)
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     _flags = _on ? _flags | O_CLOEXEC : _flags & ~O_CLOEXEC;
     if (::fcntl(m_fd, F_SETFL, _flags) < 0)
@@ -265,7 +265,7 @@ filefd::set_closeexec (bool _on)
 void
 filefd::set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     _flags = _on ? _flags | O_CLOEXEC : _flags & ~O_CLOEXEC;
     _ec = (::fcntl(m_fd, F_SETFL, _flags) < 0) ? last_error() : std::error_code();
@@ -274,7 +274,7 @@ filefd::set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXP
 bool
 filefd::nonblock () const
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
     if (_flags < 0)
         throw k::system_error("::fcntl() get O_CLOEXEC flag failed");
@@ -284,16 +284,16 @@ filefd::nonblock () const
 bool
 filefd::nonblock (std::error_code &_ec) const KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     int _flags = ::fcntl(m_fd, F_GETFL, 0);
-    _ec = (_flags & O_NONBLOCK) ? last_error() : std::error_code();
+    _ec = (_flags < 0) ? last_error() : std::error_code();
     return (_flags & O_NONBLOCK);
 }
 
 filefd &
 filefd::operator = (int _fd) KNGIN_NOEXP
 {
-    assert(FD_VALID(m_fd));
+    check(FD_VALID(m_fd));
     m_fd = _fd;
     return *this;
 }

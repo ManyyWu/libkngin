@@ -78,7 +78,7 @@ io_threadpool::stop ()
 void
 io_threadpool::add_task (task &&_task)
 {
-    check(_task);
+    arg_check(_task);
     check(!m_stopped);
 
     event_loop_ptr _next = next_loop();
@@ -114,7 +114,7 @@ io_threadpool::get_loop (size_t _idx)
         if (m_threads.empty())
             return nullptr;
         size_t _size = m_threads.size();
-        check(_idx < _size);
+        arg_check(_idx < _size);
         return m_threads[_idx]->get_loop();
     }
 }

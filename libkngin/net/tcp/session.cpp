@@ -20,9 +20,9 @@ uint64_t session::m_next_serial = 0;
 session::session (event_loop_ptr _loop, k::socket &&_socket,
                   const address &_local_addr, const address &_peer_addr)
     try
-    : m_loop(std::move(_loop)),
+    : m_loop(_loop),
       m_socket(std::move(_socket)), 
-      m_event(_loop->pimpl(), &m_socket),
+      m_event(m_loop->pimpl(), &m_socket),
       m_connected(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
@@ -36,7 +36,7 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
       m_serial(session::next_serial()),
       m_mutex()
 {
-    check(_loop);
+    arg_check(m_loop);
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
     sockopts::set_ooblinline(m_socket, false);
@@ -66,6 +66,7 @@ session::~session ()
 bool
 session::send (out_buffer_ptr _buf)
 {
+    arg_check(_buf);
     check(m_connected);
 
     {
@@ -144,6 +145,8 @@ session::on_write ()
 {
     if (!m_connected)
         return;
+    if_not (m_event.pollout())
+        return;
     m_loop->check_thread();
 
     out_buffer_ptr _buf = nullptr;
@@ -154,8 +157,7 @@ session::on_write ()
         _buf = m_out_bufq.back();
     }
 
-    check(_buf->size());
-    if_not (m_event.pollout())
+    if_not (_buf->size())
         return;
 
     std::error_code _ec;
@@ -199,16 +201,16 @@ session::on_write ()
 void
 session::on_read ()
 {
+    if (!m_in_buf)
+        return;
     if (!m_connected)
+        return;
+    if_not (m_event.pollin())
         return;
     m_loop->check_thread();
 
-    if (!m_in_buf)
-        return;
-
     size_t _writeable_bytes = m_in_buf->writeable();
-    check(_writeable_bytes);
-    if_not (m_event.pollin())
+    if_not (_writeable_bytes)
         return;
 
     std::error_code _ec;
@@ -250,11 +252,11 @@ session::on_read ()
 void
 session::on_oob ()
 {
-    check(m_connected);
-    m_loop->check_thread();
-
+    if (!m_connected)
+        return;
     if_not (m_event.pollpri())
         return;
+    m_loop->check_thread();
 
     //recv
     char _data;
@@ -285,12 +287,15 @@ session::on_error()
 
     std::error_code _ec;
     std::error_code _error = sockopts::error(m_socket, _ec);
-    if (_ec)
+    if (_ec) {
         log_error("sockopts::error() error - %s",
                   system_error_str(_ec).c_str());
-    log_error("handled a socket error, fd = %d - %s",
-              m_socket.fd(), system_error_str(_error).c_str());
-    on_close(_error);
+        on_close(_ec);
+    } else {
+        log_error("handled a socket error, fd = %d - %s",
+                  m_socket.fd(), system_error_str(_error).c_str());
+        on_close(_error);
+    }
 }
 
 void

@@ -14,7 +14,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 epoller_event::epoller_event (event_loop_pimpl_ptr _loop, filefd *_s)
     try
-    : m_loop(std::move(_loop)),
+    : m_loop(_loop),
       m_filefd(_s),
       m_flags(EPOLLHUP | EPOLLERR),
       m_in_handler(nullptr),
@@ -76,8 +76,8 @@ epoller_event::on_events (uint32_t _flags)
         if (EPOLLHUP & _flags) // RST
         {
             log_warning("event POLLHUP happend in fd %d", m_filefd->fd());
-            if (m_close_handler)
-                m_close_handler(std::make_error_code(std::errc::connection_reset));
+            if (m_err_handler)
+                m_err_handler(/*std::make_error_code(std::errc::connection_reset)*/);
             else
                 m_filefd->close();
             return;

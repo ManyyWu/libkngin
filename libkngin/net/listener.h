@@ -31,12 +31,10 @@ public:
 
 public:
     void
-    bind          (const address &_listen_addr)
-    { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr); }
+    bind          (const address &_listen_addr);
 
     void
-    bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
-    { assert(!m_closed); m_socket.bind(m_listen_addr = _listen_addr, _ec); }
+    bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP;
 
     void
     listen        (int _backlog, accept_handler &&_new_ssesion_handler, 

@@ -60,7 +60,7 @@ server::run ()
     parse_addr(m_opts.name, m_opts.port);
 
     // bind
-    m_listener->bind(m_listen_addr);
+    ignore_exp(m_listener->bind(m_listen_addr));
 
     // listen
     m_listener->listen(m_opts.backlog, 
@@ -197,10 +197,11 @@ server::on_new_session (socket &&_sock)
             m_session_handler(_session);
         });
 
-    log_debug("new session [%s:%d, %s:%d] closed", _session->local_addr().addrstr().c_str(),
-                                                   _session->local_addr().port(),
-                                                   _session->peer_addr().addrstr().c_str(),
-                                                   _session->peer_addr().port());
+    log_debug("new session [%s:%d, %s:%d]",
+              _session->local_addr().addrstr().c_str(),
+              _session->local_addr().port(),
+              _session->peer_addr().addrstr().c_str(),
+              _session->peer_addr().port());
 }
 
 void
@@ -210,10 +211,11 @@ server::on_session_close (const session &_session, std::error_code _ec)
     if (m_close_handler)
         m_close_handler(std::cref(_session), _ec);
 
-    log_debug("session [%s:%d, %s:%d] closed", _session.local_addr().addrstr().c_str(),
-                                               _session.local_addr().port(),
-                                               _session.peer_addr().addrstr().c_str(),
-                                               _session.peer_addr().port());
+    log_debug("session [%s:%d, %s:%d] closed",
+              _session.local_addr().addrstr().c_str(),
+              _session.local_addr().port(),
+              _session.peer_addr().addrstr().c_str(),
+              _session.peer_addr().port());
 
     {
         local_lock _lock(m_mutex);
@@ -225,6 +227,7 @@ void
 server::on_listener_close (std::error_code _ec)
 {
     log_error("listener socket error - %s", system_error_str(_ec).c_str());
+    exit(1);
 }
 
 KNGIN_NAMESPACE_TCP_END

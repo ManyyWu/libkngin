@@ -5,6 +5,7 @@
 #include <time.h>
 #include "core/define.h"
 #include "core/error.h"
+#include "core/system_error.h"
 #include "net/socket.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -76,7 +77,7 @@ public:
     { sockopt_val _val{_on}; return sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
     static std::error_code
     error          (socket &_s, std::error_code &_ec)
-    { /*return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR], _code);*/ }
+    { int _code; sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR], _code); return int2ec(_code); }
     #warning "return std::error_code for socket, out param return std::error_code from system"
     static bool
     keepalive      (socket &_s, bool &_on)
