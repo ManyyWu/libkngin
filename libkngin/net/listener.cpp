@@ -18,7 +18,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
       m_closed(false),
       m_listen_addr(),
       m_accept_handler(nullptr),
-      m_error_handler(nullptr),
+      m_close_handler(nullptr),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     check(_loop);
@@ -27,6 +27,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
     m_event.set_read_handler(std::bind(&listener::on_accept, this));
+    m_event.set_close_handler(std::bind(&listener::on_close, this, std::placeholders::_1));
     m_event.set_error_handler(std::bind(&listener::on_error, this));
 } catch (...) {
     log_fatal("listener::listener() error");
@@ -42,16 +43,16 @@ listener::~listener() KNGIN_NOEXP
 }
 
 void
-listener::close (error_handler &&_handler)
+listener::close ()
 {
     assert(!m_closed);
 
     m_idle_file.close();
     if (m_loop->in_loop_thread())
-        on_close();
+        on_close(std::error_code());
     else
         m_loop->run_in_loop([this] () {
-            on_close();
+            on_close(std::error_code());
         });
 }
 
@@ -93,7 +94,7 @@ listener::on_accept () KNGIN_NOEXP
 }
 
 void
-listener::on_close () KNGIN_NOEXP
+listener::on_close (std::error_code _ec) KNGIN_NOEXP
 {
     assert(!m_closed);
     m_loop->check_thread();
@@ -101,6 +102,9 @@ listener::on_close () KNGIN_NOEXP
     ignore_exp(
         m_event.remove();
         m_socket.close();
+
+        if (m_close_handler)
+            m_close_handler(_ec);
     );
     m_closed = true;
 }
@@ -114,9 +118,9 @@ listener::on_error () KNGIN_NOEXP
     std::error_code _error, _ec;
     _error = sockopts::error(m_socket, _ec);
     if (_ec)
-        log_error("%s - %d", _ec.message().c_str(), _ec.value());
-    if (m_error_handler)
-        ignore_exp(m_error_handler(_error));
+        log_error("handled an error on listener socket %s", system_error_str(_ec));
+
+    on_close(_error);
 }
 
 KNGIN_NAMESPACE_K_END

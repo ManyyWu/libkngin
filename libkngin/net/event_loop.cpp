@@ -66,13 +66,13 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             uint32_t _size = m_epoller->wait(m_events, EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
-            //log_debug("the epoller in thread \"%s\" is awardkened with %" PRIu64 " events",
-            //          m_thr->name(), _size);
+            log_debug("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
+                      m_thr->name(), _size);
 
             // process events
             for (uint32_t i = 0; i < _size; ++i)
                 static_cast<epoller_event *>(m_events[i].data.ptr)
-                           ->on_events(m_events[i].events);
+                    ->on_events(m_events[i].events);
 
             // process queued events
             std::deque<task> _fnq;

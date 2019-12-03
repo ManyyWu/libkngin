@@ -42,9 +42,9 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
     sockopts::set_ooblinline(m_socket, false);
     m_event.set_read_handler(std::bind(&session::on_read, this));
     m_event.set_write_handler(std::bind(&session::on_write, this));
+    m_event.set_oob_handler(std::bind(&session::on_oob, this));
     m_event.set_error_handler(std::bind(&session::on_error, this));
     m_event.set_close_handler(std::bind(&session::on_close, this, std::placeholders::_1));
-    m_event.set_oob_handler(std::bind(&session::on_oob, this));
     m_event.disable_write();
     m_event.disable_read();
     m_event.disable_oob();
@@ -288,7 +288,7 @@ session::on_error()
     if (_ec)
         log_error("sockopts::error() error - %s",
                   system_error_str(_ec).c_str());
-    log_error("handled an socket error, fd = %d - %s",
+    log_error("handled a socket error, fd = %d - %s",
               m_socket.fd(), system_error_str(_error).c_str());
     on_close(_error);
 }

@@ -76,7 +76,7 @@ server::stop ()
     check(!m_stopped);
     log_info("stopping TCP server");
 
-    m_listener->close([] (std::error_code _ec) {});
+    m_listener->close();
 #warning "handle"
     thread::sleep(1000);
     {
@@ -180,7 +180,8 @@ server::on_new_session (socket &&_sock)
     _session->set_message_handler(m_message_handler);
     _session->set_sent_handler(m_sent_handler);
     _session->set_oob_handler(m_oob_handler);
-    _session->set_close_handler(m_close_handler);
+    _session->set_close_handler(std::bind(&server::on_session_close, this, 
+                                std::placeholders::_1, std::placeholders::_2));
 
     {
         local_lock _lock(m_mutex);
@@ -191,14 +192,24 @@ server::on_new_session (socket &&_sock)
         _next_loop->run_in_loop([this, _session] () {
             m_session_handler(_session);
         });
+
+    log_debug("new session [%s:%d, %s:%d] closed", _session->local_addr().addrstr().c_str(),
+                                                   _session->local_addr().port(),
+                                                   _session->peer_addr().addrstr().c_str(),
+                                                   _session->peer_addr().port());
 }
 
 void
-server::on_close (const session &_session, std::error_code _ec)
+server::on_session_close (const session &_session, std::error_code _ec)
 {
     _session.check_thread();
     if (m_close_handler)
         m_close_handler(std::cref(_session), _ec);
+
+    log_debug("session [%s:%d, %s:%d] closed", _session.local_addr().addrstr().c_str(),
+                                               _session.local_addr().port(),
+                                               _session.peer_addr().addrstr().c_str(),
+                                               _session.peer_addr().port());
 
     {
         local_lock _lock(m_mutex);
@@ -207,9 +218,9 @@ server::on_close (const session &_session, std::error_code _ec)
 }
 
 void
-server::on_listener_error (listener &_listener)
+server::on_listener_close (std::error_code _ec)
 {
-    _listener.check_thread();
+    log_error("listener socket error - %s", system_error_str(_ec).c_str());
 }
 
 KNGIN_NAMESPACE_TCP_END

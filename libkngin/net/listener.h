@@ -20,7 +20,7 @@ public:
 
     typedef std::function<void (k::socket &&)>    accept_handler;
 
-    typedef std::function<void (std::error_code)> error_handler;
+    typedef std::function<void (std::error_code)> close_handler;
 
 public:
     listener      () = delete;
@@ -45,7 +45,7 @@ public:
 
 public:
     void
-    close         (error_handler &&_handler);
+    close         ();
 
 public:
     void
@@ -57,7 +57,7 @@ private:
     on_accept     () KNGIN_NOEXP;
 
     void
-    on_close      () KNGIN_NOEXP;
+    on_close      (std::error_code _ec) KNGIN_NOEXP;
 
     void
     on_error      () KNGIN_NOEXP;
@@ -75,7 +75,7 @@ private:
 
     accept_handler    m_accept_handler;
 
-    error_handler     m_error_handler;
+    close_handler     m_close_handler;
 
     filefd            m_idle_file;
 };

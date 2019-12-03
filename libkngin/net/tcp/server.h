@@ -96,10 +96,10 @@ protected:
     on_new_session    (socket &&_sock);
 
     void
-    on_close          (const session &_session, std::error_code _ec);
+    on_session_close  (const session &_session, std::error_code _ec);
 
     void
-    on_listener_error (listener &_session);
+    on_listener_close (std::error_code _ec);
 
 protected:
     const server_opts m_opts;
