@@ -28,7 +28,6 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     sockopts::set_reuseaddr(m_socket, true);
     sockopts::set_reuseport(m_socket, true);
     m_event.set_read_handler(std::bind(&listener::on_accept, this));
-    m_event.set_close_handler(std::bind(&listener::on_close, this, std::placeholders::_1));
     m_event.set_error_handler(std::bind(&listener::on_error, this));
     m_event.start();
 } catch (...) {

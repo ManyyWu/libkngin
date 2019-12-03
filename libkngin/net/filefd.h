@@ -77,6 +77,9 @@ public:
     void
     close         (std::error_code &_ec) KNGIN_NOEXP;
 
+    std::error_code
+    read_error    () KNGIN_NOEXP;
+
 public:
     void
     set_nonblock  (bool _on);

@@ -44,7 +44,6 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
     m_event.set_write_handler(std::bind(&session::on_write, this));
     m_event.set_oob_handler(std::bind(&session::on_oob, this));
     m_event.set_error_handler(std::bind(&session::on_error, this));
-    m_event.set_close_handler(std::bind(&session::on_close, this, std::placeholders::_1));
     m_event.disable_write();
     m_event.disable_read();
     m_event.disable_oob();
@@ -172,8 +171,7 @@ session::on_write ()
             return;
             log_error("socket::write() error - %s",
                       system_error_str(_ec).c_str());
-#warning "process error code"
-//            on_error(_ec);
+            on_error();
 #warning "error_code"
         return;
     }
@@ -225,8 +223,7 @@ session::on_read ()
             return;
             log_error("socket::write() error - %s",
                       system_error_str(_ec).c_str());
-#warning "process error code"
-        //        on_error(_ec);
+        on_error();
 #warning "error_code"
         return;
     }
@@ -266,7 +263,7 @@ session::on_oob ()
     if (_ec) {
         log_error("socket::recv(MSG_OOB) error - %s",
                   system_error_str(_ec).c_str());
-//        on_error(_ec);
+        on_error();
 #warning "error_code"
         return;
     }
@@ -285,16 +282,24 @@ session::on_error()
     check(m_connected);
     m_loop->check_thread();
 
-    std::error_code _ec;
-    std::error_code _error = sockopts::error(m_socket, _ec);
+    char _arr[1];
+    in_buffer _buf(_arr, 1);
+    std::error_code _ec = m_socket.read_error();
     if (_ec) {
-        log_error("sockopts::error() error - %s",
-                  system_error_str(_ec).c_str());
-        on_close(_ec);
+        if (((std::errc::operation_would_block == _ec ||
+              std::errc::resource_unavailable_try_again == _ec ||
+              std::errc::interrupted == _ec
+             ) && m_socket.nonblock()
+            ) || EINTR == errno
+                )
+            return;
+                log_error("socket::write() error - %s",
+                          system_error_str(_ec).c_str());
+        on_error();
+#warning "error_code"
+        return;
     } else {
-        log_error("handled a socket error, fd = %d - %s",
-                  m_socket.fd(), system_error_str(_error).c_str());
-        on_close(_error);
+        log_error("session::on_error() - no any error was readed");
     }
 }
 

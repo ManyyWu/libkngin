@@ -233,6 +233,16 @@ filefd::close (std::error_code &_ec) KNGIN_NOEXP
     m_fd = filefd::invalid_fd;
 }
 
+std::error_code
+filefd::read_error () KNGIN_NOEXP
+{
+    check(FD_VALID(m_fd));
+    ssize_t _size = ::read(m_fd, NULL, 0);
+    if (_size < 0)
+        return last_error();
+    return std::error_code();
+}
+
 void
 filefd::set_nonblock (bool _on)
 {

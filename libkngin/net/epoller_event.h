@@ -57,8 +57,6 @@ public:
     void
     disable_once   ()          KNGIN_NOEXP { m_flags &= ~EPOLLONESHOT; }
     void
-    disable_close  ()          KNGIN_NOEXP { m_close_handler = nullptr; }
-    void
     disable_all    ()          KNGIN_NOEXP { m_flags = EPOLLHUP | EPOLLERR; }
     bool
     pollin         () const    KNGIN_NOEXP { return (m_flags & EPOLLIN); }
@@ -97,9 +95,6 @@ public:
     void
     set_oob_handler   (epoller_event_handler &&_fn) KNGIN_NOEXP
     { m_pri_handler = std::move(_fn); m_flags |= EPOLLPRI; }
-    void
-    set_close_handler (epoller_close_handler &&_fn) KNGIN_NOEXP
-    { m_close_handler = std::move(_fn); m_flags |= EPOLLHUP; }
 
 private:
     void
@@ -119,8 +114,6 @@ private:
     epoller_event_handler m_err_handler;
 
     epoller_event_handler m_pri_handler;
-
-    epoller_close_handler m_close_handler;
 
     epoll_event           m_event;
 
