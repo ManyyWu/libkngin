@@ -72,24 +72,24 @@ public:
     { return m_connected; }
 
 public:
-    bool
+    void
     set_read_lowat  (int _size)
-    { return sockopts::set_rcvlowat(m_socket, _size); }
-    bool
-    read_lowat      (int &_size)
-    { return sockopts::rcvlowat(m_socket, _size); }
-    bool
+    { sockopts::set_rcvlowat(m_socket, _size); }
+    int
+    read_lowat      ()
+    { return sockopts::rcvlowat(m_socket); }
+    void
     set_write_lowat (int _size)
-    { return sockopts::set_sndlowat(m_socket, _size); }
-    bool
-    write_lowat     (int &_size)
-    { return sockopts::sndlowat(m_socket, _size); }
-    bool
+    { sockopts::set_sndlowat(m_socket, _size); }
+    int
+    write_lowat     ()
+    { return sockopts::sndlowat(m_socket); }
+    void
     set_keepalive   (bool _on)
-    { return sockopts::set_keepalive(m_socket, _on); }
+    { sockopts::set_keepalive(m_socket, _on); }
     bool
-    keepalive       (bool &_on)
-    { return sockopts::keepalive(m_socket, _on); }
+    keepalive       ()
+    { return sockopts::keepalive(m_socket); }
 
 public:
     void

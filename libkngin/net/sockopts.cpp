@@ -5,6 +5,7 @@
 #include <netinet/ip.h>
 #endif
 #include "core/common.h"
+#include "core/system_error.h"
 #include "net/filefd.h"
 #include "net/sockopts.h"
 #include "net/socket.h"
@@ -49,101 +50,95 @@ const sockopts::sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
 };
 
 bool
-sockopts::get_flag (int _fd, const sockopts_info &_opt_info, bool &_flag)
+sockopts::get_flag (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
     socklen_t _optlen = sizeof(int);
-    int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_value.i_val, &_optlen);
-    if (_ret < 0)
-        log_error("::getsockopt() get option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
+    if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_value.i_val, &_optlen) < 0) {
+        throw k::system_error(std::string("::getsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
     check(_optlen == sizeof(int));
-    _flag = _value.i_val;
-    return (_ret >= 0);
+    return _value.i_val;
 }
 
-bool
-sockopts::get_int (int _fd, const sockopts_info &_opt_info, int &_val)
+int
+sockopts::get_int (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
     socklen_t _optlen = sizeof(int);
-    int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_value.i_val, &_optlen);
-    if (_ret < 0)
-        log_error("::getsockopt() get option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
+    if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_value.i_val, &_optlen) < 0) {
+        throw k::system_error(std::string("::getsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
     check(_optlen == sizeof(int));
-    _val = _value.i_val;
-    return (_ret >= 0);
+    return _value.i_val;
 }
 
-bool
-sockopts::get_linger (int _fd, const sockopts_info &_opt_info, struct linger &_l)
+struct linger
+sockopts::get_linger (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
     socklen_t _optlen = sizeof(struct linger);
-    int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_value.linger_val, &_optlen);
-    if (_ret < 0)
-        log_error("::getsockopt() get option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
+    if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_value.linger_val, &_optlen) < 0) {
+        throw k::system_error(std::string("::getsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
     check(_optlen == sizeof(struct linger));
-    return (_ret >= 0);
+    return _value.linger_val;
 }
 
-bool
-sockopts::get_timeval (int _fd, const sockopts_info &_opt_info, struct timeval &_tv)
+struct timeval
+sockopts::get_timeval (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
     socklen_t _optlen = sizeof(timeval);
-    int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_value.timeval_val, &_optlen);
-    if (_ret < 0)
-        log_error("::getsockopt() get option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
+    if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                            &_value.timeval_val, &_optlen) < 0) {
+        throw k::system_error(std::string("::getsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
     check(_optlen == sizeof(struct timeval));
-    _tv = _value.timeval_val;
-    return (_ret >= 0);
+    return _value.timeval_val;
 }
 
-bool
+void
 sockopts::set_flag (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
-    return set_int(_val, _fd, _opt_info);
+    set_int(_val, _fd, _opt_info);
 }
 
-bool
+void
 sockopts::set_int (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
-    int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_val.i_val, sizeof(_val.i_val));
-    if (_ret < 0)
-        log_error("::setsockopt() set option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
-    return (_ret >= 0);
+    if (::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_val.i_val, sizeof(_val.i_val)) < 0) {
+        throw k::system_error(std::string("::setsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
 }
 
-bool
+void
 sockopts::set_linger (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
-    int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_val.linger_val, sizeof(_val.linger_val));
-    if (_ret < 0)
-        log_error("::setsockopt() set option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
-    return (_ret >= 0);
+    if (::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_val.linger_val, sizeof(_val.linger_val)) < 0) {
+        throw k::system_error(std::string("::setsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
 }
 
-bool
+void
 sockopts::set_timeval (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info)
 {
-    int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
-                            &_val.timeval_val, sizeof(_val.timeval_val));
-    if (_ret < 0)
-        log_error("::setsockopt() set option %s failed, %s:%d",
-                  _opt_info.opt_str, strerror(errno), errno);
-    return (_ret >= 0);
+    if (::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_val.timeval_val, sizeof(_val.timeval_val)) < 0) {
+        throw k::system_error(std::string("::setsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
 }
 
 KNGIN_NAMESPACE_K_END
