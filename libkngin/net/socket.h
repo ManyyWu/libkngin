@@ -18,10 +18,10 @@ KNGIN_NAMESPACE_K_BEGIN
 #define KNGIN_PORT_STR_LEN        5
 
 // ipv4: "[%s:%d]" or ipv6: "[[%s]:%d]"
-#define KNGIN_SHORT_LONG_NAME_LEN INET6_ADDRSTRLEN * 2 + KNGIN_PORT_STR_LEN * 2 + 9
+#define KNGIN_CONN_SHORT_NAME_LEN INET6_ADDRSTRLEN + KNGIN_PORT_STR_LEN + 5
 
 // ipv4: "[%s:%d-%s:%d]" or ipv6: "[[%s]:%d-[%s]:%d]"
-#define KNGIN_CONN_LONG_NAME_LEN INET6_ADDRSTRLEN * 2 + KNGIN_PORT_STR_LEN * 2 + 9
+#define KNGIN_CONN_LONG_NAME_LEN  INET6_ADDRSTRLEN * 2 + KNGIN_PORT_STR_LEN * 2 + 9
 
 class socket : public filefd {
 public:
