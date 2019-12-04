@@ -15,7 +15,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     : m_loop(_loop),
       m_socket(std::move(_socket)),
       m_event(m_loop->pimpl(), &m_socket),
-      m_closed(false),
+      m_closed(true),
       m_listen_addr(),
       m_accept_handler(nullptr),
       m_close_handler(nullptr),
@@ -30,6 +30,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     m_event.set_read_handler(std::bind(&listener::on_accept, this));
     m_event.set_error_handler(std::bind(&listener::on_error, this));
     m_event.start();
+    m_closed = false;
 } catch (...) {
     log_fatal("listener::listener() error");
     throw;

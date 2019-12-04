@@ -117,22 +117,22 @@ public:
 
 public:
     address
-    localaddr   ();
+    localaddr   () const;
 
     address
-    localaddr   (std::error_code &_ec) KNGIN_NOEXP;
+    localaddr   (std::error_code &_ec) const KNGIN_NOEXP;
 
     address
-    peeraddr    ();
+    peeraddr    () const;
 
     address
-    peeraddr    (std::error_code &_ec) KNGIN_NOEXP;
+    peeraddr    (std::error_code &_ec) const KNGIN_NOEXP;
 
     std::string
-    name        ();
+    name        () const;
 
     std::string
-    full_name   ();
+    full_name   () const;
 
 protected:
     bool m_rd_closed;

@@ -197,11 +197,7 @@ server::on_new_session (socket &&_sock)
             m_session_handler(_session);
         });
 
-    log_debug("new session [%s:%d, %s:%d]",
-              _session->local_addr().addrstr().c_str(),
-              _session->local_addr().port(),
-              _session->peer_addr().addrstr().c_str(),
-              _session->peer_addr().port());
+    log_debug("new session from %s", _session->name().c_str());
 }
 
 void
@@ -211,11 +207,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
     if (m_close_handler)
         m_close_handler(std::cref(_session), _ec);
 
-    log_debug("session [%s:%d, %s:%d] closed",
-              _session.local_addr().addrstr().c_str(),
-              _session.local_addr().port(),
-              _session.peer_addr().addrstr().c_str(),
-              _session.peer_addr().port());
+    log_debug("session %s closed", _session.name().c_str());
 
     {
         local_lock _lock(m_mutex);

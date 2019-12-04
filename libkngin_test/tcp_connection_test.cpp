@@ -115,7 +115,7 @@ protected:
             sockopts::set_reuseaddr(_server_sock, true);
             sockopts::set_reuseport(_server_sock, true);
             std::string _a;
-            log_info("s: server_addr: %s:%hu", _server_addr.addrstr().c_str(), _server_addr.port());
+            log_info("s: server_addr: %s", _server_sock.name().c_str());
             _server_sock.bind(_server_addr);
             _server_sock.listen(5);
             log_info("s: listening...");
@@ -123,16 +123,15 @@ protected:
             // create a session
             address _client_addr;
             k::socket _client_sock(_server_sock.accept(_client_addr));
-            log_info("s: connected to client: %s:%hu", _client_addr.addrstr().c_str(),
-                    _client_addr.port());
+            log_info("s: connected to client: %s", _client_sock.name().c_str());
             m_session = std::make_shared<session>(m_loop, std::move(_client_sock),
                                                   _server_addr, _client_addr);
 
             // set callback
             m_session->set_message_handler([this] (session &_session, in_buffer &_buf, size_t _size) {
                 uint16_t _port = _session.peer_addr().port();
-                log_info("s: on_message: from %s:%d, data = \"%s\", size = %" PRIu64,
-                         _session.peer_addr().addrstr().c_str(), _port,
+                log_info("s: on_message: from %s, data = \"%s\", size = %" PRIu64,
+                        _session.name().c_str(),
                          _buf.dump().c_str(), _size);
                 typedef session::out_buffer_ptr buffer_ptr;
                 in_buffer(m_arr, 4).write_uint32(_port);
@@ -140,8 +139,7 @@ protected:
             });
             m_session->set_sent_handler([] (session &_session) {
                 uint16_t _port = _session.peer_addr().port();
-                log_info("s: on_sent: to %s:%d",
-                         _session.peer_addr().addrstr().c_str(), _port);
+                log_info("s: on_sent: to %s", _session.name().c_str());
                 thread::sleep(1000);
             });
             m_session->set_close_handler([] (const session &_session, std::error_code _ec) {

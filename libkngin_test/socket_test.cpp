@@ -67,15 +67,14 @@ server (void *_args)
     k::socket _server_sock(socket::IPV4_TCP);
     assert(sockopts::set_reuseaddr(_server_sock, true));
     assert(sockopts::set_reuseport(_server_sock, true));
-    log_debug("server_addr: %s:%hu", _server_addr.addrstr().c_str(), _server_addr.port());
+    log_debug("server_addr: %s", _server_sock.name().c_str());
     _server_sock.bind(_server_addr);
     _server_sock.listen(5);
     log_info("listening...");
     while (_ok) {
         address _client_addr;
         k::socket _client_sock(_server_sock.accept(_client_addr));
-        log_info("connect to: %s:%d", _client_addr.addrstr().c_str(),
-                 _client_addr.port());
+        log_info("connect to: %s", _server_sock.name().c_str());
         // write
         {
             char _arr[4];
@@ -90,10 +89,9 @@ server (void *_args)
             _client_sock.read(_buf);
             if (out_buffer(_arr, 4).peek_int32() == 0)
                 _ok = false;
-            log_info("read integer %d from client %s:%d",
+            log_info("read integer %d from client %s",
                      out_buffer(_arr, 4).peek_int32(),
-                     _client_addr.addrstr().c_str(),
-                     _client_addr.port());
+                     _client_sock.name().c_str());
         }
         _client_sock.close();
     }

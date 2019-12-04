@@ -68,7 +68,7 @@ public:
     wr_shutdown     ();
 
     bool
-    connected       ()
+    connected       () const
     { return m_connected; }
 
 public:
@@ -108,10 +108,6 @@ public:
     // TODO: Optimize callback function storage
 
 public:
-    k::socket &
-    socket          ()
-    { return m_socket; }
-
     const address &
     local_addr      () const
     { return m_local_addr; }
@@ -121,11 +117,11 @@ public:
     { return m_peer_addr; }
 
     std::string 
-    name            ()
+    name            () const
     { return m_socket.name(); }
 
     std::string 
-    full_name       ()
+    full_name       () const
     { return m_socket.full_name(); }
 
     uint64_t
@@ -157,6 +153,10 @@ private:
     uint64_t
     next_serial     ()
     { return m_next_serial++; }
+
+    k::socket &
+    socket          ()
+    { return m_socket; }
 
 private:
     event_loop_ptr    m_loop;

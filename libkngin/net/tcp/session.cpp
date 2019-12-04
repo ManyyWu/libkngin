@@ -270,9 +270,7 @@ session::on_oob ()
     if (m_oob_handler) {
         m_oob_handler(std::ref(*this), _data);
     } else {
-        log_warning("unhandled oob data from %s:%hu",
-                    m_local_addr.addrstr().c_str(),
-                    m_local_addr.port());
+        log_warning("unhandled oob data from %s", m_socket.name().c_str());
     }
 }
 
@@ -295,7 +293,7 @@ session::on_error()
             return;
                 log_error("socket::write() error - %s",
                           system_error_str(_ec).c_str());
-        on_error();
+        on_close(_ec);
 #warning "error_code"
         return;
     } else {

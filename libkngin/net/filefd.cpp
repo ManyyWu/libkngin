@@ -32,8 +32,8 @@ filefd::~filefd() KNGIN_NOEXP
     std::error_code _ec;
     close(_ec);
     if (_ec)
-        log_error("::close() error, fd = %d, %s:%d",
-                  m_fd, _ec.message().c_str(), _ec.value());
+        log_error("::close() error, fd = %d, %s", m_fd, 
+                  system_error_str(_ec).c_str());
 }
 
 size_t

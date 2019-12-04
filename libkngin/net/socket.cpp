@@ -277,7 +277,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
 }
 
 address
-socket::localaddr ()
+socket::localaddr () const
 {
     check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
@@ -288,7 +288,7 @@ socket::localaddr ()
 }
 
 address
-socket::localaddr (std::error_code &_ec) KNGIN_NOEXP
+socket::localaddr (std::error_code &_ec) const KNGIN_NOEXP
 {
     check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
@@ -300,7 +300,7 @@ socket::localaddr (std::error_code &_ec) KNGIN_NOEXP
 }
 
 address
-socket::peeraddr ()
+socket::peeraddr () const
 {
     check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
@@ -311,7 +311,7 @@ socket::peeraddr ()
 }
 
 address
-socket::peeraddr (std::error_code &_ec) KNGIN_NOEXP
+socket::peeraddr (std::error_code &_ec) const KNGIN_NOEXP
 {
     check(!m_wr_closed || !m_rd_closed);
     k::address _addr;
@@ -323,7 +323,7 @@ socket::peeraddr (std::error_code &_ec) KNGIN_NOEXP
 }
 
 std::string
-socket::name ()
+socket::name () const
 {
     std::string _name("[");
     _name.reserve(KNGIN_CONN_SHORT_NAME_LEN);
@@ -345,9 +345,8 @@ socket::name ()
 }
 
 std::string
-socket::full_name ()
+socket::full_name () const
 {
-// ipv4: "[%s:%d-%s:%d]" or ipv6: "[[%s]:%d-[%s]:%d]"
     std::string _name("[");
     _name.reserve(KNGIN_CONN_LONG_NAME_LEN);
 
