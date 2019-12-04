@@ -120,6 +120,14 @@ public:
     peer_addr       () const
     { return m_peer_addr; }
 
+    std::string 
+    name            ()
+    { return m_socket.name(); }
+
+    std::string 
+    full_name       ()
+    { return m_socket.full_name(); }
+
     uint64_t
     serial          () const
     { return m_serial; }

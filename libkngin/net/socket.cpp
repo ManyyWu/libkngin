@@ -322,4 +322,63 @@ socket::peeraddr (std::error_code &_ec) KNGIN_NOEXP
     return _addr;
 }
 
+std::string
+socket::name ()
+{
+    std::string _name("[");
+    _name.reserve(KNGIN_CONN_SHORT_NAME_LEN);
+
+    address _peer_addr = peeraddr();
+    if (_peer_addr.inet6()) {
+        _name.append("[")
+             .append(_peer_addr.addrstr())
+             .append("]:")
+             .append(std::to_string(_peer_addr.port()))
+             .append("]");
+    } else {
+        _name.append(_peer_addr.addrstr())
+             .append(":")
+             .append(std::to_string(_peer_addr.port()))
+             .append("]");
+    }
+    return _name;
+}
+
+std::string
+socket::full_name ()
+{
+// ipv4: "[%s:%d-%s:%d]" or ipv6: "[[%s]:%d-[%s]:%d]"
+    std::string _name("[");
+    _name.reserve(KNGIN_CONN_LONG_NAME_LEN);
+
+    address _local_addr = localaddr();
+    address _peer_addr = peeraddr();
+    if (_local_addr.inet6()) {
+        if (_peer_addr.inet6()) {
+            _name.append("[").append(_peer_addr.addrstr()).append("]:")
+                 .append(std::to_string(_peer_addr.port())).append("]-")
+                 .append("[").append(_peer_addr.addrstr()).append("]:")
+                 .append(std::to_string(_peer_addr.port())).append("]");
+        } else {
+            _name.append(_peer_addr.addrstr()).append(":")
+                 .append(std::to_string(_peer_addr.port())).append("-")
+                 .append("[").append(_peer_addr.addrstr()).append("]:")
+                 .append(std::to_string(_peer_addr.port())).append("]");
+        }
+    } else {
+        if (_peer_addr.inet6()) {
+            _name.append(_local_addr.addrstr()) .append(":")
+                 .append(std::to_string(_local_addr.port())) .append("-")
+                 .append("[").append(_peer_addr.addrstr()).append("]:")
+                 .append(std::to_string(_peer_addr.port())).append("]");
+        } else {
+            _name.append(_local_addr.addrstr()) .append(":")
+                 .append(std::to_string(_local_addr.port())) .append("-")
+                 .append(_peer_addr.addrstr()) .append(":")
+                 .append(std::to_string(_peer_addr.port())) .append("]");
+        }
+    }
+    return _name;
+}
+
 KNGIN_NAMESPACE_K_END
