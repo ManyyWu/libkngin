@@ -19,23 +19,23 @@ public:
 private:
     log_mgr     ();
 
-    ~log_mgr    ();
+    ~log_mgr    () KNGIN_NOEXP;
 
 public:
     log &
-    operator [] (size_t _index);
+    operator [] (size_t _index) KNGIN_NOEXP;
 
     int
     add         (const std::string &_filename, KNGIN_LOG_MODE _mode);
 
     std::string &
-    filename_at (size_t _index);
+    filename_at (size_t _index) KNGIN_NOEXP;
 
 public:
     bool
-    inited      () const;
+    inited      () const KNGIN_NOEXP;
 
-protected:
+private:
     static kngin_log_set     m_log_set;
 
     static kngin_logfile_set m_logfile_set;

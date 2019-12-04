@@ -15,7 +15,7 @@ class mutex {
 public:
     mutex         ();
 
-    ~mutex        ();
+    ~mutex        () KNGIN_NOEXP;
 
 public:
     void
@@ -30,13 +30,10 @@ public:
     bool
     timedlock     (timestamp _ms);
 
-    pthread_mutex_t *
-    get_interface ();
-
-protected:
+private:
     pthread_mutex_t m_mutex;
 
-protected:
+private:
     friend class cond;
 };
 

@@ -67,68 +67,72 @@ public:
 
 private:
     explicit
-    log           (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode = KNGIN_LOG_MODE_FILE);
+    log           (KNGIN_LOG_FILE _filetype,
+                   KNGIN_LOG_MODE _mode = KNGIN_LOG_MODE_FILE);
 
     ~log          () = default;
 
 public:
     void
-    disable_info  () { m_disable_info = true; }
+    disable_info  () KNGIN_NOEXP { m_disable_info = true; }
 
     void
-    disable_debug () { m_disable_debug = true; }
+    disable_debug () KNGIN_NOEXP { m_disable_debug = true; }
 
     void
-    enable_info   () { m_disable_info = false; }
+    enable_info   () KNGIN_NOEXP { m_disable_info = false; }
 
     void
-    enable_debug  () { m_disable_debug = false; }
+    enable_debug  () KNGIN_NOEXP { m_disable_debug = false; }
 
 public:
     bool
-    fatal         (const char *_fmt, ...);
+    fatal         (const char *_fmt, ...) KNGIN_NOEXP;
 
     bool
-    error         (const char *_fmt, ...);
+    error         (const char *_fmt, ...) KNGIN_NOEXP;
 
     bool
-    warning       (const char *_fmt, ...);
+    warning       (const char *_fmt, ...) KNGIN_NOEXP;
 
     bool
-    info          (const char *_fmt, ...);
+    info          (const char *_fmt, ...) KNGIN_NOEXP;
 
     bool
-    debug         (const char *_fmt, ...);
+    debug         (const char *_fmt, ...) KNGIN_NOEXP;
 
     bool
-    log_data      (const std::string &_str);
+    log_data      (const std::string &_str) KNGIN_NOEXP;
 
     bool
     log_assert    (const char *_func, const char *_file,
-                   size_t _line, const char *_exp);
+                   size_t _line, const char *_exp) KNGIN_NOEXP;
 
 private:
     const char *
-    get_datetime  ();
+    get_datetime  () KNGIN_NOEXP;
 
     bool
-    write_log     (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl);
+    write_log     (KNGIN_LOG_LEVEL _level,
+                   const char *_fmt, va_list _vl) KNGIN_NOEXP;
 
     bool
     write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
-                   const char *_fmt, size_t _len);
+                   const char *_fmt, size_t _len) KNGIN_NOEXP;
 
     const char *
-    color_begin   (KNGIN_LOG_LEVEL _level);
+    color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXP;
 
     const char *
-    color_end     ();
+    color_end     () KNGIN_NOEXP;
 
     void
-    write_stderr  (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len);
+    write_stderr  (KNGIN_LOG_LEVEL _level,
+                   const char *_str, size_t _len) KNGIN_NOEXP;
 
     void
-    write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...);
+    write_stderr2 (KNGIN_LOG_LEVEL _level,
+                   const char *_fmt, ...) KNGIN_NOEXP;
 
 private:
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)

@@ -51,14 +51,12 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
 {
     if (!m_joined)
         return;
-    ignore_exp(
-        std::error_code _ec = int2ec(::pthread_detach(m_thr));
-        if (_ec)
-            log_fatal("::pthread_detach() error, name = \"%s\" - %s",
-                       m_name.c_str(), system_error_str(_ec).c_str());
-        else
-            log_info("thread \"%s\" has detached", m_name.c_str());
-    );
+    std::error_code _ec = int2ec(::pthread_detach(m_thr));
+    if (_ec)
+        log_fatal("::pthread_detach() error, name = \"%s\", %s",
+                   m_name.c_str(), system_error_str(_ec).c_str());
+    else
+        log_info("thread \"%s\" has detached", m_name.c_str());
 }
 
 void
@@ -70,7 +68,7 @@ thread::pimpl::run (thr_fn &&_fn)
                                   thread::pimpl::start,
                                   new thread::pimpl::thread_data(m_name, std::move(_fn))));
     if (_ec) {
-        log_fatal("::pthread_create() error, name = \"%s\" - %s",
+        log_fatal("::pthread_create() error, name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
         throw k::exception("::pthread_create() error");
     }
@@ -81,15 +79,15 @@ int
 thread::pimpl::join ()
 {
     if (equal_to(ptid()))
-        throw k::exception("thread::pimpl::join() error - try to join self");
+        throw k::exception("thread::pimpl::join() error, try to join self");
 
     thread_err_code _code;
     std::error_code _ec = int2ec(::pthread_join(m_thr, &_code.ptr));
     m_joined = true;
     if (_ec) {
-        log_fatal("::pthread_join(), name = \"%s\" - %s",
+        log_fatal("::pthread_join(), name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
-        throw k::exception("pthread_join() error");
+        throw k::exception("::pthread_join() error");
     }
     log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), _code.code);
     return _code.code;
@@ -99,13 +97,13 @@ void
 thread::pimpl::cancel ()
 {
     if (equal_to(ptid()))
-        throw k::exception("thread::pimpl::cancel() error - try to cancel self");
+        throw k::exception("thread::pimpl::cancel() error, try to cancel self");
 
     std::error_code _ec = int2ec(::pthread_cancel(m_thr));
     if (_ec) {
-        log_fatal("::pthread_cancel(), name = \"%s\" - %s",
+        log_fatal("::pthread_cancel(), name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
-        throw k::exception("pthread_cancel() error");
+        throw k::exception("::pthread_cancel() error");
     }
     log_info("thread \"%s\" canceled", m_name.c_str());
 }
@@ -145,11 +143,11 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
         if (_data->fn)
             _data->fn();
     } catch (const k::exception &_e) {
-        log_fatal("caught an exception in thread \"%s\"",
+        log_fatal("caught an exception in thread \"%s\", %s",
                   _data->name.c_str(), _e.what());
         log_dump(_e.dump().c_str());
     } catch (const std::exception &_e) {
-        log_fatal("caught an exception in thread \"%s\"",
+        log_fatal("caught an exception in thread \"%s\", %s",
                   _data->name.c_str(), _e.what());
     } catch (...) {
         log_fatal("caught an undefined exception in thread \"%s\"",

@@ -29,7 +29,6 @@
 #include "../libkngin/core/buffer.h"
 #include "../libkngin/core/bits.h"
 #include "../libkngin/core/error.h"
-#include "../libkngin/core/sync_queue.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/tcp/session.h"

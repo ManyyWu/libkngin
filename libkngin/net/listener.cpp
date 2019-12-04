@@ -107,12 +107,10 @@ listener::on_accept () KNGIN_NOEXP
     int _sockfd = m_socket.accept(_peer_addr, _ec); // nonblocking
     if (_ec) {
         if (std::errc::too_many_files_open == _ec) {
-            ignore_exp(
-                m_idle_file.close();
-                m_idle_file = m_socket.accept(_peer_addr);
-                m_idle_file.close();
-                m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-            );
+            m_idle_file.close();
+            m_idle_file = m_socket.accept(_peer_addr);
+            m_idle_file.close();
+            m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
         } else if (std::errc::resource_unavailable_try_again == _ec ||
@@ -120,11 +118,11 @@ listener::on_accept () KNGIN_NOEXP
                    std::errc::protocol_error == _ec ||
                    std::errc::connection_aborted == _ec ||
                    std::errc::interrupted == _ec) {
-            log_debug("listener::on_accept() ignore error - %s",
+            log_debug("listener::on_accept() ignore error, %s",
                       system_error_str(_ec).c_str());
             return;
         } else {
-            log_error("socket::accept() error - %s", system_error_str(_ec).c_str());
+            log_error("socket::accept() error, %s", system_error_str(_ec).c_str());
             on_close(_ec);
 #warning "process error code, callback"
         }
@@ -148,14 +146,12 @@ listener::on_close (std::error_code _ec) KNGIN_NOEXP
     check(!m_closed);
     m_loop->check_thread();
 
-    ignore_exp(
-        m_event.remove();
-        m_socket.close();
-
-        if (m_close_handler)
-            m_close_handler(_ec);
-    );
+    m_event.remove();
+    m_socket.close();
     m_closed = true;
+
+    if (m_close_handler)
+        ignore_exp(m_close_handler(_ec));
 }
 
 void

@@ -16,7 +16,7 @@ socket::socket (int _fd)
       m_wr_closed(FD_INVALID(_fd))
 {
     if (FD_INVALID(m_fd))
-        throw k::exception("socket::socket() error - invalid file descriptor");
+        throw k::exception("socket::socket() error, invalid file descriptor");
 }
 
 socket::socket (INET_PROTOCOL _proto)
@@ -344,6 +344,7 @@ socket::name () const
     return _name;
 }
 
+/*
 std::string
 socket::full_name () const
 {
@@ -379,5 +380,6 @@ socket::full_name () const
     }
     return _name;
 }
+*/
 
 KNGIN_NAMESPACE_K_END

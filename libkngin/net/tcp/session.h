@@ -109,28 +109,24 @@ public:
 
 public:
     const address &
-    local_addr      () const
+    local_addr      () const KNGIN_NOEXP
     { return m_local_addr; }
 
     const address &
-    peer_addr       () const
+    peer_addr       () const KNGIN_NOEXP
     { return m_peer_addr; }
 
-    std::string 
-    name            () const
-    { return m_socket.name(); }
-
-    std::string 
-    full_name       () const
-    { return m_socket.full_name(); }
+    const std::string
+    name            () const KNGIN_NOEXP
+    { return m_name; }
 
     uint64_t
-    serial          () const
+    serial          () const KNGIN_NOEXP
     { return m_serial; }
 
 public:
     void
-    check_thread    () const
+    check_thread    () const KNGIN_NOEXP
     { m_loop->check_thread(); }
 
 private:
@@ -170,6 +166,8 @@ private:
     address           m_local_addr;
 
     address           m_peer_addr;
+
+    const std::string m_name;
 
     sent_handler      m_sent_handler;
 

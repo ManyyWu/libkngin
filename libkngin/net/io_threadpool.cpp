@@ -34,7 +34,7 @@ io_threadpool::io_threadpool (uint16_t _num)
 io_threadpool::~io_threadpool ()
 {
     if (!m_stopped)
-        stop();
+        ignore_exp(stop());
 }
 
 void

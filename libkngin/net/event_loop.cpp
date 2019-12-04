@@ -37,10 +37,10 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
 
 event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
 {
-    if (m_looping) {
+    if (m_looping)
         ignore_exp(stop());
-        // FIXME: wait for loop to end
-    }
+    // FIXME: wait for loop to end
+
     log_debug("loop in thread \"%s\" closed", m_thr->name());
 }
 
@@ -89,7 +89,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     } catch (...) {
         if (_stop_handler)
             ignore_exp(_stop_handler());
-        ignore_exp(m_waker->stop());
+        m_waker->stop();
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
         throw;
@@ -97,7 +97,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
     if (_stop_handler)
         ignore_exp(_stop_handler());
-    ignore_exp(m_waker->stop());
+    m_waker->stop();
     m_looping = false;
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
 }
@@ -210,7 +210,7 @@ event_loop_pimpl::wakeup ()
     std::error_code _ec;
     m_waker->notify(_ec); // blocked
     if (_ec)
-        log_error("event_loop_pimpl::wakeup() error - %s:%d",
+        log_error("event_loop_pimpl::wakeup() error, %s",
                   system_error_str(_ec).c_str());
 }
 

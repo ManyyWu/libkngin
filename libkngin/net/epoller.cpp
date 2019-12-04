@@ -40,7 +40,8 @@ epoller::epoller (event_loop_pimpl_ptr _loop)
 
 epoller::~epoller () KNGIN_NOEXP
 {
-     ignore_exp(this->close());
+    if (m_epollfd.valid())
+        ignore_exp(this->close());
 }
 
 uint32_t

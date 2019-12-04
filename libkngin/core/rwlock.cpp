@@ -6,6 +6,8 @@
 #include "core/common.h"
 #include "core/timestamp.h"
 #include "core/rwlock.h"
+#include "core/exception.h"
+#include "core/system_error.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -19,38 +21,48 @@ rwlock::rwlock ()
 {
 }
 
-rwlock::~rwlock ()
+rwlock::~rwlock () KNGIN_NOEXP
 {
-    int _ret = ::pthread_rwlock_destroy(&m_rwlock);
-    if (_ret)
-        log_fatal("::pthread_rwlock_destroy() retturn %d", _ret);
+    ignore_exp(
+        std::error_code _ec = int2ec(::pthread_rwlock_destroy(&m_rwlock));
+        if (_ec)
+            log_fatal("::pthread_rwlock_destroy() error %s",
+                      system_error_str(_ec).c_str());
+    );
 }
 
 void
 rwlock::rdlock ()
 {
-    int _ret = ::pthread_rwlock_rdlock(&m_rwlock);
-    if (_ret)
-        log_fatal("::pthread_rwlock_rdlock() return %d", _ret);
+    std::error_code _ec = int2ec(::pthread_rwlock_rdlock(&m_rwlock));
+    if (_ec) {
+        log_fatal("::pthread_rwlock_rdlock() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_rdlock() error");
+    }
 }
 
 void
 rwlock::wrlock ()
 {
-    int _ret = ::pthread_rwlock_wrlock(&m_rwlock);
-    if (_ret)
-        log_fatal("::pthread_rwlock_wrlock() return %d", _ret);
+    std::error_code _ec = int2ec(::pthread_rwlock_wrlock(&m_rwlock));
+    if (_ec) {
+        log_fatal("::pthread_rwlock_wrlock() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_wrlock() error");
+    }
 }
 
 bool
 rwlock::tryrdlock ()
 {
-    int _ret = ::pthread_rwlock_tryrdlock(&m_rwlock);
-    if (EBUSY == _ret)
+    std::error_code _ec = int2ec(::pthread_rwlock_tryrdlock(&m_rwlock));
+    if (std::errc::device_or_resource_busy == _ec)
         return false;
-    if (_ret) {
-        log_fatal("::pthread_rwlock_tryrdlock() return %d", _ret);
-        return false;
+    if (_ec) {
+        log_fatal("::pthread_rwlock_tryrdlock() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_tryrdlock() error");
     }
     return true;
 }
@@ -58,12 +70,13 @@ rwlock::tryrdlock ()
 bool
 rwlock::trywrlock ()
 {
-    int _ret = ::pthread_rwlock_trywrlock(&m_rwlock);
-    if (EBUSY == _ret)
+    std::error_code _ec = int2ec(::pthread_rwlock_trywrlock(&m_rwlock));
+    if (std::errc::device_or_resource_busy == _ec)
         return false;
-    if (_ret) {
-        log_fatal("::pthread_rwlock_trywrlock() return %d", _ret);
-        return false;
+    if (_ec) {
+        log_fatal("::pthread_rwlock_trywrlock() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_trywrlock() error");
     }
     return true;
 }
@@ -75,14 +88,14 @@ rwlock::timedrdlock (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    int _ret = ::pthread_rwlock_timedrdlock(&m_rwlock, &_ts);
-    if (ETIMEDOUT == _ret)
+    std::error_code _ec = int2ec(::pthread_rwlock_timedrdlock(&m_rwlock, &_ts));
+    if (std::errc::timed_out == _ec)
         return false;
-    if (_ret) {
-        log_fatal("::pthread_rwlock_timedrdlock(), return %d", _ret);
-        return false;
+    if (_ec) {
+        log_fatal("::pthread_rwlock_timedrdlock(), error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_timedrdlock() error");
     }
-
     return true;
 }
 
@@ -93,29 +106,26 @@ rwlock::timedwrlock (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    int _ret = ::pthread_rwlock_timedwrlock(&m_rwlock, &_ts);
-    if (ETIMEDOUT == _ret)
+    std::error_code _ec = int2ec(::pthread_rwlock_timedwrlock(&m_rwlock, &_ts));
+    if (std::errc::timed_out == _ec)
         return false;
-    if (_ret) {
-        log_fatal("::pthread_rwlock_timedwrlock() return %d", _ret);
-        return false;
+    if (_ec) {
+        log_fatal("::pthread_rwlock_timedwrlock() error, %d",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_timedwrlock() error");
     }
-
     return true;
 }
 
 void
 rwlock::unlock ()
 {
-    int _ret = ::pthread_rwlock_unlock(&m_rwlock);
-    if (_ret)
-        log_fatal("::pthread_rwlock_unlock() return %d", _ret);
-}
-
-pthread_rwlock_t *
-rwlock::get_interface ()
-{
-    return &m_rwlock;
+    std::error_code _ec = int2ec(::pthread_rwlock_unlock(&m_rwlock));
+    if (_ec) {
+        log_fatal("::pthread_rwlock_unlock() return %d",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_rwlock_unlock() error");
+    }
 }
 
 KNGIN_NAMESPACE_K_END

@@ -40,7 +40,7 @@ log_mgr::log_mgr ()
     }
 }
 
-log_mgr::~log_mgr ()
+log_mgr::~log_mgr () KNGIN_NOEXP
 {
     m_inited = false;
     kngin_log_set _temp;
@@ -50,7 +50,7 @@ log_mgr::~log_mgr ()
 }
 
 log &
-log_mgr::operator [] (size_t _index)
+log_mgr::operator [] (size_t _index) KNGIN_NOEXP
 {
     assert(log_mgr::m_inited);
     assert(log_mgr::m_log_set.size() == log_mgr::m_logfile_set.size());
@@ -75,7 +75,7 @@ log_mgr::add (const std::string &_filename, KNGIN_LOG_MODE _mode)
 }
 
 std::string &
-log_mgr::filename_at (size_t _index)
+log_mgr::filename_at (size_t _index) KNGIN_NOEXP
 {
     assert(log_mgr::m_inited);
     assert(_index < log_mgr::m_log_set.size());
@@ -83,7 +83,7 @@ log_mgr::filename_at (size_t _index)
 }
 
 bool
-log_mgr::inited () const
+log_mgr::inited () const KNGIN_NOEXP
 {
     return log_mgr::m_inited;
 }

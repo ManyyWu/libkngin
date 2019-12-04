@@ -26,7 +26,7 @@ address::inet6 () const
 }
 
 int
-address::size () const
+address::size () const KNGIN_NOEXP
 {
     return (inet6() ? sizeof(struct ::sockaddr_in6) : sizeof(struct ::sockaddr_in));
 }
@@ -41,13 +41,14 @@ address::addrstr () const
 }
 
 uint16_t
-address::port () const
+address::port () const KNGIN_NOEXP
 {
     return ::ntohs(inet6() ? m_sa.v4.sin_port : m_sa.v6.sin6_port);
 }
 
 bool
-address::addrstr2addr (const std::string &_addrstr, uint16_t _port, address &_addr)
+address::addrstr2addr (const std::string &_addrstr,
+                       uint16_t _port, address &_addr) KNGIN_NOEXP
 {
     ::bzero(&_addr.m_sa, sizeof(_addr.m_sa));
     _addr.m_sa.v4.sin_port = ::htons(_port);
@@ -56,7 +57,8 @@ address::addrstr2addr (const std::string &_addrstr, uint16_t _port, address &_ad
 }
 
 bool
-address::addrstr2addr (const std::string &&_addrstr, uint16_t _port, address &_addr)
+address::addrstr2addr (const std::string &&_addrstr,
+                       uint16_t _port, address &_addr) KNGIN_NOEXP
 {
     ::bzero(&_addr.m_sa, sizeof(_addr.m_sa));
     _addr.m_sa.v4.sin_port = ::htons(_port);
@@ -65,28 +67,28 @@ address::addrstr2addr (const std::string &&_addrstr, uint16_t _port, address &_a
 }
 
 bool
-address::check_inet_addrstr (const std::string &_addrstr)
+address::check_inet_addrstr (const std::string &_addrstr) KNGIN_NOEXP
 {
     ::sockaddr_in _sa;
     return ::inet_pton(AF_INET, _addrstr.data(), &_sa);
 }
 
 bool
-address::check_inet_addrstr (const std::string &&_addrstr)
+address::check_inet_addrstr (const std::string &&_addrstr) KNGIN_NOEXP
 {
     ::sockaddr_in _sa;
     return ::inet_pton(AF_INET, _addrstr.data(), &_sa);
 }
 
 bool
-address::check_inet6_addrstr (const std::string &_addrstr)
+address::check_inet6_addrstr (const std::string &_addrstr) KNGIN_NOEXP
 {
     ::sockaddr_in _sa;
     return ::inet_pton(AF_INET6, _addrstr.data(), &_sa);
 }
 
 bool
-address::check_inet6_addrstr (const std::string &&_addrstr)
+address::check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXP
 {
     ::sockaddr_in _sa;
     return ::inet_pton(AF_INET6, _addrstr.data(), &_sa);

@@ -90,7 +90,7 @@ epoller_event::on_events (uint32_t _flags)
         if ((EPOLLPRI & _flags) && m_pri_handler)
             m_pri_handler();
     } catch (std::exception &_e) {
-        log_fatal("caught an exception in epoller_event::on_event() \"%s\"", _e.what());
+        log_fatal("caught an exception in epoller_event::on_event(), %s", _e.what());
         throw;
     } catch (...) {
         log_fatal("caught an undefined exception in epoller_event::on_event()");

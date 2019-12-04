@@ -26,6 +26,7 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
       m_connected(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
+      m_name(m_socket.name()),
       m_sent_handler(nullptr),
       m_message_handler(nullptr),
       m_oob_handler(nullptr),
@@ -169,7 +170,7 @@ session::on_write ()
              ) || EINTR == errno
             )
             return;
-            log_error("socket::write() error - %s",
+            log_error("socket::write() error, %s",
                       system_error_str(_ec).c_str());
             on_error();
 #warning "error_code"
@@ -221,7 +222,7 @@ session::on_read ()
              ) || EINTR == errno
             )
             return;
-            log_error("socket::write() error - %s",
+            log_error("socket::write() error, %s",
                       system_error_str(_ec).c_str());
         on_error();
 #warning "error_code"
@@ -261,7 +262,7 @@ session::on_oob ()
     std::error_code _ec;
     size_t _size = m_socket.recv(_buf, MSG_OOB, _ec);
     if (_ec) {
-        log_error("socket::recv(MSG_OOB) error - %s",
+        log_error("socket::recv(MSG_OOB) error, %s",
                   system_error_str(_ec).c_str());
         on_error();
 #warning "error_code"
@@ -291,13 +292,13 @@ session::on_error()
             ) || EINTR == errno
                 )
             return;
-                log_error("socket::write() error - %s",
+                log_error("socket::write() error, %s",
                           system_error_str(_ec).c_str());
         on_close(_ec);
 #warning "error_code"
         return;
     } else {
-        log_error("session::on_error() - no any error was readed");
+        log_error("session::on_error(), no any error was readed");
     }
 }
 
@@ -307,15 +308,13 @@ session::on_close (std::error_code _ec)
     check(m_connected);
     m_loop->check_thread();
 
-    ignore_exp(
-        m_event.remove();
-        m_socket.close();
-        m_in_buf = nullptr;
-        m_connected = false;
+    m_event.remove();
+    m_socket.close();
+    m_in_buf = nullptr;
+    m_connected = false;
 
-        if (m_close_handler)
-            m_close_handler(std::cref(*this), _ec);
-    );
+    if (m_close_handler)
+        ignore_exp(m_close_handler(std::cref(*this), _ec));
 }
 
 KNGIN_NAMESPACE_TCP_END

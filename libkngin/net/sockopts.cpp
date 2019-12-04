@@ -56,7 +56,7 @@ sockopts::get_flag (int _fd, const sockopts_info &_opt_info, bool &_flag)
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.i_val, &_optlen);
     if (_ret < 0)
-        log_error("::getsockopt() get option %s failed - %s:%d",
+        log_error("::getsockopt() get option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     check(_optlen == sizeof(int));
     _flag = _value.i_val;
@@ -71,7 +71,7 @@ sockopts::get_int (int _fd, const sockopts_info &_opt_info, int &_val)
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.i_val, &_optlen);
     if (_ret < 0)
-        log_error("::getsockopt() get option %s failed - %s:%d",
+        log_error("::getsockopt() get option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     check(_optlen == sizeof(int));
     _val = _value.i_val;
@@ -86,7 +86,7 @@ sockopts::get_linger (int _fd, const sockopts_info &_opt_info, struct linger &_l
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.linger_val, &_optlen);
     if (_ret < 0)
-        log_error("::getsockopt() get option %s failed - %s:%d",
+        log_error("::getsockopt() get option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     check(_optlen == sizeof(struct linger));
     return (_ret >= 0);
@@ -100,7 +100,7 @@ sockopts::get_timeval (int _fd, const sockopts_info &_opt_info, struct timeval &
     int _ret = ::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.timeval_val, &_optlen);
     if (_ret < 0)
-        log_error("::getsockopt() get option %s failed - %s:%d",
+        log_error("::getsockopt() get option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     check(_optlen == sizeof(struct timeval));
     _tv = _value.timeval_val;
@@ -119,7 +119,7 @@ sockopts::set_int (const sockopt_val &_val, int _fd, const sockopts_info &_opt_i
     int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_val.i_val, sizeof(_val.i_val));
     if (_ret < 0)
-        log_error("::setsockopt() set option %s failed - %s:%d",
+        log_error("::setsockopt() set option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     return (_ret >= 0);
 }
@@ -130,7 +130,7 @@ sockopts::set_linger (const sockopt_val &_val, int _fd, const sockopts_info &_op
     int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_val.linger_val, sizeof(_val.linger_val));
     if (_ret < 0)
-        log_error("::setsockopt() set option %s failed - %s:%d",
+        log_error("::setsockopt() set option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     return (_ret >= 0);
 }
@@ -141,7 +141,7 @@ sockopts::set_timeval (const sockopt_val &_val, int _fd, const sockopts_info &_o
     int _ret = ::setsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_val.timeval_val, sizeof(_val.timeval_val));
     if (_ret < 0)
-        log_error("::setsockopt() set option %s failed - %s:%d",
+        log_error("::setsockopt() set option %s failed, %s:%d",
                   _opt_info.opt_str, strerror(errno), errno);
     return (_ret >= 0);
 }

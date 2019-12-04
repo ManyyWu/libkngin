@@ -38,7 +38,7 @@ client ()
         in_buffer _buf(_arr, 4);
         std::error_code _ec;
         if (!_server_sock.read(_buf, _ec) || _ec) {
-            log_error("c: read error - %s", system_error_str(_ec).c_str());
+            log_error("c: read error, %s", system_error_str(_ec).c_str());
             _server_sock.close();
             return 0;
         }
@@ -53,7 +53,7 @@ client ()
         std::error_code _ec;
         _server_sock.write(_buf, _ec);
         if (_ec) {
-            log_error("c: write error - %s", system_error_str(_ec).c_str());
+            log_error("c: write error, %s", system_error_str(_ec).c_str());
             _server_sock.close();
             return 0;
         }
@@ -65,7 +65,7 @@ client ()
         in_buffer _buf(_arr, 4);
         std::error_code _ec;
         if (!_server_sock.read(_buf, _ec) || _ec) {
-            log_error("c: read error - %s", system_error_str(_ec).c_str());
+            log_error("c: read error, %s", system_error_str(_ec).c_str());
             _server_sock.close();
             return 0;
         }
@@ -112,7 +112,7 @@ public:
     on_message (tcp::session &_session, in_buffer &_buf, size_t _size)
     {
         log_info("readed %d bytes from session %s, data: %s",
-                 _size, _session.full_name().c_str(),
+                 _size, _session.name().c_str(),
                  _buf.dump().c_str());
         if (1 == out_buffer(_buf.begin(), 4).peek_uint32()) {
            // m_server.stop();
@@ -125,7 +125,7 @@ public:
     void
     on_sent (tcp::session &_session)
     {
-        log_info("session %s written done", _session.full_name().c_str());
+        log_info("session %s written done", _session.name().c_str());
 
         std::shared_ptr<in_buffer> _buf = nullptr;
         {
@@ -138,7 +138,7 @@ public:
     void
     on_close (const tcp::session &_session)
     {
-        log_info("session %s closed", _session.full_name().c_str());
+        log_info("session %s closed", _session.name().c_str());
 
         {
             local_lock _lock(m_mutex);
@@ -150,7 +150,7 @@ public:
     on_new_session (tcp::server::session_ptr _session)
     {
         check(_session);
-        log_info("new session %s", _session->full_name().c_str());
+        log_info("new session %s", _session->name().c_str());
         std::shared_ptr<out_buffer> _buf = nullptr;
         std::shared_ptr<char *> _arr = nullptr;
         {

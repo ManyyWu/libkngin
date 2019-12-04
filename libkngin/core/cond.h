@@ -17,7 +17,7 @@ public:
     explicit
     cond           (mutex *_mutex);
 
-    ~cond          ();
+    ~cond          () KNGIN_NOEXP;
 
 public:
     void
@@ -32,10 +32,7 @@ public:
     void
     broadcast      ();
 
-    pthread_cond_t *
-    get_interface  ();
-
-protected:
+private:
     pthread_cond_t m_cond;
 
     mutex *        m_mutex;

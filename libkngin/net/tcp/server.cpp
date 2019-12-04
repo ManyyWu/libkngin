@@ -36,7 +36,7 @@ server::server (const server_opts &_opts)
 server::~server ()
 {
     if (!m_stopped)
-        stop();
+        ignore_exp(stop());
 }
 
 bool
@@ -60,7 +60,7 @@ server::run ()
     parse_addr(m_opts.name, m_opts.port);
 
     // bind
-    ignore_exp(m_listener->bind(m_listen_addr));
+    m_listener->bind(m_listen_addr);
 
     // listen
     m_listener->listen(m_opts.backlog, 
@@ -138,7 +138,7 @@ server::parse_addr (const std::string &_name, uint16_t _port)
         if (EAI_SYSTEM == _ret)
             throw k::system_error("::getaddrinfo() error");
         else
-            throw k::exception((std::string("::getaddrinfo() error - %s")
+            throw k::exception((std::string("::getaddrinfo() error, %s")
                                 + gai_strerror(_ret)
                                ).c_str());
     }
@@ -174,7 +174,7 @@ server::on_new_session (socket &&_sock)
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
     } catch (const std::exception &_e) {
-        log_error("caught an exception when accepting new session: \"%s\"", _e.what());
+        log_error("caught an exception when accepting new session, %s", _e.what());
         throw;
     } catch (...) {
         log_fatal("caught an undefined exception when accepting new session");
@@ -196,8 +196,6 @@ server::on_new_session (socket &&_sock)
         _next_loop->run_in_loop([this, _session] () {
             m_session_handler(_session);
         });
-
-    log_debug("new session from %s", _session->name().c_str());
 }
 
 void
@@ -206,8 +204,6 @@ server::on_session_close (const session &_session, std::error_code _ec)
     _session.check_thread();
     if (m_close_handler)
         m_close_handler(std::cref(_session), _ec);
-
-    log_debug("session %s closed", _session.name().c_str());
 
     {
         local_lock _lock(m_mutex);

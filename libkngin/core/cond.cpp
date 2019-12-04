@@ -7,6 +7,8 @@
 #include "core/timestamp.h"
 #include "core/mutex.h"
 #include "core/cond.h"
+#include "core/exception.h"
+#include "core/system_error.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -21,19 +23,25 @@ cond::cond (mutex *_mutex)
 {
 }
 
-cond::~cond ()
+cond::~cond () KNGIN_NOEXP
 {
-    int _ret = ::pthread_cond_destroy(&m_cond);
-    if (_ret)
-        log_fatal("::pthread_cond_destroy() return %d", _ret);
+    ignore_exp(
+        std::error_code _ec = int2ec(::pthread_cond_destroy(&m_cond));
+        if (_ec)
+            log_fatal("::pthread_cond_destroy() error, %s",
+                      system_error_str(_ec).c_str());
+    );
 }
 
 void
 cond::wait ()
 {
-    int _ret = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
-    if (_ret)
-        log_fatal("::pthread_cond_wait() return %d", _ret);
+    std::error_code _ec = int2ec(::pthread_cond_wait(&m_cond, &m_mutex->m_mutex));
+    if (_ec) {
+        log_fatal("::pthread_cond_wait() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_cond_wait() error");
+    }
 }
 
 bool
@@ -43,12 +51,13 @@ cond::timedwait (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    int _ret = ::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &_ts);
-    if (ETIMEDOUT == _ret)
+    std::error_code _ec = int2ec(::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &_ts));
+    if (std::errc::timed_out == _ec)
         return false;
-    if (_ret) {
-        log_fatal("::pthread_cond_timedwait() return %d", _ret);
-        return false;
+    if (_ec) {
+        log_fatal("::pthread_cond_timedwait() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_cond_timedwait() error");
     }
     return true;
 }
@@ -56,24 +65,24 @@ cond::timedwait (timestamp _ms)
 void
 cond::signal ()
 {
-    int _ret = ::pthread_cond_signal(&m_cond);
-    if (_ret)
-        log_fatal("::pthread_cond_signal() return %d", _ret);
+    std::error_code _ec = int2ec(::pthread_cond_signal(&m_cond));
+    if (_ec) {
+        log_fatal("::pthread_cond_signal() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_cond_signal() error");
+    }
 }
 
 
 void
 cond::broadcast ()
 {
-    int _ret = ::pthread_cond_broadcast(&m_cond);
-    if (_ret)
-        log_fatal("::pthread_cond_broadcast() return %d", _ret);
-}
-
-pthread_cond_t *
-cond::get_interface ()
-{
-    return &m_cond;
+    std::error_code _ec = int2ec(::pthread_cond_broadcast(&m_cond));
+    if (_ec) {
+        log_fatal("::pthread_cond_broadcast() error, %s",
+                  system_error_str(_ec).c_str());
+        throw k::exception("::pthread_cond_broadcast() error");
+    }
 }
 
 KNGIN_NAMESPACE_K_END

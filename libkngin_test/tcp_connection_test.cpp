@@ -53,7 +53,7 @@ close:
         std::error_code _ec;
         _server_sock.write(_buf, _ec);
         if (_ec) {
-            log_error("c: write error - %s", system_error_str(_ec).c_str());
+            log_error("c: write error, %s", system_error_str(_ec).c_str());
             goto close;
         }
     }
@@ -66,7 +66,7 @@ close:
         if (!_server_sock.read(_buf, _ec))
             goto close;
         if (_ec) {
-            log_error("c: read error - %s", system_error_str(_ec).c_str());
+            log_error("c: read error, %s", system_error_str(_ec).c_str());
             goto close;
         }
 
@@ -143,7 +143,7 @@ protected:
                 thread::sleep(1000);
             });
             m_session->set_close_handler([] (const session &_session, std::error_code _ec) {
-                log_info("s: on_close: fd = %d - %s", _session.serial(), system_error_str(_ec).c_str());
+                log_info("s: on_close() fd = %d, %s", _session.serial(), system_error_str(_ec).c_str());
             });
 
             // recv

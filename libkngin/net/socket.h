@@ -130,10 +130,10 @@ public:
 
     std::string
     name        () const;
-
+/*
     std::string
     full_name   () const;
-
+*/
 protected:
     bool m_rd_closed;
 

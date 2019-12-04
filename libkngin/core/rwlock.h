@@ -15,7 +15,7 @@ class rwlock {
 public:
     rwlock        ();
 
-    ~rwlock       ();
+    ~rwlock       () KNGIN_NOEXP;
 
 public:
     void
@@ -39,11 +39,7 @@ public:
     void
     unlock        ();
 
-public:
-    pthread_rwlock_t *
-    get_interface ();
-
-protected:
+private:
     pthread_rwlock_t m_rwlock;
 };
 
