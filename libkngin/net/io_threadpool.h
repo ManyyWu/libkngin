@@ -70,8 +70,6 @@ protected:
 
     mutex             m_mutex;
 
-    cond              m_cond;
-
     uint16_t          m_next;
 };
 

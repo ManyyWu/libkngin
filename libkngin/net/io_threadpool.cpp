@@ -21,7 +21,6 @@ io_threadpool::io_threadpool (uint16_t _num)
       m_threads(),
       m_stopped(true),
       m_mutex(),
-      m_cond(&m_mutex),
       m_next(1)
 {
     m_threads.reserve(m_num);
