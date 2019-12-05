@@ -25,6 +25,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
       m_stop(false),
       m_taskq(),
       m_taskq_mutex(),
+      m_stop_barrier(std::make_shared<barrier>(2)),
       m_events(RESERVED_EPOLLELR_EVENT)
 #warning "TODO: RESERVED_EPOLLELR_EVENT param"
 {
@@ -99,6 +100,9 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         ignore_exp(_stop_handler());
     m_waker->stop();
     m_looping = false;
+    std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
+    if (_temp_ptr->wait())
+        _temp_ptr->destroy();
     log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
 }
 
@@ -113,6 +117,9 @@ event_loop_pimpl::stop ()
     m_stop = true;
     if (!in_loop_thread())
         wakeup();
+    std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
+    if (_temp_ptr->wait())
+        _temp_ptr->destroy();
 }
 
 bool

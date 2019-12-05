@@ -105,15 +105,30 @@ session::recv (in_buffer_ptr _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALL
 }
 
 void
-session::close ()
-{ 
+session::close (bool _blocking /* = false */)
+{
     check(m_connected);
-    if (m_loop->in_loop_thread())
+    std::shared_ptr<barrier> _barrier_ptr;
+    if (_blocking)
+        std::make_shared<barrier>(2);
+
+    if (m_loop->in_loop_thread()) {
         on_close(std::error_code());
-    else
-        m_loop->run_in_loop([this] () {
-            on_close(std::error_code());
-        });
+    } else {
+        if (_blocking) {
+            m_loop->run_in_loop([this, _barrier_ptr] () {
+                on_close(std::error_code());
+                if (_barrier_ptr->wait())
+                    _barrier_ptr->destroy();
+            });
+            if (_barrier_ptr->wait())
+                _barrier_ptr->destroy();
+        } else {
+            m_loop->run_in_loop([this] () {
+                on_close(std::error_code());
+            });
+        }
+    }
 }
 
 void

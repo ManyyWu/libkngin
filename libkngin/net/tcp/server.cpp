@@ -80,16 +80,12 @@ server::stop ()
     check(!m_stopped);
     log_info("stopping TCP server");
 
-    m_listener->close();
-#warning "handle"
-    thread::sleep(1000);
+    m_listener->close(true);
     {
         local_lock _lock(m_mutex);
         for (auto _iter : m_sessions)
-            _iter.second->close();
+            _iter.second->close(true);
     }
-    thread::sleep(1000);
-#warning "fix it"
     if (!m_stopped)
         m_threadpool.stop();
     m_stopped = true;

@@ -59,7 +59,7 @@ public:
     recv            (in_buffer_ptr _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 
     void
-    close           ();
+    close           (bool _blocking = false);
 
     void
     rd_shutdown     ();

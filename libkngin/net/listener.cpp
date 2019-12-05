@@ -82,17 +82,29 @@ listener::listen (int _backlog, std::error_code &_ec,
 }
 
 void
-listener::close ()
+listener::close (_blocking /* = true */)
 {
-    check(!m_closed);
+    check(!m_closed);    
+    if (_blocking)
+        std::make_shared<barrier>(2);
 
-    m_idle_file.close();
-    if (m_loop->in_loop_thread())
+    if (m_loop->in_loop_thread()) {
         on_close(std::error_code());
-    else
-        m_loop->run_in_loop([this] () {
-            on_close(std::error_code());
-        });
+    } else {
+        if (_blocking) {
+            m_loop->run_in_loop([this, _barrier_ptr] () {
+                on_close(std::error_code());
+                if (_barrier_ptr->wait())
+                    _barrier_ptr->destroy();
+            });
+            if (_barrier_ptr->wait())
+                _barrier_ptr->destroy();
+        } else {
+            m_loop->run_in_loop([this] () {
+                on_close(std::error_code());
+            });
+        }
+    }
 }
 
 void

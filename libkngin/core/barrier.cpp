@@ -32,6 +32,14 @@ barrier::barrier (int _count)
     throw;
 }
 
+barrier::~barrier ()
+{
+    if (m_inited) {
+        destroy();
+        log_warning("undestroyed barrier");
+    }
+}
+
 barrier::reinit (int _count)
 {
     check(!m_inited);

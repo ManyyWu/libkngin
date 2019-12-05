@@ -47,7 +47,7 @@ public:
 
 public:
     void
-    close         ();
+    close         (bool _blocking = true);
 
 public:
     void

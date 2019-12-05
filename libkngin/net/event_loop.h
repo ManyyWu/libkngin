@@ -100,7 +100,7 @@ private:
 
     mutex                    m_taskq_mutex;
 
-    mutex                    m_stop_mutex;
+    std::shared_ptr<barrier> m_stop_barrier;
 
     epoller::epoll_event_set m_events;
 };
