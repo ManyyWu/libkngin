@@ -24,7 +24,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
       m_looping(false),
       m_stop(false),
       m_taskq(),
-      m_mutex(),
+      m_taskq_mutex(),
       m_events(RESERVED_EPOLLELR_EVENT)
 #warning "TODO: RESERVED_EPOLLELR_EVENT param"
 {
@@ -78,7 +78,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             std::deque<task> _fnq;
             if (!m_taskq.empty())
             {
-                local_lock _lock(m_mutex);
+                local_lock _lock(m_taskq_mutex);
                 _fnq.swap(m_taskq);
             }
             for (auto _iter : _fnq)
@@ -113,7 +113,6 @@ event_loop_pimpl::stop ()
     m_stop = true;
     if (!in_loop_thread())
         wakeup();
-
 }
 
 bool
@@ -189,7 +188,7 @@ event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
         return;
 
     {
-        local_lock _lock(m_mutex);
+        local_lock _lock(m_taskq_mutex);
         m_taskq.push_back(std::move(_fn));
     }
 
@@ -200,12 +199,15 @@ event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
 void
 event_loop_pimpl::wakeup ()
 {
-    check(m_looping);
-    check(m_epoller);
-    check(m_waker);
-    //log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
+    if (!m_looping)
+        return;
+    if (!m_epoller)
+        return;
+    if (!m_waker)
+        return;
     if (m_waker->stopped())
         return;
+    //log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
 
     std::error_code _ec;
     m_waker->notify(_ec); // blocked

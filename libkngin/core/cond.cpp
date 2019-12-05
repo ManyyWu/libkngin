@@ -73,7 +73,6 @@ cond::signal ()
     }
 }
 
-
 void
 cond::broadcast ()
 {

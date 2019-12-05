@@ -98,7 +98,9 @@ private:
 
     std::deque<task>         m_taskq;
 
-    mutex                    m_mutex;
+    mutex                    m_taskq_mutex;
+
+    mutex                    m_stop_mutex;
 
     epoller::epoll_event_set m_events;
 };
@@ -167,7 +169,7 @@ public:
     pimpl          ()
     { return m_pimpl; }
 
-protected:
+private:
     event_loop_pimpl_ptr m_pimpl;
 };
 

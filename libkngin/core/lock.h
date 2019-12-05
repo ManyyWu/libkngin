@@ -3,6 +3,7 @@
 
 #include "core/rwlock.h"
 #include "core/mutex.h"
+#include "core/barrier.h"
 #include "core/cond.h"
 #include "core/local_lock.h"
 

@@ -66,8 +66,6 @@ protected:
 
     threads           m_threads;
 
-    task_queue        m_taskq;
-
     std::atomic<bool> m_stopped;
 
     mutex             m_mutex;

@@ -19,7 +19,6 @@ io_threadpool::io_threadpool (uint16_t _num)
     try
     : m_num((std::max<uint16_t>)(_num, 1)),
       m_threads(),
-      m_taskq(),
       m_stopped(true),
       m_mutex(),
       m_cond(&m_mutex),
@@ -69,7 +68,6 @@ io_threadpool::stop ()
         for (uint16_t i = 0; i < m_threads.size(); ++i)
             m_threads[i]->stop();
         m_threads.clear();
-        m_taskq.clear();
     }
     m_stopped = true;
     log_info("thread pool stopped");
