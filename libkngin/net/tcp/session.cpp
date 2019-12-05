@@ -185,9 +185,9 @@ session::on_write ()
              ) || EINTR == errno
             )
             return;
-            log_error("socket::write() error, %s",
-                      system_error_str(_ec).c_str());
-            on_error();
+        log_error("socket::write() error, %s",
+                  system_error_str(_ec).c_str());
+        on_error();
 #warning "error_code"
         return;
     }
@@ -237,8 +237,8 @@ session::on_read ()
              ) || EINTR == errno
             )
             return;
-            log_error("socket::write() error, %s",
-                      system_error_str(_ec).c_str());
+        log_error("socket::write() error, %s",
+                  system_error_str(_ec).c_str());
         on_error();
 #warning "error_code"
         return;
@@ -303,12 +303,12 @@ session::on_error()
         if (((std::errc::operation_would_block == _ec ||
               std::errc::resource_unavailable_try_again == _ec ||
               std::errc::interrupted == _ec
-             ) && m_socket.nonblock()
-            ) || EINTR == errno
-                )
+              ) && m_socket.nonblock()
+             ) || EINTR == errno
+            )
             return;
-                log_error("socket::write() error, %s",
-                          system_error_str(_ec).c_str());
+        log_error("socket::write() error, %s",
+                  system_error_str(_ec).c_str());
         on_close(_ec);
 #warning "error_code"
         return;

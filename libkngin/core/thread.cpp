@@ -49,7 +49,7 @@ thread::pimpl::pimpl (const char *_name)
 
 thread::pimpl::~pimpl () KNGIN_NOEXP
 {
-    if (!m_joined)
+    if (m_joined)
         return;
     std::error_code _ec = int2ec(::pthread_detach(m_thr));
     if (_ec)
@@ -136,26 +136,29 @@ void *
 thread::pimpl::start (void *_args) KNGIN_NOEXP
 {
     assert(_args);
-    pthread_cleanup_push(thread::pimpl::cleanup, _args);
-    auto _data = static_cast<thread_data *>(_args);
+    thread_err_code _code;
 
+    auto _data = static_cast<thread_data *>(_args);
+    pthread_cleanup_push(thread::pimpl::cleanup, _args);
     try {
         if (_data->fn)
-            _data->fn();
+            _code.code = _data->fn();
     } catch (const k::exception &_e) {
         log_fatal("caught an exception in thread \"%s\", %s",
                   _data->name.c_str(), _e.what());
         log_dump(_e.dump().c_str());
+        assert(0);
     } catch (const std::exception &_e) {
         log_fatal("caught an exception in thread \"%s\", %s",
                   _data->name.c_str(), _e.what());
+        assert(0);
     } catch (...) {
         log_fatal("caught an undefined exception in thread \"%s\"",
                   _data->name.c_str());
+        assert(0);
     }
-#warning "on_error"
     pthread_cleanup_pop(1);
-    return 0;
+    return _code.ptr;
 }
 
 void

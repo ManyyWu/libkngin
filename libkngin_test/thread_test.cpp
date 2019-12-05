@@ -28,25 +28,10 @@ process2 ()
 extern void
 thread_test ()
 {
-    int ret;
-
-    thread t1("");
-    t1.run(nullptr);
-    t1.join();
-    ::fprintf(stderr, "join: %d\n", ret);
-
-    thread t2("");
-    t2.run(nullptr);
-    t2.join();
-    ::fprintf(stderr, "join: %d\n", ret);
-
     thread thr1("");
     thread thr2("");
     thr1.run(process1);
     thr2.run(process2);
-
-    thr1.join();
-    ::fprintf(stderr, "join: %d\n", ret);
-    thr2.join();
-    ::fprintf(stderr, "join: %d\n", ret);
+    ::fprintf(stderr, "join: %d\n", thr1.join());
+    ::fprintf(stderr, "join: %d\n", thr2.join());
 }

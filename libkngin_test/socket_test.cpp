@@ -20,16 +20,20 @@ using namespace k;
 #define SERVER_PORT 40000
 
 static int
-client (void *_args)
+client ()
 {
     std::string _addr_str = {SERVER_ADDR};
     uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
     assert(address::addrstr2addr(_addr_str, _port, _server_addr));
-
     k::socket _server_sock(socket::IPV4_TCP);
-    _server_sock.connect(_server_addr);
+    std::error_code _ec;
+    _server_sock.connect(_server_addr, _ec);
+    if (_ec) {
+        log_error("connect() error, %s", system_error_str(_ec).c_str());
+        return 1;
+    }
     log_info("connecting...");
 
     // read
@@ -55,7 +59,7 @@ client (void *_args)
 }
 
 static int
-server (void *_args)
+server ()
 {
     bool _ok = true;
     std::string _addr_str = {SERVER_ADDR};
@@ -67,14 +71,12 @@ server (void *_args)
     k::socket _server_sock(socket::IPV4_TCP);
     sockopts::set_reuseaddr(_server_sock, true);
     sockopts::set_reuseport(_server_sock, true);
-    log_debug("server_addr: %s", _server_sock.name().c_str());
     _server_sock.bind(_server_addr);
     _server_sock.listen(5);
     log_info("listening...");
     while (_ok) {
         address _client_addr;
         k::socket _client_sock(_server_sock.accept(_client_addr));
-        log_info("connect to: %s", _server_sock.name().c_str());
         // write
         {
             char _arr[4];
@@ -103,13 +105,14 @@ void
 socket_test ()
 {
     k::thread _server_thr("server");
-    _server_thr.run(std::bind(server, (void *)1));
+    _server_thr.run(server);
     k::thread::sleep(1000);
 
     for (int i = 0; i< 100; ++i) {
         k::thread _client_thr("client");
-        _client_thr.run(std::bind(client, (void *)1));
-        _client_thr.join();
+        _client_thr.run(client);
+        if (_client_thr.join())
+            break;
     }
 
     _server_thr.join();
