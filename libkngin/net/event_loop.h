@@ -38,7 +38,7 @@ public:
     typedef thread::thread_pimpl_ptr   thread_pimpl_ptr;
 
 public:
-    event_loop_pimpl  () = delete;
+    event_loop_pimpl  ();
 
     explicit
     event_loop_pimpl  (thread &_thr);
@@ -88,6 +88,8 @@ protected:
 private:
     thread_pimpl_ptr         m_thr;
 
+    pthread_t                m_ptid;
+
     epoller_ptr              m_epoller;
 
     waker_ptr                m_waker;
@@ -116,7 +118,8 @@ public:
     typedef event_loop_pimpl::task            task;
 
 public:
-    event_loop     () = delete;
+    event_loop     ()
+        : m_pimpl(std::make_shared<event_loop_pimpl>()) {}
 
     explicit
     event_loop     (thread &_thr)

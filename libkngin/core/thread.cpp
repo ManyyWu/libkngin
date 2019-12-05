@@ -198,6 +198,12 @@ thread::ptid () KNGIN_NOEXP
     return ::pthread_self();
 }
 
+bool
+thread::equal (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXP
+{
+    return ::pthread_equal(_thr1, _thr2);
+}
+
 void
 thread::sleep (timestamp _ms) KNGIN_NOEXP
 {

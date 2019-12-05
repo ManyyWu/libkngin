@@ -149,6 +149,9 @@ public:
     static void
     sleep         (timestamp _ms) KNGIN_NOEXP;
 
+    static bool
+    equal         (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXP;
+
     static void
     exit          (int _err_code) KNGIN_NOEXP
     { ::pthread_exit(thread::pimpl::thread_err_code(_err_code).ptr); }

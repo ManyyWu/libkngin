@@ -16,9 +16,30 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+event_loop_pimpl::event_loop_pimpl ()
+    try
+    : m_thr(nullptr),
+      m_ptid(thread::ptid()),
+      m_epoller(nullptr),
+      m_waker(nullptr),
+      m_looping(false),
+      m_stop(false),
+      m_taskq(),
+      m_taskq_mutex(),
+      m_stop_barrier(std::make_shared<barrier>(2)),
+      m_events(RESERVED_EPOLLELR_EVENT)
+#warning "TODO: RESERVED_EPOLLELR_EVENT param"
+{
+    //log_debug("loop in thread \"%s\" started", m_thr->name());
+} catch (...) {
+    log_fatal("event_loop_pimpl::event_loop_pimpl() error");
+    throw;
+}
+
 event_loop_pimpl::event_loop_pimpl (thread &_thr)
     try
     : m_thr(_thr.pimpl()),
+      m_ptid(), // unused
       m_epoller(nullptr),
       m_waker(nullptr),
       m_looping(false),
@@ -43,7 +64,8 @@ event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
         ignore_exp(stop());
     // FIXME: wait for loop to end
 
-    log_debug("loop in thread \"%s\" closed", m_thr->name());
+    log_debug("loop in thread \"%s\" closed",
+              m_thr ? m_thr->name() : "");
 }
 
 void
@@ -93,7 +115,8 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             ignore_exp(_stop_handler());
         m_waker->stop();
         m_looping = false;
-        log_fatal("caught an exception in event_loop of thread \"%s\"", m_thr->name());
+        log_fatal("caught an exception in event_loop of thread \"%s\"",
+                  m_thr ? m_thr->name() : "");
         throw;
     }
 
@@ -104,7 +127,8 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
     if (_temp_ptr->wait())
         _temp_ptr->destroy();
-    //log_debug("event_loop in thread \"%s\" is stopped", m_thr->name());
+    //log_debug("event_loop in thread \"%s\" is stopped",
+    //          m_thr ? m_thr->name() : "");
 }
 
 void
@@ -132,13 +156,17 @@ event_loop_pimpl::looping () KNGIN_NOEXP
 void
 event_loop_pimpl::check_thread () const KNGIN_NOEXP
 {
-    check(m_thr->equal_to(thread::ptid()));
+    if (m_thr)
+        check(m_thr->equal_to(thread::ptid()));
 }
 
 bool
 event_loop_pimpl::in_loop_thread () const KNGIN_NOEXP
 {
-    return (m_thr->equal_to(thread::ptid()));
+    if (m_thr)
+        return m_thr->equal_to(thread::ptid());
+    else
+        return (thread::equal(m_ptid, thread::ptid()));
 }
 
 void
@@ -215,7 +243,8 @@ event_loop_pimpl::wakeup ()
         return;
     if (m_waker->stopped())
         return;
-    //log_debug("wakeup event_loop in thread \"%s\"", m_thr->name());
+    //log_debug("wakeup event_loop in thread \"%s\"",
+    //          m_thr ? m_thr->name() : "");
 
     std::error_code _ec;
     m_waker->notify(_ec); // blocked
