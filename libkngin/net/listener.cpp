@@ -27,9 +27,6 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
     m_socket.set_closeexec(true);
     sockopts::set_reuseaddr(m_socket, true);
     sockopts::set_reuseport(m_socket, true);
-    m_event.set_read_handler(std::bind(&listener::on_accept, this));
-    m_event.set_error_handler(std::bind(&listener::on_error, this));
-    m_event.start();
     m_closed = false;
 } catch (...) {
     log_fatal("listener::listener() error");
@@ -38,8 +35,8 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
 
 listener::~listener() KNGIN_NOEXP
 {
-    if_not (m_closed)
-        log_error("the listener must be closed before object disconstructing");
+    if (m_closed)
+        ignore_exp(this->close(true));
 
     // FIXME; wait for m_closed to be true
 }
@@ -67,7 +64,10 @@ listener::listen (int _backlog, accept_handler &&_new_ssesion_handler,
     check(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
     m_close_handler = std::move(_close_handler);
+    m_event.set_read_handler(std::bind(&listener::on_accept, this));
+    m_event.set_error_handler(std::bind(&listener::on_error, this));
     m_socket.listen(_backlog);
+    m_event.start();
 }
 
 void
@@ -78,13 +78,16 @@ listener::listen (int _backlog, std::error_code &_ec,
     check(!m_closed);
     m_accept_handler = std::move(_new_sesssion_handler); 
     m_close_handler = std::move(_close_handler);
+    m_event.set_read_handler(std::bind(&listener::on_accept, this));
+    m_event.set_error_handler(std::bind(&listener::on_error, this));
     m_socket.listen(_backlog, _ec);
+    m_event.start();
 }
 
 void
 listener::close (_blocking /* = true */)
 {
-    check(!m_closed);    
+    check(!m_closed);
     if (_blocking)
         std::make_shared<barrier>(2);
 

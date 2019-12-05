@@ -97,7 +97,7 @@ filefd::writen (out_buffer &&_buf)
 {
     arg_check(_buf.size());
     check(FD_VALID(m_fd));
-    assert(!this->nonblock());
+    assert(!nonblock());
     out_buffer _buffer = std::move(_buf);
     size_t _ret = _buffer.size();
     while (_buffer.size()) {
@@ -118,7 +118,7 @@ filefd::writen (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXP
 {
     arg_check(_buf.size());
     check(FD_VALID(m_fd));
-    assert(!this->nonblock());
+    assert(!nonblock());
     out_buffer _buffer = std::move(_buf);
     size_t _ret = _buffer.size();
     while (_buffer.size()) {
@@ -139,7 +139,7 @@ filefd::readn (in_buffer &_buf)
 {
     arg_check(_buf.writeable());
     check(FD_VALID(m_fd));
-    assert(!this->nonblock());
+    assert(!nonblock());
     while (_buf.writeable()) {
         ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
         if (_size < 0) {
@@ -158,7 +158,7 @@ filefd::readn (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP
 {
     arg_check(_buf.writeable());
     check(FD_VALID(m_fd));
-    assert(!this->nonblock());
+    assert(!nonblock());
     while (_buf.writeable()) {
         ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
         if (_size < 0) {

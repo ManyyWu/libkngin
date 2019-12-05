@@ -33,7 +33,7 @@ epoller_event::epoller_event (event_loop_pimpl_ptr _loop, filefd *_s)
 epoller_event::~epoller_event () KNGIN_NOEXP
 {
     if (m_registed)
-        ignore_exp(this->remove());
+        ignore_exp(remove());
 }
 
 void

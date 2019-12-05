@@ -20,19 +20,10 @@ struct server_opts {
     bool        disable_info           = false;
     bool        separate_listen_thread = false;
     bool        keep_alive             = false;
+    bool        enable_et_mode         = false;
 };
 
 KNGIN_NAMESPACE_TCP_END
-KNGIN_NAMESPACE_K_END
-
-
-KNGIN_NAMESPACE_K_BEGIN
-KNGIN_NAMESPACE_UDP_BEGIN
-
-struct udp_server_opts {
-};
-
-KNGIN_NAMESPACE_UDP_END
 KNGIN_NAMESPACE_K_END
 
 #endif /* _TCP_SERVER_OPTS_H_ */

@@ -60,7 +60,7 @@ session::~session ()
         log_error("the TCP session must be closed"
                   " before object disconstructing");
 
-    // FIXME; wait for m_connected to be false
+    // FIXME; wait for m_connected to be false( this->close(true); )
 }
 
 bool

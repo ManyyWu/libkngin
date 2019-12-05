@@ -31,6 +31,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
 {
     if (nullptr == m_thr)
         throw k::exception("invalid argument");
+    log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
     log_fatal("event_loop_pimpl::event_loop_pimpl() error");
     throw;

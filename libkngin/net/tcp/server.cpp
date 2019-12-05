@@ -48,13 +48,13 @@ server::run ()
     m_threadpool.start();
 
     // create listen socket
-    socket _sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
+    socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
 
     // start listener
     event_loop_ptr _next_loop = m_opts.separate_listen_thread
                                 ? m_threadpool.get_loop(0)
                                 : m_threadpool.next_loop();
-    m_listener = std::make_shared<listener>(_next_loop, std::move(_sock));
+    m_listener = std::make_shared<listener>(_next_loop, std::move(_listener_sock));
 
     // init address
     parse_addr(m_opts.name, m_opts.port);
