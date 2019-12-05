@@ -31,7 +31,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
 {
     if (nullptr == m_thr)
         throw k::exception("invalid argument");
-    log_debug("loop in thread \"%s\" started", m_thr->name());
+    //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
     log_fatal("event_loop_pimpl::event_loop_pimpl() error");
     throw;
@@ -68,8 +68,8 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             uint32_t _size = m_epoller->wait(m_events, EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
-            log_debug("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
-                      m_thr->name(), _size);
+            //log_debug("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
+            //          m_thr->name(), _size);
 
             // process events
             for (uint32_t i = 0; i < _size; ++i)
@@ -104,7 +104,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
     if (_temp_ptr->wait())
         _temp_ptr->destroy();
-    log_info("event_loop in thread \"%s\" is stopped", m_thr->name());
+    //log_debug("event_loop in thread \"%s\" is stopped", m_thr->name());
 }
 
 void

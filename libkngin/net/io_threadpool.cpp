@@ -44,7 +44,7 @@ io_threadpool::start ()
         std::string _name = std::string("io_thread_") + std::to_string(i);
         m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
         try {
-            log_debug("%s", m_threads.back()->name());
+            //log_debug("%s", m_threads.back()->name());
             m_threads.back()->run();
         } catch (...) {
             m_stopped = false;

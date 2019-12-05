@@ -16,7 +16,7 @@ using namespace k::tcp;
 #define SERVER_ADDR "127.0.0.1"
 #define SERVER_PORT 20000
 
-std::shared_ptr<barrier> g_barrier;
+std::shared_ptr<barrier> g_barrier = nullptr;
 
 static int
 client ()
@@ -97,10 +97,14 @@ public:
                                           std::placeholders::_1,
                                           std::placeholders::_2,
                                           std::placeholders::_3));
-        m_server.set_sent_handler(std::bind(&test_server::on_sent, this, std::placeholders::_1));
-        m_server.set_session_handler(std::bind(&test_server::on_new_session, this, std::placeholders::_1));
-        m_server.set_oob_handler(std::bind(&test_server::on_oob, this, std::placeholders::_1, std::placeholders::_2));
-        m_server.set_close_handler(std::bind(&test_server::on_close, this, std::placeholders::_1));
+        m_server.set_sent_handler(std::bind(&test_server::on_sent, this,
+                                  std::placeholders::_1));
+        m_server.set_session_handler(std::bind(&test_server::on_new_session, this,
+                                     std::placeholders::_1));
+        m_server.set_oob_handler(std::bind(&test_server::on_oob, this,
+                                 std::placeholders::_1, std::placeholders::_2));
+        m_server.set_close_handler(std::bind(&test_server::on_close, this,
+                                   std::placeholders::_1));
         return m_server.run();
     }
 
@@ -116,10 +120,6 @@ public:
         log_info("readed %d bytes from session %s, data: %s",
                  _size, _session.name().c_str(),
                  _buf.dump().c_str());
-        if (1 == out_buffer(_buf.begin(), 4).peek_uint32()) {
-           // m_server.stop();
-           // return;
-        }
         in_buffer(_buf.begin(), 4).write_uint32(_session.peer_addr().port());
         _session.send(std::make_shared<out_buffer>(_buf.begin(), 4));
     }
@@ -163,7 +163,7 @@ public:
         }
 
         {
-            if (_session->peer_addr().port() >= 55000) {
+            if (_session->peer_addr().port() >= 55000) { // close
                 _session->close(true);
                 if (g_barrier->wait())
                     g_barrier->destroy();
@@ -212,7 +212,7 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 1,
+        .thread_num             = 3,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,

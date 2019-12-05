@@ -88,14 +88,12 @@ void
 listener::close (bool _blocking /* = true */)
 {
     check(!m_closed);
-    std::shared_ptr<barrier> _barrier_ptr;
-    if (_blocking)
-        _barrier_ptr = std::make_shared<barrier>(2);
 
     if (m_loop->in_loop_thread()) {
         on_close(std::error_code());
     } else {
         if (_blocking) {
+            std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
             m_loop->run_in_loop([this, _barrier_ptr] () {
                 on_close(std::error_code());
                 if (_barrier_ptr->wait())

@@ -64,8 +64,11 @@ server::run ()
 
     // listen
     m_listener->listen(m_opts.backlog, 
-                       std::bind(&server::on_new_session, this, std::placeholders::_1),
-                       std::bind(&server::on_listener_close, this, std::placeholders::_1));
+                       std::bind(&server::on_new_session, this,
+                                 std::placeholders::_1
+                                 ),
+                       std::bind(&server::on_listener_close,
+                                 this, std::placeholders::_1));
     log_info("listening for [%s:%d]", 
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
 
@@ -210,7 +213,9 @@ server::on_session_close (const session &_session, std::error_code _ec)
 void
 server::on_listener_close (std::error_code _ec)
 {
-    log_error("listener closed, %s", system_error_str(_ec).c_str());
+    if (_ec)
+        log_error("listener closed, %s",
+                  system_error_str(_ec).c_str());
 }
 
 KNGIN_NAMESPACE_TCP_END
