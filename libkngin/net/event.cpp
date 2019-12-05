@@ -91,7 +91,7 @@ event::stop ()
 }
 
 void
-event::on_event () KNGIN_NOEXP
+event::on_event ()
 {
     check(!m_stopped);
 
@@ -99,9 +99,8 @@ event::on_event () KNGIN_NOEXP
     in_buffer _buf(_arr, 8);
     std::error_code _ec;
     size_t _ret = this->readn(_buf, _ec); // blocked
-//    if (m_event_handler)
-//        ignore_exp(m_event_hadnelr(_ec));
-#warning "error_code"
+    if (m_event_handler)
+        ignore_exp(m_event_handler(_ec));
 }
 
 KNGIN_NAMESPACE_K_END

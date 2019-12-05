@@ -56,13 +56,13 @@ public:
 
 private:
     void
-    on_accept     () KNGIN_NOEXP;
+    on_accept     ();
 
     void
-    on_close      (std::error_code _ec) KNGIN_NOEXP;
+    on_close      (std::error_code _ec);
 
     void
-    on_error      () KNGIN_NOEXP;
+    on_error      ();
 
 private:
     event_loop_ptr    m_loop;

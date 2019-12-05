@@ -25,8 +25,8 @@
 #else
 #define kngin_make_log(level, level_str, file_type, fmt, ...)   \
         do {                                                    \
-            if (logger().inited())                              \
-                logger()[file_type]                             \
+            if (k::logger().inited())                           \
+                k::logger()[file_type]                          \
                     .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt),\
                              __FUNCTION__, __FILE__, __LINE__,  \
                              ##__VA_ARGS__);                    \
@@ -34,8 +34,8 @@
 
 #define kngin_make_log_noline(level, level_str, file_type, fmt, ...)   \
         do {                                                           \
-            if (logger().inited())                                     \
-                logger()[file_type]                                    \
+            if (k::logger().inited())                                  \
+                k::logger()[file_type]                                 \
                     .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt),\
                              ##__VA_ARGS__);                           \
         } while (false)
@@ -61,15 +61,15 @@
             FUNCTION, KNGIN_FILENAME, LINE, #exp)       \
         : 0
 #else
-#define assert_log(exp)                                 \
-    logger().inited()                                   \
-        ? logger()[k::KNGIN_LOG_FILE_SERVER].log_assert(\
-            __FUNCTION__, __FILE__, __LINE__, #exp)     \
+#define assert_log(exp)                                    \
+    k::logger().inited()                                   \
+        ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_assert(\
+            __FUNCTION__, __FILE__, __LINE__, #exp)        \
         : 0
 #endif
-#define log_dump(str)                                       \
-    logger().inited()                                       \
-        ? logger()[k::KNGIN_LOG_FILE_SERVER].log_data((str))\
+#define log_dump(str)                                          \
+    k::logger().inited()                                       \
+        ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_data((str))\
         : 0
 
 #define log_fatal   server_fatal

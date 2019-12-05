@@ -87,7 +87,7 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 }
 
 void
-timer::on_timeout () KNGIN_NOEXP
+timer::on_timeout ()
 {
     check(!m_stopped);
 
@@ -95,9 +95,8 @@ timer::on_timeout () KNGIN_NOEXP
     in_buffer _buf(_arr, 8);
     std::error_code _ec;
     size_t _ret = this->readn(_buf, _ec); // blocked
-//    if (m_timeout_handler)
-//        ignore_exp(m_timeout_handler(_ec));
-#warning "error_code"
+    if (m_timeout_handler)
+        ignore_exp(m_timeout_handler(_ec));
 }
 
 KNGIN_NAMESPACE_K_END

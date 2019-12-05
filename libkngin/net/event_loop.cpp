@@ -61,7 +61,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         m_waker->set_closeexec(true);
         m_waker->start(nullptr);
         if (_start_handler)
-            _start_handler();
+            ignore_exp(_start_handler());
 
         while (!m_stop) {
             // wait for events

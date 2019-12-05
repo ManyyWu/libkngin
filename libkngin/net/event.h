@@ -11,9 +11,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class event : public filefd {
 public:
-    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl>     event_loop_pimpl_ptr;
 
-    typedef epoller_event::epoller_event_handler event_handler;
+    typedef std::function<void (std::error_code)> event_handler;
 
 public:
     event        () = delete;
@@ -46,7 +46,7 @@ public:
 
 private:
     void
-    on_event     () KNGIN_NOEXP;
+    on_event     ();
 
 private:
     event_loop_pimpl_ptr m_loop;

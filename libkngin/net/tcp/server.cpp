@@ -193,7 +193,7 @@ server::on_new_session (socket &&_sock)
 
     if (m_session_handler)
         _next_loop->run_in_loop([this, _session] () {
-            m_session_handler(_session);
+            ignore_exp(m_session_handler(_session));
         });
 }
 
@@ -202,7 +202,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
 {
     _session.check_thread();
     if (m_close_handler)
-        m_close_handler(std::cref(_session), _ec);
+        ignore_exp(m_close_handler(std::cref(_session), _ec));
 
     {
         local_lock _lock(m_mutex);

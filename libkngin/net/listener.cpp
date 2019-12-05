@@ -110,7 +110,7 @@ listener::close (bool _blocking /* = true */)
 }
 
 void
-listener::on_accept () KNGIN_NOEXP
+listener::on_accept ()
 {
     if (m_closed)
         return;
@@ -144,18 +144,16 @@ listener::on_accept () KNGIN_NOEXP
     }
 
     socket _sock(_sockfd);
-    ignore_exp(
-        if (m_accept_handler) {
-            m_accept_handler(std::move(_sock));
-        } else {
-            log_warning("unaccepted session, fd = %d", _sock.fd());
-            _sock.close();
-        }
-    );
+    if (m_accept_handler) {
+        ignore_exp(m_accept_handler(std::move(_sock)));
+    } else {
+        log_warning("unaccepted session, fd = %d", _sock.fd());
+        _sock.close();
+    }
 }
 
 void
-listener::on_close (std::error_code _ec) KNGIN_NOEXP
+listener::on_close (std::error_code _ec)
 {
     check(!m_closed);
     m_loop->check_thread();
@@ -169,7 +167,7 @@ listener::on_close (std::error_code _ec) KNGIN_NOEXP
 }
 
 void
-listener::on_error () KNGIN_NOEXP
+listener::on_error ()
 {
     check(!m_closed);
     m_loop->check_thread();

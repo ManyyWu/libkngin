@@ -10,9 +10,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class timer : public filefd {
 public:
-    typedef event_loop::event_loop_pimpl_ptr event_loop_pimpl_ptr;
+    typedef event_loop::event_loop_pimpl_ptr      event_loop_pimpl_ptr;
 
-    typedef epoller_event::epoller_event_handler timer_handler;
+    typedef std::function<void (std::error_code)> timer_handler;
 
 public:
     timer        () = delete;
@@ -43,7 +43,7 @@ public:
 
 private:
     void
-    on_timeout   () KNGIN_NOEXP;
+    on_timeout   ();
 
 private:
     event_loop_pimpl_ptr m_loop;

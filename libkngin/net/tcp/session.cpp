@@ -208,7 +208,7 @@ session::on_write ()
             }
         }
         if (m_sent_handler)
-            m_sent_handler(std::ref(*this));
+            ignore_exp(m_sent_handler(std::ref(*this)));
     }
 }
 
@@ -256,9 +256,9 @@ session::on_read ()
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_handler)
-            m_message_handler(std::ref(*this),
-                              std::ref(*_temp_ptr),
-                              _temp_ptr->valid());
+            ignore_exp(m_message_handler(std::ref(*this),
+                                         std::ref(*_temp_ptr),
+                                         _temp_ptr->valid()));
     }
 }
 
@@ -284,7 +284,7 @@ session::on_oob ()
         return;
     }
     if (m_oob_handler) {
-        m_oob_handler(std::ref(*this), _data);
+        ignore_exp(m_oob_handler(std::ref(*this), _data));
     } else {
         log_warning("unhandled oob data from %s", m_socket.name().c_str());
     }

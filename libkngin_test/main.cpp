@@ -1,5 +1,6 @@
 #include <iostream>
 #include <exception>
+#include "../libkngin/core/common.h"
 #include "../libkngin/core/exception.h"
 #include "../libkngin/core/system_error.h"
 
@@ -119,16 +120,18 @@ int main()
         tcp_server_test ();
         cerr << "********************************************************\n";
     } catch (const k::exception &_e) {
-        cerr << "main() - " << _e.what() << endl;
-        cerr << _e.dump() << endl;
+        log_fatal("caught an exception %s", _e.what());
+        log_dump(_e.dump().c_str());
+        assert(0);
     } catch (const std::exception &_e) {
-        cerr << "main() - " << _e.what() << endl;
+        log_fatal("caught an exception %s", _e.what());
+        assert(0);
     } catch (...) {
-        cout << "crash!\n";
+        log_fatal("caught an undefined exception");
+        assert(0);
     }
-
 #ifdef _WIN32
-    getchar();
+getchar();
 #endif
-    return 0;
+return 0;
 }
