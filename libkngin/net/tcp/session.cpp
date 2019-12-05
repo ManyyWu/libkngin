@@ -110,7 +110,7 @@ session::close (bool _blocking /* = false */)
     check(m_connected);
     std::shared_ptr<barrier> _barrier_ptr;
     if (_blocking)
-        std::make_shared<barrier>(2);
+        _barrier_ptr = std::make_shared<barrier>(2);
 
     if (m_loop->in_loop_thread()) {
         on_close(std::error_code());

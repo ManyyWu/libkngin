@@ -210,8 +210,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
 void
 server::on_listener_close (std::error_code _ec)
 {
-    log_error("listener socket error - %s", system_error_str(_ec).c_str());
-    exit(1);
+    log_error("listener closed, %s", system_error_str(_ec).c_str());
 }
 
 KNGIN_NAMESPACE_TCP_END

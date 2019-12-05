@@ -6,6 +6,7 @@
 #else
 #include <pthread.h>
 #endif
+#include <atomic>
 #include "core/define.h"
 #include "core/timestamp.h"
 #include "core/mutex.h"

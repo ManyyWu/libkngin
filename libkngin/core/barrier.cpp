@@ -40,6 +40,7 @@ barrier::~barrier ()
     }
 }
 
+void
 barrier::reinit (int _count)
 {
     check(!m_inited);
@@ -56,7 +57,7 @@ bool
 barrier::wait ()
 {
     check(m_inited);
-    int _ret = ::pthread_barrier_wait(&m_barrier)
+    int _ret = ::pthread_barrier_wait(&m_barrier);
     if (0 == _ret)
         return false;
     if (PTHREAD_BARRIER_SERIAL_THREAD == _ret)

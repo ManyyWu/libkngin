@@ -48,7 +48,7 @@ event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
 
 void
 event_loop_pimpl::run (started_handler &&_start_handler,
-        stopped_handler &&_stop_handler)
+                       stopped_handler &&_stop_handler)
 {
     check(!m_looping);
     check_thread();
@@ -110,7 +110,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 void
 event_loop_pimpl::stop ()
 {
-    if (m_looping)
+    if (!m_looping)
         return;
     check(m_epoller);
     check(m_waker);

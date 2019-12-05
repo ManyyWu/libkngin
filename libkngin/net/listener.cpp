@@ -35,7 +35,7 @@ listener::listener (event_loop_ptr _loop, k::socket &&_socket)
 
 listener::~listener() KNGIN_NOEXP
 {
-    if (m_closed)
+    if (!m_closed)
         ignore_exp(this->close(true));
 
     // FIXME; wait for m_closed to be true
@@ -85,11 +85,12 @@ listener::listen (int _backlog, std::error_code &_ec,
 }
 
 void
-listener::close (_blocking /* = true */)
+listener::close (bool _blocking /* = true */)
 {
     check(!m_closed);
+    std::shared_ptr<barrier> _barrier_ptr;
     if (_blocking)
-        std::make_shared<barrier>(2);
+        _barrier_ptr = std::make_shared<barrier>(2);
 
     if (m_loop->in_loop_thread()) {
         on_close(std::error_code());

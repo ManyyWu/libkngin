@@ -16,6 +16,8 @@ using namespace k::tcp;
 #define SERVER_ADDR "127.0.0.1"
 #define SERVER_PORT 20000
 
+std::shared_ptr<barrier> g_barrier;
+
 static int
 client ()
 {
@@ -159,6 +161,16 @@ public:
             _arr = m_bufs[_session->serial()];
             _buf = std::make_shared<out_buffer>(_arr.get(), 4);
         }
+
+        {
+            if (_session->peer_addr().port() >= 55000) {
+                _session->close(true);
+                if (g_barrier->wait())
+                    g_barrier->destroy();
+                return;
+            }
+        }
+
         in_buffer(_arr.get(), 4).write_uint32(_session->peer_addr().port());
         _session->send(_buf);
 
@@ -193,13 +205,14 @@ protected:
 
 void
 tcp_server_test ()
-{
+{ 
+    g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
         .name                   = std::string(SERVER_ADDR),
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 3,
+        .thread_num             = 1,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,
@@ -212,7 +225,8 @@ tcp_server_test ()
     //    _client.run(client);
     //    _client.join();
     //}
-    std::cin.get();
+    if (g_barrier->wait())
+        g_barrier->destroy();
     _s.stop();
     //thread::sleep(3600000);
 }
