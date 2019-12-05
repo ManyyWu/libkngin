@@ -166,8 +166,8 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
 
     bool         _fail = false;
     size_t       _ret = 0;
-    char         _buf[KNGIN_LOG_BUF_SIZE];
-    char         _filename[FILENAME_MAX];
+    static char  _buf[KNGIN_LOG_BUF_SIZE];
+    static char  _filename[FILENAME_MAX];
     tm           _tm;
     time_t       _t = ::time(nullptr);
     FILE *       _fplog = nullptr;

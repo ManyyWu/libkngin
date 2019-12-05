@@ -220,13 +220,7 @@ tcp_server_test ()
     test_server _s(_opts);
     check(_s.run());
 
-    //for (int i = 0; i < 10000; i++) {
-    //    thread _client((std::string("client") + std::to_string(i)).c_str());
-    //    _client.run(client);
-    //    _client.join();
-    //}
     if (g_barrier->wait())
         g_barrier->destroy();
     _s.stop();
-    //thread::sleep(3600000);
 }
