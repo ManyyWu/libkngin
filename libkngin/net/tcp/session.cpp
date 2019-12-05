@@ -56,9 +56,11 @@ session::session (event_loop_ptr _loop, k::socket &&_socket,
 
 session::~session ()
 {
-    if (m_connected)
-        log_error("the TCP session must be closed"
-                  " before object disconstructing");
+    if (m_connected) {
+        log_warning("the TCP session must be closed"
+                    " before object disconstructing");
+        ignore_exp(this->close(true));
+    }
 
     // FIXME; wait for m_connected to be false( this->close(true); )
 }
