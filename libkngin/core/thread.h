@@ -13,7 +13,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class thread : public noncopyable {
 public:
-    typedef std::function<int (void)> thr_fn;
+    typedef std::function<int (void)>  thr_fn;
+    
+    typedef std::function<void (thread_t)> crash_handler;
 
 public:
     class pimpl
@@ -42,8 +44,10 @@ public:
 
             thr_fn            fn;
 
-            thread_data (const std::string &_name, thr_fn &&_fn)
-                    : name(_name), fn(std::move(_fn)) {}
+            crash_handler     handler;
+
+            thread_data (const std::string &_name, thr_fn &&_fn, crash_handler &&_handler)
+                    : name(_name), fn(std::move(_fn), crash_handler(std::move(_handler)) {}
         };
 
     public:
@@ -57,7 +61,7 @@ public:
 
     public:
         void
-        run           (thr_fn &&_fn);
+        run           (thr_fn &&_fn, crash_handler &&_crash_handler = nullptr);
 
         int
         join          ();
@@ -116,8 +120,8 @@ public:
 
 public:
     void
-    run           (thr_fn &&_fn)
-    { m_pimpl->run(std::move(_fn)); }
+    run           (thr_fn &&_fn, crash_handler &&_crash_handler = nullptr)
+    { m_pimpl->run(std::move(_fn), std::move(_crash_handler)); }
 
     int
     join          ()

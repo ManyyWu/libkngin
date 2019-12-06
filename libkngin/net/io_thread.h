@@ -22,7 +22,7 @@ public:
 
 public:
     void
-    run        ();
+    run        (crash_handler &&_handler = nullptr);
 
     void
     stop       ();

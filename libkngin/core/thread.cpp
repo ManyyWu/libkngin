@@ -60,13 +60,20 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
 }
 
 void
-thread::pimpl::run (thr_fn &&_fn)
+thread::pimpl::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
 {
     arg_check(_fn);
 
-    std::error_code _ec = int2ec(::pthread_create(&m_thr, nullptr,
-                                  thread::pimpl::start,
-                                  new thread::pimpl::thread_data(m_name, std::move(_fn))));
+    std::error_code _ec = int2ec(::pthread_create(
+                                     &m_thr, nullptr,
+                                     thread::pimpl::start,
+                                     new thread::pimpl::thread_data(
+                                         m_name, 
+                                         std::move(_fn),
+                                         std::move(_crash_handler)
+                                         )
+                                     )
+                                 );
     if (_ec) {
         log_fatal("::pthread_create() error, name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
@@ -137,25 +144,29 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
 {
     assert(_args);
     thread_err_code _code;
+    bool _crash = true;
 
     auto _data = static_cast<thread_data *>(_args);
     pthread_cleanup_push(thread::pimpl::cleanup, _args);
     try {
         if (_data->fn)
             _code.code = _data->fn();
+        _crash = false;
     } catch (const k::exception &_e) {
         log_fatal("caught an exception in thread \"%s\", %s",
                   _data->name.c_str(), _e.what());
         log_dump(_e.dump().c_str());
-        assert(0);
     } catch (const std::exception &_e) {
         log_fatal("caught an exception in thread \"%s\", %s",
                   _data->name.c_str(), _e.what());
-        assert(0);
     } catch (...) {
         log_fatal("caught an undefined exception in thread \"%s\"",
                   _data->name.c_str());
+    }
+    if (_crash) {
         assert(0);
+        if (_crash_handler)
+            _crash_handler(thread::ptid());
     }
     pthread_cleanup_pop(1);
     return _code.ptr;

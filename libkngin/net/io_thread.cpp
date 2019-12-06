@@ -28,14 +28,14 @@ io_thread::~io_thread ()
 }
 
 void
-io_thread::run ()
+io_thread::run (crash_handler &&_crash_handler /* = nullptr */)
 {
     {
         local_lock _lock(m_mutex);
         m_loop = std::make_shared<event_loop>(*this);
         thread::run([this] () -> int {
             return process();
-        });
+        }, std::move(_crash_handler));
         while (!m_loop->looping())
             m_cond.wait();
     }
