@@ -45,7 +45,7 @@ server::run ()
     check(m_stopped);
 
     // run threadpool
-    m_threadpool.start();
+    m_threadpool.start(std::bind(&server::stop, this));
 
     // create listen socket
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);

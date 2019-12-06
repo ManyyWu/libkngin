@@ -19,7 +19,7 @@ extern void
 io_threadpool_test ()
 {
     io_threadpool _pool(10);
-    _pool.start();
+    _pool.start(nullptr);
 
     for (int i = 0; i < 100; ++i)
         _pool.add_task(func);

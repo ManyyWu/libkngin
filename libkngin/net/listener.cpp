@@ -89,6 +89,11 @@ listener::close (bool _blocking /* = true */)
 {
     check(!m_closed);
 
+    if (!m_loop->looping()) {
+        m_socket.close();
+        m_closed = true;
+        return;
+    }
     if (m_loop->in_loop_thread()) {
         on_close(std::error_code());
     } else {

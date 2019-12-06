@@ -20,6 +20,7 @@ io_threadpool::io_threadpool (uint16_t _num)
     : m_num((std::max<uint16_t>)(_num, 1)),
       m_threads(),
       m_stopped(true),
+      m_crash(false),
       m_mutex(),
       m_next(1)
 {
@@ -36,7 +37,7 @@ io_threadpool::~io_threadpool ()
 }
 
 void
-io_threadpool::start ()
+io_threadpool::start (stopped_handler &&_handler)
 {
     check(m_stopped);
 
@@ -45,7 +46,11 @@ io_threadpool::start ()
         m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
         try {
             //log_debug("%s", m_threads.back()->name());
-            m_threads.back()->run();
+            m_threads.back()->run([this] (pthread_t _t) {
+                if (m_crash)
+                    return;
+                m_crash = true;
+            });
         } catch (...) {
             m_stopped = false;
             ignore_exp(stop());
@@ -64,7 +69,8 @@ io_threadpool::stop ()
 
     {
         local_lock _lock(m_mutex);
-        for (uint16_t i = 0; i < m_threads.size(); ++i)
+        size_t _size = m_threads.size();
+        for (uint16_t i = 0; i < _size; ++i)
             m_threads[i]->stop();
         m_threads.clear();
     }

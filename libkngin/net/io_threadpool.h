@@ -31,9 +31,7 @@ public:
 
     typedef std::vector<std::unique_ptr<io_thread>> threads;
 
-    typedef event_loop::started_handler             started_handler;
-
-    typedef event_loop::stopped_handler             stopped_handler;
+    typedef std::function<void (void)>              stopped_handler;
 
     typedef io_thread::event_loop_ptr               event_loop_ptr;
 
@@ -47,13 +45,17 @@ public:
 
 public:
     void
-    start          ();
+    start          (stopped_handler &&_handler);
 
     void
     stop           ();
 
     void
     add_task       (task &&_task);
+
+    bool
+    stopped        ()
+    { return m_stopped; }
 
     event_loop &
     next_loop      ();
@@ -67,6 +69,8 @@ protected:
     threads           m_threads;
 
     std::atomic<bool> m_stopped;
+
+    std::atomic<bool> m_crash;
 
     mutex             m_mutex;
 

@@ -111,6 +111,12 @@ session::close (bool _blocking /* = false */)
 {
     check(m_connected);
 
+    if (!m_loop->looping()) {
+        m_socket.close();
+        m_in_buf = nullptr;
+        m_connected = false;
+        return;
+    }
     if (m_loop->in_loop_thread()) {
         on_close(std::error_code());
     } else {

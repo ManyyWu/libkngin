@@ -165,8 +165,8 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
     }
     if (_crash) {
         assert(0);
-        if (_crash_handler)
-            _crash_handler(thread::ptid());
+        if (_data->handler)
+            _data->handler(thread::ptid());
     }
     pthread_cleanup_pop(1);
     return _code.ptr;
