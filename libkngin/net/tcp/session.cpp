@@ -17,12 +17,12 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 uint64_t session::m_next_serial = 0;
 
-session::session (event_loop_ptr _loop, k::socket &&_socket,
+session::session (event_loop &_loop, k::socket &&_socket,
                   const address &_local_addr, const address &_peer_addr)
     try
-    : m_loop(_loop),
+    : m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)), 
-      m_event(m_loop->pimpl(), &m_socket),
+      m_event(m_loop, &m_socket),
       m_connected(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),

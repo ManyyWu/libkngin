@@ -25,7 +25,7 @@ public:
 public:
     listener      () = delete;
 
-    listener      (event_loop_ptr _loop, k::socket &&_socket);
+    listener      (event_loop &_loop, k::socket &&_socket);
 
     ~listener     () KNGIN_NOEXP;
 
@@ -65,21 +65,21 @@ private:
     on_error      ();
 
 private:
-    event_loop_ptr    m_loop;
+    event_loop_pimpl_ptr m_loop;
 
-    k::socket         m_socket;
+    k::socket            m_socket;
 
-    epoller_event     m_event;
+    epoller_event        m_event;
 
-    std::atomic<bool> m_closed;
+    std::atomic<bool>    m_closed;
 
-    address           m_listen_addr;
+    address              m_listen_addr;
 
-    accept_handler    m_accept_handler;
+    accept_handler       m_accept_handler;
 
-    close_handler     m_close_handler;
+    close_handler        m_close_handler;
 
-    filefd            m_idle_file;
+    filefd               m_idle_file;
 };
 
 KNGIN_NAMESPACE_K_END

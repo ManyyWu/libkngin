@@ -10,11 +10,11 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::listener (event_loop_ptr _loop, k::socket &&_socket)
+listener::listener (event_loop &_loop, k::socket &&_socket)
     try
-    : m_loop(_loop),
+    : m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)),
-      m_event(m_loop->pimpl(), &m_socket),
+      m_event(m_loop, &m_socket),
       m_closed(true),
       m_listen_addr(),
       m_accept_handler(nullptr),

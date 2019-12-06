@@ -108,6 +108,7 @@ epoller::update_event (int _opt, epoller_event *_e)
     }
 #endif
 
+    // FIXME: you must ensure that the life cycle of filefd is greater than the epoller
     _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
     //log_debug("epoll_ctl: %d, %d, %d", _opt, _fd, _e->m_event.events);
     if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0)

@@ -89,6 +89,8 @@ epoller_event::on_events (uint32_t _flags)
             m_out_handler();
         if ((EPOLLPRI & _flags) && m_pri_handler)
             m_pri_handler();
+        // FIXME: you must ensure that the life cycle of (event, timer, session, listener) 
+        // is greater than the event_loop
     } catch (std::exception &_e) {
         log_fatal("caught an exception in epoller_event::on_event(), %s", _e.what());
         throw;

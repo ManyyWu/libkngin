@@ -83,7 +83,7 @@ public:
     { m_oob_handler = std::move(_handler); }
 
 protected:
-    event_loop_ptr
+    event_loop &
     assign_thread     ()
     { return m_threadpool.next_loop(); }
 

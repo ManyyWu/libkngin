@@ -27,7 +27,7 @@ public:
     void
     stop       ();
 
-    event_loop_ptr
+    event_loop_ptr &
     get_loop   ()
     { return m_loop; }
 

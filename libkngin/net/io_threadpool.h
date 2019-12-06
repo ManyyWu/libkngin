@@ -55,10 +55,10 @@ public:
     void
     add_task       (task &&_task);
 
-    event_loop_ptr
+    event_loop &
     next_loop      ();
 
-    event_loop_ptr
+    event_loop &
     get_loop       (size_t _idx);
 
 protected:

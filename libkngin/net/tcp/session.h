@@ -46,7 +46,7 @@ public:
 public:
     session         () = delete;
 
-    session         (event_loop_ptr _loop, k::socket &&_socket,
+    session         (event_loop &_loop, k::socket &&_socket,
                      const address &_local_addr, const address &_peer_addr);
 
     ~session        () KNGIN_NOEXP;
@@ -155,40 +155,40 @@ private:
     { return m_socket; }
 
 private:
-    event_loop_ptr    m_loop;
+    event_loop_pimpl_ptr m_loop;
 
-    k::socket         m_socket;
+    k::socket            m_socket;
 
-    epoller_event     m_event;
+    epoller_event        m_event;
 
-    std::atomic<bool> m_connected;
+    std::atomic<bool>    m_connected;
 
-    address           m_local_addr;
+    address              m_local_addr;
 
-    address           m_peer_addr;
+    address              m_peer_addr;
 
-    const std::string m_name;
+    const std::string    m_name;
 
-    sent_handler      m_sent_handler;
+    sent_handler         m_sent_handler;
 
-    message_handler   m_message_handler;
+    message_handler      m_message_handler;
 
-    oob_handler       m_oob_handler;
+    oob_handler          m_oob_handler;
 
-    close_handler     m_close_handler;
+    close_handler        m_close_handler;
 
-    out_buffer_queue  m_out_bufq;
+    out_buffer_queue     m_out_bufq;
 
-    in_buffer_ptr     m_in_buf;
+    in_buffer_ptr        m_in_buf;
 
-    size_t            m_callback_lowat;
+    size_t               m_callback_lowat;
 
-    uint64_t          m_serial;
+    uint64_t             m_serial;
 
-    mutex             m_mutex;
+    mutex                m_mutex;
 
 private:
-    static uint64_t   m_next_serial;
+    static uint64_t      m_next_serial;
 };
 
 KNGIN_NAMESPACE_TCP_END

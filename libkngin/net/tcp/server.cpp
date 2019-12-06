@@ -51,10 +51,11 @@ server::run ()
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
 
     // start listener
-    event_loop_ptr _next_loop = m_opts.separate_listen_thread
-                                ? m_threadpool.get_loop(0)
-                                : m_threadpool.next_loop();
-    m_listener = std::make_shared<listener>(_next_loop, std::move(_listener_sock));
+    m_listener = std::make_shared<listener>((m_opts.separate_listen_thread
+                                             ? m_threadpool.get_loop(0)
+                                             : m_threadpool.next_loop()
+                                             ), 
+                                            std::move(_listener_sock));
 
     // init address
     parse_addr(m_opts.name, m_opts.port);
@@ -138,8 +139,7 @@ server::parse_addr (const std::string &_name, uint16_t _port)
             throw k::system_error("::getaddrinfo() error");
         else
             throw k::exception((std::string("::getaddrinfo() error, %s")
-                                + gai_strerror(_ret)
-                               ).c_str());
+                                + gai_strerror(_ret) ).c_str());
     }
     if_not (_ai_list) {
         ::freeaddrinfo(_ai_list);
@@ -166,8 +166,7 @@ server::on_new_session (socket &&_sock)
     address _peer_addr = _sock.peeraddr();
 
     session_ptr _session = nullptr;
-    event_loop_ptr _next_loop = assign_thread();
-    check(_next_loop);
+    event_loop &_next_loop = assign_thread();
     try {
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
@@ -192,7 +191,7 @@ server::on_new_session (socket &&_sock)
     }
 
     if (m_session_handler)
-        _next_loop->run_in_loop([this, _session] () {
+        _next_loop.run_in_loop([this, _session] () {
             ignore_exp(m_session_handler(_session));
         });
 }

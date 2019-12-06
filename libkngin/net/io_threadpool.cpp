@@ -78,41 +78,38 @@ io_threadpool::add_task (task &&_task)
     arg_check(_task);
     check(!m_stopped);
 
-    event_loop_ptr _next = next_loop();
+    event_loop &_next = next_loop();
     {
         local_lock _lock(m_mutex);
-        if (_next && _next->looping())
-            _next->run_in_loop(std::move(_task));
+        if (_next.looping())
+            _next.run_in_loop(std::move(_task));
     }
 }
 
-io_threadpool::event_loop_ptr
+event_loop &
 io_threadpool::next_loop ()
 {
     check(!m_stopped);
     {
         local_lock _lock(m_mutex);
-        if (m_threads.empty())
-            return nullptr;
         size_t _size = m_threads.size();
+        arg_check(_size);
         if (m_next >= _size)
             m_next = 0;
         //    m_next = (std::min<size_t>)(_size - 1, 1);
-        return m_threads[m_next++]->get_loop();
+        return *(m_threads[m_next++]->get_loop());
     }
 }
 
-io_threadpool::event_loop_ptr
+event_loop &
 io_threadpool::get_loop (size_t _idx)
 {
     check(!m_stopped);
     {
         local_lock _lock(m_mutex);
-        if (m_threads.empty())
-            return nullptr;
         size_t _size = m_threads.size();
         arg_check(_idx < _size);
-        return m_threads[_idx]->get_loop();
+        return *(m_threads[_idx]->get_loop());
     }
 }
 
