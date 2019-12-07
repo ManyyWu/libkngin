@@ -5,6 +5,7 @@
 #include "core/log.h"
 #include "core/logmgr.h"
 
+// for log
 #if !defined(NDEBUG) && (ON == KNGIN_LOG_RELATIVE_PATH)
 #define kngin_make_log(level, level_str, file_type, fmt, ...)   \
         do {                                                    \
@@ -71,7 +72,6 @@
     k::logger().inited()                                       \
         ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_data((str))\
         : 0
-
 #define log_fatal   server_fatal
 #define log_error   server_error
 #define log_warning server_warning

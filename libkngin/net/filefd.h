@@ -18,9 +18,9 @@ class filefd : public noncopyable {
 public:
     filefd  () = delete;
 
-    explicit
     filefd  (int _fd) KNGIN_NOEXP;
 
+    explicit
     filefd  (filefd &&_fd) KNGIN_NOEXP;
 
     virtual

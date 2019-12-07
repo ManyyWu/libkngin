@@ -10,37 +10,37 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller_event::epoller_event (int _fd)
-    : m_fd(_fd),
+epoller_event::epoller_event (epollfd _fd) KNGIN_NOEXP
+    : filefd(_fd),
       m_flags(EPOLLHUP | EPOLLERR),
-      m_event({0, nullptr}),
-      m_in_handler(nullptr),
-      m_out_handler(nullptr),
-      m_err_handler(nullptr),
-      m_pri_handler(nullptr)
+      m_event({0, nullptr})
 {
+}
+
+epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXP
+    : filefd(std::move(_e)),
+      m_flags(_e.m_flags),
+      m_event(_e.m_event)
+{
+    _e.m_event = {0, nullptr};
 }
 
 void
 epoller_event::on_events (uint32_t _events)
 {
     try {
-        if (EPOLLHUP & _events) // RST
-        {
-            if (m_err_handler)
-                m_err_handler();
-            else
-                log_warning("unhandled event: EPOLLHUP");
+        if (EPOLLHUP & _events) { // RST
+            on_error();
             return;
         }
-        if ((EPOLLERR & _events) && m_err_handler)
-            m_err_handler();
-        if ((EPOLLIN & _events) && m_in_handler)
-            m_in_handler();
-        if ((EPOLLOUT & _events) && m_out_handler)
-            m_out_handler();
-        if ((EPOLLPRI & _events) && m_pri_handler)
-            m_pri_handler();
+        if ((EPOLLERR & _events))
+            on_error();
+        if ((EPOLLIN & _events))
+            on_read();
+        if ((EPOLLOUT & _events))
+            on_write();
+        if ((EPOLLPRI & _events))
+            on_oob();
     } catch (std::exception &_e) {
         log_fatal("caught an exception in epoller_event::on_event(), %s", _e.what());
         throw;

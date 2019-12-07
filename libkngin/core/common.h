@@ -3,6 +3,7 @@
 
 #define __STDC_FORMAT_MACROS
 #include <new>
+#include <memory>
 #include <string>
 #include <cinttypes>
 #include <cassert>
@@ -12,11 +13,11 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-/* for memory */
+// for memory
 #define safe_release(ptr)       do { delete (ptr); (ptr) = nullptr; } while (false)
 #define safe_release_array(ptr) do { delete [] (ptr); (ptr) = nullptr; } while (false)
 
-/* for arguments */
+// for arguments
 inline void
 arg_check_func(bool _exp, const char *_what = nullptr)
 {
@@ -31,7 +32,7 @@ arg_check_func(bool _exp, const char *_what = nullptr)
                                        arg_check_func(static_cast<bool>((exp)), (what));\
                                    } while (false)
 
-/* for expression checking */
+// for expression checking
 #define if_not(exp)               if (!(exp)                                   \
                                       ? (assert_log(expression (exp) is false),\
                                          assert((exp)),                        \
@@ -76,7 +77,7 @@ arg_check_func(bool _exp, const char *_what = nullptr)
                                       }                                 \
                                   } while (false)
 
-/* nullptr reference */
+// nullptr reference
 template <typename Type>
 Type &
 nullptr_ref () KNGIN_NOEXP
@@ -89,6 +90,14 @@ bool
 is_nullptr_ref (Type &_ref) KNGIN_NOEXP
 {
     return (nullptr == _ref);
+}
+
+// for std::shared_ptr
+template <typename Type>
+inline bool
+single_ref_ptr (std::shared_ptr<Type> &_ptr)
+{
+    return (1 == _ptr.use_count());
 }
 
 KNGIN_NAMESPACE_K_END

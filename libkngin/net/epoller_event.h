@@ -6,8 +6,6 @@
 #include <sys/epoll.h>
 #endif
 #include <functional>
-#include <memory>
-#include <atomic>
 #include <system_error>
 #include "core/define.h"
 #include "core/noncopyable.h"
@@ -18,25 +16,19 @@ KNGIN_NAMESPACE_K_BEGIN
 class epoller;
 class event_loop;
 class event_loop_pimpl;
-class epoller_event : public noncopyable {
-public:
-    typedef std::function<void (void)>            epoller_event_handler;
-
-    typedef std::function<void (std::error_code)> epoller_close_handler;
-
-    typedef int                                   epollfd;
+class epoller_event : public filefd {
+    typedef int epollfd;
 
 public:
     epoller_event  () = delete;
 
-    epoller_event  (int _fd) KNGIN_NOEXP;
+    epoller_event  (epollfd _fd) KNGIN_NOEXP;
 
-    ~epoller_event () = default;
+    explicit
+    epoller_event  (epoller_event &&_e) KNGIN_NOEXP;
 
-public:
-    int
-    fd             () KNGIN_NOEXP
-    { return m_fd; }
+    virtual
+    ~epoller_event () KNGIN_NOEXP {};
 
 public:
     void
@@ -70,38 +62,26 @@ public:
     bool
     pollonce       () const          KNGIN_NOEXP { return (m_flags & EPOLLONESHOT); }
 
-public:
-    void
-    set_read_handler  (epoller_event_handler &&_fn) KNGIN_NOEXP
-    { m_in_handler = std::move(_fn); m_flags |= EPOLLIN; }
-    void
-    set_write_handler (epoller_event_handler &&_fn) KNGIN_NOEXP
-    { m_out_handler = std::move(_fn); m_flags |= EPOLLOUT; }
-    void
-    set_error_handler (epoller_event_handler &&_fn) KNGIN_NOEXP
-    { m_err_handler = std::move(_fn); m_flags |= EPOLLERR; }
-    void
-    set_oob_handler   (epoller_event_handler &&_fn) KNGIN_NOEXP
-    { m_pri_handler = std::move(_fn); m_flags |= EPOLLPRI; }
-
 private:
     void
     on_events      (uint32_t _events);
 
-private:
-    epollfd               m_fd;
+    virtual void
+    on_error       () = 0;
 
+    virtual void
+    on_read        () = 0;
+
+    virtual void
+    on_write       () = 0;
+
+    virtual void
+    on_oob         () = 0;
+
+private:
     uint32_t              m_flags;
 
     epoll_event           m_event;
-
-    epoller_event_handler m_in_handler;
-
-    epoller_event_handler m_out_handler;
-
-    epoller_event_handler m_err_handler;
-
-    epoller_event_handler m_pri_handler;
 
 private:
     friend class epoller;

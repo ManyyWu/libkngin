@@ -25,6 +25,7 @@ filefd::filefd (int _fd) KNGIN_NOEXP
 filefd::filefd (filefd &&_fd) KNGIN_NOEXP
     : m_fd(_fd.m_fd)
 {
+    _fd.m_fd = filefd::invalid_fd;
 }
 
 filefd::~filefd() KNGIN_NOEXP

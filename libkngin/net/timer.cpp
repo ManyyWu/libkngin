@@ -3,10 +3,9 @@
 #include <sys/timerfd.h>
 #endif
 #include <cstring>
-#include "net/timer.h"
 #include "core/common.h"
 #include "core/system_error.h"
-#include "net/event_loop.h"
+#include "net/timer.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -15,15 +14,14 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::timer (event_loop_pimpl_ptr _loop)
+timer::pimpl::pimpl (const event_loop_pimpl_ptr &_loop, 
+                     const timeout_handler &&_timeout_handler)
     try
-    : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
+    : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
-      m_timeout_handler(nullptr),
-      m_event(std::make_shared<epoller_event>(*this)),
-      m_stopped(true)
+      m_timeout_handler(_timeout_handler)
 {
-    check(_loop);
+    arg_check(m_loop && _timeout_handler);
     if (FD_VALID(m_fd))
         throw k::system_error("::timerfd_create() erorr");
 } catch (...) {
@@ -31,40 +29,13 @@ timer::timer (event_loop_pimpl_ptr _loop)
     throw;
 }
 
-timer::~timer () KNGIN_NOEXP
+timer::pimpl::~pimpl () KNGIN_NOEXP
 {
-    ignore_exp(stop());
-}
-
-void
-timer::start (timer_handler &&_timeout_handler, timestamp _val, timestamp _interval,
-              bool _abs /* = false */)
-{
-    arg_check(_timeout_handler);
-    check(m_stopped);
-
-    m_timeout_handler = std::move(_timeout_handler);
-    set_time(_val, _interval, _abs);
-    m_event->set_read_handler(std::bind(&timer::on_timeout, this));
-    m_loop->register_event(m_event);
-    m_stopped = false;
-}
-
-void
-timer::stop ()
-{
-    if (m_stopped)
-        return;
-
-    m_loop->remove_event(m_event);
-    m_stopped = true;
 }
 
 timestamp
-timer::get_time ()
+timer::pimpl::get_time ()
 {
-    check(!m_stopped);
-
     itimerspec _its;
     std::error_code _ec = int2ec(timerfd_gettime(m_fd, &_its));
     if (_ec)
@@ -73,10 +44,8 @@ timer::get_time ()
 }
 
 void
-timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
+timer::pimpl::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
-    check(!m_stopped);
-
     itimerspec _its;
     _val.to_timespec(_its.it_value);
     _interval.to_timespec(_its.it_interval);
@@ -87,15 +56,23 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 }
 
 void
-timer::on_timeout ()
+timer::pimpl::on_error()
 {
-    check(!m_stopped);
+    if (single_ref_ptr(m_loop))
+        return;
+    std::shared_ptr<timer::pimpl> _ptr = self();
+    m_loop->remove_event(_ptr);
+}
 
+void
+timer::pimpl::on_read ()
+{
     char _arr[8];
     in_buffer _buf(_arr, 8);
-    size_t _ret = this->readn(_buf); // blocked
+    this->readn(_buf); // blocked
+
     if (m_timeout_handler)
-        ignore_exp(m_timeout_handler());
+        m_timeout_handler();
 }
 
 KNGIN_NAMESPACE_K_END
