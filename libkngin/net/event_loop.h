@@ -25,17 +25,19 @@ class event_loop_pimpl
     : public noncopyable,
       public std::enable_shared_from_this<event_loop_pimpl> {
 public:
-    typedef std::function<void (void)> started_handler;
+    typedef std::function<void (void)>     started_handler;
 
-    typedef std::function<void (void)> stopped_handler;
+    typedef std::function<void (void)>     stopped_handler;
 
-    typedef std::function<void (void)> task;
+    typedef std::function<void (void)>     task;
 
-    typedef std::shared_ptr<epoller>   epoller_ptr;
+    typedef std::shared_ptr<epoller>       epoller_ptr;
 
-    typedef std::shared_ptr<event>     waker_ptr;
+    typedef std::shared_ptr<event>         waker_ptr;
 
-    typedef thread::thread_pimpl_ptr   thread_pimpl_ptr;
+    typedef epoller::epoller_event_ptr     epoller_event_ptr;
+
+    typedef thread::thread_pimpl_ptr       thread_pimpl_ptr;
 
 public:
     event_loop_pimpl  ();
@@ -58,13 +60,13 @@ public:
 
 public:
     void
-    add_event         (epoller_event &_e);
+    register_event    (epoller_event_ptr &_e);
 
     void
-    remove_event      (epoller_event &_e);
+    remove_event      (epoller_event_ptr &_e);
 
     void
-    update_event      (epoller_event &_e);
+    update_event      (epoller_event_ptr &_e);
 
     void
     run_in_loop       (task &&_fn);
@@ -109,13 +111,15 @@ private:
 
 class event_loop : public noncopyable {
 public:
-    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl>   event_loop_pimpl_ptr;
 
-    typedef event_loop_pimpl::started_handler started_handler;
+    typedef event_loop_pimpl::epoller_event_ptr epoller_event_ptr;
 
-    typedef event_loop_pimpl::stopped_handler stopped_handler;
+    typedef event_loop_pimpl::started_handler   started_handler;
 
-    typedef event_loop_pimpl::task            task;
+    typedef event_loop_pimpl::stopped_handler   stopped_handler;
+
+    typedef event_loop_pimpl::task              task;
 
 public:
     event_loop     ()
@@ -143,15 +147,15 @@ public:
 
 public:
     void
-    add_event      (epoller_event &_e)
-    { m_pimpl->add_event(_e); }
+    register_event (epoller_event_ptr &_e)
+    { m_pimpl->register_event(_e); }
 
     void
-    remove_event   (epoller_event &_e)
+    remove_event   (epoller_event_ptr &_e)
     { m_pimpl->remove_event(_e); }
 
     void
-    update_event   (epoller_event &_e)
+    update_event   (epoller_event_ptr &_e)
     { m_pimpl->update_event(_e); }
 
     void

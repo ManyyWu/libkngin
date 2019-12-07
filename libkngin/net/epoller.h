@@ -5,11 +5,9 @@
 #else
 #include <sys/epoll.h>
 #endif
-#ifndef NDEBUG
-#include <set>
-#endif
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include "core/define.h"
 #include "core/mutex.h"
 #include "core/timestamp.h"
@@ -23,9 +21,13 @@ class event_loop;
 class event_loop_pimpl;
 class epoller : public noncopyable {
 public:
-    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl>          event_loop_pimpl_ptr;
 
-    typedef std::vector<struct epoll_event>   epoll_event_set;
+    typedef std::shared_ptr<epoller_event>             epoller_event_ptr;
+
+    typedef std::unordered_map<int, epoller_event_ptr> epoller_event_map;
+
+    typedef std::vector<struct epoll_event>            epoll_event_set;
 
 public:
     epoller        () = delete;
@@ -56,28 +58,23 @@ public:
 
 public:
     void
-    register_event (epoller_event *_e)
-    { update_event(EPOLL_CTL_ADD, _e); }
+    register_event (epoller_event_ptr _e);
 
     void
-    remove_event   (epoller_event *_e)
-    { update_event(EPOLL_CTL_DEL, _e); }
+    remove_event   (epoller_event_ptr &_e);
 
     void
-    modify_event   (epoller_event *_e)
-    { update_event(EPOLL_CTL_MOD, _e); }
+    modify_event   (epoller_event_ptr &_e);
 
     void
-    update_event   (int _opt, epoller_event *_e);
+    update_event   (int _opt, int _fd, epoller_event *_e);
 
 protected:
-#ifndef NDEBUG
-    std::set<int>        m_fd_set;
+    event_loop_pimpl_ptr m_loop_pimpl;
+
+    epoller_event_map    m_events;
 
     mutex                m_mutex;
-#endif
-
-    event_loop_pimpl_ptr m_loop_pimpl;
 
     filefd               m_epollfd;
 };

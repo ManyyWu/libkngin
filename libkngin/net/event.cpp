@@ -21,7 +21,7 @@ event::event (event_loop_pimpl_ptr _loop)
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(_loop),
       m_event_handler(nullptr),
-      m_event(m_loop, this),
+      m_event(std::make_shared<epoller_event>(m_loop, m_fd)),
       m_stopped(true)
 {
     arg_check(m_loop);
@@ -34,18 +34,18 @@ event::event (event_loop_pimpl_ptr _loop)
 
 event::~event() KNGIN_NOEXP
 {
-    if (!m_stopped)
-        ignore_exp(m_event.remove());
+    ignore_exp(stop());
 }
 
 void
 event::start (event_handler &&_handler)
 {
+    arg_check(_handler);
     check(m_stopped);
 
     m_event_handler = std::move(_handler);
-    m_event.set_read_handler(std::bind(&event::on_event, this));
-    m_event.start();
+    m_event->set_read_handler(std::bind(&event::on_event, this));
+    m_loop->register_event(m_event);
     m_stopped = false;
 }
 
@@ -54,7 +54,7 @@ event::update ()
 {
     check(!m_stopped);
 
-    m_event.update();
+    m_loop->update_event(m_event);
 }
 
 void
@@ -84,9 +84,9 @@ event::notify (std::error_code &_ec) KNGIN_NOEXP
 void
 event::stop ()
 {
-    check(!m_stopped);
-
-    m_event.remove();
+    if (m_stopped)
+        return;
+    m_loop->remove_event(m_event);
     m_stopped = true;
 }
 
@@ -100,7 +100,7 @@ event::on_event ()
     std::error_code _ec;
     size_t _ret = this->readn(_buf, _ec); // blocked
     if (m_event_handler)
-        ignore_exp(m_event_handler(_ec));
+        ignore_exp(m_event_handler());
 }
 
 KNGIN_NAMESPACE_K_END

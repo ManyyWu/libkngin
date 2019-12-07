@@ -22,7 +22,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
     try
     : m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)), 
-      m_event(m_loop, &m_socket),
+      m_event(std::make_shared<epoller_event>(m_loop, m_socket.fd())),
       m_connected(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
@@ -41,14 +41,14 @@ session::session (event_loop &_loop, k::socket &&_socket,
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
     sockopts::set_ooblinline(m_socket, false);
-    m_event.set_read_handler(std::bind(&session::on_read, this));
-    m_event.set_write_handler(std::bind(&session::on_write, this));
-    m_event.set_oob_handler(std::bind(&session::on_oob, this));
-    m_event.set_error_handler(std::bind(&session::on_error, this));
-    m_event.disable_write();
-    m_event.disable_read();
-    m_event.disable_oob();
-    m_event.start();
+    m_event->set_read_handler(std::bind(&session::on_read, this));
+    m_event->set_write_handler(std::bind(&session::on_write, this));
+    m_event->set_oob_handler(std::bind(&session::on_oob, this));
+    m_event->set_error_handler(std::bind(&session::on_error, this));
+    m_event->disable_write();
+    m_event->disable_read();
+    m_event->disable_oob();
+    m_loop->register_event(m_event);
 } catch (...) {
     log_fatal("session::session() error");
     throw;
@@ -74,8 +74,8 @@ session::send (out_buffer_ptr _buf)
     {
         local_lock _lock(m_mutex);
         m_out_bufq.push_front(_buf);
-        m_event.enable_write();
-        m_event.update();
+        m_event->enable_write();
+        m_loop->update_event(m_event);
     }
 
     if (m_loop->in_loop_thread())
@@ -92,8 +92,8 @@ session::recv (in_buffer_ptr _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALL
 {
     check(m_connected);
 
-    m_event.enable_read();
-    m_event.update();
+    m_event->enable_read();
+    m_loop->update_event(m_event);
 
     m_in_buf = _buf;
     m_callback_lowat = _lowat;
@@ -166,7 +166,7 @@ session::on_write ()
 {
     if (!m_connected)
         return;
-    if_not (m_event.pollout())
+    if_not (m_event->pollout())
         return;
     m_loop->check_thread();
 
@@ -209,8 +209,8 @@ session::on_write ()
             local_lock _lock(m_mutex);
             m_out_bufq.pop_back();
             if (m_out_bufq.empty()) {
-                m_event.disable_write();
-                m_event.update();
+                m_event->disable_write();
+                m_loop->update_event(m_event);
             }
         }
         if (m_sent_handler)
@@ -225,7 +225,7 @@ session::on_read ()
         return;
     if (!m_connected)
         return;
-    if_not (m_event.pollin())
+    if_not (m_event->pollin())
         return;
     m_loop->check_thread();
 
@@ -257,8 +257,8 @@ session::on_read ()
             return;
 
         // read done
-        m_event.disable_read();
-        m_event.update();
+        m_event->disable_read();
+        m_loop->update_event(m_event);
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_handler)
@@ -273,7 +273,7 @@ session::on_oob ()
 {
     if (!m_connected)
         return;
-    if_not (m_event.pollpri())
+    if_not (m_event->pollpri())
         return;
     m_loop->check_thread();
 
@@ -329,7 +329,7 @@ session::on_close (std::error_code _ec)
     check(m_connected);
     m_loop->check_thread();
 
-    m_event.remove();
+    m_loop->remove_event(m_event);
     m_socket.close();
     m_in_buf = nullptr;
     m_connected = false;

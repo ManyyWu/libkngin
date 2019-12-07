@@ -12,7 +12,9 @@ class timer : public filefd {
 public:
     typedef event_loop::event_loop_pimpl_ptr      event_loop_pimpl_ptr;
 
-    typedef std::function<void (std::error_code)> timer_handler;
+    typedef event_loop::epoller_event_ptr         epoller_event_ptr;
+
+    typedef std::function<void (void)>            timer_handler;
 
 public:
     timer        () = delete;
@@ -50,7 +52,7 @@ private:
 
     timer_handler        m_timeout_handler;
 
-    epoller_event        m_event;
+    epoller_event_ptr    m_event;
 
     std::atomic<bool>    m_stopped;
 };

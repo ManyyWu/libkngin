@@ -20,7 +20,7 @@ timer::timer (event_loop_pimpl_ptr _loop)
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
       m_timeout_handler(nullptr),
-      m_event(_loop, this),
+      m_event(std::make_shared<epoller_event>(m_loop, m_fd)),
       m_stopped(true)
 {
     check(_loop);
@@ -33,8 +33,7 @@ timer::timer (event_loop_pimpl_ptr _loop)
 
 timer::~timer () KNGIN_NOEXP
 {
-    if (!m_stopped)
-        ignore_exp(m_event.remove());
+    ignore_exp(stop());
 }
 
 void
@@ -46,17 +45,18 @@ timer::start (timer_handler &&_timeout_handler, timestamp _val, timestamp _inter
 
     m_timeout_handler = std::move(_timeout_handler);
     set_time(_val, _interval, _abs);
-    m_event.set_read_handler(std::bind(&timer::on_timeout, this));
-    m_event.start();
+    m_event->set_read_handler(std::bind(&timer::on_timeout, this));
+    m_loop->register_event(m_event);
     m_stopped = false;
 }
 
 void
 timer::stop ()
 {
-    check(!m_stopped);
+    if (m_stopped)
+        return;
 
-    m_event.remove();
+    m_loop->remove_event(m_event);
     m_stopped = true;
 }
 
@@ -93,10 +93,9 @@ timer::on_timeout ()
 
     char _arr[8];
     in_buffer _buf(_arr, 8);
-    std::error_code _ec;
-    size_t _ret = this->readn(_buf, _ec); // blocked
+    size_t _ret = this->readn(_buf); // blocked
     if (m_timeout_handler)
-        ignore_exp(m_timeout_handler(_ec));
+        ignore_exp(m_timeout_handler());
 }
 
 KNGIN_NAMESPACE_K_END

@@ -16,6 +16,8 @@ class listener : public noncopyable {
 public:
     typedef std::shared_ptr<event_loop>           event_loop_ptr;
 
+    typedef event_loop::epoller_event_ptr         epoller_event_ptr;
+
     typedef event_loop::event_loop_pimpl_ptr      event_loop_pimpl_ptr;
 
     typedef std::function<void (k::socket &&)>    accept_handler;
@@ -69,7 +71,7 @@ private:
 
     k::socket            m_socket;
 
-    epoller_event        m_event;
+    epoller_event_ptr    m_event;
 
     std::atomic<bool>    m_closed;
 

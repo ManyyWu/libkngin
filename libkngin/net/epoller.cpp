@@ -22,11 +22,9 @@ KNGIN_NAMESPACE_K_BEGIN
 epoller::epoller (event_loop_pimpl_ptr _loop)
     try
     :
-#ifndef NDEBUG
-      m_fd_set(),
-      m_mutex(),
-#endif
       m_loop_pimpl(std::move(_loop)),
+      m_events(),
+      m_mutex(),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
     if (nullptr == m_loop_pimpl)
@@ -62,16 +60,52 @@ void
 epoller::close ()
 {
     check(m_epollfd.valid());
-#ifndef NDEBUG
-    if (!m_fd_set.empty())
-        log_warning("there are still have %" PRIu64
-                    " undeleted fd in epoller", m_fd_set.size());
-#endif
     m_epollfd.close();
+    if (m_events.size())
+        log_warning("there are still have %" PRIu64
+                    " undeleted fd in epoller", m_events.size());
 }
 
 void
-epoller::update_event (int _opt, epoller_event *_e)
+epoller::register_event (epoller_event_ptr _e)
+{
+    {
+        local_lock _lock(m_mutex);
+#ifdef NDEBUG
+        check(m_events.find(_e.fd()) = m_events.end());
+#endif
+        ;
+        update_event(EPOLL_CTL_ADD, _e->fd(), (m_events[_e->fd()] = _e).get());
+    }
+}
+
+void
+epoller::remove_event (epoller_event_ptr &_e)
+{
+    {
+        local_lock _lock(m_mutex);
+#ifdef NDEBUG
+        check(m_events.find(_e.fd()) != m_events.end());
+#endif
+        update_event(EPOLL_CTL_DEL, _e->fd(), m_events.at(_e->fd()).get());
+        m_events.erase(_e->fd());
+    }
+}
+
+void
+epoller::modify_event (epoller_event_ptr &_e)
+{
+    {
+        local_lock _lock(m_mutex);
+#ifdef NDEBUG
+        check(m_events.find(_e.fd()) != m_events.end());
+#endif
+        update_event(EPOLL_CTL_MOD, _e->fd(), m_events.at(_e->fd()).get());
+    }
+}
+
+void
+epoller::update_event (int _opt, int _fd, epoller_event *_e)
 {
     /*
     * NOTES:
@@ -87,31 +121,10 @@ epoller::update_event (int _opt, epoller_event *_e)
     * in another thread has no effect on select().  In summary, any application that relies on a
     * particular behavior in this scenario must be considered buggy.
     */
-    arg_check(_e);
     check(m_epollfd.valid());
 
-    int _fd = _e->m_filefd->fd();
-#ifndef NDEBUG
-    {
-        local_lock _lock(m_mutex);
-        auto _iter = m_fd_set.find(_fd);
-        if (EPOLL_CTL_DEL ==  _opt || EPOLL_CTL_MOD ==  _opt) {
-            check(_iter != m_fd_set.end());
-            if (EPOLL_CTL_DEL ==  _opt)
-                m_fd_set.erase(_fd);
-        } else if (EPOLL_CTL_ADD ==  _opt) {
-            check(_iter == m_fd_set.end());
-            m_fd_set.insert(_fd);
-        } else {
-            check(!"invalid epoll_ctl option");
-        }
-    }
-#endif
-
-    // FIXME: you must ensure that the life cycle of filefd is greater than the epoller
     _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
-    //log_debug("epoll_ctl: %d, %d, %d", _opt, _fd, _e->m_event.events);
-    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0)
+    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &(_e->m_event)) < 0)
         throw k::system_error("::epoll_ctl() error");
 }
 

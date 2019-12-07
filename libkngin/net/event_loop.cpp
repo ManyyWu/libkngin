@@ -81,7 +81,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         m_waker = std::make_shared<event>(self());
         m_waker->set_nonblock(false);
         m_waker->set_closeexec(true);
-        m_waker->start(nullptr);
+        m_waker->start([] () {});
         if (_start_handler)
             ignore_exp(_start_handler());
 
@@ -95,8 +95,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
             // process events
             for (uint32_t i = 0; i < _size; ++i)
-                static_cast<epoller_event *>(m_events[i].data.ptr)
-                    ->on_events(m_events[i].events);
+                static_cast<epoller_event *>(m_events[i].data.ptr)->on_events(m_events[i].events);
 
             // process queued events
             std::deque<task> _fnq;
@@ -170,14 +169,14 @@ event_loop_pimpl::in_loop_thread () const KNGIN_NOEXP
 }
 
 void
-event_loop_pimpl::add_event (epoller_event &_e)
+event_loop_pimpl::register_event (epoller_event_ptr &_e)
 {
     check(m_looping);
     check(m_epoller);
     check(m_waker);
 
     log_exp_error(
-        m_epoller->register_event(&_e),
+        m_epoller->register_event(_e),
         "epoller::register_event() erorr"
     );
     if (!in_loop_thread())
@@ -185,14 +184,14 @@ event_loop_pimpl::add_event (epoller_event &_e)
 }
 
 void
-event_loop_pimpl::remove_event (epoller_event &_e)
+event_loop_pimpl::remove_event (epoller_event_ptr &_e)
 {
     check(m_looping);
     check(m_epoller);
     check(m_waker);
 
     log_exp_error(
-        m_epoller->remove_event(&_e),
+        m_epoller->remove_event(_e),
         "epoller::remove_event() erorr"
     );
     if (!in_loop_thread())
@@ -200,14 +199,14 @@ event_loop_pimpl::remove_event (epoller_event &_e)
 }
 
 void
-event_loop_pimpl::update_event (epoller_event &_e)
+event_loop_pimpl::update_event (epoller_event_ptr &_e)
 {
     check(m_looping);
     check(m_epoller);
     check(m_waker);
 
     log_exp_error(
-        m_epoller->modify_event(&_e),
+        m_epoller->modify_event(_e),
         "epoller::modify_event() erorr"
     );
     if (!in_loop_thread())
