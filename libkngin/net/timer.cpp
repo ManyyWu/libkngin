@@ -20,7 +20,7 @@ timer::timer (event_loop_pimpl_ptr _loop)
     : filefd(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
       m_loop(_loop),
       m_timeout_handler(nullptr),
-      m_event(std::make_shared<epoller_event>(m_loop, m_fd)),
+      m_event(std::make_shared<epoller_event>(*this)),
       m_stopped(true)
 {
     check(_loop);

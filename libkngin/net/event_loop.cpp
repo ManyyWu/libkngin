@@ -20,7 +20,7 @@ event_loop_pimpl::event_loop_pimpl ()
     try
     : m_thr(nullptr),
       m_ptid(thread::ptid()),
-      m_epoller(nullptr),
+      m_epoller(),
       m_waker(nullptr),
       m_looping(false),
       m_stop(false),
@@ -40,7 +40,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
     try
     : m_thr(_thr.pimpl()),
       m_ptid(), // unused
-      m_epoller(nullptr),
+      m_epoller(),
       m_waker(nullptr),
       m_looping(false),
       m_stop(false),
@@ -77,7 +77,6 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     m_looping = true;
 
     try {
-        m_epoller = std::make_shared<epoller>(self());
         m_waker = std::make_shared<event>(self());
         m_waker->set_nonblock(false);
         m_waker->set_closeexec(true);
@@ -87,7 +86,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
         while (!m_stop) {
             // wait for events
-            uint32_t _size = m_epoller->wait(m_events, EPOLLER_TIMEOUT);
+            uint32_t _size = m_epoller.wait(m_events, EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
             //log_debug("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
@@ -135,7 +134,6 @@ event_loop_pimpl::stop ()
 {
     if (!m_looping)
         return;
-    check(m_epoller);
     check(m_waker);
 
     m_stop = true;
@@ -172,11 +170,10 @@ void
 event_loop_pimpl::register_event (epoller_event_ptr &_e)
 {
     check(m_looping);
-    check(m_epoller);
     check(m_waker);
 
     log_exp_error(
-        m_epoller->register_event(_e),
+        m_epoller.register_event(_e),
         "epoller::register_event() erorr"
     );
     if (!in_loop_thread())
@@ -187,11 +184,10 @@ void
 event_loop_pimpl::remove_event (epoller_event_ptr &_e)
 {
     check(m_looping);
-    check(m_epoller);
     check(m_waker);
 
     log_exp_error(
-        m_epoller->remove_event(_e),
+        m_epoller.remove_event(_e),
         "epoller::remove_event() erorr"
     );
     if (!in_loop_thread())
@@ -202,11 +198,10 @@ void
 event_loop_pimpl::update_event (epoller_event_ptr &_e)
 {
     check(m_looping);
-    check(m_epoller);
     check(m_waker);
 
     log_exp_error(
-        m_epoller->modify_event(_e),
+        m_epoller.modify_event(_e),
         "epoller::modify_event() erorr"
     );
     if (!in_loop_thread())
@@ -217,7 +212,6 @@ void
 event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
 {
     check(m_looping);
-    check(m_epoller);
     check(m_waker);
     if (!_fn)
         return;
@@ -234,13 +228,8 @@ event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
 void
 event_loop_pimpl::wakeup ()
 {
-    if (!m_looping)
-        return;
-    if (!m_epoller)
-        return;
-    if (!m_waker)
-        return;
-    if (m_waker->stopped())
+    check(m_looping);
+    if (!m_waker || m_waker->stopped())
         return;
     //log_debug("wakeup event_loop in thread \"%s\"",
     //          m_thr ? m_thr->name() : "");

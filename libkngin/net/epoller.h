@@ -30,10 +30,7 @@ public:
     typedef std::vector<struct epoll_event>            epoll_event_set;
 
 public:
-    epoller        () = delete;
-
-    explicit
-    epoller        (event_loop_pimpl_ptr _loop);
+    epoller        ();
 
     ~epoller       () KNGIN_NOEXP;
 
@@ -57,6 +54,9 @@ public:
     { return !m_epollfd.valid(); }
 
 public:
+    bool
+    registed       (int _fd) KNGIN_NOEXP;
+
     void
     register_event (epoller_event_ptr _e);
 
@@ -66,12 +66,11 @@ public:
     void
     modify_event   (epoller_event_ptr &_e);
 
+private:
     void
     update_event   (int _opt, int _fd, epoller_event *_e);
 
-protected:
-    event_loop_pimpl_ptr m_loop_pimpl;
-
+private:
     epoller_event_map    m_events;
 
     mutex                m_mutex;

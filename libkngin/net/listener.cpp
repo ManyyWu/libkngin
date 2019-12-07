@@ -14,7 +14,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket)
     try
     : m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)),
-      m_event(std::make_shared<epoller_event>(m_loop, m_socket.fd())),
+      m_event(std::make_shared<epoller_event>(m_socket)),
       m_closed(true),
       m_listen_addr(),
       m_accept_handler(nullptr),

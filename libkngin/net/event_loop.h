@@ -31,8 +31,6 @@ public:
 
     typedef std::function<void (void)>     task;
 
-    typedef std::shared_ptr<epoller>       epoller_ptr;
-
     typedef std::shared_ptr<event>         waker_ptr;
 
     typedef epoller::epoller_event_ptr     epoller_event_ptr;
@@ -92,7 +90,7 @@ private:
 
     pthread_t                m_ptid;
 
-    epoller_ptr              m_epoller;
+    epoller                  m_epoller;
 
     waker_ptr                m_waker;
 

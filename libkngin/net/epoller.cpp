@@ -19,16 +19,12 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller::epoller (event_loop_pimpl_ptr _loop)
+epoller::epoller ()
     try
-    :
-      m_loop_pimpl(std::move(_loop)),
-      m_events(),
+    : m_events(),
       m_mutex(),
       m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
 {
-    if (nullptr == m_loop_pimpl)
-        throw k::exception("invalid argument");
     if (!m_epollfd.valid())
         throw k::system_error("::epoll_create1() error");
 } catch (...) {
@@ -66,13 +62,22 @@ epoller::close ()
                     " undeleted fd in epoller", m_events.size());
 }
 
+bool
+epoller::registed (int _fd) KNGIN_NOEXP
+{
+    {
+        local_lock _lock(m_mutex);
+        return (m_events.find(_fd) != m_events.end());
+    }
+}
+
 void
 epoller::register_event (epoller_event_ptr _e)
 {
     {
         local_lock _lock(m_mutex);
 #ifdef NDEBUG
-        check(m_events.find(_e.fd()) = m_events.end());
+        assert(m_events.find(_e.fd()) == m_events.end());
 #endif
         ;
         update_event(EPOLL_CTL_ADD, _e->fd(), (m_events[_e->fd()] = _e).get());
@@ -85,7 +90,7 @@ epoller::remove_event (epoller_event_ptr &_e)
     {
         local_lock _lock(m_mutex);
 #ifdef NDEBUG
-        check(m_events.find(_e.fd()) != m_events.end());
+        assert(m_events.find(_e.fd()) != m_events.end());
 #endif
         update_event(EPOLL_CTL_DEL, _e->fd(), m_events.at(_e->fd()).get());
         m_events.erase(_e->fd());
@@ -98,7 +103,7 @@ epoller::modify_event (epoller_event_ptr &_e)
     {
         local_lock _lock(m_mutex);
 #ifdef NDEBUG
-        check(m_events.find(_e.fd()) != m_events.end());
+        assert(m_events.find(_e.fd()) != m_events.end());
 #endif
         update_event(EPOLL_CTL_MOD, _e->fd(), m_events.at(_e->fd()).get());
     }
@@ -122,6 +127,7 @@ epoller::update_event (int _opt, int _fd, epoller_event *_e)
     * particular behavior in this scenario must be considered buggy.
     */
     check(m_epollfd.valid());
+    // param _e must be get from m_events
 
     _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
     if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &(_e->m_event)) < 0)

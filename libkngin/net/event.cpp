@@ -21,7 +21,7 @@ event::event (event_loop_pimpl_ptr _loop)
     : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       m_loop(_loop),
       m_event_handler(nullptr),
-      m_event(std::make_shared<epoller_event>(m_loop, m_fd)),
+      m_event(std::make_shared<epoller_event>(*this)),
       m_stopped(true)
 {
     arg_check(m_loop);

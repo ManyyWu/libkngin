@@ -20,8 +20,6 @@ class event_loop;
 class event_loop_pimpl;
 class epoller_event : public noncopyable {
 public:
-    typedef std::shared_ptr<event_loop_pimpl>     event_loop_pimpl_ptr;
-
     typedef std::function<void (void)>            epoller_event_handler;
 
     typedef std::function<void (std::error_code)> epoller_close_handler;
@@ -31,9 +29,9 @@ public:
 public:
     epoller_event  () = delete;
 
-    epoller_event  (event_loop_pimpl_ptr _loop, int _fd);
+    epoller_event  (int _fd) KNGIN_NOEXP;
 
-    ~epoller_event () KNGIN_NOEXP {}
+    ~epoller_event () = default;
 
 public:
     int
@@ -91,9 +89,7 @@ private:
     on_events      (uint32_t _events);
 
 private:
-    event_loop_pimpl_ptr  m_loop;
-
-    int                   m_fd;
+    epollfd               m_fd;
 
     uint32_t              m_flags;
 

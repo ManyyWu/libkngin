@@ -99,10 +99,9 @@ io_threadpool::next_loop ()
     {
         local_lock _lock(m_mutex);
         size_t _size = m_threads.size();
-        arg_check(_size);
+        check(_size);
         if (m_next >= _size)
-            m_next = 0;
-        //    m_next = (std::min<size_t>)(_size - 1, 1);
+            m_next = std::max<size_t>(_size - 1, 0);
         return *(m_threads[m_next++]->get_loop());
     }
 }
