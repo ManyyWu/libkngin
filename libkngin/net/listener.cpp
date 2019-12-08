@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::pimpl::pimpl (event_loop &_loop, k::socket &&_socket)
+listener::listener (event_loop &_loop, k::socket &&_socket)
     try
     : epoller_event(_socket.dup()),
       m_loop(_loop.pimpl()),
@@ -34,7 +34,7 @@ listener::pimpl::pimpl (event_loop &_loop, k::socket &&_socket)
     throw;
 }
 
-listener::pimpl::~pimpl () KNGIN_NOEXP
+listener::~listener () KNGIN_NOEXP
 {
     if (!m_closed)
         ignore_exp(this->close(true));
@@ -43,7 +43,7 @@ listener::pimpl::~pimpl () KNGIN_NOEXP
 }
 
 void
-listener::pimpl::bind (const address &_listen_addr)
+listener::bind (const address &_listen_addr)
 {
     check(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr);
@@ -51,7 +51,7 @@ listener::pimpl::bind (const address &_listen_addr)
 }
 
 void
-listener::pimpl::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
+listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
 {
     check(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr, _ec);
@@ -59,7 +59,7 @@ listener::pimpl::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_
 }
 
 void
-listener::pimpl::listen (int _backlog,
+listener::listen (int _backlog,
                          accept_handler &&_new_ssesion_handler,
                          close_handler &&_close_handler)
 {
@@ -70,7 +70,7 @@ listener::pimpl::listen (int _backlog,
 }
 
 void
-listener::pimpl::listen (int _backlog, std::error_code &_ec,
+listener::listen (int _backlog, std::error_code &_ec,
                          accept_handler &&_new_sesssion_handler,
                          close_handler &&_close_handler) KNGIN_NOEXP
 {
@@ -81,7 +81,7 @@ listener::pimpl::listen (int _backlog, std::error_code &_ec,
 }
 
 void
-listener::pimpl::close (bool _blocking /* = true */)
+listener::close (bool _blocking /* = true */)
 {
     check(!m_closed);
 
@@ -112,7 +112,7 @@ listener::pimpl::close (bool _blocking /* = true */)
 }
 
 void
-listener::pimpl::on_read ()
+listener::on_read ()
 {
     if (m_closed)
         return;
@@ -155,7 +155,7 @@ listener::pimpl::on_read ()
 }
 
 void
-listener::pimpl::on_error ()
+listener::on_error ()
 {
     check(!m_closed);
     m_loop->check_thread();
@@ -164,7 +164,7 @@ listener::pimpl::on_error ()
 }
 
 void
-listener::pimpl::on_close (std::error_code _ec)
+listener::on_close (std::error_code _ec)
 {
     check(!m_closed);
     m_loop->check_thread();

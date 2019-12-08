@@ -67,7 +67,7 @@ server::run ()
                                  std::placeholders::_1),
                        std::bind(&server::on_listener_close,
                                  this, std::placeholders::_1));
-    m_threadpool.get_loop(0).register_event(m_listener->pimpl());
+    m_threadpool.get_loop(0).register_event(m_listener);
     log_info("listening for [%s:%d]",
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
 
