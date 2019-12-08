@@ -2,31 +2,30 @@
 #define _TIMER_H_
 
 #include <memory>
+#include <functional>
 #include "core/define.h"
 #include "core/timestamp.h"
-#include "net/filefd.h"
 #include "net/epoller_event.h"
-#include "net/event_loop.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class timer {
+class event_loop;
+class event_loop_pimpl;
+class timer : public noncopyable {
 public:
-    typedef event_loop::event_loop_pimpl_ptr event_loop_pimpl_ptr;
+    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
 
-    typedef event_loop::epoller_event_ptr    epoller_event_ptr;
+    typedef std::function<void (void)>        timeout_handler;
 
-    typedef std::function<void (void)>       timeout_handler;
-
-public:
-    class pimpl: public epoller_event,
-                 public std::enable_shared_from_this<timer::pimpl> {
+private:
+    class pimpl
+        : public epoller_event,
+          public std::enable_shared_from_this<timer::pimpl> {
     public:
         pimpl    () = delete;
 
-        explicit
-        pimpl    (const event_loop_pimpl_ptr &_loop, 
-                  const timeout_handler &&_timeout_handler);
+        pimpl    (event_loop_pimpl_ptr _loop,
+                  timeout_handler &&_timeout_handler);
 
         virtual
         ~pimpl   () KNGIN_NOEXP;
@@ -40,7 +39,7 @@ public:
 
     public:
         event_loop_pimpl_ptr &
-        loop     ()
+        loop     () KNGIN_NOEXP
         { return m_loop; }
 
         std::shared_ptr<timer::pimpl>
@@ -52,7 +51,7 @@ public:
         on_read  ();
 
         virtual void
-        on_error  ();
+        on_error ();
 
     private:
         event_loop_pimpl_ptr m_loop;
@@ -67,10 +66,7 @@ public:
 public:
     timer      () = delete;
 
-    explicit
-    timer      (const event_loop_pimpl_ptr &_loop, 
-                const timeout_handler &&_timeout_handler)
-        : m_pimpl(std::make_shared<timer::pimpl>(_loop, std::move(_timeout_handler))) {} 
+    timer      (event_loop &_loop, timeout_handler &&_timeout_handler);
 
     virtual
     ~timer     () KNGIN_NOEXP {}
@@ -82,10 +78,18 @@ public:
 
     void
     set_time   (timestamp _val, timestamp _interval, bool _abs = false)
-    { set_time(_val, _interval, _abs); }
+    { m_pimpl->set_time(_val, _interval, _abs); }
+
+private:
+    timer_pimpl_ptr
+    pimpl      ()
+    { return m_pimpl; }
 
 private:
     timer_pimpl_ptr m_pimpl;
+
+private:
+    friend class epoller;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -30,11 +30,6 @@ filefd::filefd (filefd &&_fd) KNGIN_NOEXP
 
 filefd::~filefd() KNGIN_NOEXP
 {
-    std::error_code _ec;
-    close(_ec);
-    if (_ec)
-        log_error("::close() error, fd = %d, %s", m_fd, 
-                  system_error_str(_ec).c_str());
 }
 
 size_t
@@ -232,6 +227,26 @@ filefd::close (std::error_code &_ec) KNGIN_NOEXP
         return;
     _ec = (::close(m_fd) < 0) ? last_error() : std::error_code();
     m_fd = filefd::invalid_fd;
+}
+
+int
+filefd::dup ()
+{
+    int _new_fd = ::dup(m_fd);
+    if (_new_fd < 0)
+        throw k::system_error("::dup() error");
+}
+
+int
+filefd::dup (std::error_code &_ec)
+{
+    int _new_fd = ::dup(m_fd);
+    if (_new_fd < 0) {
+        _ec = last_error();
+        return filefd::invalid_fd;
+    }
+    _ec = std::error_code();
+    return _new_fd;
 }
 
 std::error_code

@@ -22,6 +22,7 @@ server::server (const server_opts &_opts)
       m_oob_handler(nullptr),
       m_close_handler(nullptr),
       m_stopped(true),
+      m_stopping(false),
       m_mutex()
 {
     if (_opts.disable_debug)
@@ -51,10 +52,7 @@ server::run ()
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
 
     // start listener
-    m_listener = std::make_shared<listener>((m_opts.separate_listen_thread
-                                             ? m_threadpool.get_loop(0)
-                                             : m_threadpool.next_loop()
-                                             ), 
+    m_listener = std::make_shared<listener>(m_threadpool.get_loop(0),
                                             std::move(_listener_sock));
 
     // init address
@@ -66,11 +64,11 @@ server::run ()
     // listen
     m_listener->listen(m_opts.backlog, 
                        std::bind(&server::on_new_session, this,
-                                 std::placeholders::_1
-                                 ),
+                                 std::placeholders::_1),
                        std::bind(&server::on_listener_close,
                                  this, std::placeholders::_1));
-    log_info("listening for [%s:%d]", 
+    m_threadpool.get_loop(0).register_event(m_listener->pimpl());
+    log_info("listening for [%s:%d]",
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
 
     m_stopped = false;
@@ -86,9 +84,11 @@ server::stop ()
 
     m_listener->close(true);
     {
+        m_stopping = true;
         local_lock _lock(m_mutex);
         for (auto _iter : m_sessions)
             _iter.second->close(true);
+        m_sessions.clear();
     }
     if (!m_stopped)
         m_threadpool.stop();
@@ -171,6 +171,7 @@ server::on_new_session (socket &&_sock)
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
+        _next_loop.register_event(_session);
     } catch (const std::exception &_e) {
         log_error("caught an exception when accepting new session, %s", _e.what());
         throw;
@@ -203,9 +204,11 @@ server::on_session_close (const session &_session, std::error_code _ec)
     if (m_close_handler)
         ignore_exp(m_close_handler(std::cref(_session), _ec));
 
+    if (!m_stopping)
     {
         local_lock _lock(m_mutex);
         m_sessions.erase(_session.serial());
+        log_debug("size = %lld", m_sessions.size());
     }
 }
 

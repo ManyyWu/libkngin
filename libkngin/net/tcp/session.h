@@ -21,7 +21,10 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 #define KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT SIZE_MAX
 
-class session : public noncopyable {
+
+class session
+    : public epoller_event,
+      public std::enable_shared_from_this<session> {
 public:
     typedef std::function<void (const session &, std::error_code)> close_handler;
 
@@ -38,12 +41,6 @@ public:
     typedef std::shared_ptr<out_buffer>                            out_buffer_ptr;
 
     typedef std::deque<out_buffer_ptr>                             out_buffer_queue;
-
-    typedef std::shared_ptr<event_loop>                            event_loop_ptr;
-
-    typedef event_loop::epoller_event_ptr                          epoller_event_ptr;
-
-    typedef event_loop::event_loop_pimpl_ptr                       event_loop_pimpl_ptr;
 
 public:
     session         () = delete;
@@ -131,6 +128,24 @@ public:
     check_thread    () const KNGIN_NOEXP
     { m_loop->check_thread(); }
 
+public:
+    event_loop_pimpl_ptr &
+    loop          () KNGIN_NOEXP
+    { return m_loop; }
+
+    std::shared_ptr<session>
+    self     ()
+    { return shared_from_this(); }
+
+private:
+    uint64_t
+    next_serial     ()
+    { return m_next_serial++; }
+
+    k::socket &
+    socket          ()
+    { return m_socket; }
+
 private:
     void
     on_write        ();
@@ -148,20 +163,9 @@ private:
     on_close        (std::error_code _ec);
 
 private:
-    uint64_t
-    next_serial     ()
-    { return m_next_serial++; }
-
-    k::socket &
-    socket          ()
-    { return m_socket; }
-
-private:
     event_loop_pimpl_ptr m_loop;
 
     k::socket            m_socket;
-
-    epoller_event_ptr    m_event;
 
     std::atomic<bool>    m_connected;
 

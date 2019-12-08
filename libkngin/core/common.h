@@ -95,7 +95,7 @@ is_nullptr_ref (Type &_ref) KNGIN_NOEXP
 // for std::shared_ptr
 template <typename Type>
 inline bool
-single_ref_ptr (std::shared_ptr<Type> &_ptr)
+is_single_ref_ptr (std::shared_ptr<Type> &_ptr)
 {
     return (1 == _ptr.use_count());
 }

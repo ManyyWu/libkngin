@@ -10,11 +10,11 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::listener (event_loop &_loop, k::socket &&_socket)
+listener::pimpl::pimpl (event_loop &_loop, k::socket &&_socket)
     try
-    : m_loop(_loop.pimpl()),
+    : epoller_event(_socket.dup()),
+      m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)),
-      m_event(std::make_shared<epoller_event>(m_socket)),
       m_closed(true),
       m_listen_addr(),
       m_accept_handler(nullptr),
@@ -27,13 +27,14 @@ listener::listener (event_loop &_loop, k::socket &&_socket)
     m_socket.set_closeexec(true);
     sockopts::set_reuseaddr(m_socket, true);
     sockopts::set_reuseport(m_socket, true);
+    enable_read();
     m_closed = false;
 } catch (...) {
     log_fatal("listener::listener() error");
     throw;
 }
 
-listener::~listener() KNGIN_NOEXP
+listener::pimpl::~pimpl () KNGIN_NOEXP
 {
     if (!m_closed)
         ignore_exp(this->close(true));
@@ -42,7 +43,7 @@ listener::~listener() KNGIN_NOEXP
 }
 
 void
-listener::bind (const address &_listen_addr)
+listener::pimpl::bind (const address &_listen_addr)
 {
     check(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr);
@@ -50,7 +51,7 @@ listener::bind (const address &_listen_addr)
 }
 
 void
-listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
+listener::pimpl::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
 {
     check(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr, _ec);
@@ -58,34 +59,29 @@ listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
 }
 
 void
-listener::listen (int _backlog, accept_handler &&_new_ssesion_handler, 
-                  close_handler &&_close_handler)
+listener::pimpl::listen (int _backlog,
+                         accept_handler &&_new_ssesion_handler,
+                         close_handler &&_close_handler)
 {
     check(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
     m_close_handler = std::move(_close_handler);
-    m_event->set_read_handler(std::bind(&listener::on_accept, this));
-    m_event->set_error_handler(std::bind(&listener::on_error, this));
     m_socket.listen(_backlog);
-    m_loop->register_event(m_event);
 }
 
 void
-listener::listen (int _backlog, std::error_code &_ec, 
-                  accept_handler &&_new_sesssion_handler, 
-                  close_handler &&_close_handler) KNGIN_NOEXP
+listener::pimpl::listen (int _backlog, std::error_code &_ec,
+                         accept_handler &&_new_sesssion_handler,
+                         close_handler &&_close_handler) KNGIN_NOEXP
 {
     check(!m_closed);
     m_accept_handler = std::move(_new_sesssion_handler); 
     m_close_handler = std::move(_close_handler);
-    m_event->set_read_handler(std::bind(&listener::on_accept, this));
-    m_event->set_error_handler(std::bind(&listener::on_error, this));
     m_socket.listen(_backlog, _ec);
-    m_loop->register_event(m_event);
 }
 
 void
-listener::close (bool _blocking /* = true */)
+listener::pimpl::close (bool _blocking /* = true */)
 {
     check(!m_closed);
 
@@ -94,6 +90,7 @@ listener::close (bool _blocking /* = true */)
         m_closed = true;
         return;
     }
+    m_loop->remove_event(self());
     if (m_loop->in_loop_thread()) {
         on_close(std::error_code());
     } else {
@@ -115,7 +112,7 @@ listener::close (bool _blocking /* = true */)
 }
 
 void
-listener::on_accept ()
+listener::pimpl::on_read ()
 {
     if (m_closed)
         return;
@@ -158,12 +155,13 @@ listener::on_accept ()
 }
 
 void
-listener::on_close (std::error_code _ec)
+listener::pimpl::on_close (std::error_code _ec)
 {
     check(!m_closed);
     m_loop->check_thread();
 
-    m_loop->remove_event(m_event);
+    if (m_loop->registed(self()))
+        m_loop->remove_event(self());
     m_socket.close();
     m_closed = true;
 
@@ -172,12 +170,12 @@ listener::on_close (std::error_code _ec)
 }
 
 void
-listener::on_error ()
+listener::pimpl::on_error ()
 {
     check(!m_closed);
     m_loop->check_thread();
 
-    on_accept();
+    on_read();
 }
 
 KNGIN_NAMESPACE_K_END

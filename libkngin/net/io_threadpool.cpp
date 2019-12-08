@@ -99,7 +99,7 @@ io_threadpool::next_loop ()
     {
         local_lock _lock(m_mutex);
         size_t _size = m_threads.size();
-        check(_size);
+        assert(_size);
         if (m_next >= _size)
             m_next = std::max<size_t>(_size - 1, 0);
         return *(m_threads[m_next++]->get_loop());
@@ -113,7 +113,7 @@ io_threadpool::get_loop (size_t _idx)
     {
         local_lock _lock(m_mutex);
         size_t _size = m_threads.size();
-        arg_check(_idx < _size);
+        assert(_idx < _size);
         return *(m_threads[_idx]->get_loop());
     }
 }

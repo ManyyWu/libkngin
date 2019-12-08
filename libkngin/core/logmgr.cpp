@@ -22,7 +22,7 @@ log_mgr::log_mgr ()
 
     try {
         // reserved type
-        log *_server_log = new log(KNGIN_LOG_FILE_SERVER, KNGIN_LOG_MODE_BOTH);
+        log *_server_log = new log(KNGIN_LOG_FILE_SERVER, KNGIN_LOG_MODE_STDERR);
         try {
             m_log_set.push_back(_server_log);
         } catch (...) {

@@ -2,11 +2,10 @@
 #else
 #include <sys/eventfd.h>
 #endif
-#include <cstring>
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/event.h"
-#include "net/filefd.h"
+#include "net/epoller_event.h"
 #include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
@@ -16,91 +15,68 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event::event (event_loop_pimpl_ptr _loop)
+event::pimpl::pimpl (event_loop_pimpl_ptr _loop,
+                     event_handler &&_event_handler)
     try
-    : filefd(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
+    : epoller_event(::eventfd(0, EFD_CLOEXEC)),
       m_loop(_loop),
-      m_event_handler(nullptr),
-      m_event(std::make_shared<epoller_event>(*this)),
-      m_stopped(true)
+      m_event_handler(std::move(_event_handler))
 {
     arg_check(m_loop);
     if (FD_INVALID(m_fd))
-        throw k::system_error("event::event() erorr");
+        throw k::system_error("::eventfd() erorr");
+    enable_read();
 } catch (...) {
     log_fatal("event::event() error");
     throw;
 }
 
-event::~event() KNGIN_NOEXP
+event::pimpl::~pimpl() KNGIN_NOEXP
 {
-    ignore_exp(stop());
+    if (is_single_ref_ptr(m_loop))
+        return; // removed
+    ignore_exp(
+        if (m_loop->registed(self()))
+            m_loop->remove_event(self());
+        this->close();
+    );
 }
 
 void
-event::start (event_handler &&_handler)
+event::pimpl::notify ()
 {
-    arg_check(_handler);
-    check(m_stopped);
-
-    m_event_handler = std::move(_handler);
-    m_event->set_read_handler(std::bind(&event::on_event, this));
-    m_loop->register_event(m_event);
-    m_stopped = false;
-}
-
-void
-event::update ()
-{
-    check(!m_stopped);
-
-    m_loop->update_event(m_event);
-}
-
-void
-event::notify ()
-{
-    check(!m_stopped);
-
     char _arr[8];
     in_buffer(_arr, 8).write_uint64(1);
-    std::error_code _ec;
-    size_t _ret = this->writen(out_buffer(_arr, 8), _ec); // blocked
-    if (_ec)
-        throw k::system_error("filefd::write() error");
+    this->writen(out_buffer(_arr, 8)); // blocked
 }
 
 void
-event::notify (std::error_code &_ec) KNGIN_NOEXP
+event::pimpl::on_error ()
 {
-    check(!m_stopped);
-
-    char _arr[8];
-    out_buffer(_arr, 8);
-    in_buffer(_arr, 8).write_uint64(1);
-    this->writen(out_buffer(_arr, 8), _ec); // blocked
+    on_read();
 }
 
 void
-event::stop ()
+event::pimpl::on_read ()
 {
-    if (m_stopped)
-        return;
-    m_loop->remove_event(m_event);
-    m_stopped = true;
-}
-
-void
-event::on_event ()
-{
-    check(!m_stopped);
-
     char _arr[8];
     in_buffer _buf(_arr, 8);
-    std::error_code _ec;
-    size_t _ret = this->readn(_buf, _ec); // blocked
+    this->readn(_buf); // blocked
+
     if (m_event_handler)
         ignore_exp(m_event_handler());
+}
+
+event::event (event_loop_pimpl_ptr _loop, event_handler &&_event_handler)
+    : m_pimpl(std::make_shared<event_pimpl>(
+                  _loop, std::move(_event_handler)))
+{
+}
+
+event::event  (event_loop &_loop, event_handler &&_event_handler)
+    : m_pimpl(std::make_shared<event_pimpl>(
+                  _loop.pimpl(), std::move(_event_handler)))
+{
 }
 
 KNGIN_NAMESPACE_K_END

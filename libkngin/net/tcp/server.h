@@ -124,6 +124,8 @@ protected:
 
     std::atomic<bool> m_stopped;
 
+    std::atomic<bool> m_stopping;
+
     mutex             m_mutex;
 };
 

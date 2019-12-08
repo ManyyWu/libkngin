@@ -43,7 +43,8 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
 {
     check(m_epollfd.valid());
     int _num = ::epoll_wait(m_epollfd.fd(), _list.data(),
-                            (int)_list.size(), (int)_ms.value_int());
+                            static_cast<int>(_list.size()),
+                            static_cast<int>(_ms.value_int()));
     if (_num < 0) {
         if (EINTR == errno)
             return 0;
@@ -76,36 +77,36 @@ epoller::register_event (epoller_event_ptr _e)
 {
     {
         local_lock _lock(m_mutex);
-#ifdef NDEBUG
-        assert(m_events.find(_e.fd()) == m_events.end());
+#ifndef NDEBUG
+        assert(m_events.find(_e->fd()) == m_events.end());
 #endif
-        ;
-        update_event(EPOLL_CTL_ADD, _e->fd(), (m_events[_e->fd()] = _e).get());
+        m_events[_e->fd()] = _e;
+        update_event(EPOLL_CTL_ADD, _e->fd(), _e.get());
     }
 }
 
 void
-epoller::remove_event (epoller_event_ptr &_e)
+epoller::remove_event (epoller_event_ptr _e)
 {
     {
         local_lock _lock(m_mutex);
-#ifdef NDEBUG
-        assert(m_events.find(_e.fd()) != m_events.end());
+#ifndef NDEBUG
+        assert(m_events.find(_e->fd()) != m_events.end());
 #endif
-        update_event(EPOLL_CTL_DEL, _e->fd(), m_events.at(_e->fd()).get());
+        update_event(EPOLL_CTL_DEL, _e->fd(), _e.get());
         m_events.erase(_e->fd());
     }
 }
 
 void
-epoller::modify_event (epoller_event_ptr &_e)
+epoller::modify_event (epoller_event_ptr _e)
 {
     {
         local_lock _lock(m_mutex);
-#ifdef NDEBUG
-        assert(m_events.find(_e.fd()) != m_events.end());
+#ifndef NDEBUG
+        assert(m_events.find(_e->fd()) != m_events.end());
 #endif
-        update_event(EPOLL_CTL_MOD, _e->fd(), m_events.at(_e->fd()).get());
+        update_event(EPOLL_CTL_MOD, _e->fd(), _e.get());
     }
 }
 
@@ -127,7 +128,6 @@ epoller::update_event (int _opt, int _fd, epoller_event *_e)
     * particular behavior in this scenario must be considered buggy.
     */
     check(m_epollfd.valid());
-    // param _e must be get from m_events
 
     _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
     if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &(_e->m_event)) < 0)

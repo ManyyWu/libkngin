@@ -17,12 +17,8 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_loop;
-class event_loop_pimpl;
 class epoller : public noncopyable {
 public:
-    typedef std::shared_ptr<event_loop_pimpl>          event_loop_pimpl_ptr;
-
     typedef std::shared_ptr<epoller_event>             epoller_event_ptr;
 
     typedef std::unordered_map<int, epoller_event_ptr> epoller_event_map;
@@ -61,10 +57,10 @@ public:
     register_event (epoller_event_ptr _e);
 
     void
-    remove_event   (epoller_event_ptr &_e);
+    remove_event   (epoller_event_ptr _e);
 
     void
-    modify_event   (epoller_event_ptr &_e);
+    modify_event   (epoller_event_ptr _e);
 
 private:
     void

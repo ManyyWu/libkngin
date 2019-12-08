@@ -14,17 +14,15 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class epoller;
-class event_loop;
-class event_loop_pimpl;
 class epoller_event : public filefd {
     typedef int epollfd;
 
 public:
     epoller_event  () = delete;
 
+    explicit
     epoller_event  (epollfd _fd) KNGIN_NOEXP;
 
-    explicit
     epoller_event  (epoller_event &&_e) KNGIN_NOEXP;
 
     virtual
@@ -62,31 +60,30 @@ public:
     bool
     pollonce       () const          KNGIN_NOEXP { return (m_flags & EPOLLONESHOT); }
 
-private:
-    void
-    on_events      (uint32_t _events);
+public:
+    static void
+    on_events      (epoller_event *__ptr, uint32_t _events);
 
+private:
     virtual void
     on_error       () = 0;
 
     virtual void
-    on_read        () = 0;
+    on_read        () {};
 
     virtual void
-    on_write       () = 0;
+    on_write       () {};
 
     virtual void
-    on_oob         () = 0;
+    on_oob         () {};
 
 private:
-    uint32_t              m_flags;
+    uint32_t    m_flags;
 
-    epoll_event           m_event;
+    epoll_event m_event;
 
 private:
     friend class epoller;
-
-    friend class event_loop_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

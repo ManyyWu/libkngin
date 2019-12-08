@@ -26,21 +26,21 @@ epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXP
 }
 
 void
-epoller_event::on_events (uint32_t _events)
+epoller_event::on_events (epoller_event *_ptr, uint32_t _events)
 {
     try {
         if (EPOLLHUP & _events) { // RST
-            on_error();
+            _ptr->on_error();
             return;
         }
         if ((EPOLLERR & _events))
-            on_error();
+            _ptr->on_error();
         if ((EPOLLIN & _events))
-            on_read();
+            _ptr->on_read();
         if ((EPOLLOUT & _events))
-            on_write();
+            _ptr->on_write();
         if ((EPOLLPRI & _events))
-            on_oob();
+            _ptr->on_oob();
     } catch (std::exception &_e) {
         log_fatal("caught an exception in epoller_event::on_event(), %s", _e.what());
         throw;

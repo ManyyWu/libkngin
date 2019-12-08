@@ -2,10 +2,11 @@
 #else
 #include <sys/timerfd.h>
 #endif
-#include <cstring>
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/timer.h"
+#include "net/epoller_event.h"
+#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -14,16 +15,17 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::pimpl::pimpl (const event_loop_pimpl_ptr &_loop, 
-                     const timeout_handler &&_timeout_handler)
+timer::pimpl::pimpl (event_loop_pimpl_ptr _loop,
+                     timeout_handler &&_timeout_handler)
     try
-    : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK)),
+    : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC)),
       m_loop(_loop),
-      m_timeout_handler(_timeout_handler)
+      m_timeout_handler(std::move(_timeout_handler))
 {
     arg_check(m_loop && _timeout_handler);
     if (FD_VALID(m_fd))
         throw k::system_error("::timerfd_create() erorr");
+    set_closeexec(true);
 } catch (...) {
     log_fatal("timer::timer() error");
     throw;
@@ -31,14 +33,21 @@ timer::pimpl::pimpl (const event_loop_pimpl_ptr &_loop,
 
 timer::pimpl::~pimpl () KNGIN_NOEXP
 {
+    if (is_single_ref_ptr(m_loop))
+        return; // removed
+    ignore_exp(
+        if (m_loop->registed(self()))
+            m_loop->remove_event(self());
+        this->close();
+    );
+
 }
 
 timestamp
 timer::pimpl::get_time ()
 {
     itimerspec _its;
-    std::error_code _ec = int2ec(timerfd_gettime(m_fd, &_its));
-    if (_ec)
+    if (timerfd_gettime(m_fd, &_its) < 0)
         throw k::system_error("timerfd_gettime() error");
     return _its.it_value;
 }
@@ -49,19 +58,16 @@ timer::pimpl::set_time (timestamp _val, timestamp _interval, bool _abs /* = fals
     itimerspec _its;
     _val.to_timespec(_its.it_value);
     _interval.to_timespec(_its.it_interval);
-    std::error_code _ec = int2ec(timerfd_settime(m_fd, _abs ? TFD_TIMER_ABSTIME : 0,
-                                                 &_its, nullptr));
-    if (_ec)
+    if (timerfd_settime(m_fd, _abs ? TFD_TIMER_ABSTIME : 0,
+                        &_its, nullptr) < 0)
         throw k::system_error("timerfd_settime() error");
+    enable_read();
 }
 
 void
-timer::pimpl::on_error()
+timer::pimpl::on_error ()
 {
-    if (single_ref_ptr(m_loop))
-        return;
-    std::shared_ptr<timer::pimpl> _ptr = self();
-    m_loop->remove_event(_ptr);
+    on_read();
 }
 
 void
@@ -75,4 +81,9 @@ timer::pimpl::on_read ()
         m_timeout_handler();
 }
 
+timer::timer (event_loop &_loop, timeout_handler &&_timeout_handler)
+    : m_pimpl(std::make_shared<timer_pimpl>(
+                  _loop.pimpl(), std::move(_timeout_handler)))
+{
+}
 KNGIN_NAMESPACE_K_END

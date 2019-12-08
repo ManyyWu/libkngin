@@ -18,9 +18,9 @@ class filefd : public noncopyable {
 public:
     filefd  () = delete;
 
+    explicit
     filefd  (int _fd) KNGIN_NOEXP;
 
-    explicit
     filefd  (filefd &&_fd) KNGIN_NOEXP;
 
     virtual
@@ -76,6 +76,12 @@ public:
 
     void
     close         (std::error_code &_ec) KNGIN_NOEXP;
+
+    int
+    dup           ();
+
+    int
+    dup           (std::error_code &_ec);
 
     std::error_code
     read_error    () KNGIN_NOEXP;
