@@ -15,8 +15,8 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event::pimpl::pimpl (event_loop_pimpl_ptr _loop,
-                     event_handler &&_event_handler)
+event::event (event_loop_pimpl_ptr _loop,
+              event_handler &&_event_handler)
     try
     : epoller_event(::eventfd(0, EFD_CLOEXEC)),
       m_loop(_loop),
@@ -31,7 +31,7 @@ event::pimpl::pimpl (event_loop_pimpl_ptr _loop,
     throw;
 }
 
-event::pimpl::~pimpl() KNGIN_NOEXP
+event::~event() KNGIN_NOEXP
 {
     if (is_single_ref_ptr(m_loop))
         return; // removed
@@ -43,7 +43,7 @@ event::pimpl::~pimpl() KNGIN_NOEXP
 }
 
 void
-event::pimpl::notify ()
+event::notify ()
 {
     char _arr[8];
     in_buffer(_arr, 8).write_uint64(1);
@@ -51,13 +51,13 @@ event::pimpl::notify ()
 }
 
 void
-event::pimpl::on_error ()
+event::on_error ()
 {
     on_read();
 }
 
 void
-event::pimpl::on_read ()
+event::on_read ()
 {
     char _arr[8];
     in_buffer _buf(_arr, 8);
@@ -65,18 +65,6 @@ event::pimpl::on_read ()
 
     if (m_event_handler)
         ignore_exp(m_event_handler());
-}
-
-event::event (event_loop_pimpl_ptr _loop, event_handler &&_event_handler)
-    : m_pimpl(std::make_shared<event_pimpl>(
-                  _loop, std::move(_event_handler)))
-{
-}
-
-event::event  (event_loop &_loop, event_handler &&_event_handler)
-    : m_pimpl(std::make_shared<event_pimpl>(
-                  _loop.pimpl(), std::move(_event_handler)))
-{
 }
 
 KNGIN_NAMESPACE_K_END

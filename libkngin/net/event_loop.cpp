@@ -77,7 +77,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
     try {
         m_waker = std::make_shared<event>(self(), [] () {});
-        register_event(m_waker->pimpl());
+        register_event(m_waker);
         if (_start_handler)
             ignore_exp(_start_handler());
 
@@ -111,7 +111,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     } catch (...) {
         if (_stop_handler)
             ignore_exp(_stop_handler());
-        remove_event(m_waker->pimpl());
+        remove_event(m_waker);
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"",
                   m_thr ? m_thr->name() : "");
@@ -120,7 +120,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
     if (_stop_handler)
         ignore_exp(_stop_handler());
-    remove_event(m_waker->pimpl());
+    remove_event(m_waker);
     m_looping = false;
     std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
     if (_temp_ptr->wait())

@@ -37,8 +37,6 @@ public:
 
     typedef thread::thread_pimpl_ptr   thread_pimpl_ptr;
 
-    typedef event::event_pimpl_ptr     event_pimpl_ptr;
-
 public:
     event_loop_pimpl  ();
 

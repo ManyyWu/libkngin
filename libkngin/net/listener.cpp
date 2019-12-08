@@ -12,7 +12,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 listener::listener (event_loop &_loop, k::socket &&_socket)
     try
-    : epoller_event(_socket.dup()),
+    : epoller_event(_socket.fd()),
       m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)),
       m_closed(true),
@@ -60,8 +60,8 @@ listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
 
 void
 listener::listen (int _backlog,
-                         accept_handler &&_new_ssesion_handler,
-                         close_handler &&_close_handler)
+                  accept_handler &&_new_ssesion_handler,
+                  close_handler &&_close_handler)
 {
     check(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
@@ -71,8 +71,8 @@ listener::listen (int _backlog,
 
 void
 listener::listen (int _backlog, std::error_code &_ec,
-                         accept_handler &&_new_sesssion_handler,
-                         close_handler &&_close_handler) KNGIN_NOEXP
+                  accept_handler &&_new_sesssion_handler,
+                  close_handler &&_close_handler) KNGIN_NOEXP
 {
     check(!m_closed);
     m_accept_handler = std::move(_new_sesssion_handler); 

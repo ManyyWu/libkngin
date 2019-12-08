@@ -163,7 +163,7 @@ public:
         }
 
         {
-            if (_session->peer_addr().port() >= 65536) { // close
+            if (_session->peer_addr().port() >= 70000) { // close
                 _session->close(true);
                 if (g_barrier->wait())
                     g_barrier->destroy();
@@ -213,9 +213,9 @@ tcp_server_test ()
         .allow_ipv6             = false,
         .backlog                = 100,
         .thread_num             = 3,
-        .disable_debug          = true,
+        .disable_debug          = false,
         .disable_info           = false,
-        .separate_listen_thread = false,
+        .separate_listen_thread = true,
     };
     test_server _s(_opts);
     check(_s.run());

@@ -15,8 +15,8 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::pimpl::pimpl (event_loop_pimpl_ptr _loop,
-                     timeout_handler &&_timeout_handler)
+timer::timer (event_loop_pimpl_ptr _loop,
+              timeout_handler &&_timeout_handler)
     try
     : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC)),
       m_loop(_loop),
@@ -31,7 +31,7 @@ timer::pimpl::pimpl (event_loop_pimpl_ptr _loop,
     throw;
 }
 
-timer::pimpl::~pimpl () KNGIN_NOEXP
+timer::~timer () KNGIN_NOEXP
 {
     if (is_single_ref_ptr(m_loop))
         return; // removed
@@ -44,7 +44,7 @@ timer::pimpl::~pimpl () KNGIN_NOEXP
 }
 
 timestamp
-timer::pimpl::get_time ()
+timer::get_time ()
 {
     itimerspec _its;
     if (timerfd_gettime(m_fd, &_its) < 0)
@@ -53,7 +53,7 @@ timer::pimpl::get_time ()
 }
 
 void
-timer::pimpl::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
+timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
     itimerspec _its;
     _val.to_timespec(_its.it_value);
@@ -65,13 +65,13 @@ timer::pimpl::set_time (timestamp _val, timestamp _interval, bool _abs /* = fals
 }
 
 void
-timer::pimpl::on_error ()
+timer::on_error ()
 {
     on_read();
 }
 
 void
-timer::pimpl::on_read ()
+timer::on_read ()
 {
     char _arr[8];
     in_buffer _buf(_arr, 8);
@@ -81,9 +81,4 @@ timer::pimpl::on_read ()
         m_timeout_handler();
 }
 
-timer::timer (event_loop &_loop, timeout_handler &&_timeout_handler)
-    : m_pimpl(std::make_shared<timer_pimpl>(
-                  _loop.pimpl(), std::move(_timeout_handler)))
-{
-}
 KNGIN_NAMESPACE_K_END
