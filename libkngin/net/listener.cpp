@@ -155,6 +155,15 @@ listener::pimpl::on_read ()
 }
 
 void
+listener::pimpl::on_error ()
+{
+    check(!m_closed);
+    m_loop->check_thread();
+
+    on_read();
+}
+
+void
 listener::pimpl::on_close (std::error_code _ec)
 {
     check(!m_closed);
@@ -167,15 +176,6 @@ listener::pimpl::on_close (std::error_code _ec)
 
     if (m_close_handler)
         ignore_exp(m_close_handler(_ec));
-}
-
-void
-listener::pimpl::on_error ()
-{
-    check(!m_closed);
-    m_loop->check_thread();
-
-    on_read();
 }
 
 KNGIN_NAMESPACE_K_END

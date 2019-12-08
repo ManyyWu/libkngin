@@ -61,11 +61,11 @@ private:
         virtual void
         on_read       ();
 
-        void
-        on_close      (std::error_code _ec);
-
         virtual void
         on_error      ();
+
+        void
+        on_close      (std::error_code _ec);
 
     private:
         event_loop_pimpl_ptr m_loop;

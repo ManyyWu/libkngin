@@ -18,7 +18,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 uint64_t session::m_next_serial = 0;
 
 session::session (event_loop &_loop, k::socket &&_socket,
-                       const address &_local_addr, const address &_peer_addr)
+                  const address &_local_addr, const address &_peer_addr)
     try
     : epoller_event(_socket.dup()),
       m_loop(_loop.pimpl()),

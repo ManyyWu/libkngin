@@ -147,16 +147,16 @@ private:
     { return m_socket; }
 
 private:
-    void
+    virtual void
     on_write        ();
 
-    void
+    virtual void
     on_read         ();
 
-    void
+    virtual void
     on_oob          ();
 
-    void
+    virtual void
     on_error        ();
 
     void
