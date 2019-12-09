@@ -185,13 +185,13 @@ private:
 
     out_buffer_queue     m_out_bufq;
 
+    mutex                m_out_bufq_mutex;
+
     in_buffer_ptr        m_in_buf;
 
     size_t               m_callback_lowat;
 
     uint64_t             m_serial;
-
-    mutex                m_mutex;
 
 private:
     static uint64_t      m_next_serial;

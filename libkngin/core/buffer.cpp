@@ -64,6 +64,12 @@ out_buffer::swap (out_buffer &_buf) KNGIN_NOEXCP
     std::swap(m_size, _buf.m_size);
 }
 
+std::shared_ptr<out_buffer>
+out_buffer::clone ()
+{
+    return std::make_shared<out_buffer>(m_arr, m_size);
+}
+
 std::string
 out_buffer::dump ()
 {

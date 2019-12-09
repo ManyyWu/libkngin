@@ -120,7 +120,6 @@ server::remove_session (session_ptr _session)
 {
     assert(!m_stopped);
     assert(_session->connected());
-
     _session->close();
 }
 
@@ -129,6 +128,14 @@ server::broadcast (session_list &_list, out_buffer_ptr _buf)
 {
     arg_check(_buf);
     assert(!m_stopped);
+
+    if (!m_stopping)
+    {
+        local_lock _lock(m_mutex);
+        std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
+            _s->send(_buf->clone());
+        });
+    }
     return 0;
 }
 
@@ -213,6 +220,7 @@ server::on_new_session (socket &&_sock)
 void
 server::on_session_close (const session &_session, std::error_code _ec)
 {
+    assert(!m_stopped);
     _session.check_thread();
     if (m_close_handler)
         log_excp_error(
@@ -231,6 +239,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
 void
 server::on_listener_close (std::error_code _ec)
 {
+    assert(!m_stopped);
     if (_ec)
         log_error("listener closed, %s",
                   system_error_str(_ec).c_str());

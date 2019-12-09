@@ -79,6 +79,9 @@ public:
     void
     swap         (out_buffer &_buf) KNGIN_NOEXCP;
 
+    std::shared_ptr<out_buffer>
+    clone        ();
+
 public:
     std::string
     dump         ();

@@ -32,10 +32,10 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_oob_handler(nullptr),
       m_close_handler(nullptr),
       m_out_bufq(),
+      m_out_bufq_mutex(),
       m_in_buf(nullptr),
       m_callback_lowat(KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT),
-      m_serial(session::next_serial()),
-      m_mutex()
+      m_serial(session::next_serial())
 {
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
@@ -66,7 +66,7 @@ session::send (out_buffer_ptr _buf)
     assert(m_connected);
 
     {
-        local_lock _lock(m_mutex);
+        local_lock _lock(m_out_bufq_mutex);
         m_out_bufq.push_front(_buf);
         enable_write();
         m_loop->update_event(self());
@@ -166,7 +166,7 @@ session::on_write ()
 
     out_buffer_ptr _buf = nullptr;
     {
-        local_lock _lock(m_mutex);
+        local_lock _lock(m_out_bufq_mutex);
         if (m_out_bufq.empty())
             return;
         _buf = m_out_bufq.back();
@@ -200,7 +200,7 @@ session::on_write ()
 
         // write done
         {
-            local_lock _lock(m_mutex);
+            local_lock _lock(m_out_bufq_mutex);
             m_out_bufq.pop_back();
             if (m_out_bufq.empty()) {
                 disable_write();
