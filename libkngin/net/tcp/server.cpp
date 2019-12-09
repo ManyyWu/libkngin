@@ -103,7 +103,7 @@ server::stop (bool _crash/* = false */)
     log_info("TCP server has stopped");
 
     if (m_crash_handler)
-    ignore_excp(m_crash_handler());
+        ignore_excp(m_crash_handler());
 }
 
 size_t
@@ -203,7 +203,10 @@ server::on_new_session (socket &&_sock)
 
     if (m_session_handler)
         _next_loop.run_in_loop([this, _session] () {
-            ignore_excp(m_session_handler(_session));
+            log_excp_error(
+                m_session_handler(_session),
+                "server::m_session_handler() error"
+            );
         });
 }
 
@@ -212,7 +215,10 @@ server::on_session_close (const session &_session, std::error_code _ec)
 {
     _session.check_thread();
     if (m_close_handler)
-        ignore_excp(m_close_handler(std::cref(_session), _ec));
+        log_excp_error(
+            m_close_handler(std::cref(_session), _ec),
+            "sever::m_close_handler() error"
+        );
 
     if (!m_stopping)
     {

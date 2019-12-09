@@ -64,7 +64,10 @@ event::on_read ()
     this->readn(_buf); // blocked
 
     if (m_event_handler)
-        ignore_excp(m_event_handler());
+        log_excp_error(
+            m_event_handler(),
+            "event::m_event_handler() error"
+        );
 }
 
 KNGIN_NAMESPACE_K_END

@@ -208,7 +208,10 @@ session::on_write ()
             }
         }
         if (m_sent_handler)
-            ignore_excp(m_sent_handler(std::ref(*this)));
+            log_excp_error(
+                m_sent_handler(std::ref(*this)),
+                "session::m_sent_handler() error"
+            );
     }
 }
 
@@ -221,6 +224,7 @@ session::on_read ()
         return;
     if_not (pollin())
         return;
+
     m_loop->check_thread();
 
     size_t _writeable_bytes = m_in_buf->writeable();
@@ -256,9 +260,12 @@ session::on_read ()
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_handler)
-            ignore_excp(m_message_handler(std::ref(*this),
-                                         std::ref(*_temp_ptr),
-                                         _temp_ptr->valid()));
+            log_excp_error(
+                m_message_handler(std::ref(*this),
+                                  std::ref(*_temp_ptr),
+                                  _temp_ptr->valid()),
+                "session::m_message_handler() error"
+            );
     }
 }
 
@@ -284,7 +291,10 @@ session::on_oob ()
         return;
     }
     if (m_oob_handler) {
-        ignore_excp(m_oob_handler(std::ref(*this), _data));
+        log_excp_error(
+            m_oob_handler(std::ref(*this), _data),
+            "session::m_oob_handler() error"
+        );
     } else {
         log_warning("unhandled oob data from %s", m_socket.name().c_str());
     }
@@ -329,7 +339,10 @@ session::on_close (std::error_code _ec)
     m_in_buf = nullptr;
     m_connected = false;
     if (m_close_handler)
-        ignore_excp(m_close_handler(std::cref(*this), _ec));
+        log_excp_error(
+            m_close_handler(std::cref(*this), _ec),
+            "listener::m_close_handler() error"
+        );
 }
 
 KNGIN_NAMESPACE_TCP_END

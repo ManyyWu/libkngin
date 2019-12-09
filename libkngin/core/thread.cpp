@@ -112,7 +112,7 @@ thread::pimpl::cancel ()
                   m_name.c_str(), system_error_str(_ec).c_str());
         throw k::exception("::pthread_cancel() error");
     }
-    log_info("thread \"%s\" canceled", m_name.c_str());
+    log_info("thread \"%s\" cancelled", m_name.c_str());
 }
 
 bool

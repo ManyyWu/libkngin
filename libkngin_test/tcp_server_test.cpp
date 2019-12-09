@@ -32,7 +32,7 @@ client ()
     _server_sock.connect(_server_addr);
     log_info("c: connected");
 
-    uint32_t _reply;
+    uint32_t _reply = 0;
 
     // read
     {
@@ -216,7 +216,7 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 30,
+        .thread_num             = 3,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,

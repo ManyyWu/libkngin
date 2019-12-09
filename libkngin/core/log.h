@@ -120,12 +120,6 @@ private:
     write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
                    const char *_fmt, size_t _len) KNGIN_NOEXCP;
 
-    const char *
-    color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP;
-
-    const char *
-    color_end     () KNGIN_NOEXCP;
-
     void
     write_stderr  (KNGIN_LOG_LEVEL _level,
                    const char *_str, size_t _len) KNGIN_NOEXCP;
@@ -133,6 +127,14 @@ private:
     void
     write_stderr2 (KNGIN_LOG_LEVEL _level,
                    const char *_fmt, ...) KNGIN_NOEXCP;
+
+private:
+    static const char *
+    color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP;
+
+    static const char *
+    color_end     () KNGIN_NOEXCP;
+
 
 private:
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)

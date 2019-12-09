@@ -59,7 +59,7 @@
 //        log_fatal("::thread::cancel() error, name = \"%s\"", m_name.c_str());
 //    m_cond.broadcast();
 //
-//    log_info("work thread \"%s\" canceled", m_name.c_str());
+//    log_info("work thread \"%s\" cancelled", m_name.c_str());
 //    return _ret;
 //}
 //

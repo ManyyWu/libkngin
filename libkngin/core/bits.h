@@ -38,7 +38,7 @@ set_bits (Type _val, Type1 _first, Args... _args)
 {
     if (_first < 0 || static_cast<size_t>(_first) >= TYPE_BITS(Type))
         throw k::exception("out of range");
-    return BIT_VALUE(Type, _first) | SET_BITs(_val, _args...);
+    return BIT_VALUE(Type, _first) | set_bits(_val, _args...);
 }
 
 template<typename Type, typename Type1, typename ...Args>
@@ -47,7 +47,7 @@ clear_bits (Type _val, Type1 _first, Args... _args)
 {
     if (_first < 0 || static_cast<size_t>(_first) >= TYPE_BITS(Type))
         throw k::exception("out of range");
-    return CLEAR_BIT(Type, _val, _first) & SET_BITs(_val, _args...);
+    return CLEAR_BIT(Type, _val, _first) & set_bits(_val, _args...);
 }
 
 template<typename Type, typename ...Args>

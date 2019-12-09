@@ -93,7 +93,10 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             for (uint32_t _i = 0; _i < _size; _i++) {
                 auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
                 assert(_ptr);
-                epoller_event::on_events(_ptr, m_events[_i].events);
+                log_excp_error(
+                    epoller_event::on_events(_ptr, m_events[_i].events),
+                    "epoller_event::on_events() error"
+                );
             }
 
             // process queued events
@@ -167,20 +170,14 @@ bool
 event_loop_pimpl::registed (epoller_event_ptr _e)
 {
     assert(m_looping);
-    log_exp_error(
-        m_epoller.registed(_e->fd()),
-        "epoller::register_event() erorr"
-    );
+    m_epoller.registed(_e->fd());
 }
 
 void
 event_loop_pimpl::register_event (epoller_event_ptr _e)
 {
     assert(m_looping);
-    log_exp_error(
-        m_epoller.register_event(_e),
-        "epoller::register_event() erorr"
-    );
+    m_epoller.register_event(_e);
     if (!in_loop_thread())
         wakeup();
 }
@@ -189,10 +186,7 @@ void
 event_loop_pimpl::remove_event (epoller_event_ptr _e)
 {
     assert(m_looping);
-    log_exp_error(
-        m_epoller.remove_event(_e),
-        "epoller::remove_event() erorr"
-    );
+    m_epoller.remove_event(_e);
     if (!in_loop_thread())
         wakeup();
 }
@@ -201,10 +195,7 @@ void
 event_loop_pimpl::update_event (epoller_event_ptr _e)
 {
     assert(m_looping);
-    log_exp_error(
-        m_epoller.modify_event(_e),
-        "epoller::modify_event() erorr"
-    );
+    m_epoller.modify_event(_e);
     if (!in_loop_thread())
         wakeup();
 }

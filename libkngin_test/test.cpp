@@ -65,7 +65,6 @@ using namespace std::placeholders;
 #warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
 #warning "static_cast"
 #warning "    if (equal_to(ptid())) throw k::exception("thread::pimpl::join() error, try to join self"); "
-
 /*
 switch (savedErrno)  //检查错误码
 {
@@ -106,6 +105,4 @@ default:
 void
 test ()
 {
-
-
 }

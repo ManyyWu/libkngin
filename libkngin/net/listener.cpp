@@ -146,7 +146,10 @@ listener::on_read ()
 
     socket _sock(_sockfd);
     if (m_accept_handler) {
-        ignore_excp(m_accept_handler(std::move(_sock)));
+        log_excp_error(
+            m_accept_handler(std::move(_sock)),
+            "listener::m_accept_handler() error"
+        );
     } else {
         log_warning("unaccepted session, fd = %d", _sock.fd());
         _sock.close();
@@ -174,7 +177,10 @@ listener::on_close (std::error_code _ec)
     m_closed = true;
 
     if (m_close_handler)
-        ignore_excp(m_close_handler(_ec));
+        log_excp_error(
+            m_close_handler(_ec),
+            "listener::m_close_handler() error"
+        );
     throw k::exception("listener error");
 }
 

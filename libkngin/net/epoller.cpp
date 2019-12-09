@@ -51,6 +51,16 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
             return 0;
         throw k::system_error("::epoll_wait() error");
     }
+
+#ifndef NDEBUG
+    {
+        local_lock _lock(m_mutex);
+        for (auto _iter : m_events)
+            if (is_single_ref_ptr(_iter.second))
+                log_warning("an event that does not be cancelled listening, "
+                            "and is only managed by epoller");
+    }
+#endif
     return std::max(_num, 0);
 }
 

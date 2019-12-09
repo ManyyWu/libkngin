@@ -41,7 +41,7 @@ exception::dump_stack ()
     int    _size = ::backtrace(_array, 100);
     char **_stacks = ::backtrace_symbols(_array, _size);
 
-    m_dump_str += "dump: ";
+    m_dump_str += "invocation stack: ";
     if (_size && _stacks)
         for (int i = 0; i < _size; i++)
             if (_stacks[i])
