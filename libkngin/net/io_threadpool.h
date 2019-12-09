@@ -64,7 +64,7 @@ public:
     event_loop &
     get_loop       (size_t _idx);
 
-protected:
+private:
     const uint16_t    m_num;
 
     threads           m_threads;

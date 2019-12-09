@@ -12,10 +12,10 @@ KNGIN_NAMESPACE_K_BEGIN
 
 socket::socket (int _fd)
     : filefd(_fd),
-      m_rd_closed(FD_INVALID(_fd)),
-      m_wr_closed(FD_INVALID(_fd))
+      m_rd_closed(invalid()),
+      m_wr_closed(invalid())
 {
-    if (FD_INVALID(m_fd))
+    if (invalid())
         throw k::exception("socket::socket() error, invalid file descriptor");
 }
 
@@ -23,10 +23,10 @@ socket::socket (INET_PROTOCOL _proto)
     try
     : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
-      m_rd_closed(FD_INVALID(m_fd)),
-      m_wr_closed(FD_INVALID(m_fd))
+      m_rd_closed(invalid()),
+      m_wr_closed(invalid())
 {
-    if (FD_INVALID(m_fd))
+    if (invalid())
         throw k::system_error("::socket() error");
 } catch (...) {
     log_error("socket::socket() error");

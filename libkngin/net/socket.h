@@ -134,7 +134,7 @@ public:
     std::string
     full_name   () const;
 */
-protected:
+private:
     bool m_rd_closed;
 
     bool m_wr_closed;

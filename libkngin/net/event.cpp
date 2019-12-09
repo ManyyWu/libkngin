@@ -23,7 +23,7 @@ event::event (event_loop_pimpl_ptr _loop,
       m_event_handler(std::move(_event_handler))
 {
     arg_check(m_loop && m_event_handler);
-    if (FD_INVALID(m_fd))
+    if (invalid())
         throw k::system_error("::eventfd() erorr");
     enable_read();
 } catch (...) {

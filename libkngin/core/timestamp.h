@@ -94,7 +94,7 @@ public:
     current_time () KNGIN_NOEXCP
     {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
 
-protected:
+private:
     uint64_t m_ms;
 };
 

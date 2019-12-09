@@ -31,6 +31,10 @@ public:
     valid         () const KNGIN_NOEXCP
     { return FD_VALID(m_fd); }
 
+    bool
+    invalid       () const KNGIN_NOEXCP
+    { return FD_INVALID(m_fd); }
+
     int
     fd            () const KNGIN_NOEXCP
     { return m_fd; }

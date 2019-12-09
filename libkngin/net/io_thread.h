@@ -31,11 +31,11 @@ public:
     get_loop   ()
     { return m_loop; }
 
-protected:
+private:
     int
     process    ();
 
-protected:
+private:
     event_loop_ptr m_loop;
 
     mutex          m_mutex;

@@ -105,7 +105,7 @@ protected:
     void
     on_listener_close (std::error_code _ec);
 
-protected:
+private:
     const server_opts m_opts;
 
     io_threadpool     m_threadpool;

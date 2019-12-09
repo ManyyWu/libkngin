@@ -60,11 +60,11 @@ protected:
     bool
     pollonce       () const          KNGIN_NOEXCP { return (m_flags & EPOLLONESHOT); }
 
-public:
+protected:
     static void
     on_events      (epoller_event *__ptr, uint32_t _events);
 
-public:
+protected:
     virtual void
     on_error       () = 0;
 
@@ -84,6 +84,8 @@ private:
 
 private:
     friend class epoller;
+
+    friend class event_loop_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

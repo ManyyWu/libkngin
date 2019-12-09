@@ -85,8 +85,7 @@ thread::pimpl::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */
 int
 thread::pimpl::join ()
 {
-    if (equal_to(ptid()))
-        throw k::exception("thread::pimpl::join() error, try to join self");
+    assert(!equal_to(ptid()));
 
     thread_err_code _code;
     std::error_code _ec = int2ec(::pthread_join(m_thr, &_code.ptr));
@@ -103,8 +102,7 @@ thread::pimpl::join ()
 void
 thread::pimpl::cancel ()
 {
-    if (equal_to(ptid()))
-        throw k::exception("thread::pimpl::cancel() error, try to cancel self");
+    assert(!equal_to(ptid()));
 
     std::error_code _ec = int2ec(::pthread_cancel(m_thr));
     if (_ec) {

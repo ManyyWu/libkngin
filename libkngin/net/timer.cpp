@@ -23,7 +23,7 @@ timer::timer (event_loop_pimpl_ptr _loop,
       m_timeout_handler(std::move(_timeout_handler))
 {
     arg_check(m_loop && _timeout_handler);
-    if (FD_VALID(m_fd))
+    if (invalid())
         throw k::system_error("::timerfd_create() erorr");
     set_closeexec(true);
 } catch (...) {
