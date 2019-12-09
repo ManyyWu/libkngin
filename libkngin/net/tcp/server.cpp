@@ -1,6 +1,8 @@
 #ifdef _WIN32
 #else
 #include <netdb.h>
+#include <unistd.h>
+#include <signal.h>
 #endif
 #include "core/exception.h"
 #include "core/system_error.h"
@@ -45,6 +47,11 @@ bool
 server::run ()
 {
     assert(m_stopped);
+
+    // shielding SIGPIPE signal
+#ifndef _WIN32
+    ::signal(SIGPIPE, SIG_IGN);
+#endif
 
     // run threadpool
     m_threadpool.start(std::bind(&server::stop, this, std::placeholders::_1));
@@ -102,8 +109,10 @@ server::stop (bool _crash/* = false */)
     m_stopped = true;
     log_info("TCP server has stopped");
 
-    if (m_crash_handler)
+    if (m_crash_handler) {
+        log_fatal("TCP server has crashed");
         ignore_excp(m_crash_handler());
+    }
 }
 
 size_t
@@ -118,8 +127,8 @@ server::session_num ()
 void
 server::remove_session (session_ptr _session)
 {
+    arg_check(_session && _session->connected());
     assert(!m_stopped);
-    assert(_session->connected());
     _session->close();
 }
 

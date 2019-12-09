@@ -31,8 +31,6 @@ public:
 
     typedef session::close_handler                    close_handler;
 
-    typedef io_thread::event_loop_ptr                 event_loop_ptr;
-
     typedef std::function<void (session_ptr)>         session_handler;
 
     typedef std::shared_ptr<listener>                 listener_ptr;
