@@ -51,7 +51,8 @@ socket::~socket () KNGIN_NOEXCP
 void
 socket::bind (const address &_addr)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     if (::bind(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
         throw k::system_error("::bind() error");
 }
@@ -59,7 +60,8 @@ socket::bind (const address &_addr)
 void
 socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     _ec = (::bind(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
           ? last_error()
           : std::error_code();
@@ -68,7 +70,8 @@ socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 void
 socket::listen (int _backlog)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     if (::listen(m_fd, _backlog) < 0)
         throw k::system_error("::listen() error");
 }
@@ -76,14 +79,16 @@ socket::listen (int _backlog)
 void
 socket::listen (int _backlog, std::error_code &_ec) KNGIN_NOEXCP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     _ec = (::listen(m_fd, _backlog) < 0) ? last_error() : std::error_code();
 }
 
 int
 socket::accept (address &_addr)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
     int _fd = ::accept(m_fd, (::sockaddr *)&_addr.m_sa, &_len);
     if (_fd < 0)
@@ -94,7 +99,8 @@ socket::accept (address &_addr)
 int
 socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
     int _fd = ::accept(m_fd, (::sockaddr *)&_addr.m_sa, &_len);
     _ec = (_fd < 0) ? last_error() : std::error_code();
@@ -104,7 +110,8 @@ socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 void
 socket::connect (const address &_addr)
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     if (::connect(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
         throw k::system_error("::connect() error");
 }
@@ -112,7 +119,8 @@ socket::connect (const address &_addr)
 void
 socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
-    assert(!m_wr_closed && !m_rd_closed);
+    assert(!m_wr_closed);
+    assert(!m_rd_closed);
     _ec = (::connect(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
           ? last_error()
           : std::error_code();

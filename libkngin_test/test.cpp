@@ -60,7 +60,6 @@ using namespace std::placeholders;
 #warning "pimpl() public, self() public, class pimpl public"
 #warning "构造函数中不check只arg_check 和throw"
 #warning "final"
-#warning "新建对象但不泄漏给用户的地方需要catch"
 #warning "https://zhuanlan.zhihu.com/p/88749279"
 #warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
 #warning "static_cast"

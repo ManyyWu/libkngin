@@ -62,7 +62,8 @@ public:
     virtual Type *
     at (size_type _n)
     {
-        assert(_n >= 0 && _n < m_deque.size());
+        assert(_n >= 0);
+        assert(_n < m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
@@ -83,7 +84,8 @@ public:
     virtual Type *
     operator [] (size_type _n)
     {
-        assert(_n >= 0 && _n < m_deque.size());
+        assert(_n >= 0);
+        assert(_n < m_deque.size());
         return (m_deque.empty() ? nullptr : m_deque.at(_n));
     }
 
@@ -134,7 +136,8 @@ public:
     insert (size_type _n, Type **_v) // insert before _n
     {
         assert(_v);
-        assert(_n >= 0 && _n < m_deque.size());
+        assert(_n >= 0);
+        assert(_n < m_deque.size());
         if (m_deque.size() > m_max_size)
             return false;
 
@@ -152,7 +155,8 @@ public:
     virtual bool
     erase (size_type _n)
     {
-        assert(_n >= 0 && _n < m_deque.size());
+        assert(_n >= 0);
+        assert(_n < m_deque.size());
         if (m_deque.empty())
             return false;
 

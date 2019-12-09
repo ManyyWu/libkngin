@@ -25,6 +25,7 @@ public:
 
     listener      (event_loop &_loop, k::socket &&_socket);
 
+    virtual
     ~listener     () KNGIN_NOEXCP;
 
 public:

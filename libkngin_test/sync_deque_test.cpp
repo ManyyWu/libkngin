@@ -23,7 +23,8 @@ producer (void *_args)
         string *_str = nullptr;
         _str = new string(_buf);
         assert(_str);
-        assert(!_q->full() && _q->push_front(&_str));
+        assert(!_q->full());
+        assert(_q->push_front(&_str));
         ::fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         _q->unlock();

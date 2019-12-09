@@ -48,6 +48,7 @@ public:
     session         (event_loop &_loop, k::socket &&_socket,
                      const address &_local_addr, const address &_peer_addr);
 
+    virtual
     ~session        () KNGIN_NOEXCP;
 
 public:
