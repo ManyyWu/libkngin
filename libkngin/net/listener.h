@@ -25,14 +25,14 @@ public:
 
     listener      (event_loop &_loop, k::socket &&_socket);
 
-    ~listener     () KNGIN_NOEXP;
+    ~listener     () KNGIN_NOEXCP;
 
 public:
     void
     bind          (const address &_listen_addr);
 
     void
-    bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP;
+    bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP;
 
     void
     listen        (int _backlog, accept_handler &&_new_ssesion_handler,
@@ -41,14 +41,14 @@ public:
     void
     listen        (int _backlog, std::error_code &_ec,
                    accept_handler &&_handler,
-                   close_handler &&close_handler) KNGIN_NOEXP;
+                   close_handler &&close_handler) KNGIN_NOEXCP;
 
     void
     close         (bool _blocking = true);
 
 public:
     event_loop_pimpl_ptr &
-    loop          () KNGIN_NOEXP
+    loop          () KNGIN_NOEXCP
     { return m_loop; }
 
     std::shared_ptr<listener>
@@ -57,7 +57,7 @@ public:
 
 public:
     void
-    check_thread  () const KNGIN_NOEXP
+    check_thread  () const KNGIN_NOEXCP
     { m_loop->check_thread(); }
 
 private:

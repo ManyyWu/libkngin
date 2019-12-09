@@ -20,7 +20,7 @@
 //bool
 //work_task::process ()
 //{
-//    check(m_msg);
+//    assert(m_msg);
 //
 //    msg *_msg = m_msg;
 //    m_msg = nullptr;
@@ -37,7 +37,7 @@
 //bool
 //work_task::create (msg **_msg)
 //{
-//    check(_msg);
+//    assert(_msg);
 //    if (!_msg)
 //        return false;
 //
@@ -55,8 +55,8 @@
 //bool
 //work_task::recv_reply_msg (msg **_msg)
 //{
-//    check(_msg);
-//    check(!m_msg);
+//    assert(_msg);
+//    assert(!m_msg);
 //
 //    m_msg = *_msg;
 //    *_msg = nullptr;

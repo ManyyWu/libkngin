@@ -25,7 +25,7 @@ public:
               event_handler &&_event_handler);
 
     virtual
-    ~event   () KNGIN_NOEXP;
+    ~event   () KNGIN_NOEXCP;
 
 public:
     void
@@ -33,7 +33,7 @@ public:
 
 public:
     event_loop_pimpl_ptr &
-    loop     () KNGIN_NOEXP
+    loop     () KNGIN_NOEXCP
     { return m_loop; }
 
     std::shared_ptr<event>

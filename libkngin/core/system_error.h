@@ -49,11 +49,11 @@ public:
 
 public:
     virtual const char *
-    what          () const KNGIN_NOEXP
+    what          () const KNGIN_NOEXCP
     { return m_what.c_str(); }
 
     virtual const std::error_code
-    code          () const KNGIN_NOEXP
+    code          () const KNGIN_NOEXCP
     { return m_ec; }
 
 private:

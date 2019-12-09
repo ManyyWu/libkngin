@@ -22,7 +22,7 @@ event::event (event_loop_pimpl_ptr _loop,
       m_loop(_loop),
       m_event_handler(std::move(_event_handler))
 {
-    arg_check(m_loop);
+    arg_check(m_loop && m_event_handler);
     if (FD_INVALID(m_fd))
         throw k::system_error("::eventfd() erorr");
     enable_read();
@@ -31,11 +31,11 @@ event::event (event_loop_pimpl_ptr _loop,
     throw;
 }
 
-event::~event() KNGIN_NOEXP
+event::~event() KNGIN_NOEXCP
 {
     if (is_single_ref_ptr(m_loop))
         return; // removed
-    ignore_exp(
+    ignore_excp(
         if (m_loop->registed(self()))
             m_loop->remove_event(self());
         this->close();
@@ -64,7 +64,7 @@ event::on_read ()
     this->readn(_buf); // blocked
 
     if (m_event_handler)
-        ignore_exp(m_event_handler());
+        ignore_excp(m_event_handler());
 }
 
 KNGIN_NAMESPACE_K_END

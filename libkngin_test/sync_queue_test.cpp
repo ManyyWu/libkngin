@@ -22,8 +22,8 @@ producer (void *_args)
             _q->wait();
         string *_str = nullptr;
         _str = new string(_buf);
-        check(_str);
-        check(!_q->full() && _q->push(&_str));
+        assert(_str);
+        assert(!_q->full() && _q->push(&_str));
         ::fprintf(stderr, "-----producer put, len: %ld\n",
                 _q->size());
         _q->unlock();
@@ -32,7 +32,7 @@ producer (void *_args)
     _q->lock();
     string *_str = nullptr;
     _str = new string("");
-    check(_str);
+    assert(_str);
     _q->push(&_str);
     _q->unlock();
     _q->broadcast();

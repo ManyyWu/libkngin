@@ -43,7 +43,7 @@ public:
     explicit
     event_loop_pimpl  (thread &_thr);
 
-    ~event_loop_pimpl () KNGIN_NOEXP;
+    ~event_loop_pimpl () KNGIN_NOEXCP;
 
 public:
     void
@@ -54,7 +54,7 @@ public:
     stop              ();
 
     bool
-    looping           () KNGIN_NOEXP;
+    looping           () KNGIN_NOEXCP;
 
 public:
     bool
@@ -74,10 +74,10 @@ public:
 
 public:
     void
-    check_thread      () const KNGIN_NOEXP;
+    check_thread      () const KNGIN_NOEXCP;
 
     bool
-    in_loop_thread    () const KNGIN_NOEXP;
+    in_loop_thread    () const KNGIN_NOEXCP;
 
 public:
     std::shared_ptr<event_loop_pimpl>
@@ -143,7 +143,7 @@ public:
     { m_pimpl->stop(); }
 
     bool
-    looping        () KNGIN_NOEXP
+    looping        () KNGIN_NOEXCP
     { return m_pimpl->looping(); }
 
 public:
@@ -169,11 +169,11 @@ public:
 
 public:
     void
-    check_thread   () const KNGIN_NOEXP
+    check_thread   () const KNGIN_NOEXCP
     { m_pimpl->check_thread(); }
 
     bool
-    in_loop_thread () const KNGIN_NOEXP
+    in_loop_thread () const KNGIN_NOEXCP
     { return m_pimpl->in_loop_thread(); }
 
 public:

@@ -28,7 +28,7 @@ public:
 public:
     epoller        ();
 
-    ~epoller       () KNGIN_NOEXP;
+    ~epoller       () KNGIN_NOEXCP;
 
 public:
     uint32_t
@@ -46,12 +46,12 @@ public:
     close          ();
 
     bool
-    closed         () KNGIN_NOEXP
+    closed         () KNGIN_NOEXCP
     { return !m_epollfd.valid(); }
 
 public:
     bool
-    registed       (int _fd) KNGIN_NOEXP;
+    registed       (int _fd) KNGIN_NOEXCP;
 
     void
     register_event (epoller_event_ptr _e);

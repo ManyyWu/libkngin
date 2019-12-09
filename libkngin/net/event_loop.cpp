@@ -58,10 +58,10 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
     throw;
 }
 
-event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXP
+event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXCP
 {
     if (m_looping)
-        ignore_exp(stop());
+        ignore_excp(stop());
 
     log_debug("loop in thread \"%s\" closed",
               m_thr ? m_thr->name() : "");
@@ -71,7 +71,7 @@ void
 event_loop_pimpl::run (started_handler &&_start_handler,
                        stopped_handler &&_stop_handler)
 {
-    check(!m_looping);
+    assert(!m_looping);
     check_thread();
     m_looping = true;
 
@@ -79,7 +79,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         m_waker = std::make_shared<event>(self(), [] () {});
         register_event(m_waker);
         if (_start_handler)
-            ignore_exp(_start_handler());
+            ignore_excp(_start_handler());
 
         while (!m_stop) {
             // wait for events
@@ -110,7 +110,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         }
     } catch (...) {
         if (_stop_handler)
-            ignore_exp(_stop_handler());
+            ignore_excp(_stop_handler());
         remove_event(m_waker);
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"",
@@ -119,14 +119,12 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     }
 
     if (_stop_handler)
-        ignore_exp(_stop_handler());
+        ignore_excp(_stop_handler());
     remove_event(m_waker);
     m_looping = false;
     std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
     if (_temp_ptr->wait())
         _temp_ptr->destroy();
-    //log_debug("event_loop in thread \"%s\" is stopped",
-    //          m_thr ? m_thr->name() : "");
 }
 
 void
@@ -134,7 +132,6 @@ event_loop_pimpl::stop ()
 {
     if (!m_looping)
         return;
-    check(m_waker);
 
     m_stop = true;
     if (!in_loop_thread())
@@ -145,20 +142,20 @@ event_loop_pimpl::stop ()
 }
 
 bool
-event_loop_pimpl::looping () KNGIN_NOEXP
+event_loop_pimpl::looping () KNGIN_NOEXCP
 {
     return m_looping;
 }
 
 void
-event_loop_pimpl::check_thread () const KNGIN_NOEXP
+event_loop_pimpl::check_thread () const KNGIN_NOEXCP
 {
     if (m_thr)
-        check(m_thr->equal_to(thread::ptid()));
+        assert(m_thr->equal_to(thread::ptid()));
 }
 
 bool
-event_loop_pimpl::in_loop_thread () const KNGIN_NOEXP
+event_loop_pimpl::in_loop_thread () const KNGIN_NOEXCP
 {
     if (m_thr)
         return m_thr->equal_to(thread::ptid());
@@ -169,21 +166,17 @@ event_loop_pimpl::in_loop_thread () const KNGIN_NOEXP
 bool
 event_loop_pimpl::registed (epoller_event_ptr _e)
 {
-    check(m_looping);
-    check(m_waker);
-
+    assert(m_looping);
     log_exp_error(
-            m_epoller.registed(_e->fd()),
-            "epoller::register_event() erorr"
+        m_epoller.registed(_e->fd()),
+        "epoller::register_event() erorr"
     );
 }
 
 void
 event_loop_pimpl::register_event (epoller_event_ptr _e)
 {
-    check(m_looping);
-    check(m_waker);
-
+    assert(m_looping);
     log_exp_error(
         m_epoller.register_event(_e),
         "epoller::register_event() erorr"
@@ -195,9 +188,7 @@ event_loop_pimpl::register_event (epoller_event_ptr _e)
 void
 event_loop_pimpl::remove_event (epoller_event_ptr _e)
 {
-    check(m_looping);
-    check(m_waker);
-
+    assert(m_looping);
     log_exp_error(
         m_epoller.remove_event(_e),
         "epoller::remove_event() erorr"
@@ -209,9 +200,7 @@ event_loop_pimpl::remove_event (epoller_event_ptr _e)
 void
 event_loop_pimpl::update_event (epoller_event_ptr _e)
 {
-    check(m_looping);
-    check(m_waker);
-
+    assert(m_looping);
     log_exp_error(
         m_epoller.modify_event(_e),
         "epoller::modify_event() erorr"
@@ -223,16 +212,12 @@ event_loop_pimpl::update_event (epoller_event_ptr _e)
 void
 event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
 {
-    check(m_looping);
-    check(m_waker);
-    if (!_fn)
-        return;
-
+    assert(m_looping);
+    if (_fn)
     {
         local_lock _lock(m_taskq_mutex);
         m_taskq.push_back(std::move(_fn));
     }
-
     if (!in_loop_thread())
         wakeup();
 }

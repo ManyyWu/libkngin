@@ -26,7 +26,7 @@ public:
               timeout_handler &&_timeout_handler);
 
     virtual
-    ~timer   () KNGIN_NOEXP;
+    ~timer   () KNGIN_NOEXCP;
 
 public:
     timestamp
@@ -37,7 +37,7 @@ public:
 
 public:
     event_loop_pimpl_ptr &
-    loop     () KNGIN_NOEXP
+    loop     () KNGIN_NOEXCP
     { return m_loop; }
 
     std::shared_ptr<timer>

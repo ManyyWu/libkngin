@@ -23,7 +23,7 @@ mutex::mutex ()
 
 mutex::~mutex ()
 {
-    ignore_exp(
+    ignore_excp(
         std::error_code _ec = int2ec(::pthread_mutex_destroy(&m_mutex));
         if (_ec)
             log_fatal("::pthread_mutex_destroy() error, %s",

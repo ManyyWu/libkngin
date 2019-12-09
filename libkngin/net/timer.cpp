@@ -31,11 +31,11 @@ timer::timer (event_loop_pimpl_ptr _loop,
     throw;
 }
 
-timer::~timer () KNGIN_NOEXP
+timer::~timer () KNGIN_NOEXCP
 {
     if (is_single_ref_ptr(m_loop))
         return; // removed
-    ignore_exp(
+    ignore_excp(
         if (m_loop->registed(self()))
             m_loop->remove_event(self());
         this->close();

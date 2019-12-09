@@ -59,7 +59,7 @@ sockopts::get_flag (int _fd, const sockopts_info &_opt_info)
         throw k::system_error(std::string("::getsockopt() error, option = %s")
                               + _opt_info.opt_str);
     }
-    check(_optlen == sizeof(int));
+    assert(_optlen == sizeof(int));
     return _value.i_val;
 }
 
@@ -73,7 +73,7 @@ sockopts::get_int (int _fd, const sockopts_info &_opt_info)
         throw k::system_error(std::string("::getsockopt() error, option = %s")
                               + _opt_info.opt_str);
     }
-    check(_optlen == sizeof(int));
+    assert(_optlen == sizeof(int));
     return _value.i_val;
 }
 
@@ -87,7 +87,7 @@ sockopts::get_linger (int _fd, const sockopts_info &_opt_info)
         throw k::system_error(std::string("::getsockopt() error, option = %s")
                               + _opt_info.opt_str);
     }
-    check(_optlen == sizeof(struct linger));
+    assert(_optlen == sizeof(struct linger));
     return _value.linger_val;
 }
 
@@ -101,7 +101,7 @@ sockopts::get_timeval (int _fd, const sockopts_info &_opt_info)
         throw k::system_error(std::string("::getsockopt() error, option = %s")
                               + _opt_info.opt_str);
     }
-    check(_optlen == sizeof(struct timeval));
+    assert(_optlen == sizeof(struct timeval));
     return _value.timeval_val;
 }
 

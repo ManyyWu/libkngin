@@ -8,14 +8,15 @@
 #endif
 #include "core/define.h"
 #include "core/timestamp.h"
+#include "core/noncopyable.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class rwlock {
+class rwlock : public noncopyable {
 public:
     rwlock        ();
 
-    ~rwlock       () KNGIN_NOEXP;
+    ~rwlock       () KNGIN_NOEXCP;
 
 public:
     void

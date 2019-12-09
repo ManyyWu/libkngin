@@ -24,7 +24,7 @@ class sync_queue {
 public:
     typedef std::unique_ptr<std::deque<Type *>> sync_queue_ptr;
 
-    typedef size_t                             size_type;
+    typedef size_t                              size_type;
 
 public:
     sync_queue ()
@@ -71,7 +71,7 @@ public:
     virtual bool
     push (Type **_v)
     {
-        check(_v);
+        assert(_v);
         if (!_v)
             return false;
         if (m_queue.size() > m_max_size)

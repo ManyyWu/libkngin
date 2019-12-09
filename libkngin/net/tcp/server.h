@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include "core/define.h"
+#include "core/noncopyable.h"
 #include "net/address.h"
 #include "net/event_loop.h"
 #include "net/listener.h"
@@ -14,7 +15,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
-class server {
+class server : public noncopyable {
 public:
     typedef session::in_buffer_ptr                    in_buffer_ptr;
 
@@ -36,6 +37,8 @@ public:
 
     typedef std::shared_ptr<listener>                 listener_ptr;
 
+    typedef std::function<void (void)>                crash_handler;
+
     typedef std::vector<session_ptr>                  session_list;
 
     typedef std::unordered_map<uint32_t, session_ptr> session_map;
@@ -45,14 +48,14 @@ public:
 
     server            (const server_opts &_opts);
 
-    ~server           ();
+    ~server           () KNGIN_NOEXCP;
 
 public:
     bool
     run               ();
 
     void
-    stop              ();
+    stop              (bool _crash = false);
 
     size_t
     session_num       ();
@@ -67,20 +70,23 @@ public:
 
 public:
     void
-    set_session_handler (session_handler &&_handler)
+    set_session_handler (session_handler &&_handler) KNGIN_NOEXCP
     { m_session_handler = std::move(_handler); }
     void
-    set_message_handler (message_handler &&_handler)
+    set_message_handler (message_handler &&_handler) KNGIN_NOEXCP
     { m_message_handler = std::move(_handler); }
     void
-    set_sent_handler    (sent_handler &&_handler)
+    set_sent_handler    (sent_handler &&_handler) KNGIN_NOEXCP
     { m_sent_handler = std::move(_handler); }
     void
-    set_close_handler   (close_handler &&_handler)
+    set_close_handler   (close_handler &&_handler) KNGIN_NOEXCP
     { m_close_handler = std::move(_handler); }
     void
-    set_oob_handler     (oob_handler &&_handler)
+    set_oob_handler     (oob_handler &&_handler) KNGIN_NOEXCP
     { m_oob_handler = std::move(_handler); }
+    void
+    set_crash_handler   (crash_handler &&_handler) KNGIN_NOEXCP
+    { m_crash_handler = std::move(_handler); }
 
 protected:
     event_loop &
@@ -121,6 +127,8 @@ protected:
     oob_handler       m_oob_handler;
 
     close_handler     m_close_handler;
+
+    crash_handler     m_crash_handler;
 
     std::atomic<bool> m_stopped;
 

@@ -14,7 +14,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-out_buffer::out_buffer() KNGIN_NOEXP
+out_buffer::out_buffer() KNGIN_NOEXCP
     : m_arr(nullptr),
       m_size(0)
 {
@@ -30,7 +30,7 @@ out_buffer::out_buffer (const void * _arr, size_t _size)
     log_fatal("out_buffer::out_buffer() error");
 }
 
-out_buffer::out_buffer(out_buffer &&_buf) KNGIN_NOEXP
+out_buffer::out_buffer(out_buffer &&_buf) KNGIN_NOEXCP
     : m_arr(nullptr), m_size(0)
 {
     std::swap(m_arr, _buf.m_arr);
@@ -40,7 +40,8 @@ out_buffer::out_buffer(out_buffer &&_buf) KNGIN_NOEXP
 size_t
 out_buffer::read_bytes (void * _p, size_t _n)
 {
-    arg_check(_p && _n);
+    assert(_p);
+    assert(_n);
     check_readable(_n);
     ::memcpy(_p, m_arr, _n);
     m_size -= _n;
@@ -50,13 +51,14 @@ out_buffer::read_bytes (void * _p, size_t _n)
 void
 out_buffer::reset (const void * _arr, size_t _size)
 {
-    arg_check(_arr && _size);
+    assert(_arr);
+    assert(_size);
     m_arr = static_cast<const unsigned char *>(_arr);
     m_size = _size;
 }
 
 void
-out_buffer::swap (out_buffer &_buf) KNGIN_NOEXP
+out_buffer::swap (out_buffer &_buf) KNGIN_NOEXCP
 {
     std::swap(m_arr, _buf.m_arr);
     std::swap(m_size, _buf.m_size);
@@ -75,7 +77,7 @@ out_buffer::dump ()
     return _result;
 }
 
-in_buffer::in_buffer() KNGIN_NOEXP
+in_buffer::in_buffer() KNGIN_NOEXCP
     : m_arr(nullptr),
       m_size(0),
       m_valid(0)
@@ -93,7 +95,7 @@ in_buffer::in_buffer (void * _arr, size_t _size)
     log_fatal("in_buffer::in_buffer() error");
 }
 
-in_buffer::in_buffer (in_buffer &&_buf) KNGIN_NOEXP
+in_buffer::in_buffer (in_buffer &&_buf) KNGIN_NOEXCP
     : m_arr(nullptr),
       m_size(0),
       m_valid(0)
@@ -106,7 +108,8 @@ in_buffer::in_buffer (in_buffer &&_buf) KNGIN_NOEXP
 in_buffer &
 in_buffer::write_bytes (const void * _p, size_t _n)
 {
-    arg_check(_p && _n);
+    assert(_p);
+    assert(_n);
     check_readable(_n);
     ::memcpy(m_arr, _p, _n);
     m_valid += _n;
@@ -116,14 +119,15 @@ in_buffer::write_bytes (const void * _p, size_t _n)
 void
 in_buffer::reset (void * _arr, size_t _size)
 {
-    arg_check(_arr && _size);
+    assert(_arr);
+    assert(_size);
     m_arr = static_cast<unsigned char *>(_arr);
     m_size = _size;
     m_valid = 0;
 }
 
 void
-in_buffer::swap (in_buffer &_buf) KNGIN_NOEXP
+in_buffer::swap (in_buffer &_buf) KNGIN_NOEXCP
 {
     std::swap(m_arr, _buf.m_arr);
     std::swap(m_size, _buf.m_size);

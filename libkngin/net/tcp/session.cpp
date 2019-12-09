@@ -37,7 +37,6 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_serial(session::next_serial()),
       m_mutex()
 {
-    arg_check(m_loop);
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
     sockopts::set_ooblinline(m_socket, false);
@@ -49,12 +48,12 @@ session::session (event_loop &_loop, k::socket &&_socket,
     throw;
 }
 
-session::~session ()
+session::~session () KNGIN_NOEXCP
 {
     if (m_connected) {
         log_warning("the TCP session must be closed"
                     " before object disconstructing");
-        ignore_exp(this->close(true));
+        ignore_excp(this->close(true));
     }
 
     // FIXME; wait for m_connected to be false( this->close(true); )
@@ -64,7 +63,7 @@ bool
 session::send (out_buffer_ptr _buf)
 {
     arg_check(_buf);
-    check(m_connected);
+    assert(m_connected);
 
     {
         local_lock _lock(m_mutex);
@@ -85,8 +84,8 @@ session::send (out_buffer_ptr _buf)
 bool
 session::recv (in_buffer_ptr _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
 {
-    check(m_connected);
-
+    arg_check(_buf);
+    assert(m_connected);
     enable_read();
     m_loop->update_event(self());
 
@@ -104,8 +103,7 @@ session::recv (in_buffer_ptr _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALL
 void
 session::close (bool _blocking /* = false */)
 {
-    check(m_connected);
-
+    assert(m_connected);
     if (!m_loop->looping()) {
         m_socket.close();
         m_in_buf = nullptr;
@@ -136,7 +134,7 @@ session::close (bool _blocking /* = false */)
 void
 session::rd_shutdown ()
 {
-    check(m_connected);
+    assert(m_connected);
     if (m_loop->in_loop_thread())
         m_socket.rd_shutdown();
     else
@@ -148,7 +146,7 @@ session::rd_shutdown ()
 void
 session::wr_shutdown ()
 {
-    check(m_connected);
+    assert(m_connected);
     if (m_loop->in_loop_thread())
         m_socket.wr_shutdown();
     else
@@ -210,7 +208,7 @@ session::on_write ()
             }
         }
         if (m_sent_handler)
-            ignore_exp(m_sent_handler(std::ref(*this)));
+            ignore_excp(m_sent_handler(std::ref(*this)));
     }
 }
 
@@ -258,7 +256,7 @@ session::on_read ()
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_handler)
-            ignore_exp(m_message_handler(std::ref(*this),
+            ignore_excp(m_message_handler(std::ref(*this),
                                          std::ref(*_temp_ptr),
                                          _temp_ptr->valid()));
     }
@@ -286,7 +284,7 @@ session::on_oob ()
         return;
     }
     if (m_oob_handler) {
-        ignore_exp(m_oob_handler(std::ref(*this), _data));
+        ignore_excp(m_oob_handler(std::ref(*this), _data));
     } else {
         log_warning("unhandled oob data from %s", m_socket.name().c_str());
     }
@@ -295,7 +293,7 @@ session::on_oob ()
 void
 session::on_error ()
 {
-    check(m_connected);
+    assert(m_connected);
     m_loop->check_thread();
 
     char _arr[1];
@@ -322,7 +320,7 @@ session::on_error ()
 void
 session::on_close (std::error_code _ec)
 {
-    check(m_connected);
+    assert(m_connected);
     m_loop->check_thread();
 
     if (m_loop->registed(self()))
@@ -331,7 +329,7 @@ session::on_close (std::error_code _ec)
     m_in_buf = nullptr;
     m_connected = false;
     if (m_close_handler)
-        ignore_exp(m_close_handler(std::cref(*this), _ec));
+        ignore_excp(m_close_handler(std::cref(*this), _ec));
 }
 
 KNGIN_NAMESPACE_TCP_END

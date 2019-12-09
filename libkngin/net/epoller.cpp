@@ -32,16 +32,17 @@ epoller::epoller ()
     throw;
 }
 
-epoller::~epoller () KNGIN_NOEXP
+epoller::~epoller () KNGIN_NOEXCP
 {
     if (m_epollfd.valid())
-        ignore_exp(this->close());
+        ignore_excp(this->close());
 }
 
 uint32_t
 epoller::wait (epoll_event_set &_list, timestamp _ms)
 {
-    check(m_epollfd.valid());
+    assert(_list.size());
+    assert(m_epollfd.valid());
     int _num = ::epoll_wait(m_epollfd.fd(), _list.data(),
                             static_cast<int>(_list.size()),
                             static_cast<int>(_ms.value_int()));
@@ -56,7 +57,7 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
 void
 epoller::close ()
 {
-    check(m_epollfd.valid());
+    assert(m_epollfd.valid());
     m_epollfd.close();
     if (m_events.size())
         log_warning("there are still have %" PRIu64
@@ -64,7 +65,7 @@ epoller::close ()
 }
 
 bool
-epoller::registed (int _fd) KNGIN_NOEXP
+epoller::registed (int _fd) KNGIN_NOEXCP
 {
     {
         local_lock _lock(m_mutex);
@@ -75,6 +76,7 @@ epoller::registed (int _fd) KNGIN_NOEXP
 void
 epoller::register_event (epoller_event_ptr _e)
 {
+    assert(_e);
     {
         local_lock _lock(m_mutex);
 #ifndef NDEBUG
@@ -88,6 +90,7 @@ epoller::register_event (epoller_event_ptr _e)
 void
 epoller::remove_event (epoller_event_ptr _e)
 {
+    assert(_e);
     {
         local_lock _lock(m_mutex);
 #ifndef NDEBUG
@@ -101,6 +104,7 @@ epoller::remove_event (epoller_event_ptr _e)
 void
 epoller::modify_event (epoller_event_ptr _e)
 {
+    assert(_e);
     {
         local_lock _lock(m_mutex);
 #ifndef NDEBUG
@@ -127,10 +131,11 @@ epoller::update_event (int _opt, int _fd, epoller_event *_e)
     * in another thread has no effect on select().  In summary, any application that relies on a
     * particular behavior in this scenario must be considered buggy.
     */
-    check(m_epollfd.valid());
+    assert(m_epollfd.valid());
+    assert(_e);
 
     _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
-    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &(_e->m_event)) < 0)
+    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0)
         throw k::system_error("::epoll_ctl() error");
 }
 

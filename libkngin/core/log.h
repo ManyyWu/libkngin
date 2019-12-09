@@ -5,6 +5,7 @@
 #include <string>
 #include "core/define.h"
 #include "core/lock.h"
+#include "core/noncopyable.h"
 
 #define KNGIN_LOG_BUF_SIZE                     4096
 #define KNGIN_LOG_FILE_MAX_SIZE                20 * 1024 * 1024 // 20M
@@ -61,12 +62,11 @@ enum KNGIN_LOG_LEVEL {
 };
 
 class log_mgr;
-class log {
+class log : public noncopyable {
 public:
     log           () = delete;
 
 private:
-    explicit
     log           (KNGIN_LOG_FILE _filetype,
                    KNGIN_LOG_MODE _mode = KNGIN_LOG_MODE_FILE);
 
@@ -74,65 +74,65 @@ private:
 
 public:
     void
-    disable_info  () KNGIN_NOEXP { m_disable_info = true; }
+    disable_info  () KNGIN_NOEXCP { m_disable_info = true; }
 
     void
-    disable_debug () KNGIN_NOEXP { m_disable_debug = true; }
+    disable_debug () KNGIN_NOEXCP { m_disable_debug = true; }
 
     void
-    enable_info   () KNGIN_NOEXP { m_disable_info = false; }
+    enable_info   () KNGIN_NOEXCP { m_disable_info = false; }
 
     void
-    enable_debug  () KNGIN_NOEXP { m_disable_debug = false; }
+    enable_debug  () KNGIN_NOEXCP { m_disable_debug = false; }
 
 public:
     bool
-    fatal         (const char *_fmt, ...) KNGIN_NOEXP;
+    fatal         (const char *_fmt, ...) KNGIN_NOEXCP;
 
     bool
-    error         (const char *_fmt, ...) KNGIN_NOEXP;
+    error         (const char *_fmt, ...) KNGIN_NOEXCP;
 
     bool
-    warning       (const char *_fmt, ...) KNGIN_NOEXP;
+    warning       (const char *_fmt, ...) KNGIN_NOEXCP;
 
     bool
-    info          (const char *_fmt, ...) KNGIN_NOEXP;
+    info          (const char *_fmt, ...) KNGIN_NOEXCP;
 
     bool
-    debug         (const char *_fmt, ...) KNGIN_NOEXP;
+    debug         (const char *_fmt, ...) KNGIN_NOEXCP;
 
     bool
-    log_data      (const std::string &_str) KNGIN_NOEXP;
+    log_data      (const std::string &_str) KNGIN_NOEXCP;
 
     bool
     log_assert    (const char *_func, const char *_file,
-                   size_t _line, const char *_exp) KNGIN_NOEXP;
+                   size_t _line, const char *_exp) KNGIN_NOEXCP;
 
 private:
     const char *
-    get_datetime  () KNGIN_NOEXP;
+    get_datetime  () KNGIN_NOEXCP;
 
     bool
     write_log     (KNGIN_LOG_LEVEL _level,
-                   const char *_fmt, va_list _vl) KNGIN_NOEXP;
+                   const char *_fmt, va_list _vl) KNGIN_NOEXCP;
 
     bool
     write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
-                   const char *_fmt, size_t _len) KNGIN_NOEXP;
+                   const char *_fmt, size_t _len) KNGIN_NOEXCP;
 
     const char *
-    color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXP;
+    color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP;
 
     const char *
-    color_end     () KNGIN_NOEXP;
+    color_end     () KNGIN_NOEXCP;
 
     void
     write_stderr  (KNGIN_LOG_LEVEL _level,
-                   const char *_str, size_t _len) KNGIN_NOEXP;
+                   const char *_str, size_t _len) KNGIN_NOEXCP;
 
     void
     write_stderr2 (KNGIN_LOG_LEVEL _level,
-                   const char *_fmt, ...) KNGIN_NOEXP;
+                   const char *_fmt, ...) KNGIN_NOEXCP;
 
 private:
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)

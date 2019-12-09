@@ -105,6 +105,10 @@ public:
                                  std::placeholders::_1, std::placeholders::_2));
         m_server.set_close_handler(std::bind(&test_server::on_close, this,
                                    std::placeholders::_1));
+        m_server.set_crash_handler([] () {
+            assert(!"server crashed");
+            exit(1);
+        });
         return m_server.run();
     }
 
@@ -151,7 +155,7 @@ public:
     void
     on_new_session (tcp::server::session_ptr _session)
     {
-        check(_session);
+        assert(_session);
         log_info("new session %s", _session->name().c_str());
         std::shared_ptr<out_buffer> _buf = nullptr;
         std::shared_ptr<char *> _arr = nullptr;
@@ -212,13 +216,13 @@ tcp_server_test ()
         .port                   = SERVER_PORT,
         .allow_ipv6             = false,
         .backlog                = 100,
-        .thread_num             = 3,
+        .thread_num             = 30,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,
     };
     test_server _s(_opts);
-    check(_s.run());
+    assert(_s.run());
 
     if (g_barrier->wait())
         g_barrier->destroy();

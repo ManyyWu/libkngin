@@ -10,14 +10,14 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-epoller_event::epoller_event (epollfd _fd) KNGIN_NOEXP
+epoller_event::epoller_event (epollfd _fd) KNGIN_NOEXCP
     : filefd(_fd),
       m_flags(EPOLLHUP | EPOLLERR),
       m_event({0, nullptr})
 {
 }
 
-epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXP
+epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXCP
     : filefd(std::move(_e)),
       m_flags(_e.m_flags),
       m_event(_e.m_event)
@@ -28,6 +28,7 @@ epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXP
 void
 epoller_event::on_events (epoller_event *_ptr, uint32_t _events)
 {
+    assert(_ptr);
     try {
         if (EPOLLHUP & _events) { // RST
             _ptr->on_error();

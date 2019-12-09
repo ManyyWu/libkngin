@@ -27,8 +27,9 @@ log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FIL
 }
 
 bool
-log::fatal (const char *_fmt, ...) KNGIN_NOEXP
+log::fatal (const char *_fmt, ...) KNGIN_NOEXCP
 {
+    assert(_fmt);
     va_list _vl;
     va_start(_vl, _fmt);
     bool _ret = write_log(KNGIN_LOG_LEVEL_FATAL, _fmt, _vl);
@@ -38,8 +39,9 @@ log::fatal (const char *_fmt, ...) KNGIN_NOEXP
 }
 
 bool
-log::error (const char *_fmt, ...) KNGIN_NOEXP
+log::error (const char *_fmt, ...) KNGIN_NOEXCP
 {
+    assert(_fmt);
     va_list _vl;
     va_start(_vl, _fmt);
     bool _ret = write_log(KNGIN_LOG_LEVEL_ERROR, _fmt, _vl);
@@ -49,8 +51,9 @@ log::error (const char *_fmt, ...) KNGIN_NOEXP
 }
 
 bool
-log::warning (const char *_fmt, ...) KNGIN_NOEXP
+log::warning (const char *_fmt, ...) KNGIN_NOEXCP
 {
+    assert(_fmt);
     va_list _vl;
     va_start(_vl, _fmt);
     bool _ret = write_log(KNGIN_LOG_LEVEL_WARNING, _fmt, _vl);
@@ -59,8 +62,9 @@ log::warning (const char *_fmt, ...) KNGIN_NOEXP
 }
 
 bool
-log::info (const char *_fmt, ...) KNGIN_NOEXP
+log::info (const char *_fmt, ...) KNGIN_NOEXCP
 {
+    assert(_fmt);
     if (m_disable_info)
         return true;
 
@@ -72,8 +76,9 @@ log::info (const char *_fmt, ...) KNGIN_NOEXP
 }
 
 bool
-log::debug (const char *_fmt, ...) KNGIN_NOEXP
+log::debug (const char *_fmt, ...) KNGIN_NOEXCP
 {
+    assert(_fmt);
     if (m_disable_debug)
         return true;
 
@@ -85,7 +90,7 @@ log::debug (const char *_fmt, ...) KNGIN_NOEXP
 }
 
 bool
-log::log_data (const std::string &_str) KNGIN_NOEXP
+log::log_data (const std::string &_str) KNGIN_NOEXCP
 {
     if (_str.empty())
         return false;
@@ -102,13 +107,16 @@ log::log_data (const std::string &_str) KNGIN_NOEXP
 
 bool
 log::log_assert (const char *_func, const char *_file,
-                 size_t _line, const char *_exp) KNGIN_NOEXP
+                 size_t _line, const char *_exp) KNGIN_NOEXCP
 {
+    assert(_func);
+    assert(_file);
+    assert(_exp);
     return fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
 }
 
 const char *
-log::get_datetime () KNGIN_NOEXP
+log::get_datetime () KNGIN_NOEXCP
 {
     time_t _t = ::time(nullptr);
     struct tm _tm;
@@ -122,7 +130,7 @@ log::get_datetime () KNGIN_NOEXP
 }
 
 bool
-log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOEXP
+log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOEXCP
 {
     assert(_fmt);
 
@@ -160,8 +168,9 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
 
 bool
 log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
-                    const char *_str, size_t _len) KNGIN_NOEXP
+                    const char *_str, size_t _len) KNGIN_NOEXCP
 {
+    assert(_file);
     assert(_str);
 
     bool         _fail = false;
@@ -201,7 +210,7 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
                           _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
                           ::strerror(errno), errno);
             goto fail;
-        } else if ((size_t)_ret != _str_len) {
+        } else if (static_cast<size_t>(_ret) != _str_len) {
              write_stderr2(KNGIN_LOG_LEVEL_FATAL,
                            KNGIN_LOG_LOG_FORMAT("ERROR",
                                                 "the content been written to \"%s\" are too short, "
@@ -229,7 +238,7 @@ fail:
 }
 
 const char *
-log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXP
+log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP
 {
     const char *_str = nullptr;
 #ifdef _WIN32
@@ -259,7 +268,7 @@ log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXP
 }
 
 const char *
-log::color_end () KNGIN_NOEXP
+log::color_end () KNGIN_NOEXCP
 {
 #ifdef _WIN32
 #else
@@ -268,7 +277,7 @@ log::color_end () KNGIN_NOEXP
 }
 
 void
-log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) KNGIN_NOEXP
+log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) KNGIN_NOEXCP
 {
     assert(_str);
 
@@ -279,7 +288,7 @@ log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) KNGIN_
 }
 
 void
-log::write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...) KNGIN_NOEXP
+log::write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...) KNGIN_NOEXCP
 {
     assert(_fmt);
 

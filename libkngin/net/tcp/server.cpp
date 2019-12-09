@@ -21,6 +21,7 @@ server::server (const server_opts &_opts)
       m_message_handler(nullptr),
       m_oob_handler(nullptr),
       m_close_handler(nullptr),
+      m_crash_handler(nullptr),
       m_stopped(true),
       m_stopping(false),
       m_mutex()
@@ -34,19 +35,19 @@ server::server (const server_opts &_opts)
     throw;
 }
 
-server::~server ()
+server::~server () KNGIN_NOEXCP
 {
     if (!m_stopped)
-        ignore_exp(stop());
+        ignore_excp(stop());
 }
 
 bool
 server::run ()
 {
-    check(m_stopped);
+    assert(m_stopped);
 
     // run threadpool
-    m_threadpool.start(std::bind(&server::stop, this));
+    m_threadpool.start(std::bind(&server::stop, this, std::placeholders::_1));
 
     // create listen socket
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
@@ -77,12 +78,16 @@ server::run ()
 }
 
 void
-server::stop ()
+server::stop (bool _crash/* = false */)
 {
-    check(!m_stopped);
+    if (m_stopped)
+        return;
     log_info("stopping TCP server");
 
+    // close listener
     m_listener->close(true);
+
+    // close all sessions
     {
         m_stopping = true;
         local_lock _lock(m_mutex);
@@ -90,11 +95,15 @@ server::stop ()
             _iter.second->close(true);
         m_sessions.clear();
     }
-    if (!m_stopped)
-        m_threadpool.stop();
-    m_stopped = true;
 
+    // close all threads but self
+    if (!m_stopped)
+        m_threadpool.stop(); 
+    m_stopped = true;
     log_info("TCP server has stopped");
+
+    if (m_crash_handler)
+    ignore_excp(m_crash_handler());
 }
 
 size_t
@@ -109,8 +118,8 @@ server::session_num ()
 void
 server::remove_session (session_ptr _session)
 {
-    check(!m_stopped);
-    check(_session->connected());
+    assert(!m_stopped);
+    assert(_session->connected());
 
     _session->close();
 }
@@ -118,7 +127,8 @@ server::remove_session (session_ptr _session)
 int
 server::broadcast (session_list &_list, out_buffer_ptr _buf)
 {
-    check(!m_stopped);
+    arg_check(_buf);
+    assert(!m_stopped);
     return 0;
 }
 
@@ -158,7 +168,7 @@ server::parse_addr (const std::string &_name, uint16_t _port)
 void
 server::on_new_session (socket &&_sock)
 {
-    check(!m_stopped);
+    assert(!m_stopped);
     m_listener->check_thread();
     // FIXME: stop accepting when sessions reach to the maximum number
 
@@ -193,7 +203,7 @@ server::on_new_session (socket &&_sock)
 
     if (m_session_handler)
         _next_loop.run_in_loop([this, _session] () {
-            ignore_exp(m_session_handler(_session));
+            ignore_excp(m_session_handler(_session));
         });
 }
 
@@ -202,7 +212,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
 {
     _session.check_thread();
     if (m_close_handler)
-        ignore_exp(m_close_handler(std::cref(_session), _ec));
+        ignore_excp(m_close_handler(std::cref(_session), _ec));
 
     if (!m_stopping)
     {
@@ -218,6 +228,7 @@ server::on_listener_close (std::error_code _ec)
     if (_ec)
         log_error("listener closed, %s",
                   system_error_str(_ec).c_str());
+    stop();
 }
 
 KNGIN_NAMESPACE_TCP_END

@@ -44,7 +44,7 @@ typedef SSIZE_T ssize_t;
 
 // for exception
 //#define KNGIN_EXP   noexcept(false)
-#define KNGIN_NOEXP noexcept(true)
+#define KNGIN_NOEXCP noexcept(true)
 
 // for queues
 #define KNGIN_QUEUE_MAX (size_t)(SIZE_MAX)

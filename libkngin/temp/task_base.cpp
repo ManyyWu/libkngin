@@ -8,7 +8,7 @@
 //task_base::task_base (work_thread *_thread, msg *_msg, int _priority /* = 0 */)
 //    : m_thread(_thread), m_msg(_msg), m_priority(_priority)
 //{
-//    check(_thread);
+//    assert(_thread);
 //    // log, throw
 //}
 //
@@ -22,8 +22,8 @@
 //bool
 //task_base::create (msg **_msg)
 //{
-//    check(_msg);
-//    check(*_msg);
+//    assert(_msg);
+//    assert(*_msg);
 //
 //    if (m_msg)
 //        m_msg->release();

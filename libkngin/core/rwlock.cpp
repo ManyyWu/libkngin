@@ -21,9 +21,9 @@ rwlock::rwlock ()
 {
 }
 
-rwlock::~rwlock () KNGIN_NOEXP
+rwlock::~rwlock () KNGIN_NOEXCP
 {
-    ignore_exp(
+    ignore_excp(
         std::error_code _ec = int2ec(::pthread_rwlock_destroy(&m_rwlock));
         if (_ec)
             log_fatal("::pthread_rwlock_destroy() error %s",

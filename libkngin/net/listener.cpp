@@ -21,7 +21,6 @@ listener::listener (event_loop &_loop, k::socket &&_socket)
       m_close_handler(nullptr),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
-    check(m_loop);
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
     m_socket.set_closeexec(true);
@@ -34,10 +33,10 @@ listener::listener (event_loop &_loop, k::socket &&_socket)
     throw;
 }
 
-listener::~listener () KNGIN_NOEXP
+listener::~listener () KNGIN_NOEXCP
 {
     if (!m_closed)
-        ignore_exp(this->close(true));
+        ignore_excp(this->close(true));
 
     // FIXME; wait for m_closed to be true
 }
@@ -45,15 +44,15 @@ listener::~listener () KNGIN_NOEXP
 void
 listener::bind (const address &_listen_addr)
 {
-    check(!m_closed);
+    assert(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr);
     m_socket.set_nonblock(true);
 }
 
 void
-listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXP
+listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
-    check(!m_closed);
+    assert(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr, _ec);
     m_socket.set_nonblock(true);
 }
@@ -63,7 +62,7 @@ listener::listen (int _backlog,
                   accept_handler &&_new_ssesion_handler,
                   close_handler &&_close_handler)
 {
-    check(!m_closed);
+    assert(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
     m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog);
@@ -72,9 +71,9 @@ listener::listen (int _backlog,
 void
 listener::listen (int _backlog, std::error_code &_ec,
                   accept_handler &&_new_sesssion_handler,
-                  close_handler &&_close_handler) KNGIN_NOEXP
+                  close_handler &&_close_handler) KNGIN_NOEXCP
 {
-    check(!m_closed);
+    assert(!m_closed);
     m_accept_handler = std::move(_new_sesssion_handler); 
     m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog, _ec);
@@ -83,7 +82,7 @@ listener::listen (int _backlog, std::error_code &_ec,
 void
 listener::close (bool _blocking /* = true */)
 {
-    check(!m_closed);
+    assert(!m_closed);
 
     if (!m_loop->looping()) {
         m_socket.close();
@@ -147,7 +146,7 @@ listener::on_read ()
 
     socket _sock(_sockfd);
     if (m_accept_handler) {
-        ignore_exp(m_accept_handler(std::move(_sock)));
+        ignore_excp(m_accept_handler(std::move(_sock)));
     } else {
         log_warning("unaccepted session, fd = %d", _sock.fd());
         _sock.close();
@@ -157,7 +156,7 @@ listener::on_read ()
 void
 listener::on_error ()
 {
-    check(!m_closed);
+    assert(!m_closed);
     m_loop->check_thread();
 
     on_read();
@@ -166,7 +165,7 @@ listener::on_error ()
 void
 listener::on_close (std::error_code _ec)
 {
-    check(!m_closed);
+    assert(!m_closed);
     m_loop->check_thread();
 
     if (m_loop->registed(self()))
@@ -175,7 +174,8 @@ listener::on_close (std::error_code _ec)
     m_closed = true;
 
     if (m_close_handler)
-        ignore_exp(m_close_handler(_ec));
+        ignore_excp(m_close_handler(_ec));
+    throw k::exception("listener error");
 }
 
 KNGIN_NAMESPACE_K_END

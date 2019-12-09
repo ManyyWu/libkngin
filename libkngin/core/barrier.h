@@ -9,16 +9,17 @@
 #include <atomic>
 #include "core/define.h"
 #include "core/timestamp.h"
+#include "core/noncopyable.h"
 #include "core/mutex.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class barrier {
+class barrier : public noncopyable {
 public:
     explicit
     barrier        (int _count);
 
-    ~barrier       () KNGIN_NOEXP;
+    ~barrier       () KNGIN_NOEXCP;
 
 public:
     void

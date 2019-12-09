@@ -6,17 +6,18 @@
 #include <algorithm>
 #include <vector>
 #include "core/define.h"
+#include "core/noncopyable.h"
 #include "core/exception.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class out_buffer {
+class out_buffer : public noncopyable {
 public:
-    out_buffer   () KNGIN_NOEXP;
+    out_buffer   () KNGIN_NOEXCP;
 
     out_buffer   (const void *_arr, size_t _size);
 
-    out_buffer   (out_buffer &&_buf) KNGIN_NOEXP;
+    out_buffer   (out_buffer &&_buf) KNGIN_NOEXCP;
 
     ~out_buffer  () = default;
 
@@ -28,10 +29,10 @@ public:
     get          (size_t _idx) const
     { check_readable(_idx + 1); return &m_arr[_idx]; }
     const unsigned char *
-    begin        () const KNGIN_NOEXP
+    begin        () const KNGIN_NOEXCP
     { return m_arr; }
     size_t
-    size         () const KNGIN_NOEXP
+    size         () const KNGIN_NOEXCP
     { return m_size; }
 
 public:
@@ -76,16 +77,13 @@ public:
     reset        (const void * _buf, size_t _size);
 
     void
-    swap         (out_buffer &_buf) KNGIN_NOEXP;
+    swap         (out_buffer &_buf) KNGIN_NOEXCP;
 
 public:
     std::string
     dump         ();
 
 public:
-    out_buffer &
-    operator =   (out_buffer &) = delete;
-
     out_buffer &
     operator -=    (size_t _size)
     { check_readable(_size); m_size -= _size; return *this; }
@@ -111,13 +109,13 @@ private:
     size_t                m_size;
 };
 
-class in_buffer {
+class in_buffer : noncopyable {
 public:
-    in_buffer    () KNGIN_NOEXP;
+    in_buffer    () KNGIN_NOEXCP;
 
     in_buffer    (void * _arr, size_t _size);
 
-    in_buffer    (in_buffer &&_buf) KNGIN_NOEXP;
+    in_buffer    (in_buffer &&_buf) KNGIN_NOEXCP;
 
     ~in_buffer   () = default;
 
@@ -126,16 +124,16 @@ public:
     get          (size_t _idx)
     { check_readable(_idx + 1); return &m_arr[_idx]; }
     unsigned char *
-    begin        () const KNGIN_NOEXP
+    begin        () const KNGIN_NOEXCP
     { return m_arr; }
     size_t
-    size         () const KNGIN_NOEXP
+    size         () const KNGIN_NOEXCP
     { return m_size; }
     size_t
-    valid        () const KNGIN_NOEXP
+    valid        () const KNGIN_NOEXCP
     { return m_valid; }
     size_t
-    writeable    () const KNGIN_NOEXP
+    writeable    () const KNGIN_NOEXCP
     { return m_size - m_valid; }
 
 public:
@@ -164,16 +162,13 @@ public:
     reset        (void * _buf, size_t _size);
 
     void
-    swap         (in_buffer &_buf) KNGIN_NOEXP;
+    swap         (in_buffer &_buf) KNGIN_NOEXCP;
 
 public:
     std::string
     dump         ();
 
 public:
-    in_buffer &
-    operator =   (in_buffer &) = delete;
-
     in_buffer &
     operator +=  (size_t _size)
     { check_writeable(_size); m_valid += _size; return *this; }

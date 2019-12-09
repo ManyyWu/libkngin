@@ -22,15 +22,11 @@ inline void
 arg_check_func(bool _exp, const char *_what = nullptr)
 {
     if (!(_exp) ? assert((_exp)), true : false)
-        throw k::exception((std::string(_what ? "invalid argument" : "%s - invalid argument")
-                           + _what).c_str());
+        throw k::exception(((_what ? "invalid argument - " : "invalid argument") 
+                               + std::string(_what ? _what : "")).c_str());
 }
-#define arg_check(exp)             do {                                         \
-                                       arg_check_func(static_cast<bool>((exp)));\
-                                   } while (false)
-#define arg_check2(exp, what)      do {                                                 \
-                                       arg_check_func(static_cast<bool>((exp)), (what));\
-                                   } while (false)
+#define arg_check(exp)             arg_check_func(static_cast<bool>((exp)))
+#define arg_check2(exp, what)      arg_check_func(static_cast<bool>((exp)), (what))
 
 // for expression checking
 #define if_not(exp)               if (!(exp)                                   \
@@ -40,7 +36,7 @@ arg_check_func(bool _exp, const char *_what = nullptr)
                                          )                                     \
                                       : false)
 #define check(exp)                do { if_not(exp) (void)0; } while (false)
-#define ignore_exp(exp)           do {                                                            \
+#define ignore_excp(exp)          do {                                                            \
                                       try {                                                       \
                                           {exp;}                                                  \
                                       } catch (const std::exception &_e) {                        \
@@ -80,14 +76,14 @@ arg_check_func(bool _exp, const char *_what = nullptr)
 // nullptr reference
 template <typename Type>
 Type &
-nullptr_ref () KNGIN_NOEXP
+nullptr_ref () KNGIN_NOEXCP
 {
     return *static_cast<Type *>(nullptr);
 }
 
 template <typename Type>
 bool
-is_nullptr_ref (Type &_ref) KNGIN_NOEXP
+is_nullptr_ref (Type &_ref) KNGIN_NOEXCP
 {
     return (nullptr == _ref);
 }

@@ -3,10 +3,11 @@
 
 #include "core/define.h"
 #include "core/lock.h"
+#include "core/noncopyable.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class local_lock {
+class local_lock : public noncopyable {
 public:
     explicit
     local_lock  (mutex &_m)

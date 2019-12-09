@@ -41,48 +41,48 @@ public:
     explicit
     socket      (INET_PROTOCOL _proto);
 
-    socket      (socket &&_s) KNGIN_NOEXP;
+    socket      (socket &&_s) KNGIN_NOEXCP;
 
     virtual
-    ~socket     () KNGIN_NOEXP;
+    ~socket     () KNGIN_NOEXCP;
 
 public:
     void
     bind        (const address &_addr);
 
     void
-    bind        (const address &_addr, std::error_code &_ec) KNGIN_NOEXP;
+    bind        (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
 
     void
     listen      (int _backlog);
 
     void
-    listen      (int _backlog, std::error_code &_ec) KNGIN_NOEXP;
+    listen      (int _backlog, std::error_code &_ec) KNGIN_NOEXCP;
 
     int
     accept      (address &_addr);
 
     int
-    accept      (address &_addr, std::error_code &_ec) KNGIN_NOEXP;
+    accept      (address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
 
     void
     connect     (const address &_addr);
 
     void
-    connect     (const address &_addr, std::error_code &_ec) KNGIN_NOEXP;
+    connect     (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
 
 public:
     void
     rd_shutdown ();
 
     void
-    rd_shutdown (std::error_code &_ec) KNGIN_NOEXP;
+    rd_shutdown (std::error_code &_ec) KNGIN_NOEXCP;
 
     void
     wr_shutdown ();
 
     void
-    wr_shutdown (std::error_code &_ec) KNGIN_NOEXP;
+    wr_shutdown (std::error_code &_ec) KNGIN_NOEXCP;
 
 public:
     size_t
@@ -90,14 +90,14 @@ public:
 
     size_t
     send        (out_buffer &_buf, int _flags,
-                 std::error_code &_ec) KNGIN_NOEXP;
+                 std::error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     recv        (in_buffer &_buf, int _flags);
 
     size_t
     recv        (in_buffer &_buf, int _flags,
-                 std::error_code &_ec) KNGIN_NOEXP;
+                 std::error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     sendto      (const address &_addr, out_buffer &_buf,
@@ -105,7 +105,7 @@ public:
 
     size_t
     sendto      (const address &_addr, out_buffer &_buf,
-                 int _flags, std::error_code &_ec) KNGIN_NOEXP;
+                 int _flags, std::error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     recvfrom    (address &_addr, in_buffer &_buf,
@@ -113,20 +113,20 @@ public:
 
     size_t
     recvfrom    (address &_addr, in_buffer &_buf,
-                 int _flags, std::error_code &_ec) KNGIN_NOEXP;
+                 int _flags, std::error_code &_ec) KNGIN_NOEXCP;
 
 public:
     address
     localaddr   () const;
 
     address
-    localaddr   (std::error_code &_ec) const KNGIN_NOEXP;
+    localaddr   (std::error_code &_ec) const KNGIN_NOEXCP;
 
     address
     peeraddr    () const;
 
     address
-    peeraddr    (std::error_code &_ec) const KNGIN_NOEXP;
+    peeraddr    (std::error_code &_ec) const KNGIN_NOEXCP;
 
     std::string
     name        () const;

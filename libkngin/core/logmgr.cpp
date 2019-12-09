@@ -40,7 +40,7 @@ log_mgr::log_mgr ()
     }
 }
 
-log_mgr::~log_mgr () KNGIN_NOEXP
+log_mgr::~log_mgr () KNGIN_NOEXCP
 {
     m_inited = false;
     kngin_log_set _temp;
@@ -50,7 +50,7 @@ log_mgr::~log_mgr () KNGIN_NOEXP
 }
 
 log &
-log_mgr::operator [] (size_t _index) KNGIN_NOEXP
+log_mgr::operator [] (size_t _index) KNGIN_NOEXCP
 {
     assert(log_mgr::m_inited);
     assert(log_mgr::m_log_set.size() == log_mgr::m_logfile_set.size());
@@ -63,7 +63,7 @@ log_mgr::add (const std::string &_filename, KNGIN_LOG_MODE _mode)
     assert(log_mgr::m_inited);
     m_logfile_set.push_back(_filename);
     int _index = m_log_set.size();
-    log *_new_log = new log((KNGIN_LOG_FILE)_index, _mode);
+    log *_new_log = new log(static_cast<KNGIN_LOG_FILE>(_index), _mode);
     try {
         m_log_set.push_back(_new_log);
     } catch (...) {
@@ -75,7 +75,7 @@ log_mgr::add (const std::string &_filename, KNGIN_LOG_MODE _mode)
 }
 
 std::string &
-log_mgr::filename_at (size_t _index) KNGIN_NOEXP
+log_mgr::filename_at (size_t _index) KNGIN_NOEXCP
 {
     assert(log_mgr::m_inited);
     assert(_index < log_mgr::m_log_set.size());
@@ -83,7 +83,7 @@ log_mgr::filename_at (size_t _index) KNGIN_NOEXP
 }
 
 bool
-log_mgr::inited () const KNGIN_NOEXP
+log_mgr::inited () const KNGIN_NOEXCP
 {
     return log_mgr::m_inited;
 }

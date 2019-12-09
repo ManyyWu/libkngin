@@ -8,14 +8,15 @@
 #endif
 #include "core/define.h"
 #include "core/timestamp.h"
+#include "core/noncopyable.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class mutex {
+class mutex : public noncopyable {
 public:
     mutex         ();
 
-    ~mutex        () KNGIN_NOEXP;
+    ~mutex        () KNGIN_NOEXCP;
 
 public:
     void

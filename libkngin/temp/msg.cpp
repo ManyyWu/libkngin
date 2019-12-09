@@ -10,7 +10,7 @@
 //msg::msg (task_base *_task)
 //    : m_buf(nullptr), m_size(0), m_type(INVALID_MSG), m_task(_task)
 //{
-//    check(_task);
+//    assert(_task);
 //}
 //
 //msg::~msg ()
@@ -21,7 +21,7 @@
 //bool
 //msg::create (uint32_t _type)
 //{
-//    check(__msg_valid(_type));
+//    assert(__msg_valid(_type));
 //
 //    if (m_buf)
 //        kdelete_array(m_buf);
@@ -32,8 +32,8 @@
 //bool
 //msg::create (const uint8_t *_buf, uint32_t _size, uint32_t _type)
 //{
-//    check(__msg_valid(_type));
-//    check(__both(_buf, _size));
+//    assert(__msg_valid(_type));
+//    assert(__both(_buf, _size));
 //
 //    if (m_buf)
 //        kdelete_array(m_buf);
@@ -54,8 +54,8 @@
 //bool
 //msg::create (uint8_t **_buf, uint32_t _size, uint32_t _type)
 //{
-//    check(__msg_valid(_type));
-//    check(__both(*_buf, _size));
+//    assert(__msg_valid(_type));
+//    assert(__both(*_buf, _size));
 //
 //    if (m_buf)
 //        kdelete_array(m_buf);
@@ -74,15 +74,15 @@
 //bool
 //msg::create (const msg *_msg)
 //{
-//    check(_msg);
-//    check(__msg_valid(_msg->m_type));
-//    check(__both(_msg->m_buf, _msg->m_size));
+//    assert(_msg);
+//    assert(__msg_valid(_msg->m_type));
+//    assert(__both(_msg->m_buf, _msg->m_size));
 //
 //    if (m_buf)
 //        kdelete_array(m_buf);
 //    if (_msg->m_size && _msg->m_buf) {
 //        knew_array(m_buf, uint8_t, _msg->m_size);
-//        check(m_buf);
+//        assert(m_buf);
 //        if (!m_buf)
 //            return nullptr;
 //        ::memcpy(m_buf, _msg->m_buf, (std::min)(_msg->m_size, MAX_MSG_SIZE));
@@ -98,9 +98,9 @@
 //bool
 //msg::create (msg **_msg)
 //{
-//    check(_msg);
-//    check(__msg_valid((*_msg)->m_type));
-//    check(__both((*_msg)->m_buf, (*_msg)->m_size));
+//    assert(_msg);
+//    assert(__msg_valid((*_msg)->m_type));
+//    assert(__both((*_msg)->m_buf, (*_msg)->m_size));
 //
 //    if (m_buf)
 //        kdelete_array(m_buf);
@@ -152,7 +152,7 @@
 //task_base *
 //msg::task ()
 //{
-//    check(m_task);
+//    assert(m_task);
 //    return m_task;
 //}
 //

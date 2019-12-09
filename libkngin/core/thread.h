@@ -31,11 +31,11 @@ public:
 
             int   code;
 
-            thread_err_code () KNGIN_NOEXP
+            thread_err_code () KNGIN_NOEXCP
             { ptr = nullptr; code = 0; }
 
             explicit
-            thread_err_code (int _code) KNGIN_NOEXP
+            thread_err_code (int _code) KNGIN_NOEXCP
             { ptr = nullptr; code = _code; }
         };
 
@@ -59,7 +59,7 @@ public:
         pimpl         (const char *_name);
 
         virtual
-        ~pimpl        () KNGIN_NOEXP;
+        ~pimpl        () KNGIN_NOEXCP;
 
     public:
         void
@@ -72,17 +72,17 @@ public:
         cancel        ();
 
         bool
-        joined        () const KNGIN_NOEXP;
+        joined        () const KNGIN_NOEXCP;
 
         pthread_t
-        get_interface () const KNGIN_NOEXP;
+        get_interface () const KNGIN_NOEXCP;
 
         const char *
-        name          () const KNGIN_NOEXP;
+        name          () const KNGIN_NOEXCP;
 
     public:
         bool
-        equal_to      (pthread_t _t) KNGIN_NOEXP;
+        equal_to      (pthread_t _t) KNGIN_NOEXCP;
 
     public:
         std::shared_ptr<thread::pimpl>
@@ -91,11 +91,11 @@ public:
 
     protected:
         static void *
-        start         (void *_args) KNGIN_NOEXP;
+        start         (void *_args) KNGIN_NOEXCP;
 
     protected:
         static void
-        cleanup       (void *_args) KNGIN_NOEXP;
+        cleanup       (void *_args) KNGIN_NOEXCP;
 
     protected:
         const std::string m_name;
@@ -134,36 +134,36 @@ public:
     { m_pimpl->cancel(); }
 
     bool
-    joined        () const KNGIN_NOEXP
+    joined        () const KNGIN_NOEXCP
     { return m_pimpl->joined(); }
 
     pthread_t
-    get_interface () const KNGIN_NOEXP
+    get_interface () const KNGIN_NOEXCP
     { return m_pimpl->get_interface(); }
 
     const char *
-    name          () const KNGIN_NOEXP
+    name          () const KNGIN_NOEXCP
     { return m_pimpl->name(); }
 
 public:
     static uint64_t
-    tid           () KNGIN_NOEXP;
+    tid           () KNGIN_NOEXCP;
 
     static pthread_t
-    ptid          () KNGIN_NOEXP;
+    ptid          () KNGIN_NOEXCP;
 
     static void
-    sleep         (timestamp _ms) KNGIN_NOEXP;
+    sleep         (timestamp _ms) KNGIN_NOEXCP;
 
     static bool
-    equal         (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXP;
+    equal         (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXCP;
 
     static void
-    exit          (int _err_code) KNGIN_NOEXP
+    exit          (int _err_code) KNGIN_NOEXCP
     { ::pthread_exit(thread::pimpl::thread_err_code(_err_code).ptr); }
 
     bool
-    equal_to      (pthread_t _t) KNGIN_NOEXP
+    equal_to      (pthread_t _t) KNGIN_NOEXCP
     { return m_pimpl->equal_to(_t); }
 
 public:

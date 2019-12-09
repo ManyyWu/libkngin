@@ -48,7 +48,7 @@ public:
     session         (event_loop &_loop, k::socket &&_socket,
                      const address &_local_addr, const address &_peer_addr);
 
-    ~session        () KNGIN_NOEXP;
+    ~session        () KNGIN_NOEXCP;
 
 public:
     bool
@@ -108,29 +108,29 @@ public:
 
 public:
     const address &
-    local_addr      () const KNGIN_NOEXP
+    local_addr      () const KNGIN_NOEXCP
     { return m_local_addr; }
 
     const address &
-    peer_addr       () const KNGIN_NOEXP
+    peer_addr       () const KNGIN_NOEXCP
     { return m_peer_addr; }
 
     const std::string
-    name            () const KNGIN_NOEXP
+    name            () const KNGIN_NOEXCP
     { return m_name; }
 
     uint64_t
-    serial          () const KNGIN_NOEXP
+    serial          () const KNGIN_NOEXCP
     { return m_serial; }
 
 public:
     void
-    check_thread    () const KNGIN_NOEXP
+    check_thread    () const KNGIN_NOEXCP
     { m_loop->check_thread(); }
 
 public:
     event_loop_pimpl_ptr &
-    loop          () KNGIN_NOEXP
+    loop          () KNGIN_NOEXCP
     { return m_loop; }
 
     std::shared_ptr<session>

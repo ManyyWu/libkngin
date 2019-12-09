@@ -47,7 +47,7 @@ thread::pimpl::pimpl (const char *_name)
     throw;
 }
 
-thread::pimpl::~pimpl () KNGIN_NOEXP
+thread::pimpl::~pimpl () KNGIN_NOEXCP
 {
     if (m_joined)
         return;
@@ -62,7 +62,7 @@ thread::pimpl::~pimpl () KNGIN_NOEXP
 void
 thread::pimpl::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
 {
-    arg_check(_fn);
+    assert(_fn);
 
     std::error_code _ec = int2ec(::pthread_create(
                                      &m_thr, nullptr,
@@ -116,31 +116,31 @@ thread::pimpl::cancel ()
 }
 
 bool
-thread::pimpl::joined () const KNGIN_NOEXP
+thread::pimpl::joined () const KNGIN_NOEXCP
 {
     return m_joined;
 }
 
 pthread_t
-thread::pimpl::get_interface () const KNGIN_NOEXP
+thread::pimpl::get_interface () const KNGIN_NOEXCP
 {
     return m_thr;
 }
 
 const char *
-thread::pimpl::name () const KNGIN_NOEXP
+thread::pimpl::name () const KNGIN_NOEXCP
 {
     return m_name.c_str();
 }
 
 bool
-thread::pimpl::equal_to (pthread_t _t) KNGIN_NOEXP
+thread::pimpl::equal_to (pthread_t _t) KNGIN_NOEXCP
 {
     return ::pthread_equal(_t, m_thr);
 }
 
 void *
-thread::pimpl::start (void *_args) KNGIN_NOEXP
+thread::pimpl::start (void *_args) KNGIN_NOEXCP
 {
     assert(_args);
     thread_err_code _code;
@@ -164,7 +164,7 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
                   _data->name.c_str());
     }
     if (_crash) {
-        assert(0);
+        //assert(0);
         if (_data->handler)
             _data->handler(thread::ptid());
     }
@@ -173,28 +173,15 @@ thread::pimpl::start (void *_args) KNGIN_NOEXP
 }
 
 void
-thread::pimpl::cleanup (void *_args) KNGIN_NOEXP
+thread::pimpl::cleanup (void *_args) KNGIN_NOEXCP
 {
+    assert(_args);
     auto _data = static_cast<thread_data *>(_args);
     safe_release(_data);
 }
 
-/*
-void
-thread::pimpl::process ()
-{
-    // thread *_p = (thread *)_args;
-    // pthread_cleanup_push()
-    // pthread_setcancelstate()
-    // pthread_setcanceltype()
-    // pthread testcancel()
-    // pthread_cleanup_pop()
-    return 0;
-}
-*/
-
 uint64_t
-thread::tid () KNGIN_NOEXP
+thread::tid () KNGIN_NOEXCP
 {
 #ifdef _WIN32
     return ::GetCurrentThreadId();
@@ -204,22 +191,22 @@ thread::tid () KNGIN_NOEXP
 }
 
 pthread_t
-thread::ptid () KNGIN_NOEXP
+thread::ptid () KNGIN_NOEXCP
 {
     return ::pthread_self();
 }
 
 bool
-thread::equal (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXP
+thread::equal (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXCP
 {
     return ::pthread_equal(_thr1, _thr2);
 }
 
 void
-thread::sleep (timestamp _ms) KNGIN_NOEXP
+thread::sleep (timestamp _ms) KNGIN_NOEXCP
 {
 #ifdef _WIN32
-    ::Sleep((DWORD)_ms.value_uint());
+    ::Sleep(static_cast<DWORD>(_ms.value_uint()));
 #else
     ::usleep(_ms.value_uint() * 1000);
 #endif

@@ -23,9 +23,9 @@ cond::cond (mutex *_mutex)
 {
 }
 
-cond::~cond () KNGIN_NOEXP
+cond::~cond () KNGIN_NOEXCP
 {
-    ignore_exp(
+    ignore_excp(
         std::error_code _ec = int2ec(::pthread_cond_destroy(&m_cond));
         if (_ec)
             log_fatal("::pthread_cond_destroy() error, %s",

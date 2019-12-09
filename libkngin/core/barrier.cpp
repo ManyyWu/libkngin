@@ -19,6 +19,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 barrier::barrier (int _count)
     try
+    : m_inited(true)
 {
     std::error_code _ec = int2ec(pthread_barrier_init(&m_barrier, NULL, _count));
     if (_ec) {
@@ -26,7 +27,6 @@ barrier::barrier (int _count)
                   system_error_str(_ec).c_str());
         throw k::exception("::pthread_barrier_init() error");
     }
-    m_inited = true;
 } catch (...) {
     log_fatal("barrier::barrier() error");
     throw;
@@ -35,7 +35,7 @@ barrier::barrier (int _count)
 barrier::~barrier ()
 {
     if (m_inited) {
-        destroy();
+        ignore_excp(destroy());
         log_warning("undestroyed barrier");
     }
 }
@@ -43,7 +43,7 @@ barrier::~barrier ()
 void
 barrier::reinit (int _count)
 {
-    check(!m_inited);
+    assert(!m_inited);
     std::error_code _ec = int2ec(pthread_barrier_init(&m_barrier, NULL, _count));
     if (_ec) {
         log_fatal("::pthread_barrier_init() error, %s",
@@ -56,7 +56,7 @@ barrier::reinit (int _count)
 bool
 barrier::wait ()
 {
-    check(m_inited);
+    assert(m_inited);
     int _ret = ::pthread_barrier_wait(&m_barrier);
     if (0 == _ret)
         return false;
@@ -73,7 +73,7 @@ barrier::wait ()
 void
 barrier::destroy ()
 {
-    check(m_inited);
+    assert(m_inited);
     m_inited = false;
     std::error_code _ec = int2ec(::pthread_barrier_destroy(&m_barrier));
     if (_ec) {

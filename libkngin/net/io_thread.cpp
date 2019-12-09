@@ -24,7 +24,7 @@ io_thread::io_thread (const char *_name)
 io_thread::~io_thread ()
 {
     if (m_loop && m_loop->looping())
-        ignore_exp(m_loop->stop());
+        ignore_excp(m_loop->stop());
 }
 
 void
@@ -44,6 +44,7 @@ io_thread::run (crash_handler &&_crash_handler /* = nullptr */)
 void
 io_thread::stop ()
 {
+    if (!equal_to(thread::ptid()))
     {
         local_lock _lock(m_mutex);
         m_loop->stop();

@@ -89,7 +89,7 @@ public:
     { return sockopts::get_linger(_s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static void
     set_linger     (socket &_s, bool _on, int _t /* = 0 */)
-    { sockopt_val _val; _val.linger_val = {(int)_on, _t}; sockopts::set_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
+    { sockopt_val _val; _val.linger_val = {static_cast<int>(_on), _t}; sockopts::set_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static bool
     oobinline      (socket &_s)
     { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]); }

@@ -7,6 +7,7 @@
 #endif
 #include <array>
 #include <cstring>
+#include "core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -24,21 +25,21 @@ public:
 
 public:
     address    () = default;
-    address    (const ::sockaddr &_sa) KNGIN_NOEXP
+    address    (const ::sockaddr &_sa) KNGIN_NOEXCP
     { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr &&_sa) KNGIN_NOEXP
+    address    (const ::sockaddr &&_sa) KNGIN_NOEXCP
     { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr_in &_sa) KNGIN_NOEXP
+    address    (const ::sockaddr_in &_sa) KNGIN_NOEXCP
     { m_sa.v4 = _sa; }
-    address    (const ::sockaddr_in &&_sa) KNGIN_NOEXP
+    address    (const ::sockaddr_in &&_sa) KNGIN_NOEXCP
     { m_sa.v4 = _sa; }
-    address    (const ::sockaddr_in6 &_sa) KNGIN_NOEXP
+    address    (const ::sockaddr_in6 &_sa) KNGIN_NOEXCP
     { m_sa.v6 = _sa; }
-    address    (const ::sockaddr_in6 &&_sa) KNGIN_NOEXP
+    address    (const ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
     { m_sa.v6 = _sa; }
-    address    (const address &_sa) KNGIN_NOEXP
+    address    (const address &_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; }
-    address    (const address &&_sa) KNGIN_NOEXP
+    address    (const address &&_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; }
     ~address   () = default;
 
@@ -47,68 +48,68 @@ public:
     inet6      () const;
 
     int
-    size       () const KNGIN_NOEXP;
+    size       () const KNGIN_NOEXCP;
 
     std::string
     addrstr    () const;
 
     uint16_t
-    port       () const KNGIN_NOEXP;
+    port       () const KNGIN_NOEXCP;
 
 public:
     address &
-    operator = (const ::sockaddr &_sa) KNGIN_NOEXP
+    operator = (const ::sockaddr &_sa) KNGIN_NOEXCP
     { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const ::sockaddr &&_sa) KNGIN_NOEXP
+    operator = (const ::sockaddr &&_sa) KNGIN_NOEXCP
     { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
     address &
-    operator = (const ::sockaddr_in &_sa) KNGIN_NOEXP
+    operator = (const ::sockaddr_in &_sa) KNGIN_NOEXCP
     { m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in &&_sa) KNGIN_NOEXP
+    operator = (const ::sockaddr_in &&_sa) KNGIN_NOEXCP
     { m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in6 &_sa) KNGIN_NOEXP
+    operator = (const ::sockaddr_in6 &_sa) KNGIN_NOEXCP
     { m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in6 &&_sa) KNGIN_NOEXP
+    operator = (const ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
     { m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const address &_sa) KNGIN_NOEXP
+    operator = (const address &_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; return *this; }
     address &
-    operator = (const address &&_sa) KNGIN_NOEXP
+    operator = (const address &&_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; return *this; }
 
 public:
     const address::sockaddr &
-    sa         () const KNGIN_NOEXP
+    sa         () const KNGIN_NOEXCP
     { return m_sa; }
 
     address::sockaddr &
-    sa         () KNGIN_NOEXP
+    sa         () KNGIN_NOEXCP
     { return m_sa; }
 
 public:
     static bool
-    addrstr2addr (const std::string &_addrstr, uint16_t _port, address &_addr) KNGIN_NOEXP;
+    addrstr2addr (const std::string &_addrstr, uint16_t _port, address &_addr) KNGIN_NOEXCP;
 
     static bool
-    addrstr2addr (const std::string &&_addrstr, uint16_t _port, address &_addr) KNGIN_NOEXP;
+    addrstr2addr (const std::string &&_addrstr, uint16_t _port, address &_addr) KNGIN_NOEXCP;
 
 public:
     static bool
-    check_inet_addrstr  (const std::string &_addrstr) KNGIN_NOEXP;
+    check_inet_addrstr  (const std::string &_addrstr) KNGIN_NOEXCP;
 
     static bool
-    check_inet_addrstr  (const std::string &&_addrstr) KNGIN_NOEXP;
+    check_inet_addrstr  (const std::string &&_addrstr) KNGIN_NOEXCP;
 
     static bool
-    check_inet6_addrstr (const std::string &_addrstr) KNGIN_NOEXP;
+    check_inet6_addrstr (const std::string &_addrstr) KNGIN_NOEXCP;
 
     static bool
-    check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXP;
+    check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP;
 
 protected:
     address::sockaddr m_sa;

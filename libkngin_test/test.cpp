@@ -42,7 +42,6 @@ using namespace std::placeholders;
 #warning "signal ergent"
 #warning "adjust size of epoll_event_set"
 #warning "std::error_code"
-#warning "noncopyable"
 #warning "buf idx 重新设计"
 #warning "end of __XXXX__"
 #warning "构造函数, 删除多余的log_error, 直接抛出信息和详情, 如果带错误码不需要带详情"
@@ -54,17 +53,18 @@ using namespace std::placeholders;
 #warning "private"
 #warning "函数体换行"
 #warning "nrv优化"
-#warning "析构函数全部KNGIN_NOEXP"
+#warning "析构函数全部KNGIN_NOEXCP"
 #warning "pthread相关错误直接记录日志抛k::exceptino(除析构函数), 网络错误提供两种选择"
 #warning "system_error_str"
 #warning "信号"
 #warning "pimpl() public, self() public, class pimpl public"
-#warning "参数错误throw k::exception("invalid arguments") 或使用arg_check(), 不添加其他信息"
+#warning "构造函数中不check只arg_check 和throw"
 #warning "final"
 #warning "新建对象但不泄漏给用户的地方需要catch"
 #warning "https://zhuanlan.zhihu.com/p/88749279"
 #warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
 #warning "static_cast"
+#warning "    if (equal_to(ptid())) throw k::exception("thread::pimpl::join() error, try to join self"); "
 
 /*
 switch (savedErrno)  //检查错误码

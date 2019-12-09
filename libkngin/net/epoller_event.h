@@ -21,50 +21,50 @@ public:
     epoller_event  () = delete;
 
     explicit
-    epoller_event  (epollfd _fd) KNGIN_NOEXP;
+    epoller_event  (epollfd _fd) KNGIN_NOEXCP;
 
-    epoller_event  (epoller_event &&_e) KNGIN_NOEXP;
+    epoller_event  (epoller_event &&_e) KNGIN_NOEXCP;
 
     virtual
-    ~epoller_event () KNGIN_NOEXP {};
+    ~epoller_event () KNGIN_NOEXCP {};
 
-public:
+protected:
     void
-    set_flags      (uint32_t _flags) KNGIN_NOEXP { m_flags = _flags; }
+    set_flags      (uint32_t _flags) KNGIN_NOEXCP { m_flags = _flags; }
     uint32_t
-    flags          () const          KNGIN_NOEXP { return m_flags; }
+    flags          () const          KNGIN_NOEXCP { return m_flags; }
     void
-    enable_read    ()                KNGIN_NOEXP { m_flags |= EPOLLIN; }
+    enable_read    ()                KNGIN_NOEXCP { m_flags |= EPOLLIN; }
     void
-    enable_write   ()                KNGIN_NOEXP { m_flags |= EPOLLOUT; }
+    enable_write   ()                KNGIN_NOEXCP { m_flags |= EPOLLOUT; }
     void
-    enable_oob     ()                KNGIN_NOEXP { m_flags |= EPOLLPRI; }
+    enable_oob     ()                KNGIN_NOEXCP { m_flags |= EPOLLPRI; }
     void
-    enable_once    ()                KNGIN_NOEXP { m_flags |= EPOLLONESHOT; }
+    enable_once    ()                KNGIN_NOEXCP { m_flags |= EPOLLONESHOT; }
     void
-    disable_read   ()                KNGIN_NOEXP { m_flags &= ~EPOLLIN; }
+    disable_read   ()                KNGIN_NOEXCP { m_flags &= ~EPOLLIN; }
     void
-    disable_write  ()                KNGIN_NOEXP { m_flags &= ~EPOLLOUT; }
+    disable_write  ()                KNGIN_NOEXCP { m_flags &= ~EPOLLOUT; }
     void
-    disable_oob    ()                KNGIN_NOEXP { m_flags &= ~EPOLLPRI; }
+    disable_oob    ()                KNGIN_NOEXCP { m_flags &= ~EPOLLPRI; }
     void
-    disable_once   ()                KNGIN_NOEXP { m_flags &= ~EPOLLONESHOT; }
+    disable_once   ()                KNGIN_NOEXCP { m_flags &= ~EPOLLONESHOT; }
     void
-    disable_all    ()                KNGIN_NOEXP { m_flags = EPOLLHUP | EPOLLERR; }
+    disable_all    ()                KNGIN_NOEXCP { m_flags = EPOLLHUP | EPOLLERR; }
     bool
-    pollin         () const          KNGIN_NOEXP { return (m_flags & EPOLLIN); }
+    pollin         () const          KNGIN_NOEXCP { return (m_flags & EPOLLIN); }
     bool
-    pollout        () const          KNGIN_NOEXP { return (m_flags & EPOLLOUT); }
+    pollout        () const          KNGIN_NOEXCP { return (m_flags & EPOLLOUT); }
     bool
-    pollpri        () const          KNGIN_NOEXP { return (m_flags & EPOLLPRI); }
+    pollpri        () const          KNGIN_NOEXCP { return (m_flags & EPOLLPRI); }
     bool
-    pollonce       () const          KNGIN_NOEXP { return (m_flags & EPOLLONESHOT); }
+    pollonce       () const          KNGIN_NOEXCP { return (m_flags & EPOLLONESHOT); }
 
 public:
     static void
     on_events      (epoller_event *__ptr, uint32_t _events);
 
-private:
+public:
     virtual void
     on_error       () = 0;
 

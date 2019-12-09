@@ -21,13 +21,13 @@
 //    {
 //        work_task *_wt = nullptr;
 //        knew(_wt, work_task, (_c));
-//        check(_wt);
+//        assert(_wt);
 //        netmsg_test *_msg = nullptr;
 //        knew(_msg, netmsg_test, (_wt));
-//        check(_msg->create((ACTION)(rand() % 10), i * rand()));
-//        check(_msg);
-//        check(_wt->create((msg **)&_msg));
-//        check(_c->recv_task(&_wt));
+//        assert(_msg->create((ACTION)(rand() % 10), i * rand()));
+//        assert(_msg);
+//        assert(_wt->create((msg **)&_msg));
+//        assert(_c->recv_task(&_wt));
 //        while (!_c->task_done());
 //        if (_c->running()) {
 //            // then _msg is nullptr

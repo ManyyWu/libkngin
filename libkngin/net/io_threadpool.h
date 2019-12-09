@@ -8,6 +8,7 @@
 #include <functional>
 #include "core/define.h"
 #include "core/lock.h"
+#include "core/noncopyable.h"
 #include "net/event_loop.h"
 #include "net/io_thread.h"
 #include "net/tcp/session.h"
@@ -23,7 +24,7 @@ KNGIN_NAMESPACE_K_BEGIN
 * m_alive:     The maxinum time a thread can live while idle
 * */
 
-class io_threadpool {
+class io_threadpool : public noncopyable {
 public:
     typedef event_loop::task                        task;
 
@@ -31,7 +32,7 @@ public:
 
     typedef std::vector<std::unique_ptr<io_thread>> threads;
 
-    typedef std::function<void (void)>              stopped_handler;
+    typedef std::function<void (bool)>              crash_handler;
 
     typedef io_thread::event_loop_ptr               event_loop_ptr;
 
@@ -45,7 +46,7 @@ public:
 
 public:
     void
-    start          (stopped_handler &&_handler);
+    start          (crash_handler &&_handler);
 
     void
     stop           ();

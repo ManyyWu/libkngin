@@ -8,16 +8,17 @@
 #endif
 #include "core/define.h"
 #include "core/timestamp.h"
+#include "core/noncopyable.h"
 #include "core/mutex.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class cond {
+class cond : public noncopyable {
 public:
     explicit
     cond           (mutex *_mutex);
 
-    ~cond          () KNGIN_NOEXP;
+    ~cond          () KNGIN_NOEXCP;
 
 public:
     void

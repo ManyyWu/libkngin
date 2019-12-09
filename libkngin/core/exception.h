@@ -4,6 +4,7 @@
 #include <string>
 #include <exception>
 #include "core/define.h"
+#include "core/noncopyable.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -17,7 +18,6 @@ public:
     explicit
     exception  (const std::string &_what);
 
-    explicit
     exception  (std::string &&_what);
 
     virtual
@@ -25,7 +25,7 @@ public:
 
 public:
     virtual const char *
-    what       () const KNGIN_NOEXP
+    what       () const KNGIN_NOEXCP
     { return m_what.c_str(); }
 
     const std::string &

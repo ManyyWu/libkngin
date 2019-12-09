@@ -19,51 +19,51 @@ public:
     filefd  () = delete;
 
     explicit
-    filefd  (int _fd) KNGIN_NOEXP;
+    filefd  (int _fd) KNGIN_NOEXCP;
 
-    filefd  (filefd &&_fd) KNGIN_NOEXP;
+    filefd  (filefd &&_fd) KNGIN_NOEXCP;
 
     virtual
-    ~filefd () KNGIN_NOEXP;
+    ~filefd () KNGIN_NOEXCP;
 
 public:
     bool
-    valid         () const KNGIN_NOEXP
+    valid         () const KNGIN_NOEXCP
     { return FD_VALID(m_fd); }
 
     int
-    fd            () const KNGIN_NOEXP
+    fd            () const KNGIN_NOEXCP
     { return m_fd; }
 
     size_t
     write         (out_buffer &_buf);
 
     size_t
-    write         (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
+    write         (out_buffer &_buf, std::error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     read          (in_buffer &_buf);
 
     size_t
-    read          (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
+    read          (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     writen        (out_buffer &&_buf);
 
     size_t
-    writen        (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXP;
+    writen        (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     readn         (in_buffer &_buf);
 
     size_t
-    readn         (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXP;
+    readn         (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXCP;
 
 //    size_t
 //    writev        (out_vector &_buf);
 //
 //    size_t
-//    writev        (out_vector &_buf, std::error_code &_ec) KNGIN_NOEXP;
+//    writev        (out_vector &_buf, std::error_code &_ec) KNGIN_NOEXCP;
 //
 //    size_t
 //    readv         (in_vector &_buf);
@@ -75,7 +75,7 @@ public:
     close         ();
 
     void
-    close         (std::error_code &_ec) KNGIN_NOEXP;
+    close         (std::error_code &_ec) KNGIN_NOEXCP;
 
     int
     dup           ();
@@ -84,30 +84,30 @@ public:
     dup           (std::error_code &_ec);
 
     std::error_code
-    read_error    () KNGIN_NOEXP;
+    read_error    () KNGIN_NOEXCP;
 
 public:
     void
     set_nonblock  (bool _on);
 
     void
-    set_nonblock  (bool _on, std::error_code &_ec) KNGIN_NOEXP;
+    set_nonblock  (bool _on, std::error_code &_ec) KNGIN_NOEXCP;
 
     void
     set_closeexec (bool _on);
 
     void
-    set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXP;
+    set_closeexec (bool _on, std::error_code &_ec) KNGIN_NOEXCP;
 
     bool
     nonblock      () const;
 
     bool
-    nonblock      (std::error_code &_ec) const KNGIN_NOEXP;
+    nonblock      (std::error_code &_ec) const KNGIN_NOEXCP;
 
 public:
     filefd &
-    operator =    (int _fd) KNGIN_NOEXP;
+    operator =    (int _fd) KNGIN_NOEXCP;
 
 public:
     static int invalid_fd;
