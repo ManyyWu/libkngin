@@ -34,10 +34,11 @@ address::size () const KNGIN_NOEXCP
 std::string
 address::addrstr () const
 {
-    char _buf[INET_ADDRSTRLEN];
-    return std::string(::inet_ntop(AF_INET, &m_sa.v4.sin_addr,
-                                   _buf, sizeof(sockaddr_in))
-                       ? _buf : "");
+    char _buf[INET6_ADDRSTRLEN];
+    return std::string(::inet_ntop(inet6() ? AF_INET6 : AF_INET, 
+                                   inet6() ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr,
+                                   _buf, sizeof(sockaddr_in)
+                                   ) ? _buf : "");
 }
 
 uint16_t
