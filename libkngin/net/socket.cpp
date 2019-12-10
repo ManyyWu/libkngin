@@ -21,7 +21,7 @@ socket::socket (int _fd)
 
 socket::socket (INET_PROTOCOL _proto)
     try
-    : filefd(::socket(is_bits_set(_proto, 1) ? AF_UNSPEC : AF_INET,
+    : filefd(::socket(is_bits_set(_proto, 1) ? AF_INET6 : AF_INET,
                       is_bits_set(_proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
       m_rd_closed(invalid()),
       m_wr_closed(invalid())
@@ -53,7 +53,7 @@ socket::bind (const address &_addr)
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
-    if (::bind(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
+    if (::bind(m_fd, (const struct ::sockaddr *)&_addr.sa(), _addr.size()) < 0)
         throw k::system_error("::bind() error");
 }
 
@@ -62,7 +62,7 @@ socket::bind (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
-    _ec = (::bind(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
+    _ec = (::bind(m_fd, (const struct ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
           ? last_error()
           : std::error_code();
 }
@@ -90,7 +90,7 @@ socket::accept (address &_addr)
     assert(!m_wr_closed);
     assert(!m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
-    int _fd = ::accept(m_fd, (::sockaddr *)&_addr.m_sa, &_len);
+    int _fd = ::accept(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len);
     if (_fd < 0)
         throw k::system_error("::accept() error");
     return _fd;
@@ -102,7 +102,7 @@ socket::accept (address &_addr, std::error_code &_ec) KNGIN_NOEXCP
     assert(!m_wr_closed);
     assert(!m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
-    int _fd = ::accept(m_fd, (::sockaddr *)&_addr.m_sa, &_len);
+    int _fd = ::accept(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len);
     _ec = (_fd < 0) ? last_error() : std::error_code();
     return _fd;
 }
@@ -112,7 +112,7 @@ socket::connect (const address &_addr)
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
-    if (::connect(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
+    if (::connect(m_fd, (const struct ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
         throw k::system_error("::connect() error");
 }
 
@@ -121,7 +121,7 @@ socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
-    _ec = (::connect(m_fd, (const ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
+    _ec = (::connect(m_fd, (const struct ::sockaddr *)&_addr.m_sa, _addr.size()) < 0)
           ? last_error()
           : std::error_code();
 }
@@ -222,7 +222,7 @@ socket::sendto (const address &_addr, out_buffer &_buf, int _flags)
     assert(_buf.size());
     assert(!m_wr_closed);
     ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
-                             (const ::sockaddr *)&_addr.sa(),
+                             (const struct ::sockaddr *)&_addr.sa(),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size < 0)
         throw k::system_error("::sendto() error");
@@ -237,7 +237,7 @@ socket::sendto (const address &_addr, out_buffer &_buf, int _flags,
     assert(_buf.size());
     assert(!m_wr_closed);
     ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
-                             (const ::sockaddr *)&_addr.sa(),
+                             (const struct ::sockaddr *)&_addr.sa(),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size < 0) {
         _ec = last_error();
@@ -256,7 +256,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags)
     assert(!m_rd_closed);
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
-                               (::sockaddr *)&_addr.sa(),
+                               (struct ::sockaddr *)&_addr.sa(),
                                &_addr_len);
     if (_size < 0)
         throw k::system_error("::recvfrom() error");
@@ -272,7 +272,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
     assert(!m_rd_closed);
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
-                               (::sockaddr *)&_addr.sa(),
+                               (struct ::sockaddr *)&_addr.sa(),
                                &_addr_len);
     if (_size < 0) {
         _ec = last_error();
@@ -290,7 +290,7 @@ socket::localaddr () const
     assert(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
-    if (::getsockname(m_fd, (::sockaddr *)&_addr.m_sa, &_len) < 0)
+    if (::getsockname(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
         throw k::system_error("::getsockname() error");
     return _addr;
 }
@@ -301,7 +301,7 @@ socket::localaddr (std::error_code &_ec) const KNGIN_NOEXCP
     assert(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
-    _ec = (::getsockname(m_fd, (::sockaddr *)&_addr.m_sa, &_len) < 0)
+    _ec = (::getsockname(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
           ? last_error()
           : std::error_code();
     return _addr;
@@ -313,7 +313,7 @@ socket::peeraddr () const
     assert(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
-    if (::getpeername(m_fd, (::sockaddr *)&_addr.m_sa, &_len) < 0)
+    if (::getpeername(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
         throw k::system_error("::getpeername() error");
     return _addr;
 }
@@ -324,7 +324,7 @@ socket::peeraddr (std::error_code &_ec) const KNGIN_NOEXCP
     assert(!m_wr_closed || !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
-    _ec = (::getpeername(m_fd, (::sockaddr *)&_addr.m_sa, &_len) < 0)
+    _ec = (::getpeername(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
           ? last_error()
           : std::error_code();
     return _addr;

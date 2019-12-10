@@ -175,7 +175,13 @@ server::parse_addr (const std::string &_name, uint16_t _port)
         ::freeaddrinfo(_ai_list);
         throw k::exception("invalid name or port");
     }
-    m_listen_addr = *(_ai_list->ai_addr);
+    if (AF_INET == _ai_list->ai_addr->sa_family)
+        m_listen_addr = *(sockaddr_in *)_ai_list->ai_addr;
+    else if (AF_INET6 == _ai_list->ai_addr->sa_family)
+        m_listen_addr = *(sockaddr_in6 *)_ai_list->ai_addr;
+    else
+        throw k::exception("unsupported address family");
+
     //addrinfo *_res = _ai_list;
     //while (_res) {
     //    ::getnameinfo(_res->ai_addr, _res->ai_addrlen, nullptr, 0, nullptr, 0, 0);

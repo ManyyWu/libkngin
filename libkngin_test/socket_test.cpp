@@ -26,7 +26,7 @@ client ()
     uint16_t    _port = SERVER_PORT;
 
     address _server_addr;
-    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
+    assert(address::addrstr2addr(_addr_str, _port, false, _server_addr));
     k::socket _server_sock(socket::IPV4_TCP);
     std::error_code _ec;
     _server_sock.connect(_server_addr, _ec);
@@ -66,7 +66,7 @@ server ()
     uint16_t    _port = SERVER_PORT;
     address     _server_addr;
 
-    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
+    assert(address::addrstr2addr(_addr_str, _port, false, _server_addr));
 
     k::socket _server_sock(socket::IPV4_TCP);
     sockopts::set_reuseaddr(_server_sock, true);

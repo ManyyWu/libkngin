@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #endif
 #include <array>
+#include <cassert>
 #include <cstring>
 #include "core/define.h"
 
@@ -25,18 +26,14 @@ public:
 
 public:
     address    () = default;
-    address    (const ::sockaddr &_sa) KNGIN_NOEXCP
-    { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr &&_sa) KNGIN_NOEXCP
-    { ::memcpy(&m_sa, &_sa, sizeof(::sockaddr)); }
-    address    (const ::sockaddr_in &_sa) KNGIN_NOEXCP
-    { m_sa.v4 = _sa; }
-    address    (const ::sockaddr_in &&_sa) KNGIN_NOEXCP
-    { m_sa.v4 = _sa; }
-    address    (const ::sockaddr_in6 &_sa) KNGIN_NOEXCP
-    { m_sa.v6 = _sa; }
-    address    (const ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
-    { m_sa.v6 = _sa; }
+    address    (const struct ::sockaddr_in &_sa) KNGIN_NOEXCP
+    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; }
+    address    (const struct ::sockaddr_in &&_sa) KNGIN_NOEXCP
+    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; }
+    address    (const struct ::sockaddr_in6 &_sa) KNGIN_NOEXCP
+    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; }
+    address    (const struct ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
+    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; }
     address    (const address &_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; }
     address    (const address &&_sa) KNGIN_NOEXCP
@@ -58,23 +55,17 @@ public:
 
 public:
     address &
-    operator = (const ::sockaddr &_sa) KNGIN_NOEXCP
-    { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
+    operator = (const struct ::sockaddr_in &_sa) KNGIN_NOEXCP
+    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr &&_sa) KNGIN_NOEXCP
-    { ::memcpy(&m_sa, &_sa, sizeof(address::sockaddr)); return *this; }
+    operator = (const struct ::sockaddr_in &&_sa) KNGIN_NOEXCP
+    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in &_sa) KNGIN_NOEXCP
-    { m_sa.v4 = _sa; return *this; }
+    operator = (const struct ::sockaddr_in6 &_sa) KNGIN_NOEXCP
+    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const ::sockaddr_in &&_sa) KNGIN_NOEXCP
-    { m_sa.v4 = _sa; return *this; }
-    address &
-    operator = (const ::sockaddr_in6 &_sa) KNGIN_NOEXCP
-    { m_sa.v6 = _sa; return *this; }
-    address &
-    operator = (const ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
-    { m_sa.v6 = _sa; return *this; }
+    operator = (const struct ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
+    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; return *this; }
     address &
     operator = (const address &_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; return *this; }
@@ -93,10 +84,12 @@ public:
 
 public:
     static bool
-    addrstr2addr (const std::string &_addrstr, uint16_t _port, address &_addr) KNGIN_NOEXCP;
+    addrstr2addr (const std::string &_addrstr, uint16_t _port, bool _v6,
+                  address &_addr) KNGIN_NOEXCP;
 
     static bool
-    addrstr2addr (const std::string &&_addrstr, uint16_t _port, address &_addr) KNGIN_NOEXCP;
+    addrstr2addr (const std::string &&_addrstr, uint16_t _port, bool _v6,
+                  address &_addr) KNGIN_NOEXCP;
 
 public:
     static bool

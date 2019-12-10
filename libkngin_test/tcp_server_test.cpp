@@ -12,73 +12,7 @@
 using namespace k;
 using namespace k::tcp;
 
-//#define SERVER_ADDR "192.168.0.2"
-//#define SERVER_ADDR "127.0.0.1"
-#define SERVER_ADDR "fe80::f87f:8669:d667:1316%16"
-#define SERVER_PORT 20000
-
 std::shared_ptr<barrier> g_barrier = nullptr;
-
-static int
-client ()
-{
-    std::string _addr_str = {SERVER_ADDR};
-    uint16_t    _port = SERVER_PORT;
-
-    address _server_addr;
-    assert(address::addrstr2addr(_addr_str, _port, _server_addr));
-
-    k::socket _server_sock(socket::IPV4_TCP);
-    log_info("c: connecting...");
-    _server_sock.connect(_server_addr);
-    log_info("c: connected");
-
-    uint32_t _reply = 0;
-
-    // read
-    {
-        char _arr[4];
-        in_buffer _buf(_arr, 4);
-        std::error_code _ec;
-        if (!_server_sock.read(_buf, _ec) || _ec) {
-            log_error("c: read error, %s", system_error_str(_ec).c_str());
-            _server_sock.close();
-            return 0;
-        }
-        log_info("c: read integer %d", _reply = out_buffer(_arr, 4).peek_uint32());
-    }
-
-    // write
-    {
-        char _arr[4];
-        in_buffer(_arr, 4).write_uint32(_reply);
-        out_buffer _buf(_arr, 4);
-        std::error_code _ec;
-        _server_sock.write(_buf, _ec);
-        if (_ec) {
-            log_error("c: write error, %s", system_error_str(_ec).c_str());
-            _server_sock.close();
-            return 0;
-        }
-    }
-
-    // read
-    {
-        char _arr[4];
-        in_buffer _buf(_arr, 4);
-        std::error_code _ec;
-        if (!_server_sock.read(_buf, _ec) || _ec) {
-            log_error("c: read error, %s", system_error_str(_ec).c_str());
-            _server_sock.close();
-            return 0;
-        }
-        log_info("c: read integer %d", _reply = out_buffer(_arr, 4).peek_uint32());
-
-    }
-
-    return 0;
-}
-
 
 class test_server {
 public:
@@ -210,12 +144,17 @@ protected:
 
 void
 tcp_server_test ()
-{ 
+{
+//#define SERVER_ADDR "192.168.0.2"
+//#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%32"
+#define SERVER_ADDR "::1%16"
+#define SERVER_PORT 20000
     g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
-        .name                   = std::string(SERVER_ADDR),
+        .name                   = SERVER_ADDR,
         .port                   = SERVER_PORT,
-        .allow_ipv6             = false,
+        .allow_ipv6             = true,
         .backlog                = 100,
         .thread_num             = 3,
         .disable_debug          = false,
