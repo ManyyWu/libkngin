@@ -1,4 +1,5 @@
-﻿{
+﻿// Configuration for Visual Studio
+{
   "configurations": [
     {
       "name": "Linux-Debug",
@@ -10,7 +11,7 @@
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
       "remoteBuildRoot": "/home/manyy/ligkngin-vs/build/${name}",
-      "remoteInstallRoot": "/home/manyy/ligkngin-vs/install/${name}",
+      "remoteInstallRoot": "/home/manyy/libkngin-vs/install/${name}",
       "remoteCopySources": true,
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
