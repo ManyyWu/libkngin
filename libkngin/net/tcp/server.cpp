@@ -79,7 +79,7 @@ server::run ()
                        std::bind(&server::on_listener_close, this, 
                                  std::placeholders::_1));
     m_threadpool.get_loop(0).register_event(m_listener);
-    log_info("listening for [%s:%d]",
+    log_info("listening for [[%s]:%d]",
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
 
     m_stopped = false;

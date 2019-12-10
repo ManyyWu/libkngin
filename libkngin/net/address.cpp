@@ -58,7 +58,9 @@ address::addrstr2addr (const std::string &_addrstr, uint16_t _port, bool _v6,
         _addr.m_sa.v4.sin_port = ::htons(_port);
         _addr.m_sa.v4.sin_family = AF_INET;
     }
-    return !::inet_pton(_v6 ? AF_INET6 : AF_INET, _addrstr.c_str(), &_addr.sa());
+    return !::inet_pton(_v6 ? AF_INET6 : AF_INET,
+                        _addrstr.c_str(),
+                        _v6 ? (void *)&_addr.sa().v6.sin6_addr : (void *)&_addr.sa().v4.sin_addr);
 }
 
 bool

@@ -102,7 +102,7 @@ public:
         }
 
         {
-            if (_session->peer_addr().port() >= 70000) { // close
+            if (_session->peer_addr().port() >= 47000) { // close
                 _session->close(true);
                 if (g_barrier->wait())
                     g_barrier->destroy();
@@ -147,8 +147,8 @@ tcp_server_test ()
 {
 //#define SERVER_ADDR "192.168.0.2"
 //#define SERVER_ADDR "127.0.0.1"
-//#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%32"
-#define SERVER_ADDR "::1%16"
+#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
+//#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
     g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
