@@ -110,23 +110,25 @@ session::close (bool _blocking /* = false */)
         m_connected = false;
         return;
     }
-    m_loop->remove_event(self());
-    if (m_loop->in_loop_thread()) {
-        on_close(std::error_code());
-    } else {
-        if (_blocking) {
-            std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
-            m_loop->run_in_loop([this, _barrier_ptr] () {
-                on_close(std::error_code());
+    if (m_loop->registed(self())) {
+        m_loop->remove_event(self());
+        if (m_loop->in_loop_thread()) {
+            on_close(std::error_code());
+        } else {
+            if (_blocking) {
+                std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
+                m_loop->run_in_loop([this, _barrier_ptr] () {
+                    on_close(std::error_code());
+                    if (_barrier_ptr->wait())
+                        _barrier_ptr->destroy();
+                });
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
-            });
-            if (_barrier_ptr->wait())
-                _barrier_ptr->destroy();
-        } else {
-            m_loop->run_in_loop([this] () {
-                on_close(std::error_code());
-            });
+            } else {
+                m_loop->run_in_loop([this] () {
+                    on_close(std::error_code());
+                });
+            }
         }
     }
 }

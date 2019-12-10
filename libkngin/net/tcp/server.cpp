@@ -64,7 +64,10 @@ server::run ()
                                             std::move(_listener_sock));
 
     // init address
-    parse_addr(m_opts.name, m_opts.port);
+    log_excp_error(
+        parse_addr(m_opts.name, m_opts.port),
+        "address resolution failed"
+    );
 
     // bind
     m_listener->bind(m_listen_addr);
@@ -73,8 +76,8 @@ server::run ()
     m_listener->listen(m_opts.backlog, 
                        std::bind(&server::on_new_session, this,
                                  std::placeholders::_1),
-                       std::bind(&server::on_listener_close,
-                                 this, std::placeholders::_1));
+                       std::bind(&server::on_listener_close, this, 
+                                 std::placeholders::_1));
     m_threadpool.get_loop(0).register_event(m_listener);
     log_info("listening for [%s:%d]",
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
@@ -92,7 +95,8 @@ server::stop (bool _crash/* = false */)
     log_info("stopping TCP server");
 
     // close listener
-    m_listener->close(true);
+    if (m_listener)
+        m_listener->close(true);
 
     // close all sessions
     {

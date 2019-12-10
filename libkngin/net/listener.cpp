@@ -43,10 +43,15 @@ listener::~listener () KNGIN_NOEXCP
 
 void
 listener::bind (const address &_listen_addr)
+    try
 {
     assert(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr);
     m_socket.set_nonblock(true);
+} catch (...) {
+    m_socket.close();
+    m_closed = true;
+    throw;
 }
 
 void
@@ -54,6 +59,8 @@ listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr, _ec);
+    if (_ec)
+        return;
     m_socket.set_nonblock(true);
 }
 
@@ -61,11 +68,16 @@ void
 listener::listen (int _backlog,
                   accept_handler &&_new_ssesion_handler,
                   close_handler &&_close_handler)
+    try 
 {
     assert(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
     m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog);
+} catch (...) {
+    m_socket.close();
+    m_closed = true;
+    throw;
 }
 
 void
@@ -82,30 +94,33 @@ listener::listen (int _backlog, std::error_code &_ec,
 void
 listener::close (bool _blocking /* = true */)
 {
-    assert(!m_closed);
+    if (m_closed)
+        return;
 
     if (!m_loop->looping()) {
         m_socket.close();
         m_closed = true;
         return;
     }
-    m_loop->remove_event(self());
-    if (m_loop->in_loop_thread()) {
-        on_close(std::error_code());
-    } else {
-        if (_blocking) {
-            std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
-            m_loop->run_in_loop([this, _barrier_ptr] () {
-                on_close(std::error_code());
+    if (m_loop->registed(self())) {
+        m_loop->remove_event(self());
+        if (m_loop->in_loop_thread()) {
+            on_close(std::error_code());
+        } else {
+            if (_blocking) {
+                std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
+                m_loop->run_in_loop([this, _barrier_ptr] () {
+                    on_close(std::error_code());
+                    if (_barrier_ptr->wait())
+                        _barrier_ptr->destroy();
+                });
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
-            });
-            if (_barrier_ptr->wait())
-                _barrier_ptr->destroy();
-        } else {
-            m_loop->run_in_loop([this] () {
-                on_close(std::error_code());
-            });
+            } else {
+                m_loop->run_in_loop([this] () {
+                    on_close(std::error_code());
+                });
+            }
         }
     }
 }

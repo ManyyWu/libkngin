@@ -13,7 +13,8 @@ using namespace k;
 using namespace k::tcp;
 
 //#define SERVER_ADDR "192.168.0.2"
-#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "127.0.0.1"
+#define SERVER_ADDR "fe80::f87f:8669:d667:1316%16"
 #define SERVER_PORT 20000
 
 std::shared_ptr<barrier> g_barrier = nullptr;
