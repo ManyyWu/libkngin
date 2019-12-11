@@ -43,15 +43,10 @@ listener::~listener () KNGIN_NOEXCP
 
 void
 listener::bind (const address &_listen_addr)
-    try
 {
     assert(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr);
     m_socket.set_nonblock(true);
-} catch (...) {
-    m_socket.close();
-    m_closed = true;
-    throw;
 }
 
 void
@@ -59,6 +54,7 @@ listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_closed);
     m_socket.bind(m_listen_addr = _listen_addr, _ec);
+    _ec = std::make_error_code(std::errc::timed_out);
     if (_ec)
         return;
     m_socket.set_nonblock(true);
@@ -68,16 +64,11 @@ void
 listener::listen (int _backlog,
                   accept_handler &&_new_ssesion_handler,
                   close_handler &&_close_handler)
-    try 
 {
     assert(!m_closed);
     m_accept_handler = std::move(_new_ssesion_handler); 
     m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog);
-} catch (...) {
-    m_socket.close();
-    m_closed = true;
-    throw;
 }
 
 void
@@ -86,7 +77,7 @@ listener::listen (int _backlog, std::error_code &_ec,
                   close_handler &&_close_handler) KNGIN_NOEXCP
 {
     assert(!m_closed);
-    m_accept_handler = std::move(_new_sesssion_handler); 
+    m_accept_handler = std::move(_new_sesssion_handler);
     m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog, _ec);
 }
@@ -102,7 +93,7 @@ listener::close (bool _blocking /* = true */)
         m_closed = true;
         return;
     }
-    if (m_loop->registed(self())) {
+    if (registed()) { // can't call event_loop::remove_event() when crashed
         m_loop->remove_event(self());
         if (m_loop->in_loop_thread()) {
             on_close(std::error_code());
@@ -186,7 +177,7 @@ listener::on_close (std::error_code _ec)
     assert(!m_closed);
     m_loop->check_thread();
 
-    if (m_loop->registed(self()))
+    if (registed())
         m_loop->remove_event(self());
     m_socket.close();
     m_closed = true;
@@ -196,7 +187,9 @@ listener::on_close (std::error_code _ec)
             m_close_handler(_ec),
             "listener::m_close_handler() error"
         );
-    throw k::exception("listener error");
+
+    if (_ec)
+        throw k::exception("listener error");
 }
 
 KNGIN_NAMESPACE_K_END

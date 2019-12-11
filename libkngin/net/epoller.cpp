@@ -92,6 +92,7 @@ epoller::register_event (epoller_event_ptr _e)
 #ifndef NDEBUG
         assert(m_events.find(_e->fd()) == m_events.end());
 #endif
+        _e->m_registed = true;
         m_events[_e->fd()] = _e;
         update_event(EPOLL_CTL_ADD, _e->fd(), _e.get());
     }
@@ -106,6 +107,7 @@ epoller::remove_event (epoller_event_ptr _e)
 #ifndef NDEBUG
         assert(m_events.find(_e->fd()) != m_events.end());
 #endif
+        _e->m_registed = false;
         update_event(EPOLL_CTL_DEL, _e->fd(), _e.get());
         m_events.erase(_e->fd());
     }

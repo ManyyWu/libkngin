@@ -33,7 +33,7 @@ public:
 
     typedef std::function<void (session_ptr)>            session_handler;
 
-    typedef std::shared_ptr<listener>                    listener_ptr;
+    typedef listener::listener_ptr                       listener_ptr;
 
     typedef std::function<void (void)>                   crash_handler;
 

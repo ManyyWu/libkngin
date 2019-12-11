@@ -20,6 +20,8 @@ public:
 
     typedef std::function<void (std::error_code)> close_handler;
 
+    typedef std::shared_ptr<listener>             listener_ptr;
+
 public:
     listener      () = delete;
 
@@ -52,7 +54,7 @@ public:
     loop          () KNGIN_NOEXCP
     { return m_loop; }
 
-    std::shared_ptr<listener>
+    listener_ptr
     self          ()
     { return shared_from_this(); }
 

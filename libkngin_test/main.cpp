@@ -129,13 +129,10 @@ int main()
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());
         log_dump(_e.dump().c_str());
-        assert(0);
     } catch (const std::exception &_e) {
         log_fatal("caught an exception %s", _e.what());
-        assert(0);
     } catch (...) {
         log_fatal("caught an undefined exception");
-        assert(0);
     }
 #ifdef _WIN32
 getchar();

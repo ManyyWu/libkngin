@@ -108,7 +108,7 @@ session::close (bool _blocking /* = false */)
         m_connected = false;
         return;
     }
-    if (m_loop->registed(self())) {
+    if (registed()) {
         m_loop->remove_event(self());
         if (m_loop->in_loop_thread()) {
             on_close(std::error_code());
@@ -333,7 +333,7 @@ session::on_close (std::error_code _ec)
     assert(m_connected);
     m_loop->check_thread();
 
-    if (m_loop->registed(self()))
+    if (registed())
         m_loop->remove_event(self());
     m_socket.close();
     m_in_buf = nullptr;

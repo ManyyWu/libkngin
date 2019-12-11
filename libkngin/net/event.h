@@ -18,6 +18,8 @@ public:
 
     typedef std::function<void (void)>        event_handler;
 
+    typedef std::shared_ptr<event>            event_ptr;
+
 public:
     event    () = delete;
 
@@ -36,7 +38,7 @@ public:
     loop     () KNGIN_NOEXCP
     { return m_loop; }
 
-    std::shared_ptr<event>
+    event_ptr
     self     ()
     { return shared_from_this(); }
 

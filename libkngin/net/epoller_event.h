@@ -28,6 +28,11 @@ public:
     virtual
     ~epoller_event () KNGIN_NOEXCP {};
 
+public:
+    bool
+    registed       () const KNGIN_NOEXCP
+    { return m_registed; }
+
 protected:
     void
     set_flags      (uint32_t _flags) KNGIN_NOEXCP { m_flags = _flags; }
@@ -81,6 +86,8 @@ private:
     uint32_t    m_flags;
 
     epoll_event m_event;
+
+    bool        m_registed;
 
 private:
     friend class epoller;

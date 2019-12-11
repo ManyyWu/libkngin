@@ -91,12 +91,6 @@ default:
 #include <stdio.h>
 
 void
-error (char *msg)
-{
-    perror(msg);
-    exit(0);
-}
-void
 test ()
 {
 }

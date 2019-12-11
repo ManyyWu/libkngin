@@ -78,6 +78,7 @@ server::run ()
                                  std::placeholders::_1),
                        std::bind(&server::on_listener_close, this, 
                                  std::placeholders::_1));
+
     m_threadpool.get_loop(0).register_event(m_listener);
     log_info("listening for [[%s]:%d]",
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
@@ -90,22 +91,14 @@ server::run ()
 void
 server::stop (bool _crash/* = false */)
 {
-    if (m_stopped)
+    if (m_stopped || m_stopping)
         return;
+    m_stopping = true;
     log_info("stopping TCP server");
 
     // close listener
     if (m_listener)
         m_listener->close(true);
-
-    // close all sessions
-    {
-        m_stopping = true;
-        local_lock _lock(m_mutex);
-        for (auto _iter : m_sessions)
-            _iter.second->close(true);
-        m_sessions.clear();
-    }
 
     // close all threads but self
     if (!m_stopped)
@@ -113,10 +106,16 @@ server::stop (bool _crash/* = false */)
     m_stopped = true;
     log_info("TCP server has stopped");
 
-    if (m_crash_handler) {
-        log_fatal("TCP server has crashed");
-        ignore_excp(m_crash_handler());
+    // close all sessions
+    {
+        local_lock _lock(m_mutex);
+        for (auto _iter : m_sessions)
+            _iter.second->close(true);
+        m_sessions.clear();
     }
+
+    if (_crash && m_crash_handler)
+        ignore_excp(m_crash_handler());
 }
 
 size_t
@@ -224,6 +223,7 @@ server::on_new_session (socket &&_sock)
 
     {
         local_lock _lock(m_mutex);
+        assert(m_sessions.find(_session->key()) == m_sessions.end());
         m_sessions[_session->key()] = _session;
     }
 
@@ -251,7 +251,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
     {
         local_lock _lock(m_mutex);
         m_sessions.erase(_session.key());
-        log_debug("size = %lld", m_sessions.size());
+        //log_debug("size = %lld", m_sessions.size());
     }
 }
 
@@ -259,9 +259,11 @@ void
 server::on_listener_close (std::error_code _ec)
 {
     assert(!m_stopped);
-    if (_ec)
+    if (_ec) {
         log_error("listener closed, %s",
                   system_error_str(_ec).c_str());
+        stop(true);
+    }
     stop();
 }
 

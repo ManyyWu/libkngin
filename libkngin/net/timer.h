@@ -19,6 +19,8 @@ public:
 
     typedef std::function<void (void)>        timeout_handler;
 
+    typedef std::shared_ptr<timer>            timer_ptr;
+
 public:
     timer    () = delete;
 
@@ -40,7 +42,7 @@ public:
     loop     () KNGIN_NOEXCP
     { return m_loop; }
 
-    std::shared_ptr<timer>
+    timer_ptr
     self     ()
     { return shared_from_this(); }
 

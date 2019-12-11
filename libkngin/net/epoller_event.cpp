@@ -13,15 +13,18 @@ KNGIN_NAMESPACE_K_BEGIN
 epoller_event::epoller_event (epollfd _fd) KNGIN_NOEXCP
     : filefd(_fd),
       m_flags(EPOLLHUP | EPOLLERR),
-      m_event({0, nullptr})
+      m_event({0, nullptr}),
+      m_registed(false)
 {
 }
 
 epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXCP
     : filefd(std::move(_e)),
       m_flags(_e.m_flags),
-      m_event(_e.m_event)
+      m_event({0, nullptr}),
+      m_registed(false)
 {
+    assert(!_e.m_registed);
     _e.m_event = {0, nullptr};
 }
 

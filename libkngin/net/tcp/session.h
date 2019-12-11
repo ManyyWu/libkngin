@@ -134,7 +134,7 @@ public:
     loop          () KNGIN_NOEXCP
     { return m_loop; }
 
-    std::shared_ptr<session>
+    session_ptr
     self     ()
     { return shared_from_this(); }
 

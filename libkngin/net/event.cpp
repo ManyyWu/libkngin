@@ -36,7 +36,7 @@ event::~event() KNGIN_NOEXCP
     if (is_single_ref_ptr(m_loop))
         return; // removed
     ignore_excp(
-        if (m_loop->registed(self()))
+        if (registed())
             m_loop->remove_event(self());
         this->close();
     );

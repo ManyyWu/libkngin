@@ -31,7 +31,7 @@ public:
 
     typedef std::function<void (void)> task;
 
-    typedef std::shared_ptr<event>     waker_ptr;
+    typedef event::event_ptr           waker_ptr;
 
     typedef epoller::epoller_event_ptr epoller_event_ptr;
 

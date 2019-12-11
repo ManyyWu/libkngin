@@ -108,10 +108,14 @@ address::check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP
 std::string
 address::key () const
 {
+    std::string _key;
+    _key.reserve(KEY_SIZE);
     return std::string(inet6() ? (char *)&m_sa.v6.sin6_addr 
                                : (char *)&m_sa.v4.sin_addr,
                        inet6() ? sizeof(struct ::in6_addr)
-                               : sizeof(struct ::in_addr));
+                               : sizeof(struct ::in_addr)
+                       ) + std::to_string(inet6() ? m_sa.v6.sin6_port
+                                                  : m_sa.v4.sin_port);
 }
 
 KNGIN_NAMESPACE_K_END
