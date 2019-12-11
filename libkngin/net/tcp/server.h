@@ -17,29 +17,29 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class server : public noncopyable {
 public:
-    typedef session::in_buffer_ptr                    in_buffer_ptr;
+    typedef session::in_buffer_ptr                       in_buffer_ptr;
 
-    typedef session::out_buffer_ptr                   out_buffer_ptr;
+    typedef session::out_buffer_ptr                      out_buffer_ptr;
 
-    typedef session::session_ptr                      session_ptr;
+    typedef session::session_ptr                         session_ptr;
 
-    typedef session::message_handler                  message_handler;
+    typedef session::message_handler                     message_handler;
 
-    typedef session::sent_handler                     sent_handler;
+    typedef session::sent_handler                        sent_handler;
 
-    typedef session::oob_handler                      oob_handler;
+    typedef session::oob_handler                         oob_handler;
 
-    typedef session::close_handler                    close_handler;
+    typedef session::close_handler                       close_handler;
 
-    typedef std::function<void (session_ptr)>         session_handler;
+    typedef std::function<void (session_ptr)>            session_handler;
 
-    typedef std::shared_ptr<listener>                 listener_ptr;
+    typedef std::shared_ptr<listener>                    listener_ptr;
 
-    typedef std::function<void (void)>                crash_handler;
+    typedef std::function<void (void)>                   crash_handler;
 
-    typedef std::vector<session_ptr>                  session_list;
+    typedef std::vector<session_ptr>                     session_list;
 
-    typedef std::unordered_map<uint32_t, session_ptr> session_map;
+    typedef std::unordered_map<std::string, session_ptr> session_map;
 
 public:
     server            () = delete;

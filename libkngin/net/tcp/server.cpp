@@ -224,7 +224,7 @@ server::on_new_session (socket &&_sock)
 
     {
         local_lock _lock(m_mutex);
-        m_sessions[_session->serial()] = _session;
+        m_sessions[_session->key()] = _session;
     }
 
     if (m_session_handler)
@@ -250,7 +250,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
     if (!m_stopping)
     {
         local_lock _lock(m_mutex);
-        m_sessions.erase(_session.serial());
+        m_sessions.erase(_session.key());
         log_debug("size = %lld", m_sessions.size());
     }
 }

@@ -104,4 +104,14 @@ address::check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP
     struct ::sockaddr_in _sa;
     return ::inet_pton(AF_INET6, _addrstr.data(), &_sa);
 }
+
+std::string
+address::key () const
+{
+    return std::string(inet6() ? (char *)&m_sa.v6.sin6_addr 
+                               : (char *)&m_sa.v4.sin_addr,
+                       inet6() ? sizeof(struct ::in6_addr)
+                               : sizeof(struct ::in_addr));
+}
+
 KNGIN_NAMESPACE_K_END

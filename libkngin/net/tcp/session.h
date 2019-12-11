@@ -120,9 +120,9 @@ public:
     name            () const KNGIN_NOEXCP
     { return m_name; }
 
-    uint64_t
-    serial          () const KNGIN_NOEXCP
-    { return m_serial; }
+    const std::string &
+    key             () const KNGIN_NOEXCP
+    { return m_key; }
 
 public:
     void
@@ -139,10 +139,6 @@ public:
     { return shared_from_this(); }
 
 private:
-    uint64_t
-    next_serial     ()
-    { return m_next_serial++; }
-
     k::socket &
     socket          ()
     { return m_socket; }
@@ -170,9 +166,9 @@ private:
 
     std::atomic<bool>    m_connected;
 
-    address              m_local_addr;
+    const address        m_local_addr;
 
-    address              m_peer_addr;
+    const address        m_peer_addr;
 
     const std::string    m_name;
 
@@ -192,7 +188,7 @@ private:
 
     size_t               m_callback_lowat;
 
-    uint64_t             m_serial;
+    const std::string    m_key;
 
 private:
     static uint64_t      m_next_serial;

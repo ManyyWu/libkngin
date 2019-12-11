@@ -71,7 +71,7 @@ public:
         std::shared_ptr<in_buffer> _buf = nullptr;
         {
             local_lock _lock(m_mutex);
-            _buf = std::make_shared<in_buffer>(m_bufs[_session.serial()].get(), 4);
+            _buf = std::make_shared<in_buffer>(m_bufs[_session.key()].get(), 4);
         }
         _session.recv(_buf);
     }
@@ -83,7 +83,7 @@ public:
 
         {
             local_lock _lock(m_mutex);
-            m_bufs.erase(_session.serial());
+            m_bufs.erase(_session.key());
         }
     }
 
@@ -96,8 +96,8 @@ public:
         std::shared_ptr<char *> _arr = nullptr;
         {
             local_lock _lock(m_mutex);
-            m_bufs[_session->serial()] = std::make_shared<char *>(new char[4]);
-            _arr = m_bufs[_session->serial()];
+            m_bufs[_session->key()] = std::make_shared<char *>(new char[4]);
+            _arr = m_bufs[_session->key()];
             _buf = std::make_shared<out_buffer>(_arr.get(), 4);
         }
 
@@ -132,7 +132,7 @@ public:
 protected:
     tcp::server            m_server;
 
-    typedef std::unordered_map<uint64_t, std::shared_ptr<char *>> buffer_map;
+    typedef std::unordered_map<std::string, std::shared_ptr<char *>> buffer_map;
     buffer_map             m_bufs;
 
     mutex                  m_mutex;

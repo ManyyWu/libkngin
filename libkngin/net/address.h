@@ -41,6 +41,10 @@ public:
     ~address   () = default;
 
 public:
+    int
+    family     () const KNGIN_NOEXCP
+    { return m_sa.v4.sin_family; }
+
     bool
     inet6      () const;
 
@@ -103,6 +107,10 @@ public:
 
     static bool
     check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP;
+
+public:
+    std::string
+    key                 () const;
 
 protected:
     address::sockaddr m_sa;

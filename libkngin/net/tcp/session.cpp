@@ -15,8 +15,6 @@
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
-uint64_t session::m_next_serial = 0;
-
 session::session (event_loop &_loop, k::socket &&_socket,
                   const address &_local_addr, const address &_peer_addr)
     try
@@ -35,7 +33,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_out_bufq_mutex(),
       m_in_buf(nullptr),
       m_callback_lowat(KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT),
-      m_serial(session::next_serial())
+      m_key(m_peer_addr.key())
 {
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
