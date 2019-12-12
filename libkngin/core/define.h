@@ -1,5 +1,5 @@
-#ifndef _DEFINE_H_
-#define _DEFINE_H_
+#ifndef KNGIN_DEFINE_H
+#define KNGIN_DEFINE_H
 
 #define KNGIN_VERSION     010
 #define KNGIN_VERSION_STR "0.1.0"
@@ -51,6 +51,14 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_QUEUE_MIN (size_t)1
 
 // for log
-#define KNGIN_LOG_RELATIVE_PATH OFF
+#define KNGIN_LOG_RELATIVE_PATH ON
 
-#endif /* _DEFINE_H_ */
+// for debug
+#ifndef NDEBUG
+#define KNGIN_SERVER_MANAGE_SESSIONS OFF
+#else
+#define KNGIN_SERVER_MANAGE_SESSIONS OFF
+#endif
+
+
+#endif /* KNGIN_DEFINE_H */

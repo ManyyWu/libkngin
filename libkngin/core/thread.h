@@ -1,5 +1,5 @@
-#ifndef _THREAD_H_
-#define _THREAD_H_
+#ifndef KNGIN_THREAD_H
+#define KNGIN_THREAD_H
 
 #include <cstring>
 #include <atomic>
@@ -171,10 +171,10 @@ public:
     pimpl         ()
     { return m_pimpl; }
 
-protected:
+private:
     thread_pimpl_ptr m_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _THREAD_H_ */
+#endif /* KNGIN_THREAD_H */

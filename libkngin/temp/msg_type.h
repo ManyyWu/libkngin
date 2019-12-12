@@ -1,5 +1,5 @@
-//#ifndef _MSG_TYPE_H_
-//#define _MSG_TYPE_H_
+//#ifndef KNGIN_MSG_TYPE_H
+//#define KNGIN_MSG_TYPE_H
 //
 //#include "cstdint"
 //
@@ -20,4 +20,4 @@
 //
 //typedef uint32_t msg_type;
 //
-//#endif /* _MSG_TYPE_H_ */
+//#endif /* KNGIN_MSG_TYPE_H */

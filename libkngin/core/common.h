@@ -1,5 +1,5 @@
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef KNGIN_COMMON_H
+#define KNGIN_COMMON_H
 
 #define __STDC_FORMAT_MACROS
 #include <new>
@@ -98,4 +98,4 @@ is_single_ref_ptr (std::shared_ptr<Type> &_ptr)
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _COMMON_H_ */
+#endif /* KNGIN_COMMON_H */

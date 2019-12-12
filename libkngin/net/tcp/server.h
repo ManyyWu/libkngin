@@ -1,5 +1,5 @@
-#ifndef _TCP_SERVER_H_
-#define _TCP_SERVER_H_
+#ifndef KNGIN_TCP_SERVER_H
+#define KNGIN_TCP_SERVER_H
 
 #include <unordered_map>
 #include "core/define.h"
@@ -110,7 +110,9 @@ private:
 
     io_threadpool     m_threadpool;
 
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     session_map       m_sessions;
+#endif
 
     listener_ptr      m_listener;
 
@@ -138,4 +140,4 @@ private:
 KNGIN_NAMESPACE_TCP_END
 KNGIN_NAMESPACE_K_END
 
-#endif /* _TCP_SERVER_H_ */
+#endif /* KNGIN_TCP_SERVER_H */

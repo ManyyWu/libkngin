@@ -1,5 +1,5 @@
-#ifndef _SOCK_OPTS_H_
-#define _SOCK_OPTS_H_
+#ifndef KNGIN_SOCK_OPTS_H
+#define KNGIN_SOCK_OPTS_H
 
 #include <netinet/tcp.h>
 #include <time.h>
@@ -209,4 +209,4 @@ protected:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _SOCK_OPTS_H_ */
+#endif /* KNGIN_SOCK_OPTS_H */

@@ -1,5 +1,5 @@
-#ifndef _BUFFER_H_
-#define _BUFFER_H_
+#ifndef KNGIN_BUFFER_H
+#define KNGIN_BUFFER_H
 
 #include <string>
 #include <memory>
@@ -260,4 +260,4 @@ protected:
 */
 KNGIN_NAMESPACE_K_END
 
-#endif /* _BUFFER_H_ */
+#endif /* KNGIN_BUFFER_H */

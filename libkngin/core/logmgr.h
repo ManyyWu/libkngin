@@ -1,5 +1,5 @@
-#ifndef _LOGMGR_H_
-#define _LOGMGR_H_
+#ifndef KNGIN_LOGMGR_H
+#define KNGIN_LOGMGR_H
 
 #include <vector>
 #include <string>
@@ -52,4 +52,4 @@ logger ();
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _LOGMGR_H_ */
+#endif /* KNGIN_LOGMGR_H */

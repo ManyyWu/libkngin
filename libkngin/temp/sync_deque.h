@@ -1,5 +1,5 @@
-#ifndef _SYNC_DEQUE_H_
-#define _SYNC_DEQUE_H_
+#ifndef KNGIN_SYNC_DEQUE_H
+#define KNGIN_SYNC_DEQUE_H
 
 #include <deque>
 #include <atomic>
@@ -271,4 +271,4 @@ protected:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _SYNC_DEQUE_H_ */
+#endif /* KNGIN_SYNC_DEQUE_H */

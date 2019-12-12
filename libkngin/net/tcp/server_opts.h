@@ -1,5 +1,5 @@
-#ifndef _TCP_SERVER_OPTS_H_
-#define _TCP_SERVER_OPTS_H_
+#ifndef KNGIN_TCP_SERVER_OPTS_H
+#define KNGIN_TCP_SERVER_OPTS_H
 
 #include <string>
 #include "core/define.h"
@@ -26,4 +26,4 @@ struct server_opts {
 KNGIN_NAMESPACE_TCP_END
 KNGIN_NAMESPACE_K_END
 
-#endif /* _TCP_SERVER_OPTS_H_ */
+#endif /* KNGIN_TCP_SERVER_OPTS_H */

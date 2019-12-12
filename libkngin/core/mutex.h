@@ -1,5 +1,5 @@
-#ifndef _MUTEX_H_
-#define _MUTEX_H_
+#ifndef KNGIN_MUTEX_H
+#define KNGIN_MUTEX_H
 
 #ifdef _WIN32
 #include "pthreads_win32/include/pthread.h"
@@ -40,4 +40,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _MUTEX_H_ */
+#endif /* KNGIN_MUTEX_H */

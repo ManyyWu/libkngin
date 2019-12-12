@@ -1,5 +1,5 @@
-#ifndef _SESSION_H_
-#define _SESSION_H_
+#ifndef KNGIN_SESSION_H
+#define KNGIN_SESSION_H
 
 #include <functional>
 #include <memory>
@@ -197,4 +197,4 @@ private:
 KNGIN_NAMESPACE_TCP_END
 KNGIN_NAMESPACE_K_END
 
-#endif /* _SESSION_H_ */
+#endif /* KNGIN_SESSION_H */

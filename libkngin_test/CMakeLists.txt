@@ -8,9 +8,12 @@ include_directories(".")
 
 # source files
 file(GLOB KNGIN_TEST_SRC *.cpp)
+file(GLOB KNGIN_TEST_SRC_SFS simple_ftp_server/*.cpp)
 
 # library
-add_executable(libkngin_test ${KNGIN_TEST_SRC})
+add_executable(libkngin_test
+               ${KNGIN_TEST_SRC}
+               ${KNGIN_TEST_SRC_SFS})
 
 # link
 target_link_libraries(libkngin_test kngin_net)

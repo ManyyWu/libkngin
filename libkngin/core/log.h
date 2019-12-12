@@ -1,5 +1,5 @@
-#ifndef _K_LOG_H_
-#define _K_LOG_H_
+#ifndef KNGIN_K_LOG_H
+#define KNGIN_K_LOG_H
 
 #include <cstdarg>
 #include <string>
@@ -160,4 +160,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _K_LOG_H_ */
+#endif /* KNGIN_K_LOG_H */

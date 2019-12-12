@@ -4,6 +4,11 @@
 #include "../libkngin/core/exception.h"
 #include "../libkngin/core/system_error.h"
 
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
+#endif
+#define KNGIN_FILENAME "libkngin_test/main.cpp"
+
 using namespace std;
 
 extern void
@@ -56,6 +61,9 @@ event_loop_test ();
 
 extern void
 tcp_server_test ();
+
+extern void
+simple_ftp_server_test ();
 
 void
 test ();
@@ -126,6 +134,11 @@ int main()
         cerr << "********************* tcp_server_test ******************\n";
         tcp_server_test ();
         cerr << "********************************************************\n";
+
+        cerr << "********************* event_loop_test ******************\n";
+        simple_ftp_server_test ();
+        cerr << "********************************************************\n";
+
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());
         log_dump(_e.dump().c_str());

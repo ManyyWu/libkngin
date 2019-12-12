@@ -40,13 +40,11 @@ using namespace std;
 using namespace std::placeholders;
 #warning "返回值处理"
 #warning "头文件宏改 KNGIN_HEAD_FILE_XXXXX"
-#warning "新建面向应用的错误码，抽象!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#warning "新建面向应用的错误码，抽象"
 #warning "应用层不接触任何底层错误"
-#warning "private"
 #warning "nrv优化"
 #warning "https://zhuanlan.zhihu.com/p/88749279"
 #warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
-#warning "防止shared_ptr拷贝"
 #warning "ET mode"
 /*
 switch (savedErrno)  //检查错误码

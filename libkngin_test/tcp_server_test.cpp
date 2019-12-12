@@ -12,14 +12,14 @@
 using namespace k;
 using namespace k::tcp;
 
-std::shared_ptr<barrier> g_barrier = nullptr;
+static std::shared_ptr<barrier> g_barrier = nullptr;
 
 class test_server {
 public:
     test_server (const server_opts &_opts)
         : m_server(_opts),
           m_bufs(),
-          m_mutex(),
+          m_bufs_mutex(),
           m_savetime(time(NULL)),
           m_times(0)
     {
@@ -70,8 +70,8 @@ public:
 
         std::shared_ptr<in_buffer> _buf = nullptr;
         {
-            local_lock _lock(m_mutex);
-            _buf = std::make_shared<in_buffer>(m_bufs[_session.key()].get(), 4);
+            local_lock _lock(m_bufs_mutex);
+            _buf = std::make_shared<in_buffer>(m_bufs[_session.key()].si_buf.get(), 4);
         }
         _session.recv(_buf);
     }
@@ -82,7 +82,7 @@ public:
         log_info("session %s closed", _session.name().c_str());
 
         {
-            local_lock _lock(m_mutex);
+            local_lock _lock(m_bufs_mutex);
             m_bufs.erase(_session.key());
         }
     }
@@ -95,14 +95,14 @@ public:
         std::shared_ptr<out_buffer> _buf = nullptr;
         std::shared_ptr<char *> _arr = nullptr;
         {
-            local_lock _lock(m_mutex);
-            m_bufs[_session->key()] = std::make_shared<char *>(new char[4]);
-            _arr = m_bufs[_session->key()];
+            local_lock _lock(m_bufs_mutex);
+            m_bufs[_session->key()] = {_session, std::make_shared<char *>(new char[4])};
+            _arr = m_bufs[_session->key()].si_buf;
             _buf = std::make_shared<out_buffer>(_arr.get(), 4);
         }
 
         {
-            if (_session->peer_addr().port() >= 47000) { // close
+            if (_session->peer_addr().port() >= 147000) { // close
                 _session->close(true);
                 if (g_barrier->wait())
                     g_barrier->destroy();
@@ -118,7 +118,7 @@ public:
         } else {
             log_warning("accepted %" PRIu64 " new sessions in last second, "
                         "current session num = %" PRIu64,
-                        m_times.load(), m_server.session_num());
+                        m_times.load(), m_bufs.size());
             m_savetime = time(NULL);
             m_times = 0;
         }
@@ -132,13 +132,15 @@ public:
 protected:
     tcp::server            m_server;
 
-    typedef std::unordered_map<std::string, std::shared_ptr<char *>> buffer_map;
+    struct session_info {
+        session::session_ptr    si_session;
+        std::shared_ptr<char *> si_buf;
+    };
+    typedef std::unordered_map<std::string, session_info> buffer_map;
     buffer_map             m_bufs;
-
-    mutex                  m_mutex;
+    mutex                  m_bufs_mutex;
 
     time_t                 m_savetime;
-
     std::atomic<uint64_t>  m_times;
 };
 

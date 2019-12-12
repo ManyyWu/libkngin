@@ -1,5 +1,5 @@
-#ifndef _TIMESTAMP_H_
-#define _TIMESTAMP_H_
+#ifndef KNGIN_TIMESTAMP_H
+#define KNGIN_TIMESTAMP_H
 
 #ifdef _WIN32
 #include <windows.h>
@@ -128,4 +128,4 @@ int gettimeofday (struct timeval *tv, struct timezone *tz);
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _TIMESTAMP_H_ */
+#endif /* KNGIN_TIMESTAMP_H */

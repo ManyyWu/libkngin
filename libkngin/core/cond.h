@@ -1,5 +1,5 @@
-#ifndef _COND_H_
-#define _COND_H_
+#ifndef KNGIN_COND_H
+#define KNGIN_COND_H
 
 #ifdef _WIN32
 #include "pthreads_win32/include/pthread.h"
@@ -41,4 +41,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _COND_H_ */
+#endif /* KNGIN_COND_H */

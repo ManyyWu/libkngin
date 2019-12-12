@@ -1,5 +1,5 @@
-#ifndef _SOCKET_H_
-#define _SOCKET_H_
+#ifndef KNGIN_SOCKET_H
+#define KNGIN_SOCKET_H
 
 #ifdef _WIN32
 #else
@@ -142,4 +142,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _SOCKET_H_ */
+#endif /* KNGIN_SOCKET_H */

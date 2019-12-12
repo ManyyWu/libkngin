@@ -1,5 +1,5 @@
-#ifndef _FILEFD_H_
-#define _FILEFD_H_
+#ifndef KNGIN_FILEFD_H
+#define KNGIN_FILEFD_H
 
 #include <list>
 #include <system_error>
@@ -122,4 +122,4 @@ protected:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _FILEFD_H_ */
+#endif /* KNGIN_FILEFD_H */

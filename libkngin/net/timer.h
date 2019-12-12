@@ -1,5 +1,5 @@
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#ifndef KNGIN_TIMER_H
+#define KNGIN_TIMER_H
 
 #include <memory>
 #include <functional>
@@ -63,4 +63,4 @@ private:
 };
 
 KNGIN_NAMESPACE_K_END
-#endif /* _TIMER_H_ */
+#endif /* KNGIN_TIMER_H */

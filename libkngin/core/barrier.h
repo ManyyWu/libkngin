@@ -1,5 +1,5 @@
-#ifndef _BARRIER_H_
-#define _BARRIER_H_
+#ifndef KNGIN_BARRIER_H
+#define KNGIN_BARRIER_H
 
 #ifdef _WIN32
 #include "pthreads_win32/include/pthread.h"
@@ -39,4 +39,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _BARRIER_H_ */
+#endif /* KNGIN_BARRIER_H */

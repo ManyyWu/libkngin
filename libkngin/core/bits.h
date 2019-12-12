@@ -1,5 +1,5 @@
-#ifndef _BITS_H_
-#define _BITS_H_
+#ifndef KNGIN_BITS_H
+#define KNGIN_BITS_H
 
 #include "core/define.h"
 #include "core/exception.h"
@@ -68,4 +68,4 @@ is_bits_set (Type _val, Type1 _first, Args... _args)
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _BITS_H_ */
+#endif /* KNGIN_BITS_H */

@@ -1,5 +1,5 @@
-#ifndef _WORKER_THERAD_POLL_H_
-#define _WORKER_THERAD_POLL_H_
+#ifndef KNGIN_WORKER_THERAD_POLL_H
+#define KNGIN_WORKER_THERAD_POLL_H
 
 #include <vector>
 #include <atomic>
@@ -80,4 +80,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _WORKER_THERAD_POLL_H_ */
+#endif /* KNGIN_WORKER_THERAD_POLL_H */

@@ -1,5 +1,5 @@
-#ifndef _LOCK_H_
-#define _LOCK_H_
+#ifndef KNGIN_LOCK_H
+#define KNGIN_LOCK_H
 
 #include "core/rwlock.h"
 #include "core/mutex.h"
@@ -7,4 +7,4 @@
 #include "core/cond.h"
 #include "core/local_lock.h"
 
-#endif /* _LOCK_H_ */
+#endif /* KNGIN_LOCK_H */

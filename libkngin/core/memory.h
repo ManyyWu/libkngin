@@ -1,5 +1,5 @@
-#ifndef _MEMORY_H_
-#define _MEMORY_H_
+#ifndef KNGIN_MEMORY_H
+#define KNGIN_MEMORY_H
 
 #ifdef _WIN32
 #include <xtr1common>
@@ -23,4 +23,4 @@ make_shared_array (size_t _num)
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _MEMORY_H_ */
+#endif /* KNGIN_MEMORY_H */

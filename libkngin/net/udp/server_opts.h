@@ -1,5 +1,5 @@
-#ifndef _UDP_SERVER_OPTS_H_
-#define _UDP_SERVER_OPTS_H_
+#ifndef KNGIN_UDP_SERVER_OPTS_H
+#define KNGIN_UDP_SERVER_OPTS_H
 
 #include <string>
 #include "core/define.h"
@@ -16,4 +16,4 @@ struct udp_server_opts {
 KNGIN_NAMESPACE_UDP_END
 KNGIN_NAMESPACE_K_END
 
-#endif /* _UDP_SERVER_OPTS_H_ */
+#endif /* KNGIN_UDP_SERVER_OPTS_H */

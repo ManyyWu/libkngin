@@ -1,5 +1,5 @@
-#ifndef _MYLOGFILE_H_
-#define _MYLOGFILE_H_
+#ifndef KNGIN_MYLOGFILE_H
+#define KNGIN_MYLOGFILE_H
 
 
-#endif /* _MYLOGFILE_H_ */
+#endif /* KNGIN_MYLOGFILE_H */

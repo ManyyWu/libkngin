@@ -1,5 +1,5 @@
-#ifndef _SYSTEM_ERROR_H_
-#define _SYSTEM_ERROR_H_
+#ifndef KNGIN_SYSTEM_ERROR_H
+#define KNGIN_SYSTEM_ERROR_H
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -96,4 +96,4 @@ system_error_str (const std::error_code &_ec)
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _SYSTEM_ERROR_H_ */
+#endif /* KNGIN_SYSTEM_ERROR_H */

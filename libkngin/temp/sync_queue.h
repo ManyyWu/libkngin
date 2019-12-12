@@ -1,5 +1,5 @@
-#ifndef _SYNC_QUEUE_H_
-#define _SYNC_QUEUE_H_
+#ifndef KNGIN_SYNC_QUEUE_H
+#define KNGIN_SYNC_QUEUE_H
 
 #include <queue>
 #include <atomic>
@@ -190,4 +190,4 @@ protected:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _SYNC_DEQUE_H_ */
+#endif /* KNGIN_SYNC_DEQUE_H */

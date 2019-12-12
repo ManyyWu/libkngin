@@ -1,5 +1,5 @@
-#ifndef _EPOLL_H_
-#define _EPOLL_H_
+#ifndef KNGIN_EPOLL_H
+#define KNGIN_EPOLL_H
 
 #ifdef _WIN32
 #else
@@ -76,4 +76,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _EPOLL_H_ */
+#endif /* KNGIN_EPOLL_H */

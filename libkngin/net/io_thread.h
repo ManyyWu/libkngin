@@ -1,5 +1,5 @@
-#ifndef _IO_THREAD_H_
-#define _IO_THREAD_H_
+#ifndef KNGIN_IO_THREAD_H
+#define KNGIN_IO_THREAD_H
 
 #include <memory>
 #include "core/define.h"
@@ -45,4 +45,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _IO_THREAD_H_ */
+#endif /* KNGIN_IO_THREAD_H */

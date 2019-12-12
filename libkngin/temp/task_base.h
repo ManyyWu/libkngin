@@ -1,5 +1,5 @@
-//#ifndef _TASK_BASE_H_
-//#define _TASK_BASE_H_
+//#ifndef KNGIN_TASK_BASE_H
+//#define KNGIN_TASK_BASE_H
 //
 //#include <atomic>
 //#include "define.h"
@@ -53,4 +53,4 @@
 //
 //KNGIN_NAMESPACE_K_END
 //
-//#endif /* _TASK_BASE_H_ */
+//#endif /* KNGIN_TASK_BASE_H */

@@ -8,6 +8,11 @@
 #include "net/sockopts.h"
 #include "net/listener.h"
 
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
+#endif
+#define KNGIN_FILENAME "libkngin/net/listener.cpp"
+
 KNGIN_NAMESPACE_K_BEGIN
 
 listener::listener (event_loop &_loop, k::socket &&_socket)

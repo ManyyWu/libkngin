@@ -1,5 +1,5 @@
-#ifndef _LISTENER_H_
-#define _LISTENER_H_
+#ifndef KNGIN_LISTENER_H
+#define KNGIN_LISTENER_H
 
 #include <functional>
 #include <cassert>
@@ -91,5 +91,5 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _LISTENER_H_ */
+#endif /* KNGIN_LISTENER_H */
 

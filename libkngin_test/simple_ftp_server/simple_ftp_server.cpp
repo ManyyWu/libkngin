@@ -12,12 +12,14 @@
 using namespace k;
 using namespace k::tcp;
 
+static std::shared_ptr<barrier> g_barrier = nullptr;
+
 class simple_ftp_server {
 public:
-    test_server (const server_opts &_opts)
+    simple_ftp_server (const server_opts &_opts)
         : m_server(_opts),
           m_bufs(),
-          m_mutex(),
+          m_bufs_mutex(),
           m_savetime(time(NULL)),
           m_times(0)
     {
@@ -62,7 +64,11 @@ public:
 protected:
     tcp::server            m_server;
 
-    typedef std::unordered_map<uint64_t, std::shared_ptr<char *>> buffer_map;
+    struct session_info {
+        session::session_ptr    si_session;
+        std::shared_ptr<char *> si_buf;
+    };
+    typedef std::unordered_map<std::string, session_info> buffer_map;
     buffer_map             m_bufs;
     mutex                  m_bufs_mutex;
 
@@ -90,7 +96,7 @@ simple_ftp_server_test ()
         .disable_info           = false,
         .separate_listen_thread = true,
     };
-    test_server _s(_opts);
+    simple_ftp_server _s(_opts);
     assert(_s.run());
 
     if (g_barrier->wait())

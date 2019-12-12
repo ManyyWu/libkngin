@@ -1,5 +1,5 @@
-#ifndef _EXCEPTION_H_
-#define _EXCEPTION_H_
+#ifndef KNGIN_EXCEPTION_H
+#define KNGIN_EXCEPTION_H
 
 #include <string>
 #include <exception>
@@ -44,4 +44,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _EXCEPTION_H_ */
+#endif /* KNGIN_EXCEPTION_H */

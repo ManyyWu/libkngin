@@ -1,5 +1,5 @@
-#ifndef _ADDRESS_H_
-#define _ADDRESS_H_
+#ifndef KNGIN_ADDRESS_H
+#define KNGIN_ADDRESS_H
 
 #ifdef _WIN32
 #else
@@ -117,10 +117,10 @@ public:
 protected:
     address::sockaddr m_sa;
 
-protected:
+private:
     friend class socket;
 };
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _ADDRESS_H_ */
+#endif /* KNGIN_ADDRESS_H */

@@ -9,6 +9,11 @@
 #include "core/common.h"
 #include "net/tcp/server.h"
 
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
+#endif
+#define KNGIN_FILENAME "libkngin/net/tcp/server.cpp"
+
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
@@ -16,7 +21,9 @@ server::server (const server_opts &_opts)
     try 
     : m_opts(_opts),
       m_threadpool(_opts.thread_num),
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
       m_sessions(),
+#endif
       m_listener(nullptr),
       m_listen_addr(),
       m_sent_handler(nullptr),
@@ -107,24 +114,17 @@ server::stop (bool _crash/* = false */)
     log_info("TCP server has stopped");
 
     // close all sessions
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     {
         local_lock _lock(m_mutex);
         for (auto _iter : m_sessions)
             _iter.second->close(true);
         m_sessions.clear();
     }
+#endif
 
     if (_crash && m_crash_handler)
         ignore_excp(m_crash_handler());
-}
-
-size_t
-server::session_num ()
-{
-    {
-        local_lock _lock(m_mutex);
-        return m_sessions.size();
-    }
 }
 
 void
@@ -221,11 +221,13 @@ server::on_new_session (socket &&_sock)
     _session->set_close_handler(std::bind(&server::on_session_close, this, 
                                 std::placeholders::_1, std::placeholders::_2));
 
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     {
         local_lock _lock(m_mutex);
         assert(m_sessions.find(_session->key()) == m_sessions.end());
         m_sessions[_session->key()] = _session;
     }
+#endif
 
     if (m_session_handler)
         _next_loop.run_in_loop([this, _session] () {
@@ -247,12 +249,14 @@ server::on_session_close (const session &_session, std::error_code _ec)
             "sever::m_close_handler() error"
         );
 
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     if (!m_stopping)
     {
         local_lock _lock(m_mutex);
         m_sessions.erase(_session.key());
         //log_debug("size = %lld", m_sessions.size());
     }
+#endif
 }
 
 void

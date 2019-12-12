@@ -1,5 +1,5 @@
-//#ifndef _MSG_H_
-//#define _MSG_H_
+//#ifndef KNGIN_MSG_H
+//#define KNGIN_MSG_H
 //
 //#include <cstdint>
 //#include "define.h"
@@ -76,4 +76,4 @@
 //
 //KNGIN_NAMESPACE_K_END
 //
-//#endif /* _MSG_H_ */
+//#endif /* KNGIN_MSG_H */

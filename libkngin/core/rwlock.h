@@ -1,5 +1,5 @@
-#ifndef _RWLOCK_H_
-#define _RWLOCK_H_
+#ifndef KNGIN_RWLOCK_H
+#define KNGIN_RWLOCK_H
 
 #ifdef _WIN32
 #include "pthreads_win32/include/pthread.h"
@@ -46,4 +46,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _RWLOCK_H_ */
+#endif /* KNGIN_RWLOCK_H */

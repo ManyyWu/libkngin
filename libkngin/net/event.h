@@ -1,5 +1,5 @@
-#ifndef _EVENT_H_
-#define _EVENT_H_
+#ifndef KNGIN_EVENT_H
+#define KNGIN_EVENT_H
 
 #include <memory>
 #include <functional>
@@ -60,4 +60,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _EVENT_H_ */
+#endif /* KNGIN_EVENT_H */

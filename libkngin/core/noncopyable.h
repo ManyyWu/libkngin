@@ -1,5 +1,5 @@
-#ifndef _NONCOPYABLE_H_
-#define _NONCOPYABLE_H_
+#ifndef KNGIN_NONCOPYABLE_H
+#define KNGIN_NONCOPYABLE_H
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -19,4 +19,4 @@ protected:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _NONCOPYABLE_H_ */
+#endif /* KNGIN_NONCOPYABLE_H */

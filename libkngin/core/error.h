@@ -1,5 +1,5 @@
-#ifndef _ERROR_H_
-#define _ERROR_H_
+#ifndef KNGIN_ERROR_H
+#define KNGIN_ERROR_H
 
 #include <system_error>
 #include "core/define.h"
@@ -15,4 +15,4 @@ enum APPLICATION_ERROR_CODE {
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _ERROR_H_ */
+#endif /* KNGIN_ERROR_H */

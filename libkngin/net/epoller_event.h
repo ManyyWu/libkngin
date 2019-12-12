@@ -1,5 +1,5 @@
-#ifndef _EPOLLER_EVENT_H_
-#define _EPOLLER_EVENT_H_
+#ifndef KNGIN_EPOLLER_EVENT_H
+#define KNGIN_EPOLLER_EVENT_H
 
 #ifdef _WIN32
 #else
@@ -97,4 +97,4 @@ private:
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* _EPOLLER_EVENT_H_ */
+#endif /* KNGIN_EPOLLER_EVENT_H */

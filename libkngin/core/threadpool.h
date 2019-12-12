@@ -1,5 +1,5 @@
-#ifndef _THREADPOLL_H_
-#define _THREADPOLL_H_
+#ifndef KNGIN_THREADPOLL_H
+#define KNGIN_THREADPOLL_H
 /*
 #include <vector>
 #include <deque>
@@ -93,4 +93,4 @@ protected:
 KNGIN_NAMESPACE_K_END
 */
 
-#endif /* _THREADPOLL_H_ */
+#endif /* KNGIN_THREADPOLL_H */
