@@ -28,6 +28,23 @@ public:
     bool
     run ()
     {
+        m_server.set_message_handler(std::bind(&test_server::on_message, this,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2,
+                                          std::placeholders::_3));
+        m_server.set_sent_handler(std::bind(&test_server::on_sent, this,
+                                  std::placeholders::_1));
+        m_server.set_session_handler(std::bind(&test_server::on_new_session, this,
+                                     std::placeholders::_1));
+        m_server.set_oob_handler(std::bind(&test_server::on_oob, this,
+                                 std::placeholders::_1, std::placeholders::_2));
+        m_server.set_close_handler(std::bind(&test_server::on_close, this,
+                                   std::placeholders::_1));
+        m_server.set_crash_handler([] () {
+            assert(!"server crashed");
+            exit(1);
+        });
+        return m_server.run();
     }
 
     void
@@ -82,7 +99,8 @@ simple_ftp_server_test ()
 
 //#define SERVER_ADDR "192.168.0.2"
 //#define SERVER_ADDR "127.0.0.1"
-#define SERVER_ADDR "fe80::f87f:8669:d667:1316%16"
+#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
+//#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
 
     g_barrier = std::make_shared<barrier>(2);
