@@ -58,16 +58,18 @@ session::~session () KNGIN_NOEXCP
 }
 
 bool
-session::send (out_buffer_ptr _buf)
+session::send (msg_buffer &&_buf)
 {
-    arg_check(_buf);
-    assert(m_connected);
+    if (!m_connected)
+        return false;
 
     {
         local_lock _lock(m_out_bufq_mutex);
-        m_out_bufq.push_front(_buf);
-        enable_write();
-        m_loop->update_event(self());
+        m_out_bufq.push_front(std::move(_buf));
+        if (m_out_bufq.size() <= 1) {
+            enable_write();
+            m_loop->update_event(self());
+        }
     }
 
     if (m_loop->in_loop_thread())
@@ -80,15 +82,68 @@ session::send (out_buffer_ptr _buf)
 }
 
 bool
-session::recv (in_buffer_ptr _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
+session::send (msg_buffer &&_buf, sent_handler &&_handler)
+{
+    if (!m_connected)
+        return false;
+
+    {
+        local_lock _lock(m_out_bufq_mutex);
+        m_sent_handler = std::move(_handler);
+        m_out_bufq.push_front(std::move(_buf));
+        if (m_out_bufq.size() <= 1) {
+            enable_write();
+            m_loop->update_event(self());
+        }
+    }
+
+    if (m_loop->in_loop_thread())
+        on_write();
+    else
+        m_loop->run_in_loop([this] () {
+            on_write();
+        });
+    return true;
+}
+
+bool
+session::recv (in_buffer_ptr &_buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
 {
     arg_check(_buf);
-    assert(m_connected);
-    enable_read();
-    m_loop->update_event(self());
+    //assert(!pollin());
+    if (!m_connected)
+        return false;
 
     m_in_buf = _buf;
     m_callback_lowat = _lowat;
+    enable_read();
+    m_loop->update_event(self());
+
+    if (m_loop->in_loop_thread())
+        on_read();
+    else
+        m_loop->run_in_loop([this] () {
+            on_read();
+        });
+    return true;
+}
+
+
+bool
+session::recv (in_buffer_ptr &_buf, message_handler &&_handler,
+               size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
+{
+    arg_check(_buf);
+    //assert(!pollin());
+    if (!m_connected)
+        return false;
+
+    m_message_handler = std::move(_handler);
+    m_in_buf = _buf;
+    m_callback_lowat = _lowat;
+    enable_read();
+    m_loop->update_event(self());
+
     if (m_loop->in_loop_thread())
         on_read();
     else
@@ -164,19 +219,19 @@ session::on_write ()
         return;
     m_loop->check_thread();
 
-    out_buffer_ptr _buf = nullptr;
+    msg_buffer *_buf = nullptr;
     {
         local_lock _lock(m_out_bufq_mutex);
         if (m_out_bufq.empty())
             return;
-        _buf = m_out_bufq.back();
+        _buf = &m_out_bufq.back();
     }
 
-    if_not (_buf->size())
+    if_not (_buf->buffer().size())
         return;
 
     std::error_code _ec;
-    size_t _size = m_socket.write(*_buf, _ec);
+    size_t _size = m_socket.write(_buf->buffer(), _ec);
     if (_ec) {
         if (((std::errc::operation_would_block == _ec ||
               std::errc::resource_unavailable_try_again == _ec ||
@@ -195,7 +250,7 @@ session::on_write ()
         on_close(_ec);
         return;
     } else {
-        if (_buf->size())
+        if (_buf->buffer().size())
             return;
 
         // write done

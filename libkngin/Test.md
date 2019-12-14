@@ -31,6 +31,7 @@
 
 ### std::function
 1. 检查参数，引用必须加std::ref
+2. run_in_loop 绑定的引用用std::shared_ptr代替，否则可能在event_loop执行任务前参数已经销毁
 
 ### To do 
 1. 日志目录从配置文件读

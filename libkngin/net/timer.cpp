@@ -15,7 +15,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::timer (event_loop_pimpl_ptr _loop,
+timer::timer (event_loop_pimpl_ptr &_loop,
               timeout_handler &&_timeout_handler)
     try
     : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC)),

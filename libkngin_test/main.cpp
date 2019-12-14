@@ -134,11 +134,6 @@ int main()
         cerr << "********************* tcp_server_test ******************\n";
         tcp_server_test ();
         cerr << "********************************************************\n";
-
-        cerr << "********************* event_loop_test ******************\n";
-        simple_ftp_server_test ();
-        cerr << "********************************************************\n";
-
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());
         log_dump(_e.dump().c_str());

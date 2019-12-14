@@ -78,7 +78,7 @@ out_buffer::dump ()
     char _tmp[3] = {0};
     for (size_t i = 0; i < m_size; ++i) {
         ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
-        _result += _tmp;
+        _result.append(_tmp);
     }
     return _result;
 }
@@ -116,8 +116,8 @@ in_buffer::write_bytes (const void * _p, size_t _n)
 {
     assert(_p);
     assert(_n);
-    check_readable(_n);
-    ::memcpy(m_arr, _p, _n);
+    check_writeable(_n);
+    ::memcpy(m_arr + m_valid, _p, _n);
     m_valid += _n;
     return *this;
 }

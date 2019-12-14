@@ -51,7 +51,7 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_QUEUE_MIN (size_t)1
 
 // for log
-#define KNGIN_LOG_RELATIVE_PATH ON
+#define KNGIN_LOG_RELATIVE_PATH OFF
 
 // for debug
 #ifndef NDEBUG

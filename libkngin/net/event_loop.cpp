@@ -76,7 +76,8 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     m_looping = true;
 
     try {
-        m_waker = std::make_shared<event>(self(), [] () {});
+        event_loop_pimpl_ptr _loop = self();
+        m_waker = std::make_shared<event>(_loop, [] () {});
         register_event(m_waker);
         if (_start_handler)
             ignore_excp(_start_handler());

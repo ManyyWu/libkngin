@@ -23,7 +23,7 @@ public:
 public:
     event    () = delete;
 
-    event    (event_loop_pimpl_ptr _loop,
+    event    (event_loop_pimpl_ptr &_loop,
               event_handler &&_event_handler);
 
     virtual

@@ -1,18 +1,28 @@
 #include <iostream>
 #include <string>
+#include <array>
 #include <functional>
 #include <unordered_map>
 #include <memory>
 #include <ctime>
 #include "../libkngin/core/thread.h"
+#include "../libkngin/core/memory.h"
 #include "../libkngin/core/common.h"
 #include "../libkngin/core/system_error.h"
 #include "../libkngin/net/tcp/server.h"
+
+#ifdef KNGIN_FILENAME
+#undef KNGIN_FILENAME
+#endif
+#define KNGIN_FILENAME "libkngin/libkngin_test/tcp_server_test.cpp"
 
 using namespace k;
 using namespace k::tcp;
 
 static std::shared_ptr<barrier> g_barrier = nullptr;
+
+const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
+const int   g_data_size = 64;
 
 class test_server {
 public:
@@ -28,18 +38,18 @@ public:
     bool
     run ()
     {
-        m_server.set_message_handler(std::bind(&test_server::on_message, this,
-                                          std::placeholders::_1,
-                                          std::placeholders::_2,
-                                          std::placeholders::_3));
-        m_server.set_sent_handler(std::bind(&test_server::on_sent, this,
-                                  std::placeholders::_1));
+        //m_server.set_message_handler(std::bind(&test_server::on_message, this,
+        //                                  std::placeholders::_1,
+        //                                  std::placeholders::_2,
+        //                                  std::placeholders::_3));
+        //m_server.set_sent_handler(std::bind(&test_server::on_sent, this,
+        //                                    std::placeholders::_1));
         m_server.set_session_handler(std::bind(&test_server::on_new_session, this,
-                                     std::placeholders::_1));
-        m_server.set_oob_handler(std::bind(&test_server::on_oob, this,
-                                 std::placeholders::_1, std::placeholders::_2));
+                                               std::placeholders::_1));
+        //m_server.set_oob_handler(std::bind(&test_server::on_oob, this,
+        //                                   std::placeholders::_1, std::placeholders::_2));
         m_server.set_close_handler(std::bind(&test_server::on_close, this,
-                                   std::placeholders::_1));
+                                             std::placeholders::_1));
         m_server.set_crash_handler([] () {
             assert(!"server crashed");
             exit(1);
@@ -53,34 +63,25 @@ public:
         m_server.stop();
     }
 
-    void
-    on_message (tcp::session &_session, in_buffer &_buf, size_t _size)
-    {
-        log_info("readed %d bytes from session %s, data: %s",
-                 _size, _session.name().c_str(),
-                 _buf.dump().c_str());
-        in_buffer(_buf.begin(), 4).write_uint32(_session.peer_addr().port());
-        _session.send(std::make_shared<out_buffer>(_buf.begin(), 4));
-    }
+    //void
+    //on_message (tcp::session &_session, in_buffer &_buf, size_t _size)
+    //{
+    //}
 
-    void
-    on_sent (tcp::session &_session)
-    {
-        log_info("session %s written done", _session.name().c_str());
-
-        std::shared_ptr<in_buffer> _buf = nullptr;
-        {
-            local_lock _lock(m_bufs_mutex);
-            _buf = std::make_shared<in_buffer>(m_bufs[_session.key()].si_buf.get(), 4);
-        }
-        _session.recv(_buf);
-    }
+    //void
+    //on_sent (tcp::session &_session)
+    //{
+    //}
+    //
+    //void
+    //on_oob (tcp::session &_session, uint8_t _data)
+    //{
+    //}
 
     void
     on_close (const tcp::session &_session)
     {
         log_info("session %s closed", _session.name().c_str());
-
         {
             local_lock _lock(m_bufs_mutex);
             m_bufs.erase(_session.key());
@@ -88,53 +89,75 @@ public:
     }
 
     void
-    on_new_session (tcp::server::session_ptr _session)
+    on_new_session (server::session_ptr _session)
     {
         assert(_session);
-        log_info("new session %s", _session->name().c_str());
-        std::shared_ptr<out_buffer> _buf = nullptr;
-        std::shared_ptr<char *> _arr = nullptr;
+        log_info("new session from %s", _session->name().c_str());
+
+        // create session info
         {
             local_lock _lock(m_bufs_mutex);
-            m_bufs[_session->key()] = {_session, std::make_shared<char *>(new char[4])};
-            _arr = m_bufs[_session->key()].si_buf;
-            _buf = std::make_shared<out_buffer>(_arr.get(), 4);
+            m_bufs[_session->key()] = {
+                .si_session = _session
+            };
         }
 
-        {
-            if (_session->peer_addr().port() >= 147000) { // close
-                _session->close(true);
-                if (g_barrier->wait())
-                    g_barrier->destroy();
-                return;
-            }
-        }
-
-        in_buffer(_arr.get(), 4).write_uint32(_session->peer_addr().port());
-        _session->send(_buf);
-
-        if (m_savetime == time(NULL)) {
-            m_times++;
-        } else {
-            log_warning("accepted %" PRIu64 " new sessions in last second, "
-                        "current session num = %" PRIu64,
-                        m_times.load(), m_bufs.size());
-            m_savetime = time(NULL);
-            m_times = 0;
-        }
+        // process
+        process(_session);
     }
 
     void
-    on_oob (tcp::session &_session, uint8_t _data)
+    process (server::session_ptr _session)
     {
+        const int times = 3;
+        msg_buffer::uint8_arr_ptr _msg_arr = k::make_shared_array<char>(8);
+        in_buffer(_msg_arr.get(), 8).write_int32(times).write_int32(g_data_size);
+        _session->send( // send times and buf size
+            msg_buffer(_msg_arr, 0, 8), [] (session &_s)
+        {
+            std::shared_ptr<std::array<char, 8>> _arr = std::make_shared<std::array<char, 8>>();
+            session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr->data(), 8);
+            _s.recv( // recv ack
+                _in_buf, [] (session &_s, in_buffer &_buf, size_t _size)
+            {
+                if_not (_size == 8)
+                    return;
+                //log_debug("%d", out_buffer(_buf.begin(), 4).peek_int32());
+                //log_debug("%d", out_buffer(_buf.begin() + 4, 4).peek_int32());
+                if (out_buffer(_buf.begin(), 4).peek_int32() != times ||
+                    out_buffer(_buf.begin() + 4, 4).peek_int32() != g_data_size) {
+                    log_error("ack error");
+                    _s.close();
+                    return;
+                }
+                for (int i = 0; i < times; i++) {
+                    msg_buffer::uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
+                    in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
+                    _s.send( // send data
+                        msg_buffer(_msg_arr, 0, g_data_size),
+                        [] (session &_s)
+                    {
+                        std::shared_ptr<std::array<char, g_data_size>> _arr = std::make_shared<std::array<char, g_data_size>>();
+                        session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr->data(), _arr->size());
+                        _s.recv( // recv reverse data
+                            _in_buf, [] (session &_s, in_buffer &_buf, size_t _size)
+                        {
+                            log_info("recv data %s from %s",
+                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                                     _s.name().c_str());
+                        });
+                    });
+                }
+            });
+        });
     }
 
 protected:
     tcp::server            m_server;
 
     struct session_info {
-        session::session_ptr    si_session;
-        std::shared_ptr<char *> si_buf;
+        session::session_ptr               si_session;
+        //std::shared_ptr<std::array<char, g_data_size>> si_buf;
     };
     typedef std::unordered_map<std::string, session_info> buffer_map;
     buffer_map             m_bufs;
@@ -147,21 +170,21 @@ protected:
 void
 tcp_server_test ()
 {
-//#define SERVER_ADDR "192.168.0.2"
-//#define SERVER_ADDR "127.0.0.1"
+    //#define SERVER_ADDR "192.168.0.2"
+    //#define SERVER_ADDR "127.0.0.1"
 #define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
-//#define SERVER_ADDR "::1%16"
+    //#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
     g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
-        .name                   = SERVER_ADDR,
-        .port                   = SERVER_PORT,
-        .allow_ipv6             = true,
-        .backlog                = 100,
-        .thread_num             = 3,
-        .disable_debug          = false,
-        .disable_info           = false,
-        .separate_listen_thread = true,
+            .name                   = SERVER_ADDR,
+            .port                   = SERVER_PORT,
+            .allow_ipv6             = true,
+            .backlog                = 100,
+            .thread_num             = 3,
+            .disable_debug          = false,
+            .disable_info           = false,
+            .separate_listen_thread = true,
     };
     test_server _s(_opts);
     assert(_s.run());

@@ -55,16 +55,13 @@ public:
     void
     stop              (bool _crash = false);
 
-    size_t
-    session_num       ();
-
 public:
     void
     remove_session    (session_ptr _session);
 
 public:
-    int
-    broadcast         (session_list &_list, out_buffer_ptr _buf);
+    void
+    broadcast         (session_list &_list, msg_buffer _buf);
 
 public:
     void

@@ -135,20 +135,19 @@ server::remove_session (session_ptr _session)
     _session->close();
 }
 
-int
-server::broadcast (session_list &_list, out_buffer_ptr _buf)
+void
+server::broadcast (session_list &_list, msg_buffer _buf)
 {
-    arg_check(_buf);
+    assert(_list.size());
     assert(!m_stopped);
 
     if (!m_stopping)
     {
         local_lock _lock(m_mutex);
         std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
-            _s->send(_buf->clone());
+            _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
         });
     }
-    return 0;
 }
 
 void

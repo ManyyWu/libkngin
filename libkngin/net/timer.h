@@ -24,7 +24,7 @@ public:
 public:
     timer    () = delete;
 
-    timer    (event_loop_pimpl_ptr _loop,
+    timer    (event_loop_pimpl_ptr &_loop,
               timeout_handler &&_timeout_handler);
 
     virtual

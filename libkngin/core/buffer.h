@@ -22,8 +22,11 @@ public:
     ~out_buffer  () = default;
 
 public:
-    uint8_t
-    operator []  (size_t _idx) const
+    const uint8_t &
+    operator []  (size_t _idx) const KNGIN_NOEXCP
+    { return m_arr[_idx]; }
+    const uint8_t &
+    at           (size_t _idx) const
     { check_readable(_idx + 1); return m_arr[_idx]; }
     const unsigned char *
     get          (size_t _idx) const
@@ -112,6 +115,41 @@ private:
     size_t                m_size;
 };
 
+class msg_buffer : public noncopyable {
+public:
+    typedef std::shared_ptr<char> uint8_arr_ptr;
+    // XXX: use k::make_shared_array() to create uint8_arr_ptr
+    // FIXME: use std::shared<char []> in c++ 20
+
+public:
+    msg_buffer  (uint8_arr_ptr &_arr, size_t _offset, size_t _size)
+        : m_arr(_arr), m_buf(_arr.get() + _offset, _size) {}
+
+    msg_buffer (msg_buffer &&_buf) KNGIN_NOEXCP
+        : m_arr(std::move(_buf.m_arr)), m_buf(std::move(_buf.m_buf)) {  }
+
+    ~msg_buffer () = default;
+
+public:
+    uint8_arr_ptr &
+    get    () KNGIN_NOEXCP
+    { return m_arr; }
+    const uint8_arr_ptr &
+    get    () const KNGIN_NOEXCP
+    { return m_arr; }
+    out_buffer &
+    buffer ()
+    { return m_buf; }
+    const out_buffer &
+    buffer () const KNGIN_NOEXCP
+    { return m_buf; }
+
+private:
+    uint8_arr_ptr m_arr;
+
+    out_buffer    m_buf;
+};
+
 class in_buffer : noncopyable {
 public:
     in_buffer    () KNGIN_NOEXCP;
@@ -123,6 +161,12 @@ public:
     ~in_buffer   () = default;
 
 public:
+    uint8_t &
+    operator []  (size_t _idx) KNGIN_NOEXCP
+    { return m_arr[_idx]; }
+    uint8_t &
+    at           (size_t _idx)
+    { check_readable(_idx + 1); return m_arr[_idx]; }
     unsigned char *
     get          (size_t _idx)
     { check_readable(_idx + 1); return &m_arr[_idx]; }
@@ -179,7 +223,7 @@ public:
 protected:
     void
     check_readable  (size_t _n) const
-    { if (m_size < _n) throw k::exception("in_buffer::check_readable() - out of range"); }
+    { if (m_valid < _n) throw k::exception("in_buffer::check_readable() - out of range"); }
 
     void
     check_writeable (size_t _n) const
@@ -190,8 +234,8 @@ protected:
     write           (Type _val)
     {
         check_writeable(sizeof(Type));
+        *static_cast<Type *>(static_cast<void *>(m_arr + m_valid)) = _val;
         m_valid += sizeof(Type);
-        *static_cast<Type *>(static_cast<void *>(m_arr)) = _val;
         return *this;
     }
 

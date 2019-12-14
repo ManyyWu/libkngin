@@ -40,7 +40,7 @@ public:
 
     typedef std::shared_ptr<out_buffer>                            out_buffer_ptr;
 
-    typedef std::deque<out_buffer_ptr>                             out_buffer_queue;
+    typedef std::deque<msg_buffer>                                 msg_buffer_queue;
 
 public:
     session         () = delete;
@@ -53,10 +53,17 @@ public:
 
 public:
     bool
-    send            (out_buffer_ptr _buf);
+    send            (msg_buffer &&_buf);
 
     bool
-    recv            (in_buffer_ptr _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+    send            (msg_buffer &&_buf, sent_handler &&_handler);
+
+    bool
+    recv            (in_buffer_ptr &_buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+
+    bool
+    recv            (in_buffer_ptr &_buf, message_handler &&_handler,
+                     size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 
     void
     close           (bool _blocking = false);
@@ -68,7 +75,7 @@ public:
     wr_shutdown     ();
 
     bool
-    connected       () const
+    connected       () const KNGIN_NOEXCP
     { return m_connected; }
 
 public:
@@ -140,7 +147,7 @@ public:
 
 private:
     k::socket &
-    socket          ()
+    socket          () KNGIN_NOEXCP
     { return m_socket; }
 
 private:
@@ -180,7 +187,7 @@ private:
 
     close_handler        m_close_handler;
 
-    out_buffer_queue     m_out_bufq;
+    msg_buffer_queue     m_out_bufq;
 
     mutex                m_out_bufq_mutex;
 
