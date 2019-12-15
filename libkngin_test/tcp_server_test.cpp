@@ -23,7 +23,7 @@ static std::shared_ptr<barrier> g_barrier = nullptr;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const int   g_data_size = 64;
-const int   times = 3;
+const int   times = 30;
 
 class test_server {
 public:
@@ -62,8 +62,9 @@ public:
         log_info("session %s closed", _session.name().c_str());
         {
             local_lock _lock(m_bufs_mutex);
+            assert(m_bufs.find(_session.key()) != m_bufs.end());
             m_bufs.erase(_session.key());
-            log_debug("size: %d", m_bufs.size());
+            //log_debug("size: %d", m_bufs.size());
         }
     }
 
@@ -76,6 +77,7 @@ public:
         // create session info
         {
             local_lock _lock(m_bufs_mutex);
+            assert(m_bufs.find(_session->key()) == m_bufs.end());
             m_bufs[_session->key()] = {
                 .si_session = _session
             };
@@ -97,7 +99,7 @@ public:
             std::shared_ptr<std::array<char, 8>> _arr = std::make_shared<std::array<char, 8>>();
             session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr->data(), 8);
             _s.recv( // recv ack
-                _in_buf, [] (session &_s, in_buffer &_buf, size_t _size)
+                _in_buf, [_arr] (session &_s, in_buffer &_buf, size_t _size)
             {
                 if_not (_size == 8)
                     return;
@@ -112,16 +114,16 @@ public:
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data
                         msg_buffer(_msg_arr, 0, g_data_size),
-                        [i] (session &_s)
+                        [] (session &_s)
                     {
-                        std::shared_ptr<std::array<char, g_data_size>> _arr = std::make_shared<std::array<char, g_data_size>>();
-                        session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr->data(), _arr->size());
+                        std::shared_ptr<std::array<char, g_data_size>> _arr1 = std::make_shared<std::array<char, g_data_size>>();
+                        session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr1->data(), _arr1->size());
                         _s.recv( // recv reverse data
-                            _in_buf, [i] (session &_s, in_buffer &_buf, size_t _size)
+                            _in_buf, [_arr1] (session &_s, in_buffer &_buf, size_t _size)
                         {
-                            log_info("recv data %s from %s",
-                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                                     _s.name().c_str());
+                            //log_info("recv data %s from %s",
+                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                            //         _s.name().c_str());
                         });
                     });
                 }
@@ -130,10 +132,10 @@ public:
     }
 
 protected:
-    tcp::server            m_server;
+    tcp::server m_server;
 
     struct session_info {
-        session::session_ptr               si_session;
+        session::session_ptr si_session;
     };
     typedef std::unordered_map<std::string, session_info> buffer_map;
     buffer_map             m_bufs;
@@ -146,18 +148,18 @@ protected:
 void
 tcp_server_test ()
 {
-    //#define SERVER_ADDR "192.168.0.2"
-    //#define SERVER_ADDR "127.0.0.1"
-#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
-    //#define SERVER_ADDR "::1%16"
+#define SERVER_ADDR "192.168.0.2"
+//#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
+//#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
     g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
             .name                   = SERVER_ADDR,
             .port                   = SERVER_PORT,
-            .allow_ipv6             = true,
-            .backlog                = 100,
-            .thread_num             = 3,
+            .allow_ipv6             = false,
+            .backlog                = 10000,
+            .thread_num             = 100,
             .disable_debug          = false,
             .disable_info           = false,
             .separate_listen_thread = true,
@@ -169,3 +171,9 @@ tcp_server_test ()
         g_barrier->destroy();
     _s.stop();
 }
+
+// server session 要求
+// 基本操作线程安全
+// closing,closed状态下操作安全
+// 缓冲区安全
+// 效率

@@ -39,8 +39,8 @@ session::session (event_loop &_loop, k::socket &&_socket,
     m_socket.set_nonblock(true);
     sockopts::set_ooblinline(m_socket, false);
     enable_read();
-    enable_write();
-    enable_oob();
+    disable_write();
+    disable_oob();
 } catch (...) {
     log_fatal("session::session() error");
     throw;
@@ -48,7 +48,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
 
 session::~session () KNGIN_NOEXCP
 {
-    if (m_connected) {
+    if (m_connected && registed()) {
         log_warning("the TCP session must be closed"
                     " before object disconstructing");
         ignore_excp(this->close(true));
@@ -165,6 +165,8 @@ session::close (bool _blocking /* = false */)
     }
     if (registed()) {
         m_loop->remove_event(self());
+        // XXX: Before calling shared_from_this,
+        //      there should be at least one std::shared_ptr<T> p that owns *this.
         if (m_loop->in_loop_thread()) {
             on_close(std::error_code());
         } else {
@@ -213,11 +215,11 @@ session::wr_shutdown ()
 void
 session::on_write ()
 {
+    m_loop->check_thread();
     if (!m_connected)
         return;
     if_not (pollout())
         return;
-    m_loop->check_thread();
 
     msg_buffer *_buf = nullptr;
     {
@@ -273,6 +275,7 @@ session::on_write ()
 void
 session::on_read ()
 {
+    m_loop->check_thread();
     if (!m_in_buf) {
         on_error();
         return;
@@ -281,8 +284,6 @@ session::on_read ()
         return;
     if_not (pollin())
         return;
-
-    m_loop->check_thread();
 
     size_t _writeable_bytes = m_in_buf->writeable();
     if_not (_writeable_bytes)
@@ -399,6 +400,7 @@ session::on_close (std::error_code _ec)
     m_connected = false;
     if (m_close_handler)
         log_excp_error(
+            session_ptr _self = self();
             m_close_handler(std::cref(*this), _ec),
             "listener::m_close_handler() error"
         );

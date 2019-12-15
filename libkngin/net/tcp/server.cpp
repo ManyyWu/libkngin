@@ -242,6 +242,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
 {
     assert(!m_stopped);
     _session.check_thread();
+
     if (m_close_handler)
         log_excp_error(
             m_close_handler(std::cref(_session), _ec),
@@ -252,6 +253,7 @@ server::on_session_close (const session &_session, std::error_code _ec)
     if (!m_stopping)
     {
         local_lock _lock(m_mutex);
+        assert(m_sessions.find(_session->key()) != m_sessions.end());
         m_sessions.erase(_session.key());
         //log_debug("size = %lld", m_sessions.size());
     }

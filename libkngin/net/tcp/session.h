@@ -114,7 +114,7 @@ public:
     { m_close_handler = _handler; }
     void
     set_oob_handler     (const oob_handler &_handler)
-    { m_oob_handler = _handler; }
+    { m_oob_handler = _handler; enable_oob(); m_loop->update_event(self()); }
 
     // TODO: Optimize callback function storage
 

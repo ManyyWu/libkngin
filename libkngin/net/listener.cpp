@@ -40,7 +40,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket)
 
 listener::~listener () KNGIN_NOEXCP
 {
-    if (!m_closed)
+    if (!m_closed && registed())
         ignore_excp(this->close(true));
 
     // FIXME; wait for m_closed to be true

@@ -102,10 +102,10 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
             // process queued events
             std::deque<task> _fnq;
-            if (!m_taskq.empty())
             {
                 local_lock _lock(m_taskq_mutex);
-                _fnq.swap(m_taskq);
+                if (!m_taskq.empty())
+                    _fnq.swap(m_taskq);
             }
             for (auto _iter : _fnq)
                 _iter();
