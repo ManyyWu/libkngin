@@ -171,9 +171,3 @@ tcp_server_test ()
         g_barrier->destroy();
     _s.stop();
 }
-
-// server session 要求
-// 基本操作线程安全
-// closing,closed状态下操作安全
-// 缓冲区安全
-// 效率
