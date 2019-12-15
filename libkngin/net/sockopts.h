@@ -14,10 +14,11 @@ class sockopts {
 public:
 protected:
     union sockopt_val {
-        int            i_val;
-        long           l_val;
-        struct linger  linger_val;
-        struct timeval timeval_val;
+        int               i_val;
+        long              l_val;
+        struct ::linger   linger_val;
+        struct ::timeval  timeval_val;
+        struct ::tcp_info tcp_info;
     };
 
     struct sockopts_info {
@@ -48,6 +49,7 @@ protected:
         SOCKOPTS_TYPE_IPV6_V6ONLY,
         SOCKOPTS_TYPE_TCP_MAXSEG,
         SOCKOPTS_TYPE_TCP_NODELAY,
+        SOCKOPTS_TYPE_TCP_INFO,
         SOCKOPTS_TYPE_MAX
     };
 
@@ -84,7 +86,7 @@ public:
     static void
     set_keepalive  (socket &_s, bool _on)
     { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]); }
-    static struct linger
+    static struct ::linger
     linger         (socket &_s)
     { return sockopts::get_linger(_s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static void
@@ -120,17 +122,17 @@ public:
     static void
     set_sndlowat   (socket &_s, int _size)
     { sockopt_val _val{_size}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]); }
-    static struct timeval
+    static struct ::timeval
     rcvtimeo       (socket &_s)
     { return sockopts::get_timeval(_s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]); }
     static void
-    set_rcvtimeo   (socket &_s, struct timeval _t)
+    set_rcvtimeo   (socket &_s, struct ::timeval _t)
     { sockopt_val _val; _val.timeval_val = _t; sockopts::set_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]); }
-    static struct timeval
+    static struct ::timeval
     sndtimeo       (socket &_s)
     { return sockopts::get_timeval(_s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]); }
     static void
-    set_sndtimeo   (socket &_s, struct timeval _t)
+    set_sndtimeo   (socket &_s, struct ::timeval _t)
     { sockopt_val _val; _val.timeval_val = _t; sockopts::set_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]); }
     static bool
     reuseaddr      (socket &_s)
@@ -177,6 +179,9 @@ public:
     static void
     set_nodelay    (socket &_s, bool _on)
     { sockopt_val _val{_on}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]); }
+    static struct ::tcp_info
+    tcp_info       (socket &_s)
+    { return sockopts::get_tcp_info(_s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_INFO]); }
 
 protected:
     static bool
@@ -185,11 +190,14 @@ protected:
     static int
     get_int        (int _fd, const sockopts_info &_opt_info);
 
-    static struct linger
+    static struct ::linger
     get_linger     (int _fd, const sockopts_info &_opt_info);
 
-    static struct timeval
+    static struct ::timeval
     get_timeval    (int _fd, const sockopts_info &_opt_info);
+
+    static struct ::tcp_info
+    get_tcp_info   (int _fd, const sockopts_info &_opt_info);
 
     static void
     set_flag       (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info);

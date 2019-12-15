@@ -193,10 +193,10 @@ net_buffer::size ()
     return _size;
 }
 
-std::vector<struct iovec> &
+std::vector<struct ::iovec> &
 net_buffer::to_iovec ()
 {
-    std::vector<struct iovec> _iovec;
+    std::vector<struct ::iovec> _iovec;
     std::swap(m_iovec, _iovec);
     size_t _size = size();
     size_t _remain = (std::min)(_size, m_windex);

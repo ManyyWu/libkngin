@@ -23,6 +23,7 @@ static std::shared_ptr<barrier> g_barrier = nullptr;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const int   g_data_size = 64;
+const int   times = 3;
 
 class test_server {
 public:
@@ -38,16 +39,8 @@ public:
     bool
     run ()
     {
-        //m_server.set_message_handler(std::bind(&test_server::on_message, this,
-        //                                  std::placeholders::_1,
-        //                                  std::placeholders::_2,
-        //                                  std::placeholders::_3));
-        //m_server.set_sent_handler(std::bind(&test_server::on_sent, this,
-        //                                    std::placeholders::_1));
         m_server.set_session_handler(std::bind(&test_server::on_new_session, this,
                                                std::placeholders::_1));
-        //m_server.set_oob_handler(std::bind(&test_server::on_oob, this,
-        //                                   std::placeholders::_1, std::placeholders::_2));
         m_server.set_close_handler(std::bind(&test_server::on_close, this,
                                              std::placeholders::_1));
         m_server.set_crash_handler([] () {
@@ -63,21 +56,6 @@ public:
         m_server.stop();
     }
 
-    //void
-    //on_message (tcp::session &_session, in_buffer &_buf, size_t _size)
-    //{
-    //}
-
-    //void
-    //on_sent (tcp::session &_session)
-    //{
-    //}
-    //
-    //void
-    //on_oob (tcp::session &_session, uint8_t _data)
-    //{
-    //}
-
     void
     on_close (const tcp::session &_session)
     {
@@ -85,6 +63,7 @@ public:
         {
             local_lock _lock(m_bufs_mutex);
             m_bufs.erase(_session.key());
+            log_debug("size: %d", m_bufs.size());
         }
     }
 
@@ -100,6 +79,7 @@ public:
             m_bufs[_session->key()] = {
                 .si_session = _session
             };
+            //log_debug("size: %d", m_bufs.size());
         }
 
         // process
@@ -109,7 +89,6 @@ public:
     void
     process (server::session_ptr _session)
     {
-        const int times = 3;
         msg_buffer::uint8_arr_ptr _msg_arr = k::make_shared_array<char>(8);
         in_buffer(_msg_arr.get(), 8).write_int32(times).write_int32(g_data_size);
         _session->send( // send times and buf size
@@ -122,8 +101,6 @@ public:
             {
                 if_not (_size == 8)
                     return;
-                //log_debug("%d", out_buffer(_buf.begin(), 4).peek_int32());
-                //log_debug("%d", out_buffer(_buf.begin() + 4, 4).peek_int32());
                 if (out_buffer(_buf.begin(), 4).peek_int32() != times ||
                     out_buffer(_buf.begin() + 4, 4).peek_int32() != g_data_size) {
                     log_error("ack error");
@@ -135,12 +112,12 @@ public:
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data
                         msg_buffer(_msg_arr, 0, g_data_size),
-                        [] (session &_s)
+                        [i] (session &_s)
                     {
                         std::shared_ptr<std::array<char, g_data_size>> _arr = std::make_shared<std::array<char, g_data_size>>();
                         session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr->data(), _arr->size());
                         _s.recv( // recv reverse data
-                            _in_buf, [] (session &_s, in_buffer &_buf, size_t _size)
+                            _in_buf, [i] (session &_s, in_buffer &_buf, size_t _size)
                         {
                             log_info("recv data %s from %s",
                                      out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
@@ -157,7 +134,6 @@ protected:
 
     struct session_info {
         session::session_ptr               si_session;
-        //std::shared_ptr<std::array<char, g_data_size>> si_buf;
     };
     typedef std::unordered_map<std::string, session_info> buffer_map;
     buffer_map             m_bufs;

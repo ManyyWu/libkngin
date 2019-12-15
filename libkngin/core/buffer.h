@@ -279,7 +279,7 @@ public:
     size_t
     size            ();
 
-    std::vector<struct iovec> &
+    std::vector<struct ::iovec> &
     to_iovec        ();
 
     void
@@ -293,13 +293,13 @@ protected:
     check_writeable (size_t _n);
 
 protected:
-    buffer_list               m_list;
+    buffer_list                 m_list;
 
-    size_t                    m_rindex;
+    size_t                      m_rindex;
 
-    size_t                    m_windex;
+    size_t                      m_windex;
 
-    std::vector<struct iovec> m_iovec;
+    std::vector<struct ::iovec> m_iovec;
 };
 */
 KNGIN_NAMESPACE_K_END

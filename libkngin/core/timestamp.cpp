@@ -16,7 +16,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 #ifdef _WIN32
 
-int gettimeofday(struct timeval *tv, struct timezone *tz)
+int gettimeofday(struct ::timeval *tv, struct ::timezone *tz)
 {
     FILETIME ft;
     unsigned __int64 tmpres = 0;

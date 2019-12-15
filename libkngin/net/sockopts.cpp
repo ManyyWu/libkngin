@@ -47,6 +47,7 @@ const sockopts::sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
 #endif
     { "TCP_MAXSEG",   IPPROTO_TCP,  TCP_MAXSEG   },
     { "TCP_NODELAY",  IPPROTO_TCP,  TCP_NODELAY  },
+    { "TCP_INFO",     IPPROTO_TCP,  TCP_INFO     },
 };
 
 bool
@@ -77,32 +78,46 @@ sockopts::get_int (int _fd, const sockopts_info &_opt_info)
     return _value.i_val;
 }
 
-struct linger
+struct ::linger
 sockopts::get_linger (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
-    socklen_t _optlen = sizeof(struct linger);
+    socklen_t _optlen = sizeof(struct ::linger);
     if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                      &_value.linger_val, &_optlen) < 0) {
         throw k::system_error(std::string("::getsockopt() error, option = %s")
                               + _opt_info.opt_str);
     }
-    assert(_optlen == sizeof(struct linger));
+    assert(_optlen == sizeof(struct ::linger));
     return _value.linger_val;
 }
 
-struct timeval
+struct ::timeval
 sockopts::get_timeval (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
-    socklen_t _optlen = sizeof(timeval);
+    socklen_t _optlen = sizeof(struct ::timeval);
     if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
                             &_value.timeval_val, &_optlen) < 0) {
         throw k::system_error(std::string("::getsockopt() error, option = %s")
                               + _opt_info.opt_str);
     }
-    assert(_optlen == sizeof(struct timeval));
+    assert(_optlen == sizeof(struct ::timeval));
     return _value.timeval_val;
+}
+
+struct ::tcp_info
+sockopts::get_tcp_info   (int _fd, const sockopts_info &_opt_info)
+{
+    sockopt_val _value;
+    socklen_t _optlen = sizeof(struct ::tcp_info);
+    if (::getsockopt(_fd, _opt_info.opt_level, _opt_info.opt_name,
+                     &_value.tcp_info, &_optlen) < 0) {
+        throw k::system_error(std::string("::getsockopt() error, option = %s")
+                              + _opt_info.opt_str);
+    }
+    assert(_optlen == sizeof(struct ::tcp_info));
+    return _value.tcp_info;
 }
 
 void

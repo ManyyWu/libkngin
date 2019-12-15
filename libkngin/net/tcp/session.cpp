@@ -116,8 +116,8 @@ session::recv (in_buffer_ptr &_buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CAL
 
     m_in_buf = _buf;
     m_callback_lowat = _lowat;
-    enable_read();
-    m_loop->update_event(self());
+    //enable_read();
+    //m_loop->update_event(self());
 
     if (m_loop->in_loop_thread())
         on_read();
@@ -141,8 +141,8 @@ session::recv (in_buffer_ptr &_buf, message_handler &&_handler,
     m_message_handler = std::move(_handler);
     m_in_buf = _buf;
     m_callback_lowat = _lowat;
-    enable_read();
-    m_loop->update_event(self());
+    //enable_read();
+    //m_loop->update_event(self());
 
     if (m_loop->in_loop_thread())
         on_read();
@@ -273,8 +273,10 @@ session::on_write ()
 void
 session::on_read ()
 {
-    if (!m_in_buf)
+    if (!m_in_buf) {
+        on_error();
         return;
+    }
     if (!m_connected)
         return;
     if_not (pollin())
@@ -310,8 +312,8 @@ session::on_read ()
             return;
 
         // read done
-        disable_read();
-        m_loop->update_event(self());
+        //disable_read();
+        //m_loop->update_event(self());
         in_buffer_ptr _temp_ptr = m_in_buf;
         m_in_buf = nullptr;
         if (m_message_handler)
@@ -361,8 +363,6 @@ session::on_error ()
     assert(m_connected);
     m_loop->check_thread();
 
-    char _arr[1];
-    in_buffer _buf(_arr, 1);
     std::error_code _ec = m_socket.read_error();
     if (_ec) {
         if (((std::errc::operation_would_block == _ec ||
@@ -374,12 +374,16 @@ session::on_error ()
             return;
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
+        on_close(_ec);
 #warning "error_code"
         return;
     } else {
-        log_error("session::on_error(), no any error was readed");
+        tcp_info _info = sockopts::tcp_info(m_socket);
+        if (_info.tcpi_state != TCP_ESTABLISHED)
+            on_close(_ec);
+        //log_debug("session::on_error(), no any error was readed");
+        return;
     }
-    on_close(_ec);
 }
 
 void

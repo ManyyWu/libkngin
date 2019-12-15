@@ -78,6 +78,10 @@ public:
     connected       () const KNGIN_NOEXCP
     { return m_connected; }
 
+    int32_t
+    status          ()
+    { return sockopts::tcp_info(m_socket).tcpi_state; }
+
 public:
     void
     set_read_lowat  (int _size)

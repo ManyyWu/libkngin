@@ -119,7 +119,7 @@ const char *
 log::get_datetime () KNGIN_NOEXCP
 {
     time_t _t = ::time(nullptr);
-    struct tm _tm;
+    struct ::tm _tm;
     get_localtime(&_tm, &_t);
     ::snprintf(m_datetime, KNGIN_LOG_DATETIME_LEN,
                KNGIN_LOG_DATETIME_FORMT,
