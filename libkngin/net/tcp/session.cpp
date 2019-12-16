@@ -18,7 +18,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 session::session (event_loop &_loop, k::socket &&_socket,
                   const address &_local_addr, const address &_peer_addr)
     try
-    : epoller_event(_socket.fd()),
+    : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
       m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)), 
       m_connected(true),

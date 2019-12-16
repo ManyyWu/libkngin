@@ -18,7 +18,8 @@ KNGIN_NAMESPACE_K_BEGIN
 timer::timer (event_loop_pimpl_ptr &_loop,
               timeout_handler &&_timeout_handler)
     try
-    : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC)),
+    : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC), 
+                    epoller_event::EVENT_TYPE_TIMER),
       m_loop(_loop),
       m_timeout_handler(std::move(_timeout_handler))
 {
@@ -33,7 +34,7 @@ timer::timer (event_loop_pimpl_ptr &_loop,
 
 timer::~timer () KNGIN_NOEXCP
 {
-    ignore_excp(his->close());
+    ignore_excp(this->close());
 }
 
 timestamp

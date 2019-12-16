@@ -18,7 +18,8 @@ KNGIN_NAMESPACE_K_BEGIN
 event::event (event_loop_pimpl_ptr &_loop,
               event_handler &&_event_handler)
     try
-    : epoller_event(::eventfd(0, EFD_CLOEXEC)),
+    : epoller_event(::eventfd(0, EFD_CLOEXEC), 
+                    epoller_event::EVENT_TYPE_EVENT),
       m_loop(_loop),
       m_event_handler(std::move(_event_handler))
 {

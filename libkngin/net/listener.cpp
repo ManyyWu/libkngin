@@ -17,7 +17,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 listener::listener (event_loop &_loop, k::socket &&_socket)
     try
-    : epoller_event(_socket.fd()),
+    : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
       m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)),
       m_closed(true),

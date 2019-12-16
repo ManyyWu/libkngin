@@ -90,6 +90,16 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             //log_warning("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
             //            m_thr->name(), _size);
 
+            // sort the events by priority and type(timer > event > file)
+            std::sort(m_events.begin(), m_events.begin() + _size,
+                [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
+                epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
+                epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
+                return (_ptr1->m_type > _ptr1->m_type ||
+                        (_ptr1->m_type == _ptr1->m_type &&
+                         _ptr1->m_priority > _ptr1->m_priority));
+            });
+
             // process events
             for (uint32_t _i = 0; _i < _size; _i++) {
                 auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);

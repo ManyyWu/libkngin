@@ -15,13 +15,21 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class epoller;
 class epoller_event : public filefd {
-    typedef int epollfd;
+public:
+    typedef int     epollfd;
+
+    enum EVENT_TYPE {
+        EVENT_TYPE_TIMER = 0,
+        EVENT_TYPE_EVENT = 1,
+        EVENT_TYPE_FILE  = 2
+    };
 
 public:
     epoller_event  () = delete;
 
     explicit
-    epoller_event  (epollfd _fd) KNGIN_NOEXCP;
+    epoller_event  (epollfd _fd, EVENT_TYPE _type, 
+                    uint8_t _priority = UINT8_MAX) KNGIN_NOEXCP;
 
     epoller_event  (epoller_event &&_e) KNGIN_NOEXCP;
 
@@ -32,6 +40,14 @@ public:
     bool
     registed       () const KNGIN_NOEXCP
     { return m_registed; }
+
+    EVENT_TYPE
+    type           () const KNGIN_NOEXCP
+    { return m_type; }
+
+    uint8_t
+    priority       () const KNGIN_NOEXCP
+    { return m_priority; }
 
 protected:
     void
@@ -88,6 +104,10 @@ private:
     epoll_event m_event;
 
     bool        m_registed;
+
+    EVENT_TYPE  m_type;
+
+    uint8_t     m_priority;
 
 private:
     friend class epoller;
