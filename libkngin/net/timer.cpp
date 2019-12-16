@@ -33,14 +33,7 @@ timer::timer (event_loop_pimpl_ptr &_loop,
 
 timer::~timer () KNGIN_NOEXCP
 {
-    if (is_single_ref_ptr(m_loop))
-        return; // removed
-    ignore_excp(
-        if (registed())
-            m_loop->remove_event(self());
-        this->close();
-    );
-
+    ignore_excp(his->close());
 }
 
 timestamp
@@ -62,6 +55,16 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
                         &_its, nullptr) < 0)
         throw k::system_error("timerfd_settime() error");
     enable_read();
+}
+
+void
+timer::close ()
+{
+    if (is_single_ref_ptr(m_loop))
+        return;
+    if (registed())
+        m_loop->remove_event(self());
+    this->close();
 }
 
 void

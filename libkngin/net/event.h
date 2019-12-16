@@ -32,7 +32,10 @@ public:
 public:
     void
     notify   ();
-
+    
+    void
+    close    ();
+    
 public:
     event_loop_pimpl_ptr &
     loop     () KNGIN_NOEXCP

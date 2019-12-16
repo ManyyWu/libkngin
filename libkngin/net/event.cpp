@@ -33,13 +33,7 @@ event::event (event_loop_pimpl_ptr &_loop,
 
 event::~event() KNGIN_NOEXCP
 {
-    if (is_single_ref_ptr(m_loop))
-        return; // removed
-    ignore_excp(
-        if (registed())
-            m_loop->remove_event(self());
-        this->close();
-    );
+    ignore_excp(this->close());
 }
 
 void
@@ -48,6 +42,16 @@ event::notify ()
     char _arr[8];
     in_buffer(_arr, 8).write_uint64(1);
     this->writen(out_buffer(_arr, 8)); // blocked
+}
+
+void
+event::close ()
+{
+    if (is_single_ref_ptr(m_loop))
+        return;
+    if (registed())
+        m_loop->remove_event(self());
+    this->close();
 }
 
 void

@@ -37,6 +37,9 @@ public:
     void
     set_time (timestamp _val, timestamp _interval, bool _abs = false);
 
+    void
+    close    ();
+
 public:
     event_loop_pimpl_ptr &
     loop     () KNGIN_NOEXCP
