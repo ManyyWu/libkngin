@@ -139,14 +139,6 @@ server::stop (bool _crash/* = false */)
 }
 
 void
-server::remove_session (session_ptr _session)
-{
-    arg_check(_session && _session->connected());
-    assert(!m_stopped);
-    _session->close();
-}
-
-void
 server::broadcast (session_list &_list, msg_buffer _buf)
 {
     assert(_list.size());

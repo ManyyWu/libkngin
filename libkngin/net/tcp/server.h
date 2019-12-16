@@ -57,10 +57,6 @@ public:
 
 public:
     void
-    remove_session    (session_ptr _session);
-
-public:
-    void
     broadcast         (session_list &_list, msg_buffer _buf);
 
 public:
