@@ -71,7 +71,7 @@ listener::listen (int _backlog,
                   close_handler &&_close_handler)
 {
     assert(!m_closed);
-    m_accept_handler = std::move(_new_ssesion_handler); 
+    m_accept_handler = std::move(_new_ssesion_handler);
     m_close_handler = std::move(_close_handler);
     m_socket.listen(_backlog);
 }

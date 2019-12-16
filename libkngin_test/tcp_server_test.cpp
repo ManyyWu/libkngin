@@ -39,10 +39,41 @@ public:
     bool
     run ()
     {
-        m_server.set_session_handler(std::bind(&test_server::on_new_session, this,
-                                               std::placeholders::_1));
-        m_server.set_close_handler(std::bind(&test_server::on_close, this,
-                                             std::placeholders::_1));
+        m_server.set_session_handler([this] (server::session_ptr _session) {
+            assert(_session);
+            log_info("new session from %s", _session->name().c_str());
+
+            // create session info
+            {
+                local_lock _lock(m_bufs_mutex);
+                assert(m_bufs.find(_session->key()) == m_bufs.end());
+                m_bufs[_session->key()] = {
+                        .si_session = _session
+                };
+                //log_debug("size: %d", m_bufs.size());
+            }
+
+            if (_session->peer_addr().port() > 60000 ) {
+                _session->close();
+                if (g_barrier->wait())
+                    g_barrier->destroy();
+                return;
+            }
+
+            // process
+            process(_session);
+        });
+
+        m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
+            log_info("session %s closed", _session.name().c_str());
+            {
+                local_lock _lock(m_bufs_mutex);
+                assert(m_bufs.find(_session.key()) != m_bufs.end());
+                m_bufs.erase(_session.key());
+                //log_debug("size: %d", m_bufs.size());
+            }
+        });
+
         m_server.set_crash_handler([] () {
             assert(!"server crashed");
             exit(1);
@@ -54,38 +85,6 @@ public:
     stop ()
     {
         m_server.stop();
-    }
-
-    void
-    on_close (const tcp::session &_session)
-    {
-        log_info("session %s closed", _session.name().c_str());
-        {
-            local_lock _lock(m_bufs_mutex);
-            assert(m_bufs.find(_session.key()) != m_bufs.end());
-            m_bufs.erase(_session.key());
-            //log_debug("size: %d", m_bufs.size());
-        }
-    }
-
-    void
-    on_new_session (server::session_ptr _session)
-    {
-        assert(_session);
-        log_info("new session from %s", _session->name().c_str());
-
-        // create session info
-        {
-            local_lock _lock(m_bufs_mutex);
-            assert(m_bufs.find(_session->key()) == m_bufs.end());
-            m_bufs[_session->key()] = {
-                .si_session = _session
-            };
-            //log_debug("size: %d", m_bufs.size());
-        }
-
-        // process
-        process(_session);
     }
 
     void
@@ -159,7 +158,7 @@ tcp_server_test ()
             .port                   = SERVER_PORT,
             .allow_ipv6             = false,
             .backlog                = 10000,
-            .thread_num             = 100,
+            .thread_num             = 10,
             .disable_debug          = false,
             .disable_info           = false,
             .separate_listen_thread = true,

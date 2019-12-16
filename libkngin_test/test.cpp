@@ -39,7 +39,6 @@ using namespace k;
 using namespace std;
 using namespace std::placeholders;
 #warning "返回值处理"
-#warning "头文件宏改 KNGIN_HEAD_FILE_XXXXX"
 #warning "新建面向应用的错误码，抽象"
 #warning "应用层不接触任何底层错误"
 #warning "nrv优化"
@@ -87,6 +86,13 @@ default:
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdio.h>
+
+class c {
+public:
+    void out () {
+        cout << "out" << endl;
+    }
+};
 
 void
 test ()

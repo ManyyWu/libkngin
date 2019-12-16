@@ -61,7 +61,9 @@ server::run ()
 #endif
 
     // run threadpool
-    m_threadpool.start(std::bind(&server::stop, this, std::placeholders::_1));
+    m_threadpool.start([this] (bool _crash) {
+        stop(_crash);
+    }); // end of crash_handler
 
     // create listen socket
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
@@ -80,12 +82,21 @@ server::run ()
     m_listener->bind(m_listen_addr);
 
     // listen
-    m_listener->listen(m_opts.backlog, 
-                       std::bind(&server::on_new_session, this,
-                                 std::placeholders::_1),
-                       std::bind(&server::on_listener_close, this, 
-                                 std::placeholders::_1));
-
+    auto _on_new_session = [this] (socket &&_sock) {
+        on_new_session(std::move(_sock));
+    }; // end of on_new_session
+    auto _on_listener_close = [this] (std::error_code _ec) {
+        assert(!m_stopped);
+        if (_ec) {
+            log_error("listener closed, %s",
+                      system_error_str(_ec).c_str());
+            stop(true);
+        }
+        stop();
+    }; // end of on_listener_close
+    m_listener->listen(m_opts.backlog,
+                       std::move(_on_new_session),
+                       std::move(_on_listener_close));
     m_threadpool.get_loop(0).register_event(m_listener);
     log_info("listening for [[%s]:%d]",
              m_listen_addr.addrstr().c_str(), m_listen_addr.port());
@@ -146,7 +157,7 @@ server::broadcast (session_list &_list, msg_buffer _buf)
         local_lock _lock(m_mutex);
         std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
             _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
-        });
+        }); // end of send
     }
 }
 
@@ -217,8 +228,26 @@ server::on_new_session (socket &&_sock)
     _session->set_message_handler(m_message_handler);
     _session->set_sent_handler(m_sent_handler);
     _session->set_oob_handler(m_oob_handler);
-    _session->set_close_handler(std::bind(&server::on_session_close, this, 
-                                std::placeholders::_1, std::placeholders::_2));
+    _session->set_close_handler([this] (const session &_session, std::error_code _ec) {
+        assert(!m_stopped);
+        _session.check_thread();
+
+        if (m_close_handler)
+            log_excp_error(
+                    m_close_handler(std::cref(_session), _ec),
+                    "sever::m_close_handler() error"
+            );
+
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
+        if (!m_stopping)
+        {
+            local_lock _lock(m_mutex);
+            assert(m_sessions.find(_session->key()) != m_sessions.end());
+            m_sessions.erase(_session.key());
+            //log_debug("size = %lld", m_sessions.size());
+        }
+#endif
+    }); // end of on_session_close
 
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     {
@@ -235,41 +264,6 @@ server::on_new_session (socket &&_sock)
                 "server::m_session_handler() error"
             );
         });
-}
-
-void
-server::on_session_close (const session &_session, std::error_code _ec)
-{
-    assert(!m_stopped);
-    _session.check_thread();
-
-    if (m_close_handler)
-        log_excp_error(
-            m_close_handler(std::cref(_session), _ec),
-            "sever::m_close_handler() error"
-        );
-
-#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
-    if (!m_stopping)
-    {
-        local_lock _lock(m_mutex);
-        assert(m_sessions.find(_session->key()) != m_sessions.end());
-        m_sessions.erase(_session.key());
-        //log_debug("size = %lld", m_sessions.size());
-    }
-#endif
-}
-
-void
-server::on_listener_close (std::error_code _ec)
-{
-    assert(!m_stopped);
-    if (_ec) {
-        log_error("listener closed, %s",
-                  system_error_str(_ec).c_str());
-        stop(true);
-    }
-    stop();
 }
 
 KNGIN_NAMESPACE_TCP_END

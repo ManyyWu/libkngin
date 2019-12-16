@@ -31,6 +31,10 @@ public:
     void
     destroy        ();
 
+    bool
+    destroyed      () const KNGIN_NOEXCP
+    { return !m_inited; }
+
 private:
     pthread_barrier_t m_barrier;
 

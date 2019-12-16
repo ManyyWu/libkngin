@@ -38,13 +38,14 @@ public:
     bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP;
 
     void
-    listen        (int _backlog, accept_handler &&_new_ssesion_handler,
+    listen        (int _backlog,
+                   accept_handler &&_new_ssesion_handler,
                    close_handler &&_close_handler);
 
     void
     listen        (int _backlog, std::error_code &_ec,
                    accept_handler &&_handler,
-                   close_handler &&close_handler) KNGIN_NOEXCP;
+                   close_handler &&_close_handler) KNGIN_NOEXCP;
 
     void
     close         (bool _blocking = true);

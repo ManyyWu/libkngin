@@ -52,7 +52,7 @@ io_threadpool::start (crash_handler &&_handler)
                 m_crash = true;
                 ignore_excp(_handler(true));
                 m_stopped = false;
-            });
+            }); // end of crash_handler
         } catch (...) {
             m_stopped = false;
             ignore_excp(stop());

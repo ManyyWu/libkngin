@@ -98,7 +98,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
                 return (_ptr1->m_type > _ptr1->m_type ||
                         (_ptr1->m_type == _ptr1->m_type &&
                          _ptr1->m_priority > _ptr1->m_priority));
-            });
+            }); // end of operator <
 
             // process events
             for (uint32_t _i = 0; _i < _size; _i++) {
