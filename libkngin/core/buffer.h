@@ -124,6 +124,10 @@ public:
 public:
     msg_buffer  (uint8_arr_ptr &_arr, size_t _offset, size_t _size)
         : m_arr(_arr), m_buf(_arr.get() + _offset, _size) {}
+        
+    msg_buffer  (const void *_arr, size_t _size)
+        : m_arr(nullptr), m_buf(_arr, _size) {}
+    // _arr must be constant string or stack space that life cycle is longer than this
 
     msg_buffer (msg_buffer &&_buf) KNGIN_NOEXCP
         : m_arr(std::move(_buf.m_arr)), m_buf(std::move(_buf.m_buf)) {  }
