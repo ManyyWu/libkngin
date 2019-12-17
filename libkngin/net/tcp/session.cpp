@@ -400,7 +400,6 @@ session::on_close (std::error_code _ec)
     m_connected = false;
     if (m_close_handler)
         log_excp_error(
-            session_ptr _self = self(); // save self
             m_close_handler(std::cref(*this), _ec),
             "listener::m_close_handler() error"
         );

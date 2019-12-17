@@ -105,16 +105,16 @@ public:
 public:
     void
     set_message_handler (const message_handler &_handler)
-    { m_message_handler = _handler; }
+    { assert(!registed()); m_message_handler = _handler; }
     void
     set_sent_handler    (const sent_handler &_handler)
-    { m_sent_handler = _handler; }
+    { assert(!registed()); m_sent_handler = _handler; }
     void
     set_close_handler   (const close_handler &_handler)
-    { m_close_handler = _handler; }
+    { assert(!registed()); m_close_handler = _handler; }
     void
     set_oob_handler     (const oob_handler &_handler)
-    { m_oob_handler = _handler; enable_oob(); m_loop->update_event(self()); }
+    { assert(!registed()); m_oob_handler = _handler; enable_oob(); }
 
     // TODO: Optimize callback function storage
 
@@ -200,9 +200,6 @@ private:
     size_t               m_callback_lowat;
 
     const std::string    m_key;
-
-private:
-    static uint64_t      m_next_serial;
 };
 
 KNGIN_NAMESPACE_TCP_END

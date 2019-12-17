@@ -50,10 +50,10 @@ public:
                 m_bufs[_session->key()] = {
                         .si_session = _session
                 };
-                //log_debug("size: %d", m_bufs.size());
+                log_debug("size: %d", m_bufs.size());
             }
 
-            if (_session->peer_addr().port() > 60000 ) {
+            if (_session->peer_addr().port() > 65535) {
                 _session->close();
                 if (g_barrier->wait())
                     g_barrier->destroy();
@@ -61,7 +61,7 @@ public:
             }
 
             // process
-            process(_session);
+            //process(_session);
         });
 
         m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
@@ -70,7 +70,7 @@ public:
                 local_lock _lock(m_bufs_mutex);
                 assert(m_bufs.find(_session.key()) != m_bufs.end());
                 m_bufs.erase(_session.key());
-                //log_debug("size: %d", m_bufs.size());
+                log_debug("size: %d", m_bufs.size());
             }
         });
 

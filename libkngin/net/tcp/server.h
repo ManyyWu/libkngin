@@ -62,22 +62,22 @@ public:
 public:
     void
     set_session_handler (session_handler &&_handler) KNGIN_NOEXCP
-    { m_session_handler = std::move(_handler); }
+    { assert(m_stopped); m_session_handler = std::move(_handler); }
     void
     set_message_handler (message_handler &&_handler) KNGIN_NOEXCP
-    { m_message_handler = std::move(_handler); }
+    { assert(m_stopped); m_message_handler = std::move(_handler); }
     void
     set_sent_handler    (sent_handler &&_handler) KNGIN_NOEXCP
-    { m_sent_handler = std::move(_handler); }
+    { assert(m_stopped); m_sent_handler = std::move(_handler); }
     void
     set_close_handler   (close_handler &&_handler) KNGIN_NOEXCP
-    { m_close_handler = std::move(_handler); }
+    { assert(m_stopped); m_close_handler = std::move(_handler); }
     void
     set_oob_handler     (oob_handler &&_handler) KNGIN_NOEXCP
-    { m_oob_handler = std::move(_handler); }
+    { assert(m_stopped); m_oob_handler = std::move(_handler); }
     void
     set_crash_handler   (crash_handler &&_handler) KNGIN_NOEXCP
-    { m_crash_handler = std::move(_handler); }
+    { assert(m_stopped); m_crash_handler = std::move(_handler); }
 
 protected:
     event_loop &

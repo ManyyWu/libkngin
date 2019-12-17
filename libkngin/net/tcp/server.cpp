@@ -208,6 +208,31 @@ server::on_new_session (socket &&_sock)
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
+        _session->set_keepalive(m_opts.keep_alive);
+        _session->set_message_handler(m_message_handler);
+        _session->set_sent_handler(m_sent_handler);
+        _session->set_oob_handler(m_oob_handler);
+        _session->set_close_handler([this, _session] (const session &_s, std::error_code _ec) {
+            assert(!m_stopped);
+            _s.check_thread();
+
+            if (m_close_handler)
+                log_excp_error(
+                log_debug("%d", _session.use_count());
+                    m_close_handler(std::cref(_s), _ec),
+                    "sever::m_close_handler() error"
+                );
+
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
+            if (!m_stopping)
+            {
+                local_lock _lock(m_mutex);
+                assert(m_sessions.find(_session->key()) != m_sessions.end());
+                m_sessions.erase(_session.key());
+                //log_debug("size = %lld", m_sessions.size());
+            }
+#endif
+        }); // end of on_session_close
         _next_loop.register_event(_session);
     } catch (const std::exception &_e) {
         log_error("caught an exception when accepting new session, %s", _e.what());
@@ -216,30 +241,7 @@ server::on_new_session (socket &&_sock)
         log_fatal("caught an undefined exception when accepting new session");
         throw;
     }
-    _session->set_keepalive(m_opts.keep_alive);
-    _session->set_message_handler(m_message_handler);
-    _session->set_sent_handler(m_sent_handler);
-    _session->set_oob_handler(m_oob_handler);
-    _session->set_close_handler([this] (const session &_session, std::error_code _ec) {
-        assert(!m_stopped);
-        _session.check_thread();
 
-        if (m_close_handler)
-            log_excp_error(
-                    m_close_handler(std::cref(_session), _ec),
-                    "sever::m_close_handler() error"
-            );
-
-#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
-        if (!m_stopping)
-        {
-            local_lock _lock(m_mutex);
-            assert(m_sessions.find(_session->key()) != m_sessions.end());
-            m_sessions.erase(_session.key());
-            //log_debug("size = %lld", m_sessions.size());
-        }
-#endif
-    }); // end of on_session_close
 
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     {
