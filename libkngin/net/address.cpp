@@ -110,12 +110,12 @@ address::key () const
 {
     std::string _key;
     _key.reserve(KEY_SIZE);
-    return std::string(inet6() ? (char *)&m_sa.v6.sin6_addr 
-                               : (char *)&m_sa.v4.sin_addr,
-                       inet6() ? sizeof(struct ::in6_addr)
-                               : sizeof(struct ::in_addr)
-                       ) + std::to_string(inet6() ? m_sa.v6.sin6_port
-                                                  : m_sa.v4.sin_port);
+    if (inet6())
+        return std::string((char *)&m_sa.v6.sin6_addr, sizeof(struct ::in6_addr)
+                           ).append(std::to_string(m_sa.v6.sin6_port));
+    else
+        return std::string((char *)&m_sa.v4.sin_addr, sizeof(struct ::in_addr)
+                           ).append(std::to_string(m_sa.v4.sin_port));
 }
 
 KNGIN_NAMESPACE_K_END

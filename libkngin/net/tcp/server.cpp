@@ -144,7 +144,9 @@ server::broadcast (session_list &_list, msg_buffer _buf)
     assert(_list.size());
     assert(!m_stopped);
 
-    if (!m_stopping)
+    if (m_stopping)
+        return;
+
     {
         local_lock _lock(m_mutex);
         std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
@@ -199,12 +201,12 @@ server::on_new_session (socket &&_sock)
     m_listener->check_thread();
     // FIXME: stop accepting when sessions reach to the maximum number
 
-    address _local_addr = _sock.localaddr();
-    address _peer_addr = _sock.peeraddr();
-
-    session_ptr _session = nullptr;
-    event_loop &_next_loop = assign_thread();
     try {
+        address _local_addr = _sock.localaddr();
+        address _peer_addr = _sock.peeraddr();
+
+        session_ptr _session = nullptr;
+        event_loop &_next_loop = assign_thread();
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
@@ -218,22 +220,40 @@ server::on_new_session (socket &&_sock)
 
             if (m_close_handler)
                 log_excp_error(
-                log_debug("%d", _session.use_count());
                     m_close_handler(std::cref(_s), _ec),
                     "sever::m_close_handler() error"
                 );
 
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
-            if (!m_stopping)
+            if (m_stopping)
+                return;
+
             {
                 local_lock _lock(m_mutex);
                 assert(m_sessions.find(_session->key()) != m_sessions.end());
-                m_sessions.erase(_session.key());
-                //log_debug("size = %lld", m_sessions.size());
+                m_sessions.erase(_session->key());
+                log_debug("size = %lld", m_sessions.size());
             }
 #endif
         }); // end of on_session_close
+
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
+        {
+            local_lock _lock(m_mutex);
+            assert(m_sessions.find(_session->key()) == m_sessions.end());
+            m_sessions.insert(std::make_pair(_session->key(), _session));
+            log_debug("size = %lld", m_sessions.size());
+        }
+#endif
         _next_loop.register_event(_session);
+
+        if (m_session_handler)
+            _next_loop.run_in_loop([this, _session] () {
+                log_excp_error(
+                    m_session_handler(_session),
+                    "server::m_session_handler() error"
+                );
+            });
     } catch (const std::exception &_e) {
         log_error("caught an exception when accepting new session, %s", _e.what());
         throw;
@@ -241,23 +261,6 @@ server::on_new_session (socket &&_sock)
         log_fatal("caught an undefined exception when accepting new session");
         throw;
     }
-
-
-#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
-    {
-        local_lock _lock(m_mutex);
-        assert(m_sessions.find(_session->key()) == m_sessions.end());
-        m_sessions[_session->key()] = _session;
-    }
-#endif
-
-    if (m_session_handler)
-        _next_loop.run_in_loop([this, _session] () {
-            log_excp_error(
-                m_session_handler(_session),
-                "server::m_session_handler() error"
-            );
-        });
 }
 
 KNGIN_NAMESPACE_TCP_END

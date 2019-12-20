@@ -91,7 +91,7 @@ epoller::register_event (epoller_event_ptr _e)
         local_lock _lock(m_mutex);
         assert(m_events.find(_e->fd()) == m_events.end());
         _e->m_registed = true;
-        m_events[_e->fd()] = _e;
+        m_events.insert(std::make_pair(_e->fd(), _e));
         update_event(EPOLL_CTL_ADD, _e->fd(), _e.get());
     }
 }

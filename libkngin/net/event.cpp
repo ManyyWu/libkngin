@@ -52,7 +52,7 @@ event::close ()
         return;
     if (registed())
         m_loop->remove_event(self());
-    this->close();
+    filefd::close();
 }
 
 void

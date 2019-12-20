@@ -2,7 +2,7 @@
 #include <string>
 #include <array>
 #include <functional>
-#include <unordered_map>
+#include <map>
 #include <memory>
 #include <ctime>
 #include "../libkngin/core/thread.h"
@@ -29,8 +29,8 @@ class test_server {
 public:
     test_server (const server_opts &_opts)
         : m_server(_opts),
-          m_bufs(),
-          m_bufs_mutex(),
+          m_sessions(),
+          m_sessions_mutex(),
           m_savetime(time(NULL)),
           m_times(0)
     {
@@ -45,32 +45,36 @@ public:
 
             // create session info
             {
-                local_lock _lock(m_bufs_mutex);
-                assert(m_bufs.find(_session->key()) == m_bufs.end());
-                m_bufs[_session->key()] = {
-                        .si_session = _session
-                };
-                log_debug("size: %d", m_bufs.size());
+                local_lock _lock(m_sessions_mutex);
+                if (!_session->connected()) // closed
+                    return;
+                assert(m_sessions.find(_session->key()) == m_sessions.end());
+                m_sessions.insert(std::make_pair(_session->key(), session_info(_session)));
+                log_debug("size: %d", m_sessions.size());
             }
 
-            if (_session->peer_addr().port() > 65535) {
+#define CLOSE_COND 1
+#if (true == !!CLOSE_COND)
+            if (_session->peer_addr().port() > 50000) {
                 _session->close();
                 if (g_barrier->wait())
                     g_barrier->destroy();
                 return;
             }
+#endif
 
             // process
-            //process(_session);
+            process(_session);
         });
 
         m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
             log_info("session %s closed", _session.name().c_str());
             {
-                local_lock _lock(m_bufs_mutex);
-                assert(m_bufs.find(_session.key()) != m_bufs.end());
-                m_bufs.erase(_session.key());
-                log_debug("size: %d", m_bufs.size());
+                local_lock _lock(m_sessions_mutex);
+                if (m_sessions.find(_session.key()) == m_sessions.end()) // closed before add
+                    return;
+                m_sessions.erase(_session.key());
+                log_debug("size: %d", m_sessions.size());
             }
         });
 
@@ -135,10 +139,13 @@ protected:
 
     struct session_info {
         session::session_ptr si_session;
+
+        session_info (session::session_ptr &_session)
+            : si_session(_session) {}
     };
-    typedef std::unordered_map<std::string, session_info> buffer_map;
-    buffer_map             m_bufs;
-    mutex                  m_bufs_mutex;
+    typedef std::map<std::string, session_info> buffer_map;
+    buffer_map             m_sessions;
+    mutex                  m_sessions_mutex;
 
     time_t                 m_savetime;
     std::atomic<uint64_t>  m_times;
@@ -154,14 +161,14 @@ tcp_server_test ()
 #define SERVER_PORT 20000
     g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
-            .name                   = SERVER_ADDR,
-            .port                   = SERVER_PORT,
-            .allow_ipv6             = false,
-            .backlog                = 10000,
-            .thread_num             = 10,
-            .disable_debug          = false,
-            .disable_info           = false,
-            .separate_listen_thread = true,
+        .name                   = SERVER_ADDR,
+        .port                   = SERVER_PORT,
+        .allow_ipv6             = false,
+        .backlog                = 10000,
+        .thread_num             = 10,
+        .disable_debug          = false,
+        .disable_info           = false,
+        .separate_listen_thread = true,
     };
     test_server _s(_opts);
     assert(_s.run());

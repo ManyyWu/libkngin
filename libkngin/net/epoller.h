@@ -7,7 +7,7 @@
 #endif
 #include <memory>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include "core/define.h"
 #include "core/mutex.h"
 #include "core/timestamp.h"
@@ -19,11 +19,11 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class epoller : public noncopyable {
 public:
-    typedef std::vector<struct ::epoll_event>          epoll_event_set;
+    typedef std::vector<struct ::epoll_event> epoll_event_set;
 
-    typedef std::shared_ptr<epoller_event>             epoller_event_ptr;
+    typedef std::shared_ptr<epoller_event>    epoller_event_ptr;
 
-    typedef std::unordered_map<int, epoller_event_ptr> epoller_event_map;
+    typedef std::map<int, epoller_event_ptr>  epoller_event_map;
 
 public:
     epoller        ();
