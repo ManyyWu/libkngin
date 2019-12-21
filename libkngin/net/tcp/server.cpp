@@ -1,6 +1,5 @@
 #ifdef _WIN32
 #else
-#include <netdb.h>
 #include <unistd.h>
 #include <signal.h>
 #endif
@@ -25,7 +24,6 @@ server::server (const server_opts &_opts)
       m_sessions(),
 #endif
       m_listener(nullptr),
-      m_listen_addr(),
       m_sent_handler(nullptr),
       m_message_handler(nullptr),
       m_oob_handler(nullptr),
@@ -39,6 +37,20 @@ server::server (const server_opts &_opts)
         logger()[0].disable_debug();
     if (_opts.disable_info)
         logger()[0].disable_info();
+    if (!_opts.allow_ipv4 && !_opts.allow_ipv6)
+        throw k::exception("invalid options");
+
+    // check address
+    auto _pos = _opts.name.find_first_of('%');
+    std::string _s = (_pos != std::string::npos)
+                     ? std::string(_opts.name.data(), _pos)
+                     : _opts.name;
+    if (_opts.allow_ipv4 && _opts.allow_ipv6 &&
+        !address::is_valid_inet6_addrstr(_s))
+        throw k::exception("invalid ipv6 address");
+    if (_opts.allow_ipv4 && !_opts.allow_ipv6 &&
+        !address::is_valid_inet_addrstr(_opts.name))
+        throw k::exception("invalid ipv4 address");
 } catch (...) {
     log_fatal("server::server() error");
     throw;
@@ -67,39 +79,30 @@ server::run ()
 
     // create listen socket
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
+    if (m_opts.allow_ipv6 && !m_opts.allow_ipv4)
+        sockopts::set_ipv6_only(_listener_sock, true);
 
     // start listener
-    m_listener = std::make_shared<listener>(m_threadpool.get_loop(0),
-                                            std::move(_listener_sock));
-
-    // init address
-    log_excp_error(
-        parse_addr(m_opts.name, m_opts.port),
-        "address resolution failed"
-    );
-
-    // bind
-    m_listener->bind(m_listen_addr);
-
-    // listen
     auto _on_new_session = [this] (socket &&_sock) {
         on_new_session(std::move(_sock));
     }; // end of on_new_session
-    auto _on_listener_close = [this] (std::error_code _ec) {
+    auto _on_listener_error = [this] (std::error_code _ec) {
         assert(!m_stopped);
         if (_ec) {
-            log_error("listener closed, %s",
-                      system_error_str(_ec).c_str());
+            log_error("listener error, %s", system_error_str(_ec).c_str());
             stop(true);
         }
-        stop();
-    }; // end of on_listener_close
-    m_listener->listen(m_opts.backlog,
-                       std::move(_on_new_session),
-                       std::move(_on_listener_close));
+    }; // end of on_listener_error
+    m_listener = std::make_shared<listener>(m_threadpool.get_loop(0),
+                                            std::move(_listener_sock),
+                                            m_opts.name, m_opts.port,
+                                            m_opts.backlog,
+                                            std::move(_on_new_session),
+                                            std::move(_on_listener_error));
     m_threadpool.get_loop(0).register_event(m_listener);
     log_info("listening for [[%s]:%d]",
-             m_listen_addr.addrstr().c_str(), m_listen_addr.port());
+             m_listener->listen_addr().addrstr().c_str(),
+             m_listener->listen_addr().port());
 
     m_stopped = false;
     log_info("TCP server is running");
@@ -153,45 +156,6 @@ server::broadcast (session_list &_list, msg_buffer _buf)
             _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
         }); // end of send
     }
-}
-
-void
-server::parse_addr (const std::string &_name, uint16_t _port)
-{
-    addrinfo   _ai;
-    addrinfo * _ai_list;
-    ::bzero(&_ai, sizeof(addrinfo));
-    _ai.ai_flags = AI_PASSIVE;
-    _ai.ai_family = AF_UNSPEC;
-    _ai.ai_protocol = 0;
-    int _ret = ::getaddrinfo(_name.c_str(),
-                             std::to_string(_port).c_str(),
-                             &_ai, &_ai_list);
-    if (_ret) {
-        if (EAI_SYSTEM == _ret)
-            throw k::system_error("::getaddrinfo() error");
-        else
-            throw k::exception((std::string("::getaddrinfo() error, %s")
-                                + gai_strerror(_ret) ).c_str());
-    }
-    if_not (_ai_list) {
-        ::freeaddrinfo(_ai_list);
-        throw k::exception("invalid name or port");
-    }
-    if (AF_INET == _ai_list->ai_addr->sa_family)
-        m_listen_addr = *(sockaddr_in *)_ai_list->ai_addr;
-    else if (AF_INET6 == _ai_list->ai_addr->sa_family)
-        m_listen_addr = *(sockaddr_in6 *)_ai_list->ai_addr;
-    else
-        throw k::exception("unsupported address family");
-
-    //addrinfo *_res = _ai_list;
-    //while (_res) {
-    //    ::getnameinfo(_res->ai_addr, _res->ai_addrlen, nullptr, 0, nullptr, 0, 0);
-    //    _res = _res->ai_next;
-    //}
-
-    ::freeaddrinfo(_ai_list);
 }
 
 void

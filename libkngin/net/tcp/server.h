@@ -86,10 +86,6 @@ protected:
 
 protected:
     void
-    parse_addr        (const std::string &_name, uint16_t _port);
-
-protected:
-    void
     on_new_session    (socket &&_sock);
 
 private:

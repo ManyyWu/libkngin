@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #else
 #include <fcntl.h>
+#include <netdb.h>
 #endif
 #include <functional>
 #include "core/common.h"
@@ -15,22 +16,41 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::listener (event_loop &_loop, k::socket &&_socket)
+listener::listener (event_loop &_loop, k::socket &&_socket,
+                    const std::string &_name, uint16_t _port,
+                    int _backlog,
+                    accept_handler &&_new_ssesion_handler,
+                    error_handler &&_error_handler)
     try
     : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
       m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)),
       m_closed(true),
       m_listen_addr(),
-      m_accept_handler(nullptr),
-      m_close_handler(nullptr),
+      m_accept_handler(std::move(_new_ssesion_handler)),
+      m_error_handler(std::move(_error_handler)),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
-    m_socket.set_closeexec(true);
+
+    // parse address
+    parse_addr(_name, _port);
+
+    // set socket options
     sockopts::set_reuseaddr(m_socket, true);
     sockopts::set_reuseport(m_socket, true);
+
+    // bind
+    m_socket.bind(m_listen_addr);
+
+    // listen
+    m_socket.listen(_backlog);
+
+    // set flags
+    m_socket.set_closeexec(true);
+    m_socket.set_nonblock(true);
+
     enable_read();
     m_closed = false;
 } catch (...) {
@@ -47,44 +67,42 @@ listener::~listener () KNGIN_NOEXCP
 }
 
 void
-listener::bind (const address &_listen_addr)
+listener::parse_addr (const std::string &_name, uint16_t _port)
 {
-    assert(!m_closed);
-    m_socket.bind(m_listen_addr = _listen_addr);
-    m_socket.set_nonblock(true);
-}
+    addrinfo   _ai;
+    addrinfo * _ai_list;
+    ::bzero(&_ai, sizeof(addrinfo));
+    _ai.ai_flags = AI_PASSIVE;
+    _ai.ai_family = AF_UNSPEC;
+    _ai.ai_protocol = 0;
+    int _ret = ::getaddrinfo(_name.c_str(),
+                             std::to_string(_port).c_str(),
+                             &_ai, &_ai_list);
+    if (_ret) {
+        if (EAI_SYSTEM == _ret)
+            throw k::system_error("::getaddrinfo() error");
+        else
+            throw k::exception((std::string("::getaddrinfo() error, %s")
+                                + gai_strerror(_ret) ).c_str());
+    }
+    if_not (_ai_list) {
+        ::freeaddrinfo(_ai_list);
+        throw k::exception("invalid name or port");
+    }
+    if (AF_INET == _ai_list->ai_addr->sa_family)
+        m_listen_addr = *(sockaddr_in *)_ai_list->ai_addr;
+    else if (AF_INET6 == _ai_list->ai_addr->sa_family)
+        m_listen_addr = *(sockaddr_in6 *)_ai_list->ai_addr;
+    else
+        throw k::exception("unsupported address family");
 
-void
-listener::bind (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP
-{
-    assert(!m_closed);
-    m_socket.bind(m_listen_addr = _listen_addr, _ec);
-    _ec = std::make_error_code(std::errc::timed_out);
-    if (_ec)
-        return;
-    m_socket.set_nonblock(true);
-}
+    //addrinfo *_res = _ai_list;
+    //while (_res) {
+    //    ::getnameinfo(_res->ai_addr, _res->ai_addrlen, nullptr, 0, nullptr, 0, 0);
+    //    _res = _res->ai_next;
+    //}
 
-void
-listener::listen (int _backlog,
-                  accept_handler &&_new_ssesion_handler,
-                  close_handler &&_close_handler)
-{
-    assert(!m_closed);
-    m_accept_handler = std::move(_new_ssesion_handler);
-    m_close_handler = std::move(_close_handler);
-    m_socket.listen(_backlog);
-}
-
-void
-listener::listen (int _backlog, std::error_code &_ec,
-                  accept_handler &&_new_sesssion_handler,
-                  close_handler &&_close_handler) KNGIN_NOEXCP
-{
-    assert(!m_closed);
-    m_accept_handler = std::move(_new_sesssion_handler);
-    m_close_handler = std::move(_close_handler);
-    m_socket.listen(_backlog, _ec);
+    ::freeaddrinfo(_ai_list);
 }
 
 void
@@ -101,12 +119,12 @@ listener::close (bool _blocking /* = true */)
     if (registed()) { // can't call event_loop::remove_event() when crashed
         m_loop->remove_event(self());
         if (m_loop->in_loop_thread()) {
-            on_close(std::error_code());
+            on_close();
         } else {
             if (_blocking) {
                 std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
                 m_loop->run_in_loop([this, _barrier_ptr] () {
-                    on_close(std::error_code());
+                    on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
                 });
@@ -114,7 +132,7 @@ listener::close (bool _blocking /* = true */)
                     _barrier_ptr->destroy();
             } else {
                 m_loop->run_in_loop([this] () {
-                    on_close(std::error_code());
+                    on_close();
                 });
             }
         }
@@ -148,8 +166,10 @@ listener::on_read ()
                       system_error_str(_ec).c_str());
             return;
         } else {
-            log_error("socket::accept() error, %s", system_error_str(_ec).c_str());
-            on_close(_ec);
+            log_excp_error(
+                m_error_handler(_ec),
+                "listener::m_accept_handler() error"
+            );
 #warning "process error code, callback"
         }
         return;
@@ -177,7 +197,7 @@ listener::on_error ()
 }
 
 void
-listener::on_close (std::error_code _ec)
+listener::on_close ()
 {
     assert(!m_closed);
     m_loop->check_thread();
@@ -186,15 +206,6 @@ listener::on_close (std::error_code _ec)
         m_loop->remove_event(self());
     m_socket.close();
     m_closed = true;
-
-    if (m_close_handler)
-        log_excp_error(
-            m_close_handler(_ec),
-            "listener::m_close_handler() error"
-        );
-
-    if (_ec)
-        throw k::exception("listener error");
 }
 
 KNGIN_NAMESPACE_K_END

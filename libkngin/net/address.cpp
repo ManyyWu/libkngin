@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #endif
 #include "core/exception.h"
+#include "core/system_error.h"
 #include "core/common.h"
 #include "net/address.h"
 
@@ -35,10 +36,14 @@ std::string
 address::addrstr () const
 {
     char _buf[INET6_ADDRSTRLEN];
-    return std::string(::inet_ntop(inet6() ? AF_INET6 : AF_INET, 
-                                   inet6() ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr,
-                                   _buf, sizeof(_buf)
-                                   ) ? _buf : "");
+    const char *_ret =
+        ::inet_ntop(inet6() ? AF_INET6 : AF_INET,
+                    inet6() ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr,
+                    _buf, sizeof(_buf)
+                    );
+    if (!_ret)
+        throw k::system_error("::inet_ntop() error");
+    return std::string(_buf);
 }
 
 uint16_t
@@ -48,8 +53,15 @@ address::port () const KNGIN_NOEXCP
 }
 
 bool
+address::is_ipv4_mapped () const
+{
+    assert(!inet6());
+    return IN6_IS_ADDR_V4MAPPED(&m_sa.v6.sin6_addr);
+}
+
+bool
 address::addrstr2addr (const std::string &_addrstr, uint16_t _port, bool _v6,
-                       address &_addr) KNGIN_NOEXCP
+                       address &_addr)
 {
     if (_v6) {
         _addr.m_sa.v6.sin6_port = ::htons(_port);
@@ -58,51 +70,32 @@ address::addrstr2addr (const std::string &_addrstr, uint16_t _port, bool _v6,
         _addr.m_sa.v4.sin_port = ::htons(_port);
         _addr.m_sa.v4.sin_family = AF_INET;
     }
-    return !::inet_pton(_v6 ? AF_INET6 : AF_INET,
-                        _addrstr.c_str(),
-                        _v6 ? (void *)&_addr.sa().v6.sin6_addr : (void *)&_addr.sa().v4.sin_addr);
+    int _ret = ::inet_pton(_v6 ? AF_INET6 : AF_INET,
+                           _addrstr.c_str(),
+                           _v6 ? (void *)&_addr.sa().v6.sin6_addr : (void *)&_addr.sa().v4.sin_addr);
+    if (_ret < 0)
+        throw k::system_error("::inet_pton() error");
+    return _ret;
 }
 
 bool
-address::addrstr2addr (const std::string &&_addrstr, uint16_t _port, bool _v6,
-                       address &_addr) KNGIN_NOEXCP
-{
-    if (_v6) {
-        _addr.m_sa.v6.sin6_port = ::htons(_port);
-        _addr.m_sa.v6.sin6_family = AF_INET6;
-    } else {
-        _addr.m_sa.v4.sin_port = ::htons(_port);
-        _addr.m_sa.v4.sin_family = AF_INET;
-    }
-    return !::inet_pton(_v6 ? AF_INET6 : AF_INET, _addrstr.c_str(), &_addr.sa());
-}
-
-bool
-address::check_inet_addrstr (const std::string &_addrstr) KNGIN_NOEXCP
+address::is_valid_inet_addrstr (const std::string &_addrstr)
 {
     struct ::sockaddr_in _sa;
-    return ::inet_pton(AF_INET, _addrstr.data(), &_sa);
+    int _ret = ::inet_pton(AF_INET, _addrstr.data(), &_sa);
+    if (_ret < 0)
+        throw k::system_error("::inet_pton() error");
+    return _ret;
 }
 
 bool
-address::check_inet_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP
+address::is_valid_inet6_addrstr (const std::string &_addrstr)
 {
     struct ::sockaddr_in _sa;
-    return ::inet_pton(AF_INET, _addrstr.data(), &_sa);
-}
-
-bool
-address::check_inet6_addrstr (const std::string &_addrstr) KNGIN_NOEXCP
-{
-    struct ::sockaddr_in _sa;
-    return ::inet_pton(AF_INET6, _addrstr.data(), &_sa);
-}
-
-bool
-address::check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP
-{
-    struct ::sockaddr_in _sa;
-    return ::inet_pton(AF_INET6, _addrstr.data(), &_sa);
+    int _ret = ::inet_pton(AF_INET6, _addrstr.data(), &_sa);
+    if (_ret < 0)
+        throw k::system_error("::inet_pton() error");
+    return _ret;
 }
 
 std::string

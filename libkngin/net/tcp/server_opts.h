@@ -13,6 +13,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 struct server_opts {
     std::string name;
     uint16_t    port;
+    bool        allow_ipv4             = false;
     bool        allow_ipv6             = false;
     int         backlog                = DEFAULT_BACKLOG;
     uint16_t    thread_num             = 1;

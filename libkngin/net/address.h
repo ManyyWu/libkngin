@@ -89,26 +89,18 @@ public:
     { return m_sa; }
 
 public:
-    static bool
-    addrstr2addr (const std::string &_addrstr, uint16_t _port, bool _v6,
-                  address &_addr) KNGIN_NOEXCP;
+    bool
+    is_ipv4_mapped         () const;
 
     static bool
-    addrstr2addr (const std::string &&_addrstr, uint16_t _port, bool _v6,
-                  address &_addr) KNGIN_NOEXCP;
-
-public:
-    static bool
-    check_inet_addrstr  (const std::string &_addrstr) KNGIN_NOEXCP;
+    addrstr2addr           (const std::string &_addrstr, uint16_t _port, bool _v6,
+                            address &_addr);
 
     static bool
-    check_inet_addrstr  (const std::string &&_addrstr) KNGIN_NOEXCP;
+    is_valid_inet_addrstr  (const std::string &_addrstr);
 
     static bool
-    check_inet6_addrstr (const std::string &_addrstr) KNGIN_NOEXCP;
-
-    static bool
-    check_inet6_addrstr (const std::string &&_addrstr) KNGIN_NOEXCP;
+    is_valid_inet6_addrstr (const std::string &_addrstr);
 
 public:
     std::string

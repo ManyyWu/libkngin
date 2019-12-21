@@ -31,17 +31,17 @@ public:
 
     explicit
     system_error  (const char *_what, std::error_code _ec = k::last_error())
-        : m_what(std::string("k::system_error() ")
+        : m_what(std::string("[k::system_error] ")
                  + system_error_str(_what, _ec)), m_ec(_ec) {}
 
     explicit
     system_error  (const std::string &_what, std::error_code _ec = k::last_error())
-        : m_what(std::string("k::system_error() ")
+        : m_what(std::string("[k::system_error] ")
                  + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
 
     explicit
     system_error  (std::string &&_what, std::error_code _ec = k::last_error())
-        : m_what(std::string("k::system_error() ")
+        : m_what(std::string("[k::system_error] ")
                  + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
 
     virtual

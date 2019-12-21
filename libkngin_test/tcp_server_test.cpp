@@ -163,6 +163,7 @@ tcp_server_test ()
     tcp::server_opts _opts = {
         .name                   = SERVER_ADDR,
         .port                   = SERVER_PORT,
+        .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
         .thread_num             = 10,

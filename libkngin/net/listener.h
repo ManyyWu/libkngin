@@ -18,35 +18,23 @@ class listener
 public:
     typedef std::function<void (k::socket &&)>    accept_handler;
 
-    typedef std::function<void (std::error_code)> close_handler;
+    typedef std::function<void (std::error_code)> error_handler;
 
     typedef std::shared_ptr<listener>             listener_ptr;
 
 public:
     listener      () = delete;
 
-    listener      (event_loop &_loop, k::socket &&_socket);
+    listener      (event_loop &_loop, k::socket &&_socket,
+                   const std::string &_name, uint16_t _port,
+                   int _backlog,
+                   accept_handler &&_new_ssesion_handler,
+                   error_handler &&_error_handler);
 
     virtual
     ~listener     () KNGIN_NOEXCP;
 
 public:
-    void
-    bind          (const address &_listen_addr);
-
-    void
-    bind          (const address &_listen_addr, std::error_code &_ec) KNGIN_NOEXCP;
-
-    void
-    listen        (int _backlog,
-                   accept_handler &&_new_ssesion_handler,
-                   close_handler &&_close_handler);
-
-    void
-    listen        (int _backlog, std::error_code &_ec,
-                   accept_handler &&_handler,
-                   close_handler &&_close_handler) KNGIN_NOEXCP;
-
     void
     close         (bool _blocking = true);
 
@@ -59,10 +47,18 @@ public:
     self          ()
     { return shared_from_this(); }
 
+    const address &
+    listen_addr   () const
+    { return m_listen_addr; }
+
 public:
     void
     check_thread  () const KNGIN_NOEXCP
     { m_loop->check_thread(); }
+
+private:
+    void
+    parse_addr    (const std::string &_name, uint16_t _port);
 
 private:
     virtual void
@@ -72,7 +68,7 @@ private:
     on_error      ();
 
     void
-    on_close      (std::error_code _ec);
+    on_close      ();
 
 private:
     event_loop_pimpl_ptr m_loop;
@@ -85,7 +81,7 @@ private:
 
     accept_handler       m_accept_handler;
 
-    close_handler        m_close_handler;
+    error_handler        m_error_handler;
 
     filefd               m_idle_file;
 };
