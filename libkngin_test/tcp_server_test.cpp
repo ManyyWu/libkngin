@@ -29,9 +29,7 @@ public:
         : m_loop(_loop.pimpl()),
           m_server(_loop, _opts),
           m_sessions(),
-          m_sessions_mutex(),
-          m_savetime(time(NULL)),
-          m_times(0)
+          m_sessions_mutex()
     {
     }
 
@@ -72,7 +70,7 @@ public:
                 if (m_sessions.find(_session.key()) == m_sessions.end()) // closed before add
                     return;
                 m_sessions.erase(_session.key());
-                log_debug("size: %d", m_sessions.size());
+                //log_debug("size: %d", m_sessions.size());
             }
         });
 
@@ -147,9 +145,6 @@ protected:
     typedef std::map<std::string, session_info> buffer_map;
     buffer_map             m_sessions;
     mutex                  m_sessions_mutex;
-
-    time_t                 m_savetime;
-    std::atomic<uint64_t>  m_times;
 };
 
 void
@@ -160,6 +155,7 @@ tcp_server_test ()
 //#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
 //#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
+
     tcp::server_opts _opts = {
         .name                   = SERVER_ADDR,
         .port                   = SERVER_PORT,
@@ -170,6 +166,7 @@ tcp_server_test ()
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,
+        .keep_alive             = true
     };
     event_loop _loop;
 

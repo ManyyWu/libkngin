@@ -164,7 +164,7 @@ thread::pimpl::start (void *_args) KNGIN_NOEXCP
     if (_crash) {
         //assert(0);
         if (_data->handler)
-            _data->handler(thread::ptid());
+            ignore_excp(_data->handler(thread::ptid()));
     }
     pthread_cleanup_pop(1);
     return _code.ptr;

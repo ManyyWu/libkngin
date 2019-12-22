@@ -185,6 +185,8 @@ server::on_new_session (socket &&_sock)
         _session->set_message_handler(m_message_handler);
         _session->set_sent_handler(m_sent_handler);
         _session->set_oob_handler(m_oob_handler);
+        if (m_opts.keep_alive)
+            _session->set_keepalive(true);
         _session->set_close_handler([this, _session] (const session &_s, std::error_code _ec) {
             assert(!m_stopped);
             _s.check_thread();
