@@ -90,12 +90,47 @@ default:
 class c {
 public:
     void out () {
-        cout << "out" << endl;
+        //cout << "out" << endl;
     }
 };
 
 void
 test ()
 {
+    return;
+    {
+        k::timestamp _begin = k::timestamp::current_time();
+        c _c;
+        for (int i = 0; i < 100000000; i++) {
+            _c.out();
+        }
+        k::timestamp _end = k::timestamp::current_time();
+        printf("%lld ms\n", _end - _begin);
+    }
+
+    {
+        k::timestamp _begin = k::timestamp::current_time();
+        c _c;
+        auto _func = std::bind(&c::out, &_c);
+        for (int i = 0; i < 100000000; i++) {
+            _func();
+        }
+        k::timestamp _end = k::timestamp::current_time();
+        printf("%lld ms\n", _end - _begin);
+    }
+
+    {
+        k::timestamp _begin = k::timestamp::current_time();
+        c _c;
+        auto _func = [&] () {
+            _c.out();
+        };
+        for (int i = 0; i < 100000000; i++) {
+            _func();
+        }
+        k::timestamp _end = k::timestamp::current_time();
+        printf("%lld ms\n", _end - _begin);
+    }
+    exit(0);
 }
 
