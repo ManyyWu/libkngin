@@ -11,11 +11,13 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class out_buffer : public noncopyable {
+class out_buffer {
 public:
     out_buffer   () KNGIN_NOEXCP;
 
     out_buffer   (const void *_arr, size_t _size);
+
+    out_buffer   (const out_buffer &_buf) KNGIN_NOEXCP;
 
     out_buffer   (out_buffer &&_buf) KNGIN_NOEXCP;
 
@@ -95,6 +97,11 @@ public:
     { check_readable(_size); m_size -= _size; return *this; }
 
 public:
+    out_buffer &
+    operator =     (const out_buffer &_buf) KNGIN_NOEXCP
+    { m_arr = _buf.m_arr; m_size = _buf.m_size; return *this; }
+
+public:
     void
     check_readable (size_t _n) const
     { if (m_size < _n) throw k::exception("in_buffer::check_readable() - out of range"); }
@@ -115,13 +122,16 @@ private:
     size_t                m_size;
 };
 
-class msg_buffer : public noncopyable {
+class msg_buffer {
 public:
     typedef std::shared_ptr<char> uint8_arr_ptr;
     // XXX: use k::make_shared_array() to create uint8_arr_ptr
     // FIXME: use std::shared<char []> in c++ 20
 
 public:
+    msg_buffer  () KNGIN_NOEXCP
+        : m_arr(nullptr), m_buf() {}
+
     msg_buffer  (uint8_arr_ptr &_arr, size_t _offset, size_t _size)
         : m_arr(_arr), m_buf(_arr.get() + _offset, _size) {}
         
@@ -129,24 +139,32 @@ public:
         : m_arr(nullptr), m_buf(_arr, _size) {}
     // _arr must be constant string or stack space that life cycle is longer than this
 
-    msg_buffer (msg_buffer &&_buf) KNGIN_NOEXCP
+    msg_buffer  (const msg_buffer &_buf)
+        : m_arr(_buf.m_arr), m_buf(_buf.m_buf) {}
+
+    msg_buffer  (msg_buffer &&_buf) KNGIN_NOEXCP
         : m_arr(std::move(_buf.m_arr)), m_buf(std::move(_buf.m_buf)) {  }
 
     ~msg_buffer () = default;
 
 public:
     uint8_arr_ptr &
-    get    () KNGIN_NOEXCP
+    get         () KNGIN_NOEXCP
     { return m_arr; }
     const uint8_arr_ptr &
-    get    () const KNGIN_NOEXCP
+    get         () const KNGIN_NOEXCP
     { return m_arr; }
     out_buffer &
-    buffer ()
+    buffer      ()
     { return m_buf; }
     const out_buffer &
-    buffer () const KNGIN_NOEXCP
+    buffer      () const KNGIN_NOEXCP
     { return m_buf; }
+
+public:
+    msg_buffer &
+    operator =  (const msg_buffer &_buf)
+    { m_arr = _buf.m_arr; m_buf = _buf.m_buf; return *this; }
 
 private:
     uint8_arr_ptr m_arr;
@@ -154,11 +172,13 @@ private:
     out_buffer    m_buf;
 };
 
-class in_buffer : noncopyable {
+class in_buffer {
 public:
     in_buffer    () KNGIN_NOEXCP;
 
     in_buffer    (void * _arr, size_t _size);
+
+    in_buffer    (const in_buffer &_buf) KNGIN_NOEXCP;
 
     in_buffer    (in_buffer &&_buf) KNGIN_NOEXCP;
 
@@ -224,6 +244,12 @@ public:
     operator +=  (size_t _size)
     { check_writeable(_size); m_valid += _size; return *this; }
 
+public:
+
+    in_buffer &
+    operator =   (const in_buffer &_buf) KNGIN_NOEXCP
+    { m_arr = _buf.m_arr; m_size = _buf.m_size; m_valid = _buf.m_valid; return *this; }
+
 protected:
     void
     check_readable  (size_t _n) const
@@ -250,7 +276,6 @@ private:
 
     size_t          m_valid;
 };
-
 
 /*
 class in_vector {

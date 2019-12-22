@@ -1,3 +1,6 @@
+#ifndef _WIN32
+#include <signal.h>
+#endif
 #include <memory>
 #include "core/common.h"
 #include "net/io_thread.h"
@@ -55,6 +58,14 @@ io_thread::stop ()
 int
 io_thread::process ()
 {
+    // shielding SIGPIPE signal
+#ifndef _WIN32
+    sigset_t _signal_mask;
+    sigemptyset(&_signal_mask);
+    sigaddset(&_signal_mask, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
+#endif
+
     m_loop->run([this] () {
         {
             local_lock _lock(m_mutex);

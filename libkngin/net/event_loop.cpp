@@ -4,6 +4,7 @@
 #include <sys/eventfd.h>
 #endif
 #include <cstring>
+#include <algorithm>
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/event_loop.h"
@@ -50,7 +51,7 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
       m_events(RESERVED_EPOLLELR_EVENT)
 #warning "TODO: RESERVED_EPOLLELR_EVENT param"
 {
-    if (nullptr == m_thr)
+    if (!m_thr)
         throw k::exception("invalid argument");
     //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
@@ -111,14 +112,16 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             }
 
             // process queued events
-            std::deque<task> _fnq;
+            std::queue<task> _fnq;
             {
                 local_lock _lock(m_taskq_mutex);
                 if (!m_taskq.empty())
                     _fnq.swap(m_taskq);
             }
-            for (auto _iter : _fnq)
-                _iter();
+            while (!_fnq.empty()) {
+                _fnq.back()();
+                _fnq.pop();
+            }
             //log_warning("the epoller in thread \"%s\" handled %" PRIu64 " task",
             //            m_thr->name(), _fnq.size());
         }
@@ -221,7 +224,7 @@ event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
     if (_fn)
     {
         local_lock _lock(m_taskq_mutex);
-        m_taskq.push_back(std::move(_fn));
+        m_taskq.push(std::move(_fn));
     }
     if (!in_loop_thread())
         wakeup();

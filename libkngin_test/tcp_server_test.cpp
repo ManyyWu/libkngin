@@ -21,7 +21,7 @@ using namespace k::tcp;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const int   g_data_size = 64;
-const int   times = 30;
+const int   times = 100;
 
 class test_server {
 public:
@@ -50,7 +50,7 @@ public:
                 //log_debug("size: %d", m_sessions.size());
             }
 
-#define CLOSE_COND 1
+#define CLOSE_COND 0
 #if (true == !!CLOSE_COND)
             if (_session->peer_addr().port() > 50000) {
                 _session->close();
@@ -97,9 +97,8 @@ public:
             msg_buffer(_msg_arr, 0, 8), [] (session &_s)
         {
             std::shared_ptr<std::array<char, 8>> _arr = std::make_shared<std::array<char, 8>>();
-            session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr->data(), 8);
             _s.recv( // recv ack
-                _in_buf, [_arr] (session &_s, in_buffer &_buf, size_t _size)
+                in_buffer(_arr->data(), 8), [_arr] (session &_s, in_buffer _buf, size_t _size)
             {
                 if_not (_size == 8)
                     return;
@@ -110,20 +109,22 @@ public:
                     return;
                 }
                 for (int i = 0; i < times; i++) {
+//log_debug("i = %d", i);
                     msg_buffer::uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data
                         msg_buffer(_msg_arr, 0, g_data_size),
                         [] (session &_s)
                     {
+//log_debug("sended");
                         std::shared_ptr<std::array<char, g_data_size>> _arr1 = std::make_shared<std::array<char, g_data_size>>();
-                        session::in_buffer_ptr _in_buf = std::make_shared<in_buffer>(_arr1->data(), _arr1->size());
                         _s.recv( // recv reverse data
-                            _in_buf, [_arr1] (session &_s, in_buffer &_buf, size_t _size)
+                            in_buffer(_arr1->data(), _arr1->size()), [_arr1] (session &_s, in_buffer _buf, size_t _size)
                         {
-                            //log_info("recv data %s from %s",
-                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                            //         _s.name().c_str());
+//log_debug("recved");
+                            log_info("recv data %s from %s",
+                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                                     _s.name().c_str());
                         });
                     });
                 }
@@ -162,7 +163,7 @@ tcp_server_test ()
         .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
-        .thread_num             = 10,
+        .thread_num             = 4,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,

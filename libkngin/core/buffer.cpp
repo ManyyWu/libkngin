@@ -30,6 +30,11 @@ out_buffer::out_buffer (const void * _arr, size_t _size)
     log_fatal("out_buffer::out_buffer() error");
 }
 
+out_buffer::out_buffer(const out_buffer &_buf) KNGIN_NOEXCP
+    : m_arr(_buf.m_arr), m_size(_buf.m_size)
+{
+}
+
 out_buffer::out_buffer(out_buffer &&_buf) KNGIN_NOEXCP
     : m_arr(nullptr), m_size(0)
 {
@@ -99,6 +104,13 @@ in_buffer::in_buffer (void * _arr, size_t _size)
     arg_check(_arr && _size);
 } catch (...) {
     log_fatal("in_buffer::in_buffer() error");
+}
+
+in_buffer::in_buffer (const in_buffer &_buf) KNGIN_NOEXCP
+    : m_arr(_buf.m_arr),
+      m_size(_buf.m_size),
+      m_valid(_buf.m_valid)
+{
 }
 
 in_buffer::in_buffer (in_buffer &&_buf) KNGIN_NOEXCP

@@ -4,7 +4,7 @@
 #include <memory>
 #include <functional>
 #include <system_error>
-#include <deque>
+#include <queue>
 #include "core/define.h"
 #include "core/lock.h"
 #include "core/thread.h"
@@ -101,7 +101,7 @@ private:
 
     std::atomic<bool>        m_stop;
 
-    std::deque<task>         m_taskq;
+    std::queue<task>         m_taskq;
 
     mutex                    m_taskq_mutex;
 

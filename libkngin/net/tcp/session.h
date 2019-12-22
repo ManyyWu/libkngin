@@ -28,19 +28,23 @@ class session
 public:
     typedef std::function<void (const session &, std::error_code)> close_handler;
 
-    typedef std::function<void (session &, in_buffer &, size_t)>   message_handler;
+    typedef std::function<void (session &, in_buffer, size_t)>     message_handler;
 
     typedef std::function<void (session &)>                        sent_handler;
+
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+    typedef std::queue<message_handler>                            message_handlerq;
+
+    typedef std::queue<sent_handler>                               sent_handlerq;
+#endif
 
     typedef std::function<void (session &, uint8_t)>               oob_handler;
 
     typedef std::shared_ptr<session>                               session_ptr;
 
-    typedef std::shared_ptr<in_buffer>                             in_buffer_ptr;
+    typedef std::queue<msg_buffer>                                 msg_buffer_queue;
 
-    typedef std::shared_ptr<out_buffer>                            out_buffer_ptr;
-
-    typedef std::deque<msg_buffer>                                 msg_buffer_queue;
+    typedef std::queue<in_buffer>                                  in_buffer_queue;
 
 public:
     session         () = delete;
@@ -52,18 +56,22 @@ public:
     ~session        () KNGIN_NOEXCP;
 
 public:
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     bool
-    send            (msg_buffer &&_buf);
+    send            (msg_buffer _buf);
+#else
+    bool
+    send            (msg_buffer _buf, sent_handler &&_handler);
+#endif
 
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     bool
-    send            (msg_buffer &&_buf, sent_handler &&_handler);
-
+    recv            (in_buffer _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+#else
     bool
-    recv            (in_buffer_ptr &_buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
-
-    bool
-    recv            (in_buffer_ptr &_buf, message_handler &&_handler,
+    recv            (in_buffer _buf, message_handler &&_handler,
                      size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+#endif
 
     void
     close           (bool _blocking = false);
@@ -103,18 +111,21 @@ public:
     { return sockopts::keepalive(m_socket); }
 
 public:
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     void
     set_message_handler (const message_handler &_handler)
     { assert(!registed()); m_message_handler = _handler; }
     void
     set_sent_handler    (const sent_handler &_handler)
     { assert(!registed()); m_sent_handler = _handler; }
+#else
     void
     set_close_handler   (const close_handler &_handler)
     { assert(!registed()); m_close_handler = _handler; }
     void
     set_oob_handler     (const oob_handler &_handler)
     { assert(!registed()); m_oob_handler = _handler; enable_oob(); }
+#endif
 
     // TODO: Optimize callback function storage
 
@@ -183,9 +194,15 @@ private:
 
     const std::string    m_name;
 
-    sent_handler         m_sent_handler;
-
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     message_handler      m_message_handler;
+
+    sent_handler         m_sent_handler;
+#else
+    message_handlerq     m_message_handlerq;
+
+    sent_handlerq        m_sent_handlerq;
+#endif
 
     oob_handler          m_oob_handler;
 
@@ -195,7 +212,13 @@ private:
 
     mutex                m_out_bufq_mutex;
 
-    in_buffer_ptr        m_in_buf;
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
+    in_buffer            m_in_buf;
+#else
+    in_buffer_queue      m_in_bufq;
+
+    mutex                m_in_bufq_mutex;
+#endif
 
     size_t               m_callback_lowat;
 

@@ -60,5 +60,7 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_SERVER_MANAGE_SESSIONS OFF
 #endif
 
+// for session
+#define KNGIN_SESSION_TEMP_CALLBACK ON
 
 #endif /* KNGIN_DEFINE_H */

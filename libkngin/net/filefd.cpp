@@ -2,6 +2,7 @@
 #else
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #endif
 #include <cstring>
 #include "core/system_error.h"
@@ -208,6 +209,25 @@ filefd::readn (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXCP
 //    return _size;
 //}
 
+size_t
+filefd::readable ()
+{
+    assert(valid());
+    size_t _bytes = 0;
+    if (::ioctl(m_fd, FIONREAD, &_bytes) < 0)
+        throw k::system_error("::ioctl(FIONREAD) failed");
+    return _bytes;
+}
+
+size_t
+filefd::readable (std::error_code &_ec) KNGIN_NOEXCP
+{
+    assert(valid());
+    size_t _bytes;
+    _ec = (::ioctl(m_fd, FIONREAD, &_bytes) < 0) ? last_error() : std::error_code();
+    return _bytes;
+}
+
 void
 filefd::close ()
 {
@@ -253,7 +273,7 @@ std::error_code
 filefd::read_error () KNGIN_NOEXCP
 {
     assert(valid());
-    ssize_t _size = ::read(m_fd, NULL, 0);
+    ssize_t _size = ::read(m_fd, nullptr, 0);
     if (_size < 0)
         return last_error();
     return std::error_code();

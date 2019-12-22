@@ -17,10 +17,6 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class server : public noncopyable {
 public:
-    typedef session::in_buffer_ptr             in_buffer_ptr;
-
-    typedef session::out_buffer_ptr            out_buffer_ptr;
-
     typedef session::session_ptr               session_ptr;
 
     typedef session::message_handler           message_handler;

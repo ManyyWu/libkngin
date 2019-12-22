@@ -97,7 +97,7 @@ public:
 void
 test ()
 {
-    return;
+return;
     {
         k::timestamp _begin = k::timestamp::current_time();
         c _c;
@@ -111,7 +111,7 @@ test ()
     {
         k::timestamp _begin = k::timestamp::current_time();
         c _c;
-        auto _func = std::bind(&c::out, &_c);
+        std::function<void ()> _func = std::bind(&c::out, &_c);
         for (int i = 0; i < 100000000; i++) {
             _func();
         }
@@ -122,7 +122,7 @@ test ()
     {
         k::timestamp _begin = k::timestamp::current_time();
         c _c;
-        auto _func = [&] () {
+        std::function<void ()> _func = [&] () {
             _c.out();
         };
         for (int i = 0; i < 100000000; i++) {

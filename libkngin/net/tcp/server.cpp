@@ -81,7 +81,10 @@ server::run ()
 
     // shielding SIGPIPE signal
 #ifndef _WIN32
-    ::signal(SIGPIPE, SIG_IGN);
+    sigset_t _signal_mask;
+    sigemptyset(&_signal_mask);
+    sigaddset(&_signal_mask, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
 #endif
 
     // run threadpool
@@ -160,7 +163,11 @@ server::broadcast (session_list &_list, msg_buffer _buf)
     {
         local_lock _lock(m_mutex);
         std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
             _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
+#else
+            _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()), nullptr);
+#endif
         }); // end of send
     }
 }
@@ -182,8 +189,10 @@ server::on_new_session (socket &&_sock)
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
         _session->set_keepalive(m_opts.keep_alive);
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
         _session->set_message_handler(m_message_handler);
         _session->set_sent_handler(m_sent_handler);
+#endif
         _session->set_oob_handler(m_oob_handler);
         if (m_opts.keep_alive)
             _session->set_keepalive(true);

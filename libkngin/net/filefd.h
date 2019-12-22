@@ -75,6 +75,12 @@ public:
 //    size_t
 //    readv         (in_vector &_buf, std::error_code &_ec);
 
+    size_t
+    readable      ();
+
+    size_t
+    readable      (std::error_code &_ec) KNGIN_NOEXCP;
+
     void
     close         ();
 

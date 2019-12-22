@@ -85,7 +85,7 @@ template <typename Type>
 bool
 is_nullptr_ref (Type &_ref) KNGIN_NOEXCP
 {
-    return (nullptr == _ref);
+    return (!_ref);
 }
 
 // for std::shared_ptr
