@@ -19,16 +19,15 @@
 using namespace k;
 using namespace k::tcp;
 
-static std::shared_ptr<barrier> g_barrier = nullptr;
-
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const int   g_data_size = 64;
 const int   times = 30;
 
 class test_server {
 public:
-    test_server (const server_opts &_opts)
-        : m_server(_opts),
+    test_server (event_loop &_loop, const server_opts &_opts)
+        : m_loop(_loop.pimpl()),
+          m_server(_loop, _opts),
           m_sessions(),
           m_sessions_mutex(),
           m_savetime(time(NULL)),
@@ -50,15 +49,14 @@ public:
                     return;
                 assert(m_sessions.find(_session->key()) == m_sessions.end());
                 m_sessions.insert(std::make_pair(_session->key(), session_info(_session)));
-                log_debug("size: %d", m_sessions.size());
+                //log_debug("size: %d", m_sessions.size());
             }
 
 #define CLOSE_COND 1
 #if (true == !!CLOSE_COND)
             if (_session->peer_addr().port() > 50000) {
                 _session->close();
-                if (g_barrier->wait())
-                    g_barrier->destroy();
+                m_loop->stop();
                 return;
             }
 #endif
@@ -78,9 +76,10 @@ public:
             }
         });
 
-        m_server.set_crash_handler([] () {
-            assert(!"server crashed");
-            exit(1);
+        m_server.set_crash_handler([this] () {
+            //assert(!"server crashed");
+            m_server.stop();
+            m_loop->stop();
         });
         return m_server.run();
     }
@@ -135,7 +134,9 @@ public:
     }
 
 protected:
-    tcp::server m_server;
+    event_loop_pimpl_ptr   m_loop;
+
+    tcp::server            m_server;
 
     struct session_info {
         session::session_ptr si_session;
@@ -159,7 +160,6 @@ tcp_server_test ()
 //#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
 //#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
-    g_barrier = std::make_shared<barrier>(2);
     tcp::server_opts _opts = {
         .name                   = SERVER_ADDR,
         .port                   = SERVER_PORT,
@@ -171,10 +171,12 @@ tcp_server_test ()
         .disable_info           = false,
         .separate_listen_thread = true,
     };
-    test_server _s(_opts);
+    event_loop _loop;
+
+    test_server _s(_loop, _opts);
     assert(_s.run());
 
-    if (g_barrier->wait())
-        g_barrier->destroy();
+    _loop.run(nullptr, nullptr);
+
     _s.stop();
 }

@@ -137,7 +137,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     remove_event(m_waker);
     m_looping = false;
     std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
-    if (_temp_ptr->wait())
+    if (!_temp_ptr->destroyed() && _temp_ptr->wait())
         _temp_ptr->destroy();
 }
 
@@ -148,11 +148,14 @@ event_loop_pimpl::stop ()
         return;
 
     m_stop = true;
-    if (!in_loop_thread())
+    if (!in_loop_thread()) {
         wakeup();
-    std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
-    if (_temp_ptr->wait())
-        _temp_ptr->destroy();
+        std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
+        if (_temp_ptr->wait())
+            _temp_ptr->destroy();
+    } else {
+        m_stop_barrier->destroy();
+    }
 }
 
 bool

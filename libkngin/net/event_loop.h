@@ -14,7 +14,7 @@
 #include "net/event.h"
 
 #ifndef NDEBUG
-#define EPOLLER_TIMEOUT 30000
+#define EPOLLER_TIMEOUT 3000
 #else
 #define EPOLLER_TIMEOUT 3000
 #endif

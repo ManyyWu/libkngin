@@ -42,22 +42,22 @@ public:
     typedef std::map<std::string, session_ptr> session_map;
 
 public:
-    server            () = delete;
+    server              () = delete;
 
-    server            (const server_opts &_opts);
+    server              (event_loop &_loop, const server_opts &_opts);
 
-    ~server           () KNGIN_NOEXCP;
+    ~server             () KNGIN_NOEXCP;
 
 public:
     bool
-    run               ();
+    run                 ();
 
     void
-    stop              (bool _crash = false);
+    stop                ();
 
 public:
     void
-    broadcast         (session_list &_list, msg_buffer _buf);
+    broadcast           (session_list &_list, msg_buffer _buf);
 
 public:
     void
@@ -81,43 +81,43 @@ public:
 
 protected:
     event_loop &
-    assign_thread     ()
+    assign_thread       ()
     { return m_threadpool.next_loop(); }
 
 protected:
     void
-    on_new_session    (socket &&_sock);
+    on_new_session      (socket &&_sock);
 
 private:
-    const server_opts m_opts;
+    event_loop_pimpl_ptr m_loop;
 
-    io_threadpool     m_threadpool;
+    const server_opts    m_opts;
+
+    io_threadpool        m_threadpool;
 
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     session_map       m_sessions;
 #endif
 
-    listener_ptr      m_listener;
+    listener_ptr         m_listener;
 
-    address           m_listen_addr;
+    session_handler      m_session_handler;
 
-    session_handler   m_session_handler;
+    sent_handler         m_sent_handler;
 
-    sent_handler      m_sent_handler;
+    message_handler      m_message_handler;
 
-    message_handler   m_message_handler;
+    oob_handler          m_oob_handler;
 
-    oob_handler       m_oob_handler;
+    close_handler        m_close_handler;
 
-    close_handler     m_close_handler;
+    crash_handler        m_crash_handler;
 
-    crash_handler     m_crash_handler;
+    std::atomic<bool>    m_stopped;
 
-    std::atomic<bool> m_stopped;
+    std::atomic<bool>    m_stopping;
 
-    std::atomic<bool> m_stopping;
-
-    mutex             m_mutex;
+    mutex                m_mutex;
 };
 
 KNGIN_NAMESPACE_TCP_END

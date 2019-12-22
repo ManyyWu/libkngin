@@ -38,7 +38,7 @@ epoller_event::on_events (epoller_event *_ptr, uint32_t _events)
 {
     assert(_ptr);
     try {
-        if (EPOLLHUP & _events) { // RST
+        if (EPOLLHUP & _events) { // ERST
             _ptr->on_error();
             return;
         }

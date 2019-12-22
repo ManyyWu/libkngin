@@ -32,7 +32,7 @@ public:
 
     typedef std::vector<std::unique_ptr<io_thread>> threads;
 
-    typedef std::function<void (bool)>              crash_handler;
+    typedef std::function<void (void)>              crash_handler;
 
     typedef io_thread::event_loop_ptr               event_loop_ptr;
 
@@ -46,7 +46,7 @@ public:
 
 public:
     void
-    start          (crash_handler &&_handler);
+    start          (crash_handler _handler);
 
     void
     stop           ();

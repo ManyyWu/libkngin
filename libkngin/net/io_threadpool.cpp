@@ -37,7 +37,7 @@ io_threadpool::~io_threadpool ()
 }
 
 void
-io_threadpool::start (crash_handler &&_handler)
+io_threadpool::start (crash_handler _handler)
 {
     assert(m_stopped);
 
@@ -50,7 +50,7 @@ io_threadpool::start (crash_handler &&_handler)
                 if (m_crash)
                     return;
                 m_crash = true;
-                ignore_excp(_handler(true));
+                ignore_excp(_handler());
                 m_stopped = false;
             }); // end of crash_handler
         } catch (...) {
