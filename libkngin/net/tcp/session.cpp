@@ -37,7 +37,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_out_bufq(),
       m_out_bufq_mutex(),
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-      m_in_buf(nullptr),
+      m_in_buf(),
 #else
       m_in_bufq(),
 #endif
@@ -76,7 +76,7 @@ session::send (msg_buffer _buf)
 
     {
         local_lock _lock(m_out_bufq_mutex);
-        m_out_bufq.push_front(_buf);
+        m_out_bufq.push(_buf);
         if (m_out_bufq.size() <= 1) {
             enable_write();
             m_loop->update_event(self());
@@ -127,7 +127,7 @@ bool
 session::recv (in_buffer _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
 {
     arg_check(_buf.begin() && _buf.size());
-    assert(!m_in_buf.begin() && !m_in_buf.size())
+    assert(!m_in_buf.begin() && !m_in_buf.size());
     assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT ? _buf.size() >= _lowat : true);
     if (!m_connected)
         return false;
@@ -250,7 +250,9 @@ session::on_write ()
     msg_buffer *_buf = nullptr;
     {
         local_lock _lock(m_out_bufq_mutex);
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
         assert(m_out_bufq.size() == m_sent_handlerq.size());
+#endif
         if (m_out_bufq.empty())
             return;
         _buf = &m_out_bufq.front();
@@ -320,7 +322,7 @@ session::on_read ()
 {
     m_loop->check_thread();
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-    if (!m_in_buf) {
+    if (!m_in_buf.begin()) {
 #else
     if (m_in_bufq.empty()) {
 #endif
@@ -333,6 +335,9 @@ session::on_read ()
     assert(pollin());
 
     in_buffer *_buf = nullptr;
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
+    _buf = &m_in_buf;
+#else
     {
         local_lock _lock(m_in_bufq_mutex);
         assert(m_in_bufq.size() == m_message_handlerq.size());
@@ -340,6 +345,7 @@ session::on_read ()
             return;
         _buf = &m_in_bufq.front();
     }
+#endif
     assert(_buf && _buf->size());
     assert(_buf->valid() < _buf->size());
 
@@ -372,23 +378,24 @@ session::on_read ()
         _buf = nullptr;
 
         // read done
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
+        in_buffer _back = m_in_buf;
+        m_in_buf = in_buffer();
+#else
         message_handler _handler = nullptr;
         in_buffer _back;
-#endif
         {
             local_lock _lock(m_in_bufq_mutex);
             _back = m_in_bufq.front();
             m_in_bufq.pop();
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
             _handler = m_message_handlerq.front();
             m_message_handlerq.pop();
-#endif
         }
+#endif
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
         if (m_message_handler) {
             log_excp_error(
-                m_message_handler(std::ref(*this), *_buf, _buf->valid()),
+                m_message_handler(std::ref(*this), _back, _back.valid()),
                 "session::m_message_handler() error"
             );
         }

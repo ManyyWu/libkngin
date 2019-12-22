@@ -118,14 +118,13 @@ public:
     void
     set_sent_handler    (const sent_handler &_handler)
     { assert(!registed()); m_sent_handler = _handler; }
-#else
+#endif
     void
     set_close_handler   (const close_handler &_handler)
     { assert(!registed()); m_close_handler = _handler; }
     void
     set_oob_handler     (const oob_handler &_handler)
     { assert(!registed()); m_oob_handler = _handler; enable_oob(); }
-#endif
 
     // TODO: Optimize callback function storage
 

@@ -21,7 +21,7 @@ using namespace k::tcp;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const int   g_data_size = 64;
-const int   times = 100;
+const int   times = 10;
 
 class test_server {
 public:
