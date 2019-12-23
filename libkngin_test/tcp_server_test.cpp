@@ -70,7 +70,7 @@ public:
                 if (m_sessions.find(_session.key()) == m_sessions.end()) // closed before add
                     return;
                 m_sessions.erase(_session.key());
-                //log_debug("size: %d", m_sessions.size());
+                log_debug("size: %d", m_sessions.size());
             }
         });
 
@@ -163,7 +163,7 @@ tcp_server_test ()
         .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
-        .thread_num             = 4,
+        .thread_num             = 2,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,

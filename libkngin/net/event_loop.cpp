@@ -90,7 +90,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
                 break;
             //log_warning("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
             //            m_thr->name(), _size);
-
+/*
             // sort the events by priority and type(timer > event > file)
             std::sort(m_events.begin(), m_events.begin() + _size,
                 [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
@@ -100,7 +100,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
                         (_ptr1->m_type == _ptr1->m_type &&
                          _ptr1->m_priority > _ptr1->m_priority));
             }); // end of operator <
-
+*/
             // process events
             for (uint32_t _i = 0; _i < _size; _i++) {
                 auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
@@ -119,7 +119,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
                     _fnq.swap(m_taskq);
             }
             while (!_fnq.empty()) {
-                _fnq.back()();
+                _fnq.front()();
                 _fnq.pop();
             }
             //log_warning("the epoller in thread \"%s\" handled %" PRIu64 " task",

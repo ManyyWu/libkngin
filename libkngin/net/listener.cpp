@@ -112,8 +112,7 @@ listener::close (bool _blocking /* = true */)
         return;
 
     if (!m_loop->looping()) {
-        m_socket.close();
-        m_closed = true;
+        on_close();
         return;
     }
     if (registed()) { // can't call event_loop::remove_event() when crashed
@@ -202,7 +201,7 @@ listener::on_close ()
     assert(!m_closed);
     m_loop->check_thread();
 
-    if (registed())
+    if (m_loop->looping() && registed())
         m_loop->remove_event(self());
     m_socket.close();
     m_closed = true;

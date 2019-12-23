@@ -188,7 +188,6 @@ server::on_new_session (socket &&_sock)
         _session = std::make_shared<session>(_next_loop,
                                              std::move(_sock),
                                              _local_addr, _peer_addr);
-        _session->set_keepalive(m_opts.keep_alive);
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
         _session->set_message_handler(m_message_handler);
         _session->set_sent_handler(m_sent_handler);
@@ -196,7 +195,8 @@ server::on_new_session (socket &&_sock)
         _session->set_oob_handler(m_oob_handler);
         if (m_opts.keep_alive)
             _session->set_keepalive(true);
-        _session->set_close_handler([this, _session] (const session &_s, std::error_code _ec) {
+
+        _session->set_close_handler([this] (const session &_s, std::error_code _ec) {
             assert(!m_stopped);
             _s.check_thread();
 
@@ -228,7 +228,6 @@ server::on_new_session (socket &&_sock)
         }
 #endif
         _next_loop.register_event(_session);
-
         if (m_session_handler)
             _next_loop.run_in_loop([this, _session] () {
                 log_excp_error(

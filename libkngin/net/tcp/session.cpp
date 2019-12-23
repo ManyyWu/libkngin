@@ -62,7 +62,7 @@ session::~session () KNGIN_NOEXCP
                     " before object disconstructing");
         ignore_excp(this->close(true));
     }
-
+log_debug("~session()");
     // FIXME; wait for m_connected to be false( this->close(true); )
 }
 
@@ -175,18 +175,7 @@ session::close (bool _blocking /* = false */)
 {
     assert(m_connected);
     if (!m_loop->looping()) {
-        m_socket.close();
-#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-        msg_buffer_queue _outq;
-        std::swap(_outq, m_out_bufq);
-        m_in_buf = in_buffer();
-#else
-        msg_buffer_queue _outq;
-        std::swap(_outq, m_out_bufq);
-        in_buffer_queue _inq;
-        std::swap(_inq, m_in_bufq);
-#endif
-        m_connected = false;
+        on_close(std::error_code());
         return;
     }
     if (registed()) {
@@ -476,18 +465,18 @@ session::on_close (std::error_code _ec)
     assert(m_connected);
     m_loop->check_thread();
 
-    if (registed())
+    if (m_loop->looping() && registed())
         m_loop->remove_event(self());
     m_socket.close();
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-    msg_buffer_queue _outq;
-    std::swap(_outq, m_out_bufq);
+    while (m_out_bufq.size());
+        m_out_bufq.pop();
     m_in_buf = in_buffer();
 #else
-    msg_buffer_queue _outq;
-    std::swap(_outq, m_out_bufq);
-    in_buffer_queue _inq;
-    std::swap(_inq, m_in_bufq);
+    while (m_out_bufq.size())
+        m_out_bufq.pop();
+    while (m_in_bufq.size())
+        m_in_bufq.pop();
 #endif
     m_connected = false;
     if (m_close_handler)
