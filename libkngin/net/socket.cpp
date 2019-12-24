@@ -127,6 +127,22 @@ socket::connect (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP
 }
 
 void
+socket::close ()
+{
+    filefd::close();
+    m_rd_closed = true;
+    m_wr_closed = true;
+}
+
+void
+socket::close (std::error_code &_ec) KNGIN_NOEXCP
+{
+    filefd::close(_ec);
+    m_rd_closed = true;
+    m_wr_closed = true;
+}
+
+void
 socket::rd_shutdown ()
 {
     assert(!m_rd_closed);

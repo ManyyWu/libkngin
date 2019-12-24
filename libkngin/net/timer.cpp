@@ -81,11 +81,12 @@ timer::on_read ()
     in_buffer _buf(_arr, 8);
     this->readn(_buf); // blocked
 
-    if (m_timeout_handler)
+    if (m_timeout_handler) {
         log_excp_error(
             m_timeout_handler(),
             "timer::m_timeout_handler() error"
         );
+    }
 }
 
 KNGIN_NAMESPACE_K_END

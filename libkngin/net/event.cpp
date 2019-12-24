@@ -68,11 +68,12 @@ event::on_read ()
     in_buffer _buf(_arr, 8);
     this->readn(_buf); // blocked
 
-    if (m_event_handler)
+    if (m_event_handler) {
         log_excp_error(
             m_event_handler(),
             "event::m_event_handler() error"
         );
+    }
 }
 
 KNGIN_NAMESPACE_K_END

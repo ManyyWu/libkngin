@@ -201,6 +201,7 @@ listener::on_close ()
     assert(!m_closed);
     m_loop->check_thread();
 
+    auto _self = self(); // extend the life cycle untile closed
     if (m_loop->looping() && registed())
         m_loop->remove_event(self());
     m_socket.close();

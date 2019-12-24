@@ -33,7 +33,7 @@ public:
     void
     notify   ();
     
-    void
+    virtual void
     close    ();
     
 public:

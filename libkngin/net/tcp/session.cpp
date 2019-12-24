@@ -62,7 +62,6 @@ session::~session () KNGIN_NOEXCP
                     " before object disconstructing");
         ignore_excp(this->close(true));
     }
-log_debug("~session()");
     // FIXME; wait for m_connected to be false( this->close(true); )
 }
 
@@ -75,7 +74,7 @@ session::send (msg_buffer _buf)
         return false;
 
     {
-        local_lock _lock(m_out_bufq_mutex);
+        //local_lock _lock(m_out_bufq_mutex);
         m_out_bufq.push(_buf);
         if (m_out_bufq.size() <= 1) {
             enable_write();
@@ -102,7 +101,7 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
         return false;
 
     {
-        local_lock _lock(m_out_bufq_mutex);
+        //local_lock _lock(m_out_bufq_mutex);
         m_sent_handlerq.push(_handler);
         m_out_bufq.push(_buf);
         if (m_out_bufq.size() <= 1) {
@@ -173,7 +172,8 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 void
 session::close (bool _blocking /* = false */)
 {
-    assert(m_connected);
+    if (!m_connected)
+        return;
     if (!m_loop->looping()) {
         on_close(std::error_code());
         return;
@@ -238,7 +238,7 @@ session::on_write ()
 
     msg_buffer *_buf = nullptr;
     {
-        local_lock _lock(m_out_bufq_mutex);
+        //local_lock _lock(m_out_bufq_mutex);
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
         assert(m_out_bufq.size() == m_sent_handlerq.size());
 #endif
@@ -277,7 +277,7 @@ session::on_write ()
         sent_handler _handler = nullptr;
 #endif
         {
-            local_lock _lock(m_out_bufq_mutex);
+            //local_lock _lock(m_out_bufq_mutex);
             m_out_bufq.pop();
             if (m_out_bufq.empty()) {
                 disable_write();
@@ -328,7 +328,7 @@ session::on_read ()
     _buf = &m_in_buf;
 #else
     {
-        local_lock _lock(m_in_bufq_mutex);
+        //local_lock _lock(m_in_bufq_mutex);
         assert(m_in_bufq.size() == m_message_handlerq.size());
         if (m_in_bufq.empty())
             return;
@@ -374,7 +374,7 @@ session::on_read ()
         message_handler _handler = nullptr;
         in_buffer _back;
         {
-            local_lock _lock(m_in_bufq_mutex);
+            //local_lock _lock(m_in_bufq_mutex);
             _back = m_in_bufq.front();
             m_in_bufq.pop();
             _handler = m_message_handlerq.front();
@@ -466,6 +466,7 @@ session::on_close (std::error_code _ec)
     assert(m_connected);
     m_loop->check_thread();
 
+    auto _self = self(); // extend the life cycle untile closed
     if (m_loop->looping() && registed())
         m_loop->remove_event(self());
     m_socket.close();
@@ -480,11 +481,12 @@ session::on_close (std::error_code _ec)
         m_in_bufq.pop();
 #endif
     m_connected = false;
-    if (m_close_handler)
+    if (m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),
             "listener::m_close_handler() error"
         );
+    }
 }
 
 KNGIN_NAMESPACE_TCP_END

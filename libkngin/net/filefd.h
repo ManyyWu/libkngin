@@ -81,10 +81,10 @@ public:
     size_t
     readable      (std::error_code &_ec) KNGIN_NOEXCP;
 
-    void
+    virtual void
     close         ();
 
-    void
+    virtual void
     close         (std::error_code &_ec) KNGIN_NOEXCP;
 
     int

@@ -39,12 +39,10 @@ public:
         m_server.set_session_handler([this] (server::session_ptr _session) {
             assert(_session);
             log_info("new session from %s", _session->name().c_str());
-log_debug("count = %d", _session.use_count());
-return;
 
             // create session info
             {
-                local_lock _lock(m_sessions_mutex);
+                //local_lock _lock(m_sessions_mutex);
                 if (!_session->connected()) // closed
                     return;
                 assert(m_sessions.find(_session->key()) == m_sessions.end());
@@ -68,11 +66,11 @@ return;
         m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
             log_info("session %s closed", _session.name().c_str());
             {
-                local_lock _lock(m_sessions_mutex);
+                //local_lock _lock(m_sessions_mutex);
                 if (m_sessions.find(_session.key()) == m_sessions.end()) // closed before add
                     return;
                 m_sessions.erase(_session.key());
-                log_debug("size: %d", m_sessions.size());
+                //log_debug("size: %d", m_sessions.size());
             }
         });
 
@@ -111,22 +109,19 @@ return;
                     return;
                 }
                 for (int i = 0; i < times; i++) {
-//log_debug("i = %d", i);
                     msg_buffer::uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data
                         msg_buffer(_msg_arr, 0, g_data_size),
                         [] (session &_s)
                     {
-//log_debug("sended");
                         std::shared_ptr<std::array<char, g_data_size>> _arr1 = std::make_shared<std::array<char, g_data_size>>();
                         _s.recv( // recv reverse data
                             in_buffer(_arr1->data(), _arr1->size()), [_arr1] (session &_s, in_buffer _buf, size_t _size)
                         {
-//log_debug("recved");
-                            log_info("recv data %s from %s",
-                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                                     _s.name().c_str());
+                            //log_info("recv data %s from %s",
+                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                            //         _s.name().c_str());
                         });
                     });
                 }
@@ -153,8 +148,8 @@ protected:
 void
 tcp_server_test ()
 {
-//#define SERVER_ADDR "192.168.0.2"
-#define SERVER_ADDR "127.0.0.1"
+#define SERVER_ADDR "192.168.0.2"
+//#define SERVER_ADDR "127.0.0.1"
 //#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
 //#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
@@ -165,7 +160,7 @@ tcp_server_test ()
         .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
-        .thread_num             = 2,
+        .thread_num             = 3,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,

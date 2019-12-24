@@ -35,7 +35,7 @@ public:
     ~listener     () KNGIN_NOEXCP;
 
 public:
-    void
+    virtual void
     close         (bool _blocking = true);
 
 public:

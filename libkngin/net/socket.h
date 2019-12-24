@@ -71,7 +71,12 @@ public:
     void
     connect     (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
 
-public:
+    virtual void
+    close       ();
+
+    virtual void
+    close       (std::error_code &_ec) KNGIN_NOEXCP;
+
     void
     rd_shutdown ();
 
@@ -83,6 +88,12 @@ public:
 
     void
     wr_shutdown (std::error_code &_ec) KNGIN_NOEXCP;
+
+    bool
+    rd_closed   () { return m_rd_closed; }
+
+    bool
+    wr_closed   () { return m_wr_closed; }
 
 public:
     size_t

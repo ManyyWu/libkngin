@@ -46,11 +46,9 @@ server::server (event_loop &_loop, const server_opts &_opts)
     std::string _s = (_pos != std::string::npos)
                       ? std::string(_opts.name.data(), _pos)
                       : _opts.name;
-    if (_opts.allow_ipv4 && _opts.allow_ipv6 &&
-        !address::is_valid_inet6_addrstr(_s))
+    if (_opts.allow_ipv4 && _opts.allow_ipv6 && !address::is_valid_inet6_addrstr(_s))
         throw k::exception("invalid ipv6 address");
-    if (_opts.allow_ipv4 && !_opts.allow_ipv6 &&
-        !address::is_valid_inet_addrstr(_opts.name))
+    if (_opts.allow_ipv4 && !_opts.allow_ipv6 && !address::is_valid_inet_addrstr(_opts.name))
         throw k::exception("invalid ipv4 address");
 } catch (...) {
     log_fatal("server::server() error");
@@ -70,11 +68,12 @@ server::run ()
 
     auto _crash_handler = [this] () {
         m_loop->run_in_loop([this] () {
-            if (m_crash_handler)
+            if (m_crash_handler) {
                 log_excp_fatal(
                     m_crash_handler(),
                     "server::m_crash_hander() error"
                 );
+            }
         });
     }; // end of crash_handler
 
@@ -160,16 +159,15 @@ server::broadcast (session_list &_list, msg_buffer _buf)
     if (m_stopping)
         return;
 
-    {
-        local_lock _lock(m_mutex);
-        std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
+    std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-            _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
+        _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
 #else
+        _s->loop()->run_in_loop([&_buf, _s] () {
             _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()), nullptr);
+        });
 #endif
-        }); // end of send
-    }
+    }); // end of send
 }
 
 void
@@ -200,11 +198,12 @@ server::on_new_session (socket &&_sock)
             assert(!m_stopped);
             _s.check_thread();
 
-            if (m_close_handler)
+            if (m_close_handler) {
                 log_excp_error(
                     m_close_handler(std::cref(_s), _ec),
                     "sever::m_close_handler() error"
                 );
+            }
 
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
             if (m_stopping)
@@ -228,15 +227,14 @@ server::on_new_session (socket &&_sock)
         }
 #endif
         _next_loop.register_event(_session);
-        if (m_session_handler)
+        if (m_session_handler) {
             _next_loop.run_in_loop([this, _session] () {
                 log_excp_error(
                     m_session_handler(_session),
                     "server::m_session_handler() error"
                 );
-log_debug("count = %d", _session.use_count());
-return;
             });
+        }
     } catch (const std::exception &_e) {
         log_error("caught an exception when accepting new session, %s", _e.what());
         throw;

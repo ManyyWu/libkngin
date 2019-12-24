@@ -73,7 +73,7 @@ public:
                      size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 #endif
 
-    void
+    virtual void
     close           (bool _blocking = false);
 
     void
