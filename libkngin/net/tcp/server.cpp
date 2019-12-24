@@ -234,6 +234,8 @@ server::on_new_session (socket &&_sock)
                     m_session_handler(_session),
                     "server::m_session_handler() error"
                 );
+log_debug("count = %d", _session.use_count());
+return;
             });
     } catch (const std::exception &_e) {
         log_error("caught an exception when accepting new session, %s", _e.what());

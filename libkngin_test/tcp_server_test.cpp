@@ -39,6 +39,8 @@ public:
         m_server.set_session_handler([this] (server::session_ptr _session) {
             assert(_session);
             log_info("new session from %s", _session->name().c_str());
+log_debug("count = %d", _session.use_count());
+return;
 
             // create session info
             {
@@ -151,8 +153,8 @@ protected:
 void
 tcp_server_test ()
 {
-#define SERVER_ADDR "192.168.0.2"
-//#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "192.168.0.2"
+#define SERVER_ADDR "127.0.0.1"
 //#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
 //#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000

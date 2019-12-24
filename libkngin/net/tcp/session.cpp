@@ -433,7 +433,8 @@ session::on_oob ()
 void
 session::on_error ()
 {
-    assert(m_connected);
+    if (!m_connected)
+        return;
     m_loop->check_thread();
 
     std::error_code _ec = m_socket.read_error();
