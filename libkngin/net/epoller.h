@@ -47,7 +47,7 @@ public:
 
     bool
     closed         () KNGIN_NOEXCP
-    { return !m_epollfd.valid(); }
+    { return m_epollfd.invalid(); }
 
 public:
     bool

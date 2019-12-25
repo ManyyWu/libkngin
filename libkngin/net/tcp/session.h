@@ -83,8 +83,12 @@ public:
     wr_shutdown     ();
 
     bool
-    connected       () const KNGIN_NOEXCP
-    { return m_connected; }
+    closed          () KNGIN_NOEXCP
+    { return m_closed; }
+
+    bool
+    connected       () const
+    { return status() == TCP_ESTABLISHED; }
 
     int32_t
     status          ()
@@ -185,7 +189,7 @@ private:
 
     k::socket            m_socket;
 
-    std::atomic<bool>    m_connected;
+    std::atomic<bool>    m_closed;
 
     const address        m_local_addr;
 
