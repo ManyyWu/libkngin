@@ -38,14 +38,13 @@
 using namespace k;
 using namespace std;
 using namespace std::placeholders;
-#warning "返回值处理"
-#warning "新建面向应用的错误码，抽象"
-#warning "应用层不接触任何底层错误"
-#warning "nrv优化"
+
 #warning "https://zhuanlan.zhihu.com/p/88749279"
 #warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
 #warning "ET mode"
 /*
+client:
+
 switch (savedErrno)  //检查错误码
 {
 case 0:
@@ -87,50 +86,9 @@ default:
 #include <netdb.h>
 #include <stdio.h>
 
-class c {
-public:
-    void out () {
-        //cout << "out" << endl;
-    }
-};
-
 void
 test ()
 {
 return;
-    {
-        k::timestamp _begin = k::timestamp::current_time();
-        c _c;
-        for (int i = 0; i < 100000000; i++) {
-            _c.out();
-        }
-        k::timestamp _end = k::timestamp::current_time();
-        printf("%lld ms\n", _end - _begin);
-    }
-
-    {
-        k::timestamp _begin = k::timestamp::current_time();
-        c _c;
-        std::function<void ()> _func = std::bind(&c::out, &_c);
-        for (int i = 0; i < 100000000; i++) {
-            _func();
-        }
-        k::timestamp _end = k::timestamp::current_time();
-        printf("%lld ms\n", _end - _begin);
-    }
-
-    {
-        k::timestamp _begin = k::timestamp::current_time();
-        c _c;
-        std::function<void ()> _func = [&] () {
-            _c.out();
-        };
-        for (int i = 0; i < 100000000; i++) {
-            _func();
-        }
-        k::timestamp _end = k::timestamp::current_time();
-        printf("%lld ms\n", _end - _begin);
-    }
-    exit(0);
 }
 
