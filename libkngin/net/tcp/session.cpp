@@ -21,7 +21,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
     : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
       m_loop(_loop.pimpl()),
       m_socket(std::move(_socket)), 
-      m_connected(true),
+      m_closed(true),
       m_local_addr(_local_addr), 
       m_peer_addr(_peer_addr),
       m_name(m_socket.name()),
@@ -57,12 +57,12 @@ session::session (event_loop &_loop, k::socket &&_socket,
 
 session::~session () KNGIN_NOEXCP
 {
-    if (m_connected || registed()) {
+    if (!m_closed || registed()) {
         log_warning("the TCP session must be closed"
                     " before object disconstructing");
         ignore_excp(this->close(true));
     }
-    // FIXME; wait for m_connected to be false( this->close(true); )
+    // FIXME; wait for m_closed to be true ( this->close(true); )
 }
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
@@ -72,7 +72,7 @@ session::send (msg_buffer _buf)
 {
 
     arg_check(_buf.buffer().begin() && _buf.buffer().size());
-    if (!m_connected)
+    if (m_closed)
         return false;
 
     {
@@ -99,7 +99,7 @@ bool
 session::send (msg_buffer _buf, sent_handler &&_handler)
 {
     arg_check(_buf.buffer().begin() && _buf.buffer().size());
-    if (!m_connected)
+    if (m_closed)
         return false;
 
     {
@@ -130,7 +130,7 @@ session::recv (in_buffer _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK
     arg_check(_buf.begin() && _buf.size());
     assert(!m_in_buf.begin() && !m_in_buf.size());
     assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT ? _buf.size() >= _lowat : true);
-    if (!m_connected)
+    if (m_closed)
         return false;
 
     m_in_buf = _buf;
@@ -153,7 +153,7 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 {
     arg_check(_buf.begin() && _buf.size());
     assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT ? _buf.size() >= _lowat : true);
-    if (!m_connected)
+    if (m_closed)
         return false;
 
     {
@@ -177,7 +177,7 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 void
 session::close (bool _blocking /* = false */)
 {
-    if (!m_connected)
+    if (m_closed)
         return;
     if (!m_loop->looping()) {
         on_close(std::error_code());
@@ -211,7 +211,8 @@ session::close (bool _blocking /* = false */)
 void
 session::rd_shutdown ()
 {
-    assert(m_connected);
+    assert(!m_closed);
+    assert(!m_socket.rd_closed());
     if (m_loop->in_loop_thread())
         m_socket.rd_shutdown();
     else
@@ -223,7 +224,8 @@ session::rd_shutdown ()
 void
 session::wr_shutdown ()
 {
-    assert(m_connected);
+    assert(!m_closed);
+    assert(!m_socket.wr_closed());
     if (m_loop->in_loop_thread())
         m_socket.wr_shutdown();
     else
@@ -236,7 +238,7 @@ void
 session::on_write ()
 {
     m_loop->check_thread();
-    if (!m_connected)
+    if (m_closed)
         return;
     if_not (pollout())
         return;
@@ -324,7 +326,7 @@ session::on_read ()
         on_error();
         return;
     }
-    if (!m_connected)
+    if (m_closed)
         return;
     if_not (pollin())
         return;
@@ -408,7 +410,7 @@ session::on_read ()
 void
 session::on_oob ()
 {
-    if (!m_connected)
+    if (m_closed)
         return;
     if_not (pollpri())
         return;
@@ -439,7 +441,7 @@ session::on_oob ()
 void
 session::on_error ()
 {
-    if (!m_connected)
+    if (m_closed)
         return;
     m_loop->check_thread();
 
@@ -469,7 +471,7 @@ session::on_error ()
 void
 session::on_close (std::error_code _ec)
 {
-    if (!m_connected)
+    if (m_closed)
         return;
     m_loop->check_thread();
 
@@ -487,7 +489,7 @@ session::on_close (std::error_code _ec)
     while (m_in_bufq.size())
         m_in_bufq.pop();
 #endif
-    m_connected = false;
+    m_closed = true;
     if (m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),

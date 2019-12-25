@@ -91,7 +91,7 @@ public:
     { return status() == TCP_ESTABLISHED; }
 
     int32_t
-    status          ()
+    status          () const
     { return sockopts::tcp_info(m_socket).tcpi_state; }
 
 public:
