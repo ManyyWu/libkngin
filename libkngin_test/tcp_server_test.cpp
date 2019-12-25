@@ -61,7 +61,6 @@ public:
                 return;
             }
 #endif
-
             // process
             process(_session);
         });

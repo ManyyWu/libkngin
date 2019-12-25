@@ -14,7 +14,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class epoller;
-class epoller_event : public filefd {
+class epoller_event : protected filefd {
 public:
     typedef int     epollfd;
 
