@@ -31,6 +31,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
       m_error_handler(std::move(_error_handler)),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
+    arg_check(m_socket.valid());
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
 
@@ -47,10 +48,11 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
     // listen
     m_socket.listen(_backlog);
 
-    // set flags
+    // set socket flags
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
 
+    // set event falgs
     enable_read();
     m_closed = false;
 } catch (...) {
@@ -170,7 +172,6 @@ listener::on_read ()
                 m_error_handler(_ec),
                 "listener::m_accept_handler() error"
             );
-#warning "process error code, callback"
         }
         return;
     }

@@ -44,9 +44,15 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_key(m_peer_addr.key())
 {
     arg_check(m_socket.valid());
+
+    // set socket options
+    sockopts::set_ooblinline(m_socket, false);
+
+    // set socket flags
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
-    sockopts::set_ooblinline(m_socket, false);
+
+    // set event flags
     enable_read();
     disable_write();
     disable_oob();
@@ -256,7 +262,6 @@ session::on_write ()
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         on_error();
-#warning "error_code"
         return;
     }
     if (!_size) {
@@ -345,7 +350,6 @@ session::on_read ()
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         on_error();
-#warning "error_code"
         return;
     }
     if (!_size) {
@@ -410,7 +414,6 @@ session::on_oob ()
         log_error("socket::recv(MSG_OOB) error, %s",
                   system_error_str(_ec).c_str());
         on_error();
-#warning "error_code"
         return;
     }
     if (m_oob_handler) {
@@ -442,7 +445,6 @@ session::on_error ()
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         on_close(_ec);
-#warning "error_code"
         return;
     } else {
         tcp_info _info = sockopts::tcp_info(m_socket);

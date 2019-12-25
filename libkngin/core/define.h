@@ -62,6 +62,6 @@ typedef SSIZE_T ssize_t;
 
 // for session
 #define KNGIN_SESSION_TEMP_CALLBACK ON
-#define KNGIN_SESSION_NO_MUTEX      ON
+#define KNGIN_SESSION_NO_MUTEX      OFF
 
 #endif /* KNGIN_DEFINE_H */
