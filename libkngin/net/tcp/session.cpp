@@ -57,7 +57,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
 
 session::~session () KNGIN_NOEXCP
 {
-    if (m_connected && registed()) {
+    if (m_connected || registed()) {
         log_warning("the TCP session must be closed"
                     " before object disconstructing");
         ignore_excp(this->close(true));
@@ -70,6 +70,8 @@ session::~session () KNGIN_NOEXCP
 bool
 session::send (msg_buffer _buf)
 {
+
+    arg_check(_buf.buffer().begin() && _buf.buffer().size());
     if (!m_connected)
         return false;
 
@@ -154,9 +156,12 @@ session::recv (in_buffer _buf, message_handler &&_handler,
     if (!m_connected)
         return false;
 
-    m_message_handlerq.push(_handler);
-    m_in_bufq.push(_buf);
-    m_callback_lowat = _lowat;
+    {
+        //local_lock _lock(m_in_bufq_mutex);
+        m_message_handlerq.push(_handler);
+        m_in_bufq.push(_buf);
+        m_callback_lowat = _lowat;
+    }
 
     if (m_loop->in_loop_thread())
         on_read();
@@ -321,7 +326,8 @@ session::on_read ()
     }
     if (!m_connected)
         return;
-    assert(pollin());
+    if_not (pollin())
+        return;
 
     in_buffer *_buf = nullptr;
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
@@ -463,7 +469,8 @@ session::on_error ()
 void
 session::on_close (std::error_code _ec)
 {
-    assert(m_connected);
+    if (!m_connected)
+        return;
     m_loop->check_thread();
 
     auto _self = self(); // extend the life cycle untile closed

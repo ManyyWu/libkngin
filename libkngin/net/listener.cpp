@@ -110,7 +110,7 @@ listener::close (bool _blocking /* = true */)
 {
     if (m_closed)
         return;
-
+        
     if (!m_loop->looping()) {
         on_close();
         return;
@@ -198,7 +198,8 @@ listener::on_error ()
 void
 listener::on_close ()
 {
-    assert(!m_closed);
+    if (m_closed)
+        return;
     m_loop->check_thread();
 
     auto _self = self(); // extend the life cycle untile closed
