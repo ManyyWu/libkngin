@@ -115,11 +115,12 @@ listener::close (bool _blocking /* = true */)
         on_close();
         return;
     }
-    if (registed()) { // can't call event_loop::remove_event() when crashed
-        m_loop->remove_event(self());
+    if (registed()) {
+        on_close();
         if (m_loop->in_loop_thread()) {
             on_close();
         } else {
+            m_loop->remove_event(self());
             if (_blocking) {
                 std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
                 m_loop->run_in_loop([this, _barrier_ptr] () {

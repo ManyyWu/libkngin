@@ -43,8 +43,11 @@ public:
             // create session info
             {
                 //local_lock _lock(m_sessions_mutex);
-                if (!_session->connected()) // closed
+                if (!_session->connected()) {
+                    if (!_session->closed())
+                        _session->close();
                     return;
+                }
                 assert(m_sessions.find(_session->key()) == m_sessions.end());
                 m_sessions.insert(std::make_pair(_session->key(), session_info(_session)));
                 //log_debug("size: %d", m_sessions.size());
@@ -119,9 +122,9 @@ public:
                         _s.recv( // recv reverse data
                             in_buffer(_arr1->data(), _arr1->size()), [_arr1] (session &_s, in_buffer _buf, size_t _size)
                         {
-                            //log_info("recv data %s from %s",
-                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                            //         _s.name().c_str());
+                            log_info("recv data %s from %s",
+                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                                     _s.name().c_str());
                         });
                     });
                 }

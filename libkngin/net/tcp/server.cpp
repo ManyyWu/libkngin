@@ -31,8 +31,11 @@ server::server (event_loop &_loop, const server_opts &_opts)
       m_close_handler(nullptr),
       m_crash_handler(nullptr),
       m_stopped(true),
-      m_stopping(false),
+      m_stopping(false)
+#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
+      ,
       m_mutex()
+#endif
 {
     if (_opts.disable_debug)
         logger()[0].disable_debug();
@@ -229,6 +232,8 @@ server::on_new_session (socket &&_sock)
         _next_loop.register_event(_session);
         if (m_session_handler) {
             _next_loop.run_in_loop([this, _session] () {
+                if (_session->closed()) // closed
+                    return;
                 log_excp_error(
                     m_session_handler(_session),
                     "server::m_session_handler() error"

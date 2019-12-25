@@ -213,12 +213,10 @@ private:
 
     msg_buffer_queue     m_out_bufq;
 
-    mutex                m_out_bufq_mutex;
-
-#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-    in_buffer            m_in_buf;
-#else
     in_buffer_queue      m_in_bufq;
+
+#if (ON != KNGIN_SESSION_NO_MUTEX)
+    mutex                m_out_bufq_mutex;
 
     mutex                m_in_bufq_mutex;
 #endif
