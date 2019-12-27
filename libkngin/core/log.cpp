@@ -155,7 +155,7 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
             )
             write_stderr(_level, _buf, _len);
         return _ret;
-    };
+    }; // end of write_log
 
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
     if (logger().inited()) {

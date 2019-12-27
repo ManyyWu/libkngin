@@ -150,17 +150,16 @@ public:
     { return m_key; }
 
 public:
-    void
-    check_thread    () const KNGIN_NOEXCP
-    { m_loop->check_thread(); }
-
-public:
     event_loop_pimpl_ptr &
-    loop          () KNGIN_NOEXCP
+    loop            () KNGIN_NOEXCP
+    { return m_loop; }
+
+    const event_loop_pimpl_ptr &
+    loop            () const KNGIN_NOEXCP
     { return m_loop; }
 
     session_ptr
-    self     ()
+    self            ()
     { return shared_from_this(); }
 
 private:

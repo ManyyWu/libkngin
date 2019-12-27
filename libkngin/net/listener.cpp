@@ -122,7 +122,7 @@ listener::close (bool _blocking /* = true */)
         if (m_loop->in_loop_thread()) {
             on_close();
         } else {
-            m_loop->remove_event(self());
+            m_loop->remove_event(*this);
             if (_blocking) {
                 std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
                 m_loop->run_in_loop([this, _barrier_ptr] () {
@@ -146,7 +146,7 @@ listener::on_read ()
 {
     if (m_closed)
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     address _peer_addr;
     std::error_code _ec;
@@ -192,7 +192,7 @@ void
 listener::on_error ()
 {
     assert(!m_closed);
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     on_read();
 }
@@ -202,11 +202,11 @@ listener::on_close ()
 {
     if (m_closed)
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     auto _self = self(); // extend the life cycle untile closed
     if (m_loop->looping() && registed())
-        m_loop->remove_event(self());
+        m_loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
 }

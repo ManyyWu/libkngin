@@ -48,6 +48,10 @@ public:
                         _session->close();
                     return;
                 }
+                if (m_sessions.find(_session->key()) != m_sessions.end()) {
+                    _session->close();
+                    return;
+                }
                 assert(m_sessions.find(_session->key()) == m_sessions.end());
                 m_sessions.insert(std::make_pair(_session->key(), session_info(_session)));
                 //log_debug("size: %d", m_sessions.size());
@@ -63,7 +67,7 @@ public:
 #endif
             // process
             process(_session);
-        });
+        }); // end of new_session_handler
 
         m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
             log_info("session %s closed", _session.name().c_str());
@@ -74,13 +78,13 @@ public:
                 m_sessions.erase(_session.key());
                 //log_debug("size: %d", m_sessions.size());
             }
-        });
+        }); // end of session_close_handler
 
         m_server.set_crash_handler([this] () {
             //assert(!"server crashed");
             m_server.stop();
             m_loop->stop();
-        });
+        }); // end of server_crash_handler
         return m_server.run();
     }
 
@@ -121,9 +125,9 @@ public:
                         _s.recv( // recv reverse data
                             in_buffer(_arr1->data(), _arr1->size()), [_arr1] (session &_s, in_buffer _buf, size_t _size)
                         {
-                            log_info("recv data %s from %s",
-                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                                     _s.name().c_str());
+                            //log_info("recv data %s from %s",
+                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                            //         _s.name().c_str());
                         });
                     });
                 }

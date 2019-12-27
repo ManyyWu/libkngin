@@ -51,16 +51,16 @@ public:
 
 public:
     bool
-    registed       (int _fd) KNGIN_NOEXCP;
+    registed       (epoller_event &_e) KNGIN_NOEXCP;
 
     void
     register_event (epoller_event_ptr _e);
 
     void
-    remove_event   (epoller_event_ptr _e);
+    remove_event   (epoller_event &_e);
 
     void
-    modify_event   (epoller_event_ptr _e);
+    modify_event   (epoller_event &_e);
 
 private:
     void

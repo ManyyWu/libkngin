@@ -128,7 +128,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
     } catch (...) {
         if (_stop_handler)
             ignore_excp(_stop_handler());
-        remove_event(m_waker);
+        remove_event(*m_waker);
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"",
                   m_thr ? m_thr->name() : "");
@@ -137,7 +137,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
     if (_stop_handler)
         ignore_excp(_stop_handler());
-    remove_event(m_waker);
+    remove_event(*m_waker);
     m_looping = false;
     std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
     if (!_temp_ptr->destroyed() && _temp_ptr->wait())
@@ -184,10 +184,10 @@ event_loop_pimpl::in_loop_thread () const KNGIN_NOEXCP
 }
 
 bool
-event_loop_pimpl::registed (epoller_event_ptr _e)
+event_loop_pimpl::registed (epoller_event &_e)
 {
     assert(m_looping);
-    m_epoller.registed(_e->fd());
+    m_epoller.registed(_e);
 }
 
 void
@@ -200,7 +200,7 @@ event_loop_pimpl::register_event (epoller_event_ptr _e)
 }
 
 void
-event_loop_pimpl::remove_event (epoller_event_ptr _e)
+event_loop_pimpl::remove_event (epoller_event &_e)
 {
     assert(m_looping);
     m_epoller.remove_event(_e);
@@ -209,7 +209,7 @@ event_loop_pimpl::remove_event (epoller_event_ptr _e)
 }
 
 void
-event_loop_pimpl::update_event (epoller_event_ptr _e)
+event_loop_pimpl::update_event (epoller_event &_e)
 {
     assert(m_looping);
     m_epoller.modify_event(_e);

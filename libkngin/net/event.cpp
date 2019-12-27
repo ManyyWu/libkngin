@@ -48,10 +48,10 @@ event::notify ()
 void
 event::close ()
 {
-    if (is_single_ref_ptr(m_loop))
+    if (is_single_ref_ptr(m_loop) || m_loop->looping())
         return;
     if (registed())
-        m_loop->remove_event(self());
+        m_loop->remove_event(*this);
     filefd::close();
 }
 

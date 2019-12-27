@@ -80,7 +80,7 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 #endif
 {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 #endif
     assert(_buf.buffer().begin() && _buf.buffer().size());
     if (m_closed)
@@ -96,7 +96,7 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
         m_out_bufq.push(_buf);
         if (m_out_bufq.size() <= 1) {
             enable_write();
-            m_loop->update_event(self());
+            m_loop->update_event(*this);
         }
     }
 
@@ -123,7 +123,7 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 #endif
 {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 #endif
     assert(_buf.begin() && _buf.size());
     assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT ? _buf.size() >= _lowat : true);
@@ -158,7 +158,7 @@ void
 session::close (bool _blocking /* = false */)
 {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 #endif
     if (m_closed)
         return;
@@ -174,7 +174,7 @@ session::close (bool _blocking /* = false */)
         if (m_loop->in_loop_thread()) {
             on_close(std::error_code());
         } else {
-            m_loop->remove_event(self());
+            m_loop->remove_event(*this);
             if (_blocking) {
                 std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
                 m_loop->run_in_loop([this, _barrier_ptr] () {
@@ -191,6 +191,9 @@ session::close (bool _blocking /* = false */)
             }
         }
 #endif
+    } else {
+        m_socket.close();
+        m_closed = true;
     }
 }
 
@@ -198,7 +201,7 @@ void
 session::rd_shutdown ()
 {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 #endif
     assert(!m_closed);
     assert(!m_socket.rd_closed());
@@ -214,7 +217,7 @@ void
 session::wr_shutdown ()
 {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 #endif
     assert(!m_closed);
     assert(!m_socket.wr_closed());
@@ -233,7 +236,7 @@ session::on_write ()
         return;
     if_not (pollout())
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     msg_buffer *_buf = nullptr;
     {
@@ -283,7 +286,7 @@ session::on_write ()
             m_out_bufq.pop();
             if (m_out_bufq.empty()) {
                 disable_write();
-                m_loop->update_event(self());
+                m_loop->update_event(*this);
             }
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
             _handler = m_sent_handlerq.front();
@@ -320,7 +323,7 @@ session::on_read ()
         return;
     if_not (pollin())
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     in_buffer *_buf = nullptr;
     {
@@ -403,7 +406,7 @@ session::on_oob ()
         return;
     if_not (pollpri())
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     //recv
     char _data;
@@ -431,7 +434,7 @@ session::on_error ()
 {
     if (m_closed)
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     std::error_code _ec = m_socket.read_error();
     if (_ec) {
@@ -460,16 +463,26 @@ session::on_close (std::error_code _ec)
 {
     if (m_closed)
         return;
-    m_loop->check_thread();
+    assert(m_loop->in_loop_thread());
 
     auto _self = self(); // extend the life cycle untile closed
     if (m_loop->looping() && registed())
-        m_loop->remove_event(self());
+        m_loop->remove_event(*this);
     m_socket.close();
-    while (m_out_bufq.size())
-        m_out_bufq.pop();
-    while (m_in_bufq.size())
-        m_in_bufq.pop();
+    {
+#if (ON != KNGIN_SESSION_NO_MUTEX)
+        local_lock _lock(m_out_bufq_mutex);
+        while (m_out_bufq.size())
+            m_out_bufq.pop();
+#endif
+    }
+    {
+#if (ON != KNGIN_SESSION_NO_MUTEX)
+        local_lock _lock(m_in_bufq_mutex);
+        while (m_in_bufq.size())
+            m_in_bufq.pop();
+#endif
+    }
 
     m_closed = true;
     if (m_close_handler) {

@@ -177,7 +177,7 @@ void
 server::on_new_session (socket &&_sock)
 {
     assert(!m_stopped);
-    m_listener->check_thread();
+    assert(m_listener->loop()->in_loop_thread());
     // FIXME: stop accepting when sessions reach to the maximum number
 
     try {
@@ -199,7 +199,7 @@ server::on_new_session (socket &&_sock)
 
         _session->set_close_handler([this] (const session &_s, std::error_code _ec) {
             assert(!m_stopped);
-            _s.check_thread();
+            assert(_s.loop()->in_loop_thread());
 
             if (m_close_handler) {
                 log_excp_error(
@@ -230,6 +230,8 @@ server::on_new_session (socket &&_sock)
         }
 #endif
         _next_loop.register_event(_session);
+
+        // run in self loop
         if (m_session_handler) {
             _next_loop.run_in_loop([this, _session] () {
                 if (_session->closed()) // closed

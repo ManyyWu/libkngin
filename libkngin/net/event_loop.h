@@ -58,16 +58,16 @@ public:
 
 public:
     bool
-    registed          (epoller_event_ptr _e);
+    registed          (epoller_event &_e);
 
     void
     register_event    (epoller_event_ptr _e);
 
     void
-    remove_event      (epoller_event_ptr _e);
+    remove_event      (epoller_event &_e);
 
     void
-    update_event      (epoller_event_ptr _e);
+    update_event      (epoller_event &_e);
 
     void
     run_in_loop       (task &&_fn);
@@ -148,7 +148,7 @@ public:
 
 public:
     bool
-    registed       (epoller_event_ptr _e)
+    registed       (epoller_event &_e)
     { return m_pimpl->registed(_e); }
 
     void
@@ -156,11 +156,11 @@ public:
     { m_pimpl->register_event(_e); }
 
     void
-    remove_event   (epoller_event_ptr _e)
+    remove_event   (epoller_event &_e)
     { m_pimpl->remove_event(_e); }
 
     void
-    update_event   (epoller_event_ptr _e)
+    update_event   (epoller_event &_e)
     { m_pimpl->update_event(_e); }
 
     void

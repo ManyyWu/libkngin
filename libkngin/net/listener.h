@@ -23,52 +23,51 @@ public:
     typedef std::shared_ptr<listener>             listener_ptr;
 
 public:
-    listener      () = delete;
+    listener       () = delete;
 
-    listener      (event_loop &_loop, k::socket &&_socket,
-                   const std::string &_name, uint16_t _port,
-                   int _backlog,
-                   accept_handler &&_new_ssesion_handler,
-                   error_handler &&_error_handler);
+    listener       (event_loop &_loop, k::socket &&_socket,
+                    const std::string &_name, uint16_t _port,
+                    int _backlog,
+                    accept_handler &&_new_ssesion_handler,
+                    error_handler &&_error_handler);
 
     virtual
-    ~listener     () KNGIN_NOEXCP;
+    ~listener      () KNGIN_NOEXCP;
 
 public:
     virtual void
-    close         (bool _blocking = true);
+    close          (bool _blocking = true);
 
 public:
     event_loop_pimpl_ptr &
-    loop          () KNGIN_NOEXCP
+    loop           () KNGIN_NOEXCP
+    { return m_loop; }
+
+    const event_loop_pimpl_ptr &
+    loop           () const KNGIN_NOEXCP
     { return m_loop; }
 
     listener_ptr
-    self          ()
+    self           ()
     { return shared_from_this(); }
 
     const address &
-    listen_addr   () const
+    listen_addr    () const
     { return m_listen_addr; }
 
-public:
-    void
-    check_thread  () const KNGIN_NOEXCP
-    { m_loop->check_thread(); }
-
 private:
     void
-    parse_addr    (const std::string &_name, uint16_t _port);
+    parse_addr     (const std::string &_name, uint16_t _port);
 
 private:
     virtual void
-    on_read       ();
+    on_read        ();
 
     virtual void
-    on_error      ();
+    on_error       ();
 
     void
-    on_close      ();
+    on_close       ();
 
 private:
     event_loop_pimpl_ptr m_loop;

@@ -75,11 +75,11 @@ epoller::close ()
 }
 
 bool
-epoller::registed (int _fd) KNGIN_NOEXCP
+epoller::registed (epoller_event &_e) KNGIN_NOEXCP
 {
     {
         local_lock _lock(m_mutex);
-        return (m_events.find(_fd) != m_events.end());
+        return (m_events.find(_e.fd()) != m_events.end());
     }
 }
 
@@ -97,26 +97,24 @@ epoller::register_event (epoller_event_ptr _e)
 }
 
 void
-epoller::remove_event (epoller_event_ptr _e)
+epoller::remove_event (epoller_event &_e)
 {
-    assert(_e);
     {
         local_lock _lock(m_mutex);
-        assert(m_events.find(_e->fd()) != m_events.end());
-        _e->m_registed = false;
-        update_event(EPOLL_CTL_DEL, _e->fd(), _e.get());
-        m_events.erase(_e->fd());
+        assert(m_events.find(_e.fd()) != m_events.end());
+        _e.m_registed = false;
+        update_event(EPOLL_CTL_DEL, _e.fd(), &_e);
+        m_events.erase(_e.fd());
     }
 }
 
 void
-epoller::modify_event (epoller_event_ptr _e)
+epoller::modify_event (epoller_event &_e)
 {
-    assert(_e);
     {
         local_lock _lock(m_mutex);
-        assert(m_events.find(_e->fd()) != m_events.end());
-        update_event(EPOLL_CTL_MOD, _e->fd(), _e.get());
+        assert(m_events.find(_e.fd()) != m_events.end());
+        update_event(EPOLL_CTL_MOD, _e.fd(), &_e);
     }
 }
 
