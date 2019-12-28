@@ -3,6 +3,9 @@
 #include "../libkngin/core/common.h"
 #include "../libkngin/core/exception.h"
 #include "../libkngin/core/system_error.h"
+#ifndef _WIN32
+#include <mcheck.h>
+#endif
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -70,7 +73,14 @@ test ();
 
 int main()
 {
+#ifndef _WIN32
+    setenv("MALLOC_TRACE", "mtrace.txt", 1);
+#endif
+
     try {
+        // init logger
+        assert(k::logger().inited());
+
         cerr << "********************* test *****************************\n";
         test();
         cerr << "********************************************************\n";
@@ -142,8 +152,9 @@ int main()
     } catch (...) {
         log_fatal("caught an undefined exception");
     }
+
 #ifdef _WIN32
-getchar();
+    getchar();
 #endif
 return 0;
 }

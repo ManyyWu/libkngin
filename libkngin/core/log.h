@@ -66,7 +66,6 @@ class log : public noncopyable {
 public:
     log           () = delete;
 
-private:
     log           (KNGIN_LOG_FILE _filetype,
                    KNGIN_LOG_MODE _mode = KNGIN_LOG_MODE_FILE);
 

@@ -77,6 +77,7 @@ epoller::close ()
 bool
 epoller::registed (epoller_event &_e) KNGIN_NOEXCP
 {
+    assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
         return (m_events.find(_e.fd()) != m_events.end());
@@ -87,6 +88,7 @@ void
 epoller::register_event (epoller_event_ptr _e)
 {
     assert(_e);
+    assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
         assert(m_events.find(_e->fd()) == m_events.end());
@@ -99,6 +101,7 @@ epoller::register_event (epoller_event_ptr _e)
 void
 epoller::remove_event (epoller_event &_e)
 {
+    assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
         assert(m_events.find(_e.fd()) != m_events.end());
@@ -111,6 +114,7 @@ epoller::remove_event (epoller_event &_e)
 void
 epoller::modify_event (epoller_event &_e)
 {
+    assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
         assert(m_events.find(_e.fd()) != m_events.end());
@@ -135,8 +139,8 @@ epoller::update_event (int _opt, int _fd, epoller_event *_e)
     * in another thread has no effect on select().  In summary, any application that relies on a
     * particular behavior in this scenario must be considered buggy.
     */
-    assert(m_epollfd.valid());
     assert(_e);
+    assert(m_epollfd.valid());
 
     _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
     if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0)

@@ -12,7 +12,6 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FILE */)
-    try
     :
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
       m_mutex(),
@@ -22,8 +21,6 @@ log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FIL
       m_disable_info(false),
       m_disable_debug(false)
 {
-} catch (...) {
-    throw;
 }
 
 bool

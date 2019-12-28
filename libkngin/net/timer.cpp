@@ -23,7 +23,7 @@ timer::timer (event_loop_pimpl_ptr &_loop,
       m_loop(_loop),
       m_timeout_handler(std::move(_timeout_handler))
 {
-    arg_check(m_loop && _timeout_handler);
+    arg_check(m_loop && m_timeout_handler);
     if (invalid())
         throw k::system_error("::timerfd_create() erorr");
     set_closeexec(true);
@@ -61,9 +61,7 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 void
 timer::close ()
 {
-    if (is_single_ref_ptr(m_loop) || m_loop->looping())
-        return;
-    if (registed())
+    if (!is_single_ref_ptr(m_loop) && m_loop->looping() && registed())
         m_loop->remove_event(*this);
     filefd::close();
 }

@@ -11,6 +11,10 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+typedef std::shared_ptr<char> uint8_arr_ptr;
+// XXX: use k::make_shared_array() to create uint8_arr_ptr
+// FIXME: use std::shared<char []> in c++ 20
+
 class out_buffer {
 public:
     out_buffer   () KNGIN_NOEXCP;
@@ -123,11 +127,6 @@ private:
 };
 
 class msg_buffer {
-public:
-    typedef std::shared_ptr<char> uint8_arr_ptr;
-    // XXX: use k::make_shared_array() to create uint8_arr_ptr
-    // FIXME: use std::shared<char []> in c++ 20
-
 public:
     msg_buffer  () KNGIN_NOEXCP
         : m_arr(nullptr), m_buf() {}

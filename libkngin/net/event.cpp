@@ -48,9 +48,7 @@ event::notify ()
 void
 event::close ()
 {
-    if (is_single_ref_ptr(m_loop) || m_loop->looping())
-        return;
-    if (registed())
+    if (!is_single_ref_ptr(m_loop) && m_loop->looping() && registed())
         m_loop->remove_event(*this);
     filefd::close();
 }

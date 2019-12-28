@@ -21,7 +21,7 @@ barrier::barrier (int _count)
     try
     : m_inited(true)
 {
-    std::error_code _ec = int2ec(pthread_barrier_init(&m_barrier, nullptr, _count));
+    auto _ec = int2ec(pthread_barrier_init(&m_barrier, nullptr, _count));
     if (_ec) {
         log_fatal("::pthread_barrier_init() error, %s",
                   system_error_str(_ec).c_str());
@@ -44,7 +44,7 @@ void
 barrier::reinit (int _count)
 {
     assert(!m_inited);
-    std::error_code _ec = int2ec(pthread_barrier_init(&m_barrier, nullptr, _count));
+    auto _ec = int2ec(pthread_barrier_init(&m_barrier, nullptr, _count));
     if (_ec) {
         log_fatal("::pthread_barrier_init() error, %s",
                   system_error_str(_ec).c_str());
@@ -62,7 +62,7 @@ barrier::wait ()
         return false;
     if (PTHREAD_BARRIER_SERIAL_THREAD == _ret)
         return true;
-    std::error_code _ec = int2ec(_ret);
+    auto _ec = int2ec(_ret);
     if (_ec) {
         log_fatal("::pthread_barrier_wait() error, %s",
                   system_error_str(_ec).c_str());
@@ -75,7 +75,7 @@ barrier::destroy ()
 {
     assert(m_inited);
     m_inited = false;
-    std::error_code _ec = int2ec(::pthread_barrier_destroy(&m_barrier));
+    auto _ec = int2ec(::pthread_barrier_destroy(&m_barrier));
     if (_ec) {
         log_fatal("::pthread_barrier_destroy() error, %s",
                   system_error_str(_ec).c_str());

@@ -134,8 +134,8 @@ public:
 
 public:
     void
-    run            (started_handler &&_start_handler,
-                    stopped_handler &&_stop_handler)
+    run            (started_handler &&_start_handler = nullptr,
+                    stopped_handler &&_stop_handler = nullptr)
     { m_pimpl->run(std::move(_start_handler), std::move(_stop_handler)); }
 
     void

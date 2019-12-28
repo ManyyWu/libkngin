@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <atomic>
+#include <memory>
 #include "core/log.h"
 #include "core/define.h"
 #include "core/noncopyable.h"
@@ -12,7 +13,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class log_mgr : public noncopyable {
 public:
-    typedef std::vector<log *>       kngin_log_set;
+    typedef std::unique_ptr<log>     log_ptr;
+
+    typedef std::vector<log_ptr>     kngin_log_set;
 
     typedef std::vector<std::string> kngin_logfile_set;
 
@@ -26,7 +29,7 @@ public:
     operator [] (size_t _index) KNGIN_NOEXCP;
 
     int
-    add         (const std::string &_filename, KNGIN_LOG_MODE _mode);
+    add         (const std::string &_filename, KNGIN_LOG_MODE _mode) = delete;
 
     std::string &
     filename_at (size_t _index) KNGIN_NOEXCP;

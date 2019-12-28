@@ -51,7 +51,7 @@ thread::pimpl::~pimpl () KNGIN_NOEXCP
 {
     if (m_joined)
         return;
-    std::error_code _ec = int2ec(::pthread_detach(m_thr));
+    auto _ec = int2ec(::pthread_detach(m_thr));
     if (_ec)
         log_fatal("::pthread_detach() error, name = \"%s\", %s",
                    m_name.c_str(), system_error_str(_ec).c_str());
@@ -64,16 +64,16 @@ thread::pimpl::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */
 {
     assert(_fn);
 
-    std::error_code _ec = int2ec(::pthread_create(
-                                     &m_thr, nullptr,
-                                     thread::pimpl::start,
-                                     new thread::pimpl::thread_data(
-                                         m_name, 
-                                         std::move(_fn),
-                                         std::move(_crash_handler)
-                                         )
-                                     )
-                                 );
+    auto _ec = int2ec(::pthread_create(
+                          &m_thr, nullptr,
+                          thread::pimpl::start,
+                          new thread::pimpl::thread_data(
+                              m_name,
+                              std::move(_fn),
+                              std::move(_crash_handler)
+                              )
+                          )
+                      );
     if (_ec) {
         log_fatal("::pthread_create() error, name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());
@@ -164,7 +164,7 @@ thread::pimpl::start (void *_args) KNGIN_NOEXCP
     if (_crash) {
         //assert(0);
         if (_data->handler)
-            ignore_excp(_data->handler(thread::ptid()));
+            _data->handler(thread::ptid());
     }
     pthread_cleanup_pop(1);
     return _code.ptr;

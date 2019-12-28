@@ -24,7 +24,7 @@ rwlock::rwlock ()
 rwlock::~rwlock () KNGIN_NOEXCP
 {
     ignore_excp(
-        std::error_code _ec = int2ec(::pthread_rwlock_destroy(&m_rwlock));
+        auto _ec = int2ec(::pthread_rwlock_destroy(&m_rwlock));
         if (_ec)
             log_fatal("::pthread_rwlock_destroy() error %s",
                       system_error_str(_ec).c_str());
@@ -34,7 +34,7 @@ rwlock::~rwlock () KNGIN_NOEXCP
 void
 rwlock::rdlock ()
 {
-    std::error_code _ec = int2ec(::pthread_rwlock_rdlock(&m_rwlock));
+    auto _ec = int2ec(::pthread_rwlock_rdlock(&m_rwlock));
     if (_ec) {
         log_fatal("::pthread_rwlock_rdlock() error, %s",
                   system_error_str(_ec).c_str());
@@ -45,7 +45,7 @@ rwlock::rdlock ()
 void
 rwlock::wrlock ()
 {
-    std::error_code _ec = int2ec(::pthread_rwlock_wrlock(&m_rwlock));
+    auto _ec = int2ec(::pthread_rwlock_wrlock(&m_rwlock));
     if (_ec) {
         log_fatal("::pthread_rwlock_wrlock() error, %s",
                   system_error_str(_ec).c_str());
@@ -56,7 +56,7 @@ rwlock::wrlock ()
 bool
 rwlock::tryrdlock ()
 {
-    std::error_code _ec = int2ec(::pthread_rwlock_tryrdlock(&m_rwlock));
+    auto _ec = int2ec(::pthread_rwlock_tryrdlock(&m_rwlock));
     if (std::errc::device_or_resource_busy == _ec)
         return false;
     if (_ec) {
@@ -70,7 +70,7 @@ rwlock::tryrdlock ()
 bool
 rwlock::trywrlock ()
 {
-    std::error_code _ec = int2ec(::pthread_rwlock_trywrlock(&m_rwlock));
+    auto _ec = int2ec(::pthread_rwlock_trywrlock(&m_rwlock));
     if (std::errc::device_or_resource_busy == _ec)
         return false;
     if (_ec) {
@@ -88,7 +88,7 @@ rwlock::timedrdlock (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    std::error_code _ec = int2ec(::pthread_rwlock_timedrdlock(&m_rwlock, &_ts));
+    auto _ec = int2ec(::pthread_rwlock_timedrdlock(&m_rwlock, &_ts));
     if (std::errc::timed_out == _ec)
         return false;
     if (_ec) {
@@ -106,7 +106,7 @@ rwlock::timedwrlock (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    std::error_code _ec = int2ec(::pthread_rwlock_timedwrlock(&m_rwlock, &_ts));
+    auto _ec = int2ec(::pthread_rwlock_timedwrlock(&m_rwlock, &_ts));
     if (std::errc::timed_out == _ec)
         return false;
     if (_ec) {
@@ -120,7 +120,7 @@ rwlock::timedwrlock (timestamp _ms)
 void
 rwlock::unlock ()
 {
-    std::error_code _ec = int2ec(::pthread_rwlock_unlock(&m_rwlock));
+    auto _ec = int2ec(::pthread_rwlock_unlock(&m_rwlock));
     if (_ec) {
         log_fatal("::pthread_rwlock_unlock() return %d",
                   system_error_str(_ec).c_str());

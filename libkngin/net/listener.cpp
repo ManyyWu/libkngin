@@ -114,11 +114,9 @@ listener::close (bool _blocking /* = true */)
         return;
         
     if (!m_loop->looping()) {
-        on_close();
-        return;
+        goto dir_close;
     }
     if (registed()) {
-        on_close();
         if (m_loop->in_loop_thread()) {
             on_close();
         } else {
@@ -138,6 +136,10 @@ listener::close (bool _blocking /* = true */)
                 });
             }
         }
+    } else {
+dir_close:
+        m_socket.close();
+        m_closed = true;
     }
 }
 

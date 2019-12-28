@@ -100,7 +100,7 @@ filefd::writen (out_buffer &&_buf)
     while (_buffer.size()) {
         ssize_t _size = ::write(m_fd, _buffer.begin(), _buffer.size());
         if (_size < 0) {
-            std::error_code _ec = last_error();
+            auto _ec = last_error();
             if (_ec == std::errc::interrupted)
                 continue;
             throw k::system_error("::writen() error", _ec);
@@ -140,7 +140,7 @@ filefd::readn (in_buffer &_buf)
     while (_buf.writeable()) {
         ssize_t _size = ::read(m_fd, _buf.begin(), _buf.writeable());
         if (_size < 0) {
-            std::error_code _ec = last_error();
+            auto _ec = last_error();
             if (_ec == std::errc::interrupted)
                 continue;
             throw k::system_error("::readn() error", _ec);

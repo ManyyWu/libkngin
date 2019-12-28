@@ -46,9 +46,9 @@ server::server (event_loop &_loop, const server_opts &_opts)
 
     // check address
     auto _pos = _opts.name.find_first_of('%');
-    std::string _s = (_pos != std::string::npos)
-                      ? std::string(_opts.name.data(), _pos)
-                      : _opts.name;
+    auto _s = (_pos != std::string::npos)
+                    ? std::string(_opts.name.data(), _pos)
+                    : _opts.name;
     if (_opts.allow_ipv4 && _opts.allow_ipv6 && !address::is_valid_inet6_addrstr(_s))
         throw k::exception("invalid ipv6 address");
     if (_opts.allow_ipv4 && !_opts.allow_ipv6 && !address::is_valid_inet_addrstr(_opts.name))
@@ -78,8 +78,7 @@ server::run ()
                 );
             }
         });
-    }; // end of crash_handler
-
+    }; // end of crash_handler, run in thread pool
 
     // shielding SIGPIPE signal
 #ifndef _WIN32
@@ -107,7 +106,7 @@ server::run ()
             log_error("listener error, %s", system_error_str(_ec).c_str());
             _crash_handler();
         }
-    }; // end of on_listener_error
+    }; // end of on_listener_error, run in listener thread
     m_listener = std::make_shared<listener>(m_threadpool.get_loop(0),
                                             std::move(_listener_sock),
                                             m_opts.name, m_opts.port,
@@ -162,15 +161,15 @@ server::broadcast (session_list &_list, msg_buffer _buf)
     if (m_stopping)
         return;
 
-    std::for_each(_list.begin(), _list.end(), [&_buf] (session_ptr &_s) {
+    for (auto &_iter : _list) {
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-        _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
+        _iter->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
 #else
-        _s->loop()->run_in_loop([&_buf, _s] () {
-            _s->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()), nullptr);
-        });
+        _iter->loop()->run_in_loop([_buf, _iter] () {
+            _iter->send(_buf, nullptr);
+        }); // run in the loop corresponding to the connection
 #endif
-    }); // end of send
+    }
 }
 
 void

@@ -157,15 +157,11 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 void
 session::close (bool _blocking /* = false */)
 {
-#if (ON == KNGIN_SESSION_NO_MUTEX)
-    assert(m_loop->in_loop_thread());
-#endif
     if (m_closed)
         return;
 
     if (!m_loop->looping()) {
-        on_close(std::error_code());
-        return;
+        goto dir_close;
     }
     if (registed()) {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
@@ -192,6 +188,7 @@ session::close (bool _blocking /* = false */)
         }
 #endif
     } else {
+dir_close:
         m_socket.close();
         m_closed = true;
     }
@@ -419,13 +416,18 @@ session::on_oob ()
         on_error();
         return;
     }
-    if (m_oob_handler) {
-        log_excp_error(
-            m_oob_handler(std::ref(*this), _data),
-            "session::m_oob_handler() error"
-        );
+    if (!_size) {
+        on_close(_ec);
+        return;
     } else {
-        log_warning("unhandled oob data from %s", m_socket.name().c_str());
+        if (m_oob_handler) {
+            log_excp_error(
+                m_oob_handler(std::ref(*this), _data),
+                "session::m_oob_handler() error"
+            );
+        } else {
+            log_warning("unhandled oob data from %s", m_socket.name().c_str());
+        }
     }
 }
 
@@ -436,7 +438,7 @@ session::on_error ()
         return;
     assert(m_loop->in_loop_thread());
 
-    std::error_code _ec = m_socket.read_error();
+    auto _ec = m_socket.read_error();
     if (_ec) {
         if (((std::errc::operation_would_block == _ec ||
               std::errc::resource_unavailable_try_again == _ec ||

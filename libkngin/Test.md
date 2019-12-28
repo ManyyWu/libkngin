@@ -49,3 +49,6 @@
 // 检查%d 和 value
 // 确保初始化列表初始化顺序与定义顺序相同, 初始化顺序依赖于存储顺序
 
+### leak check
+$valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./libkngin_test
+

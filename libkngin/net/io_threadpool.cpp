@@ -42,7 +42,7 @@ io_threadpool::start (crash_handler _handler)
     assert(m_stopped);
 
     for (int i = 0; i < m_num; ++i) {
-        std::string _name = std::string("io_thread_") + std::to_string(i);
+        auto _name = std::string("io_thread_") + std::to_string(i);
         m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
         try {
             //log_debug("%s", m_threads.back()->name());
