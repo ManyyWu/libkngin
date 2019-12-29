@@ -38,7 +38,7 @@ public:
 private:
     pthread_barrier_t m_barrier;
 
-    std::atomic<bool> m_inited;
+    std::atomic_bool  m_inited;
 };
 
 KNGIN_NAMESPACE_K_END

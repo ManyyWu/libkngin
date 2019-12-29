@@ -17,9 +17,9 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event_loop_pimpl::event_loop_pimpl ()
+event_loop::pimpl::pimpl ()
     try
-    : m_thr(nullptr),
+    : m_thr(std::make_shared<thread::pimpl>(nullptr)),
       m_ptid(thread::ptid()),
       m_epoller(),
       m_waker(nullptr),
@@ -28,20 +28,18 @@ event_loop_pimpl::event_loop_pimpl ()
       m_taskq(),
       m_taskq_mutex(),
       m_stop_barrier(std::make_shared<barrier>(2)),
-      m_events(RESERVED_EPOLLELR_EVENT)
-#warning "TODO: RESERVED_EPOLLELR_EVENT param"
+      m_events(KNGIN_RESERVED_EPOLLELR_EVENT)
 {
     //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
-    m_looping = false;
-    log_fatal("event_loop_pimpl::event_loop_pimpl() error");
+    log_fatal("event_loop::pimpl::pimpl() error");
     throw;
 }
 
-event_loop_pimpl::event_loop_pimpl (thread &_thr)
+event_loop::pimpl::pimpl (thread &_thr)
     try
-    : m_thr(_thr.pimpl()),
-      m_ptid(), // unused
+    : m_thr(_thr.weak_self()),
+      m_ptid(_thr.ptid()), // unused
       m_epoller(),
       m_waker(nullptr),
       m_looping(true),
@@ -49,37 +47,32 @@ event_loop_pimpl::event_loop_pimpl (thread &_thr)
       m_taskq(),
       m_taskq_mutex(),
       m_stop_barrier(std::make_shared<barrier>(2)),
-      m_events(RESERVED_EPOLLELR_EVENT)
-#warning "TODO: RESERVED_EPOLLELR_EVENT param"
+      m_events(KNGIN_RESERVED_EPOLLELR_EVENT)
 {
-    if (!m_thr)
-        throw k::exception("invalid argument");
+    arg_check(!m_thr.expired());
     //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
     m_looping = false;
-    log_fatal("event_loop_pimpl::event_loop_pimpl() error");
+    log_fatal("event_loop::pimpl::pimpl() error");
     throw;
 }
 
-event_loop_pimpl::~event_loop_pimpl () KNGIN_NOEXCP
+event_loop::pimpl::~pimpl () KNGIN_NOEXCP
 {
     if (m_looping)
         ignore_excp(stop());
-
-    log_debug("loop in thread \"%s\" closed", m_thr ? m_thr->name() : "");
 }
 
 void
-event_loop_pimpl::run (started_handler &&_start_handler,
-                       stopped_handler &&_stop_handler)
+event_loop::pimpl::run (started_handler &&_start_handler,
+                        stopped_handler &&_stop_handler)
 {
-    //assert(!m_looping);
-    check_thread();
     m_looping = true;
+    auto _loop = self();
+    auto _thr  = m_thr.lock();
 
     try {
-        auto _loop = self();
-        m_waker = std::make_shared<event>(_loop, [] () {});
+        m_waker = std::make_shared<event>([] () {});
         register_event(m_waker);
         if (_start_handler) {
             log_excp_error(
@@ -90,7 +83,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
 
         while (!m_stop) {
             // wait for events
-            uint32_t _size = m_epoller.wait(m_events, EPOLLER_TIMEOUT);
+            uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
 
@@ -102,20 +95,13 @@ event_loop_pimpl::run (started_handler &&_start_handler,
                 [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
                 epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
                 epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
-                return (_ptr1->m_type > _ptr1->m_type ||
-                        (_ptr1->m_type == _ptr1->m_type &&
+                return (_ptr1->m_type > _ptr1->m_type or
+                        (_ptr1->m_type == _ptr1->m_type and
                          _ptr1->m_priority > _ptr1->m_priority));
             }); // end of operator <
 */
             // process events
-            for (uint32_t _i = 0; _i < _size; _i++) {
-                auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
-                assert(_ptr);
-                log_excp_error(
-                    epoller_event::on_events(_ptr, m_events[_i].events),
-                    "epoller_event::on_events() error"
-                );
-            }
+            epoller::process_events(m_events, _size);
 
             // process queued events
             std::queue<task> _fnq;
@@ -132,7 +118,7 @@ event_loop_pimpl::run (started_handler &&_start_handler,
             //            m_thr->name(), _fnq.size());
         }
     } catch (...) {
-        if (m_waker && m_waker->registed())
+        if (m_waker and m_waker->registed())
             remove_event(*m_waker);
         m_waker.reset();
         if (_stop_handler) {
@@ -143,12 +129,13 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         }
         m_looping = false;
         log_fatal("caught an exception in event_loop of thread \"%s\"",
-                  m_thr ? m_thr->name() : "");
+                  _thr ? _thr->name() : "");
         throw;
     }
 
-    if (m_waker && m_waker->registed())
+    if (m_waker and m_waker->registed())
         remove_event(*m_waker);
+    m_waker->close();
     m_waker.reset();
     if (_stop_handler) {
         log_excp_error(
@@ -157,13 +144,13 @@ event_loop_pimpl::run (started_handler &&_start_handler,
         );
     }
     m_looping = false;
-    std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
-    if (!_temp_ptr->destroyed() && _temp_ptr->wait())
+    auto _temp_ptr = m_stop_barrier;
+    if (!_temp_ptr->destroyed() and _temp_ptr->wait())
         _temp_ptr->destroy();
 }
 
 void
-event_loop_pimpl::stop ()
+event_loop::pimpl::stop ()
 {
     if (!m_looping)
         return;
@@ -180,36 +167,17 @@ event_loop_pimpl::stop ()
 }
 
 bool
-event_loop_pimpl::looping () KNGIN_NOEXCP
+event_loop::pimpl::in_loop_thread () const KNGIN_NOEXCP
 {
-    return m_looping;
-}
-
-void
-event_loop_pimpl::check_thread () const KNGIN_NOEXCP
-{
-    if (m_thr)
-        assert(m_thr->equal_to(thread::ptid()));
-}
-
-bool
-event_loop_pimpl::in_loop_thread () const KNGIN_NOEXCP
-{
-    if (m_thr)
-        return m_thr->equal_to(thread::ptid());
+    auto _thr = m_thr.lock();
+    if (_thr)
+        return _thr->equal_to(thread::ptid());
     else
-        return (thread::equal(m_ptid, thread::ptid()));
-}
-
-bool
-event_loop_pimpl::registed (epoller_event &_e)
-{
-    assert(m_looping);
-    m_epoller.registed(_e);
+        return thread::equal(m_ptid, thread::ptid());
 }
 
 void
-event_loop_pimpl::register_event (epoller_event_ptr _e)
+event_loop::pimpl::register_event (epoller_event_ptr _e)
 {
     assert(m_looping);
     m_epoller.register_event(_e);
@@ -218,7 +186,7 @@ event_loop_pimpl::register_event (epoller_event_ptr _e)
 }
 
 void
-event_loop_pimpl::remove_event (epoller_event &_e)
+event_loop::pimpl::remove_event (epoller_event &_e)
 {
     assert(m_looping);
     m_epoller.remove_event(_e);
@@ -227,7 +195,7 @@ event_loop_pimpl::remove_event (epoller_event &_e)
 }
 
 void
-event_loop_pimpl::update_event (epoller_event &_e)
+event_loop::pimpl::update_event (epoller_event &_e)
 {
     assert(m_looping);
     m_epoller.modify_event(_e);
@@ -235,8 +203,15 @@ event_loop_pimpl::update_event (epoller_event &_e)
         wakeup();
 }
 
+bool
+event_loop::pimpl::registed (epoller_event &_e)
+{
+    assert(m_looping);
+    m_epoller.registed(_e);
+}
+
 void
-event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
+event_loop::pimpl::run_in_loop (event_loop::task &&_fn)
 {
     assert(m_looping);
     if (_fn)
@@ -249,14 +224,10 @@ event_loop_pimpl::run_in_loop (event_loop::task &&_fn)
 }
 
 void
-event_loop_pimpl::wakeup ()
+event_loop::pimpl::wakeup ()
 {
-    if (!m_waker || !m_looping || !m_waker->registed())
-        return;
-    //log_debug("wakeup event_loop in thread \"%s\"",
-    //          m_thr ? m_thr->name() : "");
-
-    m_waker->notify(); // blocked
+    if (m_waker and m_looping and m_waker->registed())
+        m_waker->notify(); // blocked
 }
 
 KNGIN_NAMESPACE_K_END

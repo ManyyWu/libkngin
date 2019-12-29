@@ -42,7 +42,7 @@ exception::dump_stack ()
     char **_stacks = ::backtrace_symbols(_array, _size);
 
     m_dump_str += "invocation stack: ";
-    if (_size && _stacks)
+    if (_size and _stacks)
         for (int i = 0; i < _size; i++)
             if (_stacks[i])
                 m_dump_str += std::string("\n") + _stacks[i];

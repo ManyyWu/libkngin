@@ -9,8 +9,8 @@
 //#define INVALID_MSG       0x0U
 //#define MSG_BEGIN         0x1U
 //#define MSG_END           MAX_MSG
-//#define __msg_valid(__msg) ((__msg) >= MSG_BEGIN && (__msg) <= MSG_END)
-//#define __both(__a, __b)    (((__a) && (__b)) || (!(__a) || !(__b)))
+//#define __msg_valid(__msg) ((__msg) >= MSG_BEGIN and (__msg) <= MSG_END)
+//#define __both(__a, __b)    (((__a) && (__b)) or (!(__a) or !(__b)))
 //
 //KNGIN_NAMESPACE_K_BEGIN
 //

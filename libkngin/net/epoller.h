@@ -13,8 +13,6 @@
 #include "core/timestamp.h"
 #include "net/epoller_event.h"
 
-#define RESERVED_EPOLLELR_EVENT 32
-
 KNGIN_NAMESPACE_K_BEGIN
 
 class epoller : public noncopyable {
@@ -35,6 +33,10 @@ public:
     wait           (epoll_event_set &_list, timestamp _ms);
 
 public:
+    static void
+    process_events (epoll_event_set &_list, size_t _size);
+
+public:
     void
     set_et         () = delete;
 
@@ -50,9 +52,6 @@ public:
     { return m_epollfd.invalid(); }
 
 public:
-    bool
-    registed       (epoller_event &_e) KNGIN_NOEXCP;
-
     void
     register_event (epoller_event_ptr _e);
 
@@ -62,16 +61,19 @@ public:
     void
     modify_event   (epoller_event &_e);
 
+    bool
+    registed       (epoller_event &_e) KNGIN_NOEXCP;
+
 private:
     void
     update_event   (int _opt, int _fd, epoller_event *_e);
 
 private:
-    epoller_event_map    m_events;
+    epoller_event_map m_events;
 
-    mutex                m_mutex;
+    mutex             m_mutex;
 
-    filefd               m_epollfd;
+    filefd            m_epollfd;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -17,7 +17,7 @@ using namespace k;
 
 static int              g_num1(0);
 static int              g_num2(0);
-static std::atomic<int> g_num3(0);
+static std::atomic_int  g_num3(0);
 static mutex            g_mutex;
 static std::mutex       g_std_mutex;
 

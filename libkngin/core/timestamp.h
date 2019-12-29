@@ -111,7 +111,7 @@ timediff (const timespec &_tsl, const timespec &_tsr) KNGIN_NOEXCP
 }
 
 #ifdef _WIN32
-#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+#if defined(_MSC_VER) or defined(_MSC_EXTENSIONS)
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
 #else
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL

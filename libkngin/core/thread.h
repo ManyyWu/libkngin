@@ -13,14 +13,14 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class thread : public noncopyable {
 public:
-    typedef std::function<int (void)>       thr_fn;
-    
     typedef std::function<void (pthread_t)> crash_handler;
+
+    typedef std::function<int (void)>       thr_fn;
 
 public:
     class pimpl
         : public noncopyable,
-          public std::enable_shared_from_this<thread::pimpl> {
+          public std::enable_shared_from_this<pimpl> {
     public:
 #ifdef _WIN32
         struct thread_t;
@@ -40,11 +40,11 @@ public:
         };
 
         struct thread_data {
-            const std::string name;
+            std::string   name;
 
-            thr_fn            fn;
+            thr_fn        fn;
 
-            crash_handler     handler;
+            crash_handler handler;
 
             thread_data (const std::string &_name,
                          thr_fn &&_fn,
@@ -52,8 +52,12 @@ public:
                 : name(_name), fn(std::move(_fn)), handler(std::move(_handler)) {}
         };
 
+        typedef std::shared_ptr<pimpl> pimpl_ptr;
+
+        typedef std::weak_ptr<pimpl>   pimpl_weak_ptr;
+
     public:
-        pimpl         ();
+        pimpl         () = delete;
 
         explicit
         pimpl         (const char *_name);
@@ -63,7 +67,7 @@ public:
 
     public:
         void
-        run           (thr_fn &&_fn, crash_handler &&_crash_handler = nullptr);
+        run           (thr_fn &&_fn, crash_handler &&_crash_handler);
 
         int
         join          ();
@@ -85,8 +89,12 @@ public:
         equal_to      (pthread_t _t) KNGIN_NOEXCP;
 
     public:
-        std::shared_ptr<thread::pimpl>
+        pimpl_ptr
         self          ()
+        { return shared_from_this(); }
+
+        pimpl_weak_ptr
+        weak_self     ()
         { return shared_from_this(); }
 
     protected:
@@ -102,20 +110,21 @@ public:
 
         pthread_t         m_thr;
 
-        std::atomic<bool> m_joined;
+        std::atomic_bool  m_joined;
     };
 
-    typedef thread::pimpl                 thread_pimpl;
+public:
+    typedef pimpl::pimpl_ptr      pimpl_ptr;
 
-    typedef std::shared_ptr<thread_pimpl> thread_pimpl_ptr;
+    typedef pimpl::pimpl_weak_ptr pimpl_weak_ptr;
 
 public:
     thread        ()
-        : m_pimpl(std::make_shared<thread_pimpl>())  {}
+        : m_pimpl(std::make_shared<pimpl>(nullptr))  {}
 
     explicit
     thread        (const char *_name)
-        : m_pimpl(std::make_shared<thread_pimpl>(_name)) {}
+        : m_pimpl(std::make_shared<pimpl>(_name)) {}
 
     virtual
     ~thread       () = default;
@@ -160,19 +169,19 @@ public:
 
     static void
     exit          (int _err_code) KNGIN_NOEXCP
-    { ::pthread_exit(thread::pimpl::thread_err_code(_err_code).ptr); }
+    { ::pthread_exit(pimpl::thread_err_code(_err_code).ptr); }
 
     bool
     equal_to      (pthread_t _t) KNGIN_NOEXCP
     { return m_pimpl->equal_to(_t); }
 
 public:
-    thread_pimpl_ptr
-    pimpl         ()
-    { return m_pimpl; }
+    pimpl_weak_ptr
+    weak_self     ()
+    { return m_pimpl->weak_self(); }
 
 private:
-    thread_pimpl_ptr m_pimpl;
+    pimpl::pimpl_ptr m_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

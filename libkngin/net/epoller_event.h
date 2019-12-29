@@ -111,8 +111,6 @@ private:
 
 private:
     friend class epoller;
-
-    friend class event_loop_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

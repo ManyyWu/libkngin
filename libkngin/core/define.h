@@ -11,15 +11,13 @@
 #include <cstdint>
 #include <climits>
 
+#define ON                     true
+#define OFF                    false
+
 // types
 #ifdef _WIN32
 typedef SSIZE_T ssize_t;
 #endif
-
-// compile options
-#define ON                     true
-#define OFF                    false
-#define KNGIN_ENABLE_LOG_MUTEX ON
 
 // namespace
 #define KNGIN_NAMESPACE_K_BEGIN   namespace k {
@@ -29,7 +27,7 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_NAMESPACE_UDP_BEGIN namespace udp {
 #define KNGIN_NAMESPACE_UDP_END   };
 
-// params
+// for reference argument
 #define LREF
 #define RREF
 #define CLREF
@@ -41,6 +39,9 @@ typedef SSIZE_T ssize_t;
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
+
+// for log
+#define KNGIN_ENABLE_LOG_MUTEX ON
 
 // for exception
 //#define KNGIN_EXP   noexcept(false)
@@ -63,5 +64,9 @@ typedef SSIZE_T ssize_t;
 // for session
 #define KNGIN_SESSION_TEMP_CALLBACK ON
 #define KNGIN_SESSION_NO_MUTEX      ON
+
+// for epoller
+#define KNGIN_RESERVED_EPOLLELR_EVENT 64
+#define KNGIN_EPOLLER_TIMEOUT         3000
 
 #endif /* KNGIN_DEFINE_H */

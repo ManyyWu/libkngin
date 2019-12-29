@@ -1,10 +1,10 @@
 #ifndef KNGIN_EVENT_LOOP_H
 #define KNGIN_EVENT_LOOP_H
 
+#include <queue>
 #include <memory>
 #include <functional>
 #include <system_error>
-#include <queue>
 #include "core/define.h"
 #include "core/lock.h"
 #include "core/thread.h"
@@ -12,123 +12,148 @@
 #include "net/epoller_event.h"
 #include "net/epoller.h"
 #include "net/event.h"
-
-#ifndef NDEBUG
-#define EPOLLER_TIMEOUT 3000
-#else
-#define EPOLLER_TIMEOUT 3000
-#endif
+#include "net/timer.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_loop_pimpl
-    : public noncopyable,
-      public std::enable_shared_from_this<event_loop_pimpl> {
+class event_loop : public noncopyable {
 public:
+    typedef epoller::epoller_event_ptr epoller_event_ptr;
+
+    typedef epoller::epoll_event_set   epoll_event_set;
+
+    typedef timer::timeout_handler     timeout_handler;
+
+    typedef std::shared_ptr<barrier>   barrier_ptr;
+
     typedef std::function<void (void)> started_handler;
 
     typedef std::function<void (void)> stopped_handler;
 
     typedef std::function<void (void)> task;
 
-    typedef event::event_ptr           waker_ptr;
+    typedef std::function<void (void)> slot;
 
-    typedef epoller::epoller_event_ptr epoller_event_ptr;
+    typedef std::queue<task>           taskq;
 
-    typedef thread::thread_pimpl_ptr   thread_pimpl_ptr;
-
-public:
-    event_loop_pimpl  ();
-
-    explicit
-    event_loop_pimpl  (thread &_thr);
-
-    ~event_loop_pimpl () KNGIN_NOEXCP;
+    typedef std::queue<slot>           slotq;
 
 public:
-    void
-    run               (started_handler &&_start_handler,
-                       stopped_handler &&_stop_handler);
+    class pimpl
+        : public noncopyable,
+          public std::enable_shared_from_this<pimpl> {
+    public:
+        typedef std::shared_ptr<pimpl> pimpl_ptr;
 
-    void
-    stop              ();
+        typedef std::weak_ptr<pimpl>   pimpl_weak_ptr;
 
-    bool
-    looping           () KNGIN_NOEXCP;
+    public:
+        pimpl          ();
+
+        explicit
+        pimpl          (thread &_thr);
+
+        ~pimpl         () KNGIN_NOEXCP;
+
+    public:
+        void
+        run            (started_handler &&_start_handler,
+                        stopped_handler &&_stop_handler);
+
+        void
+        stop           ();
+
+        bool
+        looping        () KNGIN_NOEXCP
+        { return m_looping; }
+
+    // event
+    public:
+        void
+        register_event (epoller_event_ptr _e);
+
+        void
+        remove_event   (epoller_event &_e);
+
+        void
+        update_event   (epoller_event &_e);
+
+        bool
+        registed       (epoller_event &_e);
+
+    // task
+    public:
+        void
+        run_in_loop    (task &&_fn);
+
+    // timer
+    public:
+        bool
+        cancel         (timer::timerid &_id) = delete;
+
+        bool
+        expired        (timer::timerid &_id) = delete;
+
+        timer::timerid
+        run_after      (timestamp _delay, timeout_handler _handler) = delete;
+
+        timer::timerid
+        run_every      (timestamp _interval, timeout_handler _handler) = delete;
+
+        timer::timerid
+        run_at         (timestamp _absval, timeout_handler _handler) = delete;
+
+    public:
+        bool
+        in_loop_thread () const KNGIN_NOEXCP;
+
+    public:
+        pimpl_ptr
+        self           ()
+        { return shared_from_this(); }
+
+        pimpl_weak_ptr
+        weak_self      ()
+        { return shared_from_this(); }
+
+    protected:
+        void
+        wakeup         ();
+
+    private:
+        thread::pimpl_weak_ptr m_thr;
+
+        pthread_t              m_ptid;
+
+        epoller                m_epoller;
+
+        event::event_ptr       m_waker;
+
+        std::atomic_bool       m_looping;
+
+        std::atomic_bool       m_stop;
+
+        taskq                  m_taskq;
+
+        mutex                  m_taskq_mutex;
+
+        barrier_ptr            m_stop_barrier;
+
+        epoll_event_set        m_events;
+    };
 
 public:
-    bool
-    registed          (epoller_event &_e);
+    typedef pimpl::pimpl_ptr      pimpl_ptr;
 
-    void
-    register_event    (epoller_event_ptr _e);
-
-    void
-    remove_event      (epoller_event &_e);
-
-    void
-    update_event      (epoller_event &_e);
-
-    void
-    run_in_loop       (task &&_fn);
-
-public:
-    void
-    check_thread      () const KNGIN_NOEXCP;
-
-    bool
-    in_loop_thread    () const KNGIN_NOEXCP;
-
-public:
-    std::shared_ptr<event_loop_pimpl>
-    self              ()
-    { return shared_from_this(); }
-
-protected:
-    void
-    wakeup            ();
-
-private:
-    thread_pimpl_ptr         m_thr;
-
-    pthread_t                m_ptid;
-
-    epoller                  m_epoller;
-
-    waker_ptr                m_waker;
-
-    std::atomic<bool>        m_looping;
-
-    std::atomic<bool>        m_stop;
-
-    std::queue<task>         m_taskq;
-
-    mutex                    m_taskq_mutex;
-
-    std::shared_ptr<barrier> m_stop_barrier;
-
-    epoller::epoll_event_set m_events;
-};
-
-typedef std::shared_ptr<event_loop_pimpl>   event_loop_pimpl_ptr;
-
-class event_loop : public noncopyable {
-public:
-    typedef event_loop_pimpl::epoller_event_ptr epoller_event_ptr;
-
-    typedef event_loop_pimpl::started_handler   started_handler;
-
-    typedef event_loop_pimpl::stopped_handler   stopped_handler;
-
-    typedef event_loop_pimpl::task              task;
+    typedef pimpl::pimpl_weak_ptr pimpl_weak_ptr;
 
 public:
     event_loop     ()
-        : m_pimpl(std::make_shared<event_loop_pimpl>()) {}
+        : m_pimpl(std::make_shared<pimpl>()) {}
 
     explicit
     event_loop     (thread &_thr)
-        : m_pimpl(std::make_shared<event_loop_pimpl>(_thr)) {}
+        : m_pimpl(std::make_shared<pimpl>(_thr)) {}
 
     ~event_loop    () = default;
 
@@ -168,21 +193,17 @@ public:
     { m_pimpl->run_in_loop(std::move(_fn)); }
 
 public:
-    void
-    check_thread   () const KNGIN_NOEXCP
-    { m_pimpl->check_thread(); }
-
     bool
     in_loop_thread () const KNGIN_NOEXCP
     { return m_pimpl->in_loop_thread(); }
 
 public:
-    event_loop_pimpl_ptr &
-    pimpl          ()
-    { return m_pimpl; }
+    pimpl_weak_ptr
+    weak_self      ()
+    { return m_pimpl->weak_self(); }
 
 private:
-    event_loop_pimpl_ptr m_pimpl;
+    pimpl_ptr m_pimpl;
 };
 
 KNGIN_NAMESPACE_K_END

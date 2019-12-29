@@ -43,11 +43,11 @@
 //    process      (void *_args);
 //
 //protected:
-//    std::atomic<bool>  m_done; // idle and maybe have msg to send
+//    std::atomic_bool   m_done; // idle and maybe have msg to send
 //
-//    std::atomic<bool>  m_new_task;
+//    std::atomic_bool   m_new_task;
 //
-//    std::atomic<bool>  m_stop_thread;
+//    std::atomic_bool   m_stop_thread;
 //
 //    work_task *        m_task;
 //

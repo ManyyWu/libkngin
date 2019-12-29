@@ -9,23 +9,35 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_loop;
-class event_loop_pimpl;
 class timer
     : public epoller_event,
       public std::enable_shared_from_this<timer> {
 public:
-    typedef std::shared_ptr<event_loop_pimpl> event_loop_pimpl_ptr;
+    typedef std::function<void (void)> timeout_handler;
 
-    typedef std::function<void (void)>        timeout_handler;
+    typedef std::shared_ptr<timer>     timer_ptr;
 
-    typedef std::shared_ptr<timer>            timer_ptr;
+    typedef std::weak_ptr<timer>       timer_weak_ptr;
+
+public:
+    class timerid {
+    public:
+        timerid (timer_ptr _timer)
+            : m_timer(_timer) {}
+
+    public:
+        bool
+        expired () const KNGIN_NOEXCP
+        { return m_timer.expired(); }
+
+    private:
+        timer_weak_ptr m_timer;
+    };
 
 public:
     timer    () = delete;
 
-    timer    (event_loop_pimpl_ptr &_loop,
-              timeout_handler &&_timeout_handler);
+    timer    (timeout_handler &&_handler, bool _abs  = false);
 
     virtual
     ~timer   () KNGIN_NOEXCP;
@@ -35,16 +47,13 @@ public:
     get_time ();
 
     void
-    set_time (timestamp _val, timestamp _interval, bool _abs = false);
+    set_time (timestamp _val, timestamp _interval,
+              bool _abs = false);
 
-    virtual void
+    void
     close    ();
 
 public:
-    event_loop_pimpl_ptr &
-    loop     () KNGIN_NOEXCP
-    { return m_loop; }
-
     timer_ptr
     self     ()
     { return shared_from_this(); }
@@ -57,9 +66,7 @@ private:
     on_error ();
 
 private:
-    event_loop_pimpl_ptr m_loop;
-
-    timeout_handler      m_timeout_handler;
+    timeout_handler m_timeout_handler;
 
 private:
     friend class epoller;

@@ -23,7 +23,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
                     error_handler &&_error_handler)
     try
     : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
-      m_loop(_loop.pimpl()),
+      m_loop(_loop.weak_self()),
       m_socket(std::move(_socket)),
       m_closed(true),
       m_listen_addr(),
@@ -31,7 +31,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
       m_error_handler(std::move(_error_handler)),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
-    arg_check(m_socket.valid());
+    arg_check(!m_loop.expired() and m_socket.valid());
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
 
@@ -62,7 +62,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
 
 listener::~listener () KNGIN_NOEXCP
 {
-    if (!m_closed && registed())
+    if (!m_closed and registed())
         ignore_excp(this->close(true));
 
     // FIXME; wait for m_closed to be true
@@ -112,18 +112,19 @@ listener::close (bool _blocking /* = true */)
 {
     if (m_closed)
         return;
-        
-    if (!m_loop->looping()) {
+    auto _loop = m_loop.lock();
+
+    if (!_loop or !_loop->looping()) {
         goto dir_close;
     }
     if (registed()) {
-        if (m_loop->in_loop_thread()) {
+        if (_loop->in_loop_thread()) {
             on_close();
         } else {
-            m_loop->remove_event(*this);
+            _loop->remove_event(*this);
             if (_blocking) {
-                std::shared_ptr<barrier> _barrier_ptr = std::make_shared<barrier>(2);
-                m_loop->run_in_loop([this, _barrier_ptr] () {
+                auto _barrier_ptr = std::make_shared<barrier>(2);
+                _loop->run_in_loop([this, _barrier_ptr] () {
                     on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
@@ -131,7 +132,7 @@ listener::close (bool _blocking /* = true */)
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
             } else {
-                m_loop->run_in_loop([this] () {
+                _loop->run_in_loop([this] () {
                     on_close();
                 });
             }
@@ -148,7 +149,10 @@ listener::on_read ()
 {
     if (m_closed)
         return;
-    assert(m_loop->in_loop_thread());
+    auto _loop = m_loop.lock();
+    if (!_loop)
+        return;
+    assert(_loop->in_loop_thread());
 
     address _peer_addr;
     std::error_code _ec;
@@ -161,10 +165,10 @@ listener::on_read ()
             m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
-        } else if (std::errc::resource_unavailable_try_again == _ec ||
-                   std::errc::operation_would_block == _ec ||
-                   std::errc::protocol_error == _ec ||
-                   std::errc::connection_aborted == _ec ||
+        } else if (std::errc::resource_unavailable_try_again == _ec or
+                   std::errc::operation_would_block == _ec or
+                   std::errc::protocol_error == _ec or
+                   std::errc::connection_aborted == _ec or
                    std::errc::interrupted == _ec) {
             log_debug("listener::on_accept() ignore error, %s",
                       system_error_str(_ec).c_str());
@@ -193,9 +197,6 @@ listener::on_read ()
 void
 listener::on_error ()
 {
-    assert(!m_closed);
-    assert(m_loop->in_loop_thread());
-
     on_read();
 }
 
@@ -204,11 +205,12 @@ listener::on_close ()
 {
     if (m_closed)
         return;
-    assert(m_loop->in_loop_thread());
+    auto _loop = m_loop.lock();
+    assert(_loop ? _loop->in_loop_thread() : true);
 
-    auto _self = self(); // extend the life cycle untile closed
-    if (m_loop->looping() && registed())
-        m_loop->remove_event(*this);
+    auto _self = self();
+    if (_loop and _loop->looping() and registed())
+        _loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
 }

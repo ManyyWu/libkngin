@@ -18,11 +18,11 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 /*
-* I/O thread pool
-* m_core_size: The number of threads whose will not be destroyed when timeout occurs
-* m_max_size:  The number of threads in thread pool
-* m_alive:     The maxinum time a thread can live while idle
-* */
+ * I/O thread pool
+ * m_core_size: The number of threads whose will not be destroyed when timeout occurs
+ * m_max_size:  The number of threads in thread pool
+ * m_alive:     The maxinum time a thread can live while idle
+ * */
 
 class io_threadpool : public noncopyable {
 public:
@@ -69,9 +69,9 @@ private:
 
     threads           m_threads;
 
-    std::atomic<bool> m_stopped;
+    std::atomic_bool  m_stopped;
 
-    std::atomic<bool> m_crash;
+    std::atomic_bool  m_crash;
 
     mutex             m_mutex;
 

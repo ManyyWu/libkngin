@@ -93,11 +93,11 @@ log::log_data (const std::string &_str) KNGIN_NOEXCP
         return false;
 
     bool _ret = true;
-    if (KNGIN_LOG_MODE_BOTH == m_mode || KNGIN_LOG_MODE_FILE == m_mode)
+    if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_FILE == m_mode)
         _ret = write_logfile(KNGIN_LOG_LEVEL_DEBUG,
                              logger().filename_at(m_filetype).c_str(),
                              _str.c_str(), _str.size());
-    if (KNGIN_LOG_MODE_BOTH == m_mode || KNGIN_LOG_MODE_STDERR == m_mode)
+    if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_STDERR == m_mode)
         write_stderr(KNGIN_LOG_LEVEL_DEBUG, _str.c_str(), _str.size());
     return _ret;
 }
@@ -142,12 +142,12 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
 
         size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
-        if (KNGIN_LOG_MODE_BOTH == m_mode ||
+        if (KNGIN_LOG_MODE_BOTH == m_mode or
             KNGIN_LOG_MODE_FILE == m_mode
             )
             _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(),
                                  _buf, _len);
-        if (KNGIN_LOG_MODE_BOTH == m_mode ||
+        if (KNGIN_LOG_MODE_BOTH == m_mode or
             KNGIN_LOG_MODE_STDERR == m_mode
             )
             write_stderr(_level, _buf, _len);

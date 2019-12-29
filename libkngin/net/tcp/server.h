@@ -17,6 +17,8 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class server : public noncopyable {
 public:
+    typedef event_loop::pimpl_weak_ptr         loop_weak_ptr;
+
     typedef session::session_ptr               session_ptr;
 
     typedef session::message_handler           message_handler;
@@ -85,35 +87,35 @@ protected:
     on_new_session      (socket &&_sock);
 
 private:
-    event_loop_pimpl_ptr m_loop;
+    loop_weak_ptr     m_loop;
 
-    const server_opts    m_opts;
+    const server_opts m_opts;
 
-    io_threadpool        m_threadpool;
+    io_threadpool     m_threadpool;
 
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
     session_map       m_sessions;
 #endif
 
-    listener_ptr         m_listener;
+    listener_ptr      m_listener;
 
-    session_handler      m_session_handler;
+    session_handler   m_session_handler;
 
-    sent_handler         m_sent_handler;
+    sent_handler      m_sent_handler;
 
-    message_handler      m_message_handler;
+    message_handler   m_message_handler;
 
-    oob_handler          m_oob_handler;
+    oob_handler       m_oob_handler;
 
-    close_handler        m_close_handler;
+    close_handler     m_close_handler;
 
-    crash_handler        m_crash_handler;
+    crash_handler     m_crash_handler;
 
-    std::atomic<bool>    m_stopped;
+    std::atomic_bool  m_stopped;
 
-    std::atomic<bool>    m_stopping;
+    std::atomic_bool  m_stopping;
 
-    mutex                m_mutex;
+    mutex             m_mutex;
 };
 
 KNGIN_NAMESPACE_TCP_END

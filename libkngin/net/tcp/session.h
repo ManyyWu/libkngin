@@ -26,6 +26,8 @@ class session
     : public epoller_event,
       public std::enable_shared_from_this<session> {
 public:
+    typedef event_loop::pimpl_weak_ptr                             loop_weak_ptr;
+
     typedef std::function<void (const session &, std::error_code)> close_handler;
 
     typedef std::function<void (session &, in_buffer, size_t)>     message_handler;
@@ -134,95 +136,95 @@ public:
 
 public:
     const address &
-    local_addr      () const KNGIN_NOEXCP
+    local_addr () const KNGIN_NOEXCP
     { return m_local_addr; }
 
     const address &
-    peer_addr       () const KNGIN_NOEXCP
+    peer_addr  () const KNGIN_NOEXCP
     { return m_peer_addr; }
 
     const std::string
-    name            () const KNGIN_NOEXCP
+    name       () const KNGIN_NOEXCP
     { return m_name; }
 
     const std::string &
-    key             () const KNGIN_NOEXCP
+    key        () const KNGIN_NOEXCP
     { return m_key; }
 
 public:
-    event_loop_pimpl_ptr &
-    loop            () KNGIN_NOEXCP
+    loop_weak_ptr &
+    loop       () KNGIN_NOEXCP
     { return m_loop; }
 
-    const event_loop_pimpl_ptr &
-    loop            () const KNGIN_NOEXCP
+    const loop_weak_ptr &
+    loop       () const KNGIN_NOEXCP
     { return m_loop; }
 
     session_ptr
-    self            ()
+    self       ()
     { return shared_from_this(); }
 
 private:
     k::socket &
-    socket          () KNGIN_NOEXCP
+    socket     () KNGIN_NOEXCP
     { return m_socket; }
 
 private:
     virtual void
-    on_write        ();
+    on_write   ();
 
     virtual void
-    on_read         ();
+    on_read    ();
 
     virtual void
-    on_oob          ();
+    on_oob     ();
 
     virtual void
-    on_error        ();
+    on_error   ();
 
     void
-    on_close        (std::error_code _ec);
+    on_close   (std::error_code _ec);
 
 private:
-    event_loop_pimpl_ptr m_loop;
+    loop_weak_ptr     m_loop;
 
-    k::socket            m_socket;
+    k::socket         m_socket;
 
-    std::atomic<bool>    m_closed;
+    std::atomic_bool  m_closed;
 
-    const address        m_local_addr;
+    const address     m_local_addr;
 
-    const address        m_peer_addr;
+    const address     m_peer_addr;
 
-    const std::string    m_name;
+    const std::string m_name;
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-    message_handler      m_message_handler;
+    message_handler   m_message_handler;
 
-    sent_handler         m_sent_handler;
+    sent_handler      m_sent_handler;
 #else
-    message_handlerq     m_message_handlerq;
+    message_handlerq  m_message_handlerq;
 
-    sent_handlerq        m_sent_handlerq;
+    sent_handlerq     m_sent_handlerq;
 #endif
 
-    oob_handler          m_oob_handler;
+    oob_handler       m_oob_handler;
 
-    close_handler        m_close_handler;
+    close_handler     m_close_handler;
 
-    msg_buffer_queue     m_out_bufq;
+    msg_buffer_queue  m_out_bufq;
 
-    in_buffer_queue      m_in_bufq;
+    in_buffer_queue   m_in_bufq;
 
 #if (ON != KNGIN_SESSION_NO_MUTEX)
-    mutex                m_out_bufq_mutex;
+    mutex             m_out_bufq_mutex;
 
-    mutex                m_in_bufq_mutex;
+    mutex             m_in_bufq_mutex;
 #endif
 
-    size_t               m_callback_lowat;
+    size_t            m_callback_lowat;
 
-    const std::string    m_key;
+    const std::string m_key;
 };
 
 KNGIN_NAMESPACE_TCP_END

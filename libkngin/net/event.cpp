@@ -5,8 +5,6 @@
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/event.h"
-#include "net/epoller_event.h"
-#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -15,15 +13,13 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event::event (event_loop_pimpl_ptr &_loop,
-              event_handler &&_event_handler)
+event::event (event_handler &&_event_handler)
     try
     : epoller_event(::eventfd(0, EFD_CLOEXEC), 
                     epoller_event::EVENT_TYPE_EVENT),
-      m_loop(_loop),
       m_event_handler(std::move(_event_handler))
 {
-    arg_check(m_loop && m_event_handler);
+    arg_check(m_event_handler);
     if (invalid())
         throw k::system_error("::eventfd() erorr");
     enable_read();
@@ -34,7 +30,7 @@ event::event (event_loop_pimpl_ptr &_loop,
 
 event::~event() KNGIN_NOEXCP
 {
-    ignore_excp(this->close());
+    assert(invalid());
 }
 
 void
@@ -42,14 +38,16 @@ event::notify ()
 {
     char _arr[8];
     in_buffer(_arr, 8).write_uint64(1);
-    this->writen(out_buffer(_arr, 8)); // blocked
+    log_excp_fatal(
+        this->writen(out_buffer(_arr, 8)), // blocked
+        "event::writen() error"
+    );
 }
 
 void
 event::close ()
 {
-    if (!is_single_ref_ptr(m_loop) && m_loop->looping() && registed())
-        m_loop->remove_event(*this);
+    assert(!registed());
     filefd::close();
 }
 
@@ -64,7 +62,10 @@ event::on_read ()
 {
     char _arr[8];
     in_buffer _buf(_arr, 8);
-    this->readn(_buf); // blocked
+    log_excp_fatal(
+        this->readn(_buf), // blocked
+        "event::readn() error"
+    );
 
     if (m_event_handler) {
         log_excp_error(

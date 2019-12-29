@@ -36,7 +36,7 @@ template<typename Type, typename Type1, typename ...Args>
 inline Type
 set_bits (Type _val, Type1 _first, Args... _args)
 {
-    if (_first < 0 || static_cast<size_t>(_first) >= TYPE_BITS(Type))
+    if (_first < 0 or static_cast<size_t>(_first) >= TYPE_BITS(Type))
         throw k::exception("out of range");
     return BIT_VALUE(Type, _first) | set_bits(_val, _args...);
 }
@@ -45,7 +45,7 @@ template<typename Type, typename Type1, typename ...Args>
 inline Type
 clear_bits (Type _val, Type1 _first, Args... _args)
 {
-    if (_first < 0 || static_cast<size_t>(_first) >= TYPE_BITS(Type))
+    if (_first < 0 or static_cast<size_t>(_first) >= TYPE_BITS(Type))
         throw k::exception("out of range");
     return CLEAR_BIT(Type, _val, _first) & set_bits(_val, _args...);
 }
@@ -61,9 +61,9 @@ template<typename Type, typename Type1, typename ...Args>
 inline bool
 is_bits_set (Type _val, Type1 _first, Args... _args)
 {
-    if (_first < 0 || static_cast<size_t>(_first) >= TYPE_BITS(Type))
+    if (_first < 0 or static_cast<size_t>(_first) >= TYPE_BITS(Type))
         throw k::exception("out of range");
-    return IS_BIT_SET(Type, _val, _first) && is_bits_set(_val, _args...);
+    return IS_BIT_SET(Type, _val, _first) and is_bits_set(_val, _args...);
 }
 
 KNGIN_NAMESPACE_K_END

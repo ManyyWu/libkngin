@@ -26,8 +26,7 @@ socket::socket (INET_PROTOCOL _proto)
       m_rd_closed(invalid()),
       m_wr_closed(invalid())
 {
-    if (invalid())
-        throw k::system_error("::socket() error");
+    arg_check(valid());
 } catch (...) {
     log_error("socket::socket() error");
     throw;
@@ -45,7 +44,7 @@ socket::socket (socket &&_s) KNGIN_NOEXCP
 
 socket::~socket () KNGIN_NOEXCP
 {
-    m_fd = (m_rd_closed && m_wr_closed) ? filefd::invalid_fd : m_fd;
+    m_fd = (m_rd_closed and m_wr_closed) ? filefd::invalid_fd : m_fd;
 }
 
 void
@@ -303,7 +302,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
 address
 socket::localaddr () const
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed or !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     if (::getsockname(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
@@ -314,7 +313,7 @@ socket::localaddr () const
 address
 socket::localaddr (std::error_code &_ec) const KNGIN_NOEXCP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed or !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     _ec = (::getsockname(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
@@ -326,7 +325,7 @@ socket::localaddr (std::error_code &_ec) const KNGIN_NOEXCP
 address
 socket::peeraddr () const
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed or !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     if (::getpeername(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)
@@ -337,7 +336,7 @@ socket::peeraddr () const
 address
 socket::peeraddr (std::error_code &_ec) const KNGIN_NOEXCP
 {
-    assert(!m_wr_closed || !m_rd_closed);
+    assert(!m_wr_closed or !m_rd_closed);
     k::address _addr;
     socklen_t _len = sizeof(_addr.m_sa);
     _ec = (::getpeername(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len) < 0)

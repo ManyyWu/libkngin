@@ -30,7 +30,7 @@ const int   times = 10;
 class test_server {
 public:
     test_server (event_loop &_loop, const server_opts &_opts)
-        : m_loop(_loop.pimpl()),
+        : m_loop(_loop.weak_self()),
           m_server(_loop, _opts),
           m_sessions(),
           m_sessions_mutex()
@@ -84,11 +84,13 @@ public:
                 m_sessions.erase(_session.key());
                 log_debug("size: %d", m_sessions.size());
             }
-#define CLOSE_COND1 0
+#define CLOSE_COND1 1
 #if (true == !!CLOSE_COND1)
             if (m_sessions.empty()) {
                 mtrace();
-                m_loop->stop();
+                auto _loop = m_loop.lock();
+                assert(_loop);
+                _loop->stop();
                 return;
             }
 #endif
@@ -97,7 +99,6 @@ public:
         m_server.set_crash_handler([this] () {
             //assert(!"server crashed");
             stop();
-            m_loop->stop();
         }); // end of server_crash_handler, run in any thread of pool
         return m_server.run();
     }
@@ -132,7 +133,7 @@ public:
             {
                 if_not (_size == 8)
                     return;
-                if (out_buffer(_buf.begin(), 4).peek_int32() != times ||
+                if (out_buffer(_buf.begin(), 4).peek_int32() != times or
                     out_buffer(_buf.begin() + 4, 4).peek_int32() != g_data_size) {
                     log_error("ack error");
                     _s.close();
@@ -161,9 +162,9 @@ public:
     }
 
 protected:
-    event_loop_pimpl_ptr   m_loop;
+    event_loop::pimpl_weak_ptr m_loop;
 
-    tcp::server            m_server;
+    tcp::server                m_server;
 
     struct session_info {
         session::session_ptr si_session;
@@ -201,13 +202,13 @@ tcp_server_test ()
     test_server _s(_loop, _opts);
     assert(_s.run());
 
-    timer::timer_ptr _timer = std::make_shared<timer>(_loop.pimpl(), [&] () {
-        _timer->close();
-        _s.stop();
-        _loop.stop();
-    });
-    _timer->set_time(10000, 0);
-    _loop.register_event(_timer);
+//    timer::timer_ptr _timer = std::make_shared<timer>(_loop.weak_self(), [&] () {
+//        _timer->close();
+//        _s.stop();
+//        _loop.stop();
+//    });
+//    _timer->set_time(10000, 0);
+//    _loop.register_event(_timer);
 
     _loop.run();
     _s.stop();

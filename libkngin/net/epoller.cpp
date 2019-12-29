@@ -65,6 +65,20 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
 }
 
 void
+epoller::process_events (epoll_event_set &_list, size_t _size)
+{
+    assert(_list.size() >= _size);
+    for (uint32_t _i = 0; _i < _size; _i++) {
+        auto *_ptr = static_cast<epoller_event *>(_list[_i].data.ptr);
+        assert(_ptr);
+        log_excp_error(
+            epoller_event::on_events(_ptr, _list[_i].events),
+            "epoller_event::on_events() error"
+        );
+    }
+}
+
+void
 epoller::close ()
 {
     assert(m_epollfd.valid());
@@ -72,16 +86,6 @@ epoller::close ()
     if (m_events.size())
         log_warning("there are still have %" PRIu64
                     " undeleted fd in epoller", m_events.size());
-}
-
-bool
-epoller::registed (epoller_event &_e) KNGIN_NOEXCP
-{
-    assert(m_epollfd.valid());
-    {
-        local_lock _lock(m_mutex);
-        return (m_events.find(_e.fd()) != m_events.end());
-    }
 }
 
 void
@@ -122,23 +126,33 @@ epoller::modify_event (epoller_event &_e)
     }
 }
 
+bool
+epoller::registed (epoller_event &_e) KNGIN_NOEXCP
+{
+    assert(m_epollfd.valid());
+    {
+        local_lock _lock(m_mutex);
+        return (m_events.find(_e.fd()) != m_events.end());
+    }
+}
+
 void
 epoller::update_event (int _opt, int _fd, epoller_event *_e)
 {
     /*
-    * NOTES:
-    * While one thread is blocked in a call to epoll_pwait(), it is possible for another thread
-    * to add a file descriptor to the waited-upon epoller instance. If the new file descriptor
-    * becomes ready, it will cause the epoll_wait() call to unblock.
-    *
-    * If a file descriptor being monitored by select() is closed in another thread, the result
-    * is unspecified.  On some UNIX systems, select() unblocks and returns, with an indication
-    * that the file descriptor is ready (a subsequent I/O operation will likely fail with an error,
-    * unless another the file descriptor reopened between the time select() returned  and the I/O
-    * operations was performed).  On Linux (and some other systems), closing the file descriptor
-    * in another thread has no effect on select().  In summary, any application that relies on a
-    * particular behavior in this scenario must be considered buggy.
-    */
+     * NOTES:
+     * While one thread is blocked in a call to epoll_pwait(), it is possible for another thread
+     * to add a file descriptor to the waited-upon epoller instance. If the new file descriptor
+     * becomes ready, it will cause the epoll_wait() call to unblock.
+     *
+     * If a file descriptor being monitored by select() is closed in another thread, the result
+     * is unspecified.  On some UNIX systems, select() unblocks and returns, with an indication
+     * that the file descriptor is ready (a subsequent I/O operation will likely fail with an error,
+     * unless another the file descriptor reopened between the time select() returned  and the I/O
+     * operations was performed).  On Linux (and some other systems), closing the file descriptor
+     * in another thread has no effect on select().  In summary, any application that relies on a
+     * particular behavior in this scenario must be considered buggy.
+     * */
     assert(_e);
     assert(m_epollfd.valid());
 

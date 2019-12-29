@@ -260,13 +260,13 @@ public:
     }
 
 protected:
-    std::deque<Type *>      m_deque;
+    std::deque<Type *> m_deque;
 
-    mutex                  m_mutex;
+    mutex              m_mutex;
 
-    cond                   m_cond;
+    cond               m_cond;
 
-    std::atomic<size_type> m_max_size;
+    std::atomic_size_t m_max_size;
 };
 
 KNGIN_NAMESPACE_K_END

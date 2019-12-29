@@ -18,7 +18,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 server::server (event_loop &_loop, const server_opts &_opts)
     try 
-    : m_loop(_loop.pimpl()),
+    : m_loop(_loop.weak_self()),
       m_opts(_opts),
       m_threadpool(_opts.thread_num),
 #if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
@@ -41,7 +41,7 @@ server::server (event_loop &_loop, const server_opts &_opts)
         logger()[0].disable_debug();
     if (_opts.disable_info)
         logger()[0].disable_info();
-    if (!_opts.allow_ipv4 && !_opts.allow_ipv6)
+    if (!_opts.allow_ipv4 and !_opts.allow_ipv6)
         throw k::exception("invalid options");
 
     // check address
@@ -49,9 +49,9 @@ server::server (event_loop &_loop, const server_opts &_opts)
     auto _s = (_pos != std::string::npos)
                     ? std::string(_opts.name.data(), _pos)
                     : _opts.name;
-    if (_opts.allow_ipv4 && _opts.allow_ipv6 && !address::is_valid_inet6_addrstr(_s))
+    if (_opts.allow_ipv4 and _opts.allow_ipv6 and !address::is_valid_inet6_addrstr(_s))
         throw k::exception("invalid ipv6 address");
-    if (_opts.allow_ipv4 && !_opts.allow_ipv6 && !address::is_valid_inet_addrstr(_opts.name))
+    if (_opts.allow_ipv4 and !_opts.allow_ipv6 and !address::is_valid_inet_addrstr(_opts.name))
         throw k::exception("invalid ipv4 address");
 } catch (...) {
     log_fatal("server::server() error");
@@ -70,14 +70,17 @@ server::run ()
     assert(m_stopped);
 
     auto _crash_handler = [this] () {
-        m_loop->run_in_loop([this] () {
+        auto _loop = m_loop.lock();
+        if (!_loop)
+            return;
+        _loop->run_in_loop([this] () {
             if (m_crash_handler) {
                 log_excp_fatal(
                     m_crash_handler(),
                     "server::m_crash_hander() error"
                 );
             }
-        });
+        }); // run in main thread
     }; // end of crash_handler, run in thread pool
 
     // shielding SIGPIPE signal
@@ -93,7 +96,7 @@ server::run ()
 
     // create listen socket
     socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
-    if (m_opts.allow_ipv6 && !m_opts.allow_ipv4)
+    if (m_opts.allow_ipv6 and !m_opts.allow_ipv4)
         sockopts::set_ipv6_only(_listener_sock, true);
 
     // start listener
@@ -126,7 +129,7 @@ server::run ()
 void
 server::stop ()
 {
-    if (m_stopped || m_stopping)
+    if (m_stopped or m_stopping)
         return;
     m_stopping = true;
     log_info("stopping TCP server");
@@ -162,10 +165,13 @@ server::broadcast (session_list &_list, msg_buffer _buf)
         return;
 
     for (auto &_iter : _list) {
+        auto _loop = _iter->loop().lock();
+        if (!_loop)
+            return;
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
         _iter->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
 #else
-        _iter->loop()->run_in_loop([_buf, _iter] () {
+        _loop->run_in_loop([_buf, _iter] () {
             _iter->send(_buf, nullptr);
         }); // run in the loop corresponding to the connection
 #endif
@@ -176,7 +182,10 @@ void
 server::on_new_session (socket &&_sock)
 {
     assert(!m_stopped);
-    assert(m_listener->loop()->in_loop_thread());
+    auto _loop = m_listener->loop().lock();
+    if (!_loop)
+        return;
+    assert(_loop->in_loop_thread());
     // FIXME: stop accepting when sessions reach to the maximum number
 
     try {
@@ -198,7 +207,10 @@ server::on_new_session (socket &&_sock)
 
         _session->set_close_handler([this] (const session &_s, std::error_code _ec) {
             assert(!m_stopped);
-            assert(_s.loop()->in_loop_thread());
+            auto _loop = _s.loop().lock();
+            if (!_loop)
+                return;
+            assert(_loop->in_loop_thread());
 
             if (m_close_handler) {
                 log_excp_error(

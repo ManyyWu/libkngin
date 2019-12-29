@@ -26,7 +26,7 @@ io_thread::io_thread (const char *_name)
 
 io_thread::~io_thread ()
 {
-    if (m_loop && m_loop->looping())
+    if (m_loop and m_loop->looping())
         ignore_excp(m_loop->stop());
 }
 

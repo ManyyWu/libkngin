@@ -5,8 +5,6 @@
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/timer.h"
-#include "net/epoller_event.h"
-#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -15,18 +13,15 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::timer (event_loop_pimpl_ptr &_loop,
-              timeout_handler &&_timeout_handler)
+timer::timer (timeout_handler &&_handler, bool _abs /* = false */)
     try
-    : epoller_event(::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC), 
+    : epoller_event(::timerfd_create(_abs ? CLOCK_REALTIME : CLOCK_MONOTONIC, TFD_CLOEXEC),
                     epoller_event::EVENT_TYPE_TIMER),
-      m_loop(_loop),
-      m_timeout_handler(std::move(_timeout_handler))
+      m_timeout_handler(std::move(_handler))
 {
-    arg_check(m_loop && m_timeout_handler);
+    arg_check(m_timeout_handler);
     if (invalid())
         throw k::system_error("::timerfd_create() erorr");
-    set_closeexec(true);
 } catch (...) {
     log_fatal("timer::timer() error");
     throw;
@@ -34,12 +29,14 @@ timer::timer (event_loop_pimpl_ptr &_loop,
 
 timer::~timer () KNGIN_NOEXCP
 {
-    ignore_excp(this->close());
+    assert(invalid());
 }
 
 timestamp
 timer::get_time ()
 {
+    assert(valid());
+
     itimerspec _its;
     if (timerfd_gettime(m_fd, &_its) < 0)
         throw k::system_error("timerfd_gettime() error");
@@ -49,6 +46,8 @@ timer::get_time ()
 void
 timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
+    assert(valid());
+
     itimerspec _its;
     _val.to_timespec(_its.it_value);
     _interval.to_timespec(_its.it_interval);
@@ -61,8 +60,7 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 void
 timer::close ()
 {
-    if (!is_single_ref_ptr(m_loop) && m_loop->looping() && registed())
-        m_loop->remove_event(*this);
+    assert(!registed());
     filefd::close();
 }
 
@@ -75,9 +73,14 @@ timer::on_error ()
 void
 timer::on_read ()
 {
+    assert(valid());
+
     char _arr[8];
     in_buffer _buf(_arr, 8);
-    this->readn(_buf); // blocked
+    log_excp_fatal(
+        this->readn(_buf), // blocked
+        "timer::readn() error"
+    );
 
     if (m_timeout_handler) {
         log_excp_error(

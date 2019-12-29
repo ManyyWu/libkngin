@@ -43,7 +43,7 @@ private:
 
     static kngin_logfile_set m_logfile_set;
 
-    static std::atomic<bool> m_inited;
+    static std::atomic_bool  m_inited;
 
 private:
     friend log_mgr &

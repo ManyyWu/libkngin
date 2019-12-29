@@ -25,7 +25,7 @@ out_buffer::out_buffer (const void * _arr, size_t _size)
     : m_arr(static_cast<const unsigned char *>(_arr)),
       m_size(_size)
 {
-    arg_check(_arr && _size);
+    arg_check(_arr and _size);
 } catch (...) {
     log_fatal("out_buffer::out_buffer() error");
 }
@@ -101,7 +101,7 @@ in_buffer::in_buffer (void * _arr, size_t _size)
       m_size(_size),
       m_valid(0)
 {
-    arg_check(_arr && _size);
+    arg_check(_arr and _size);
 } catch (...) {
     log_fatal("in_buffer::in_buffer() error");
 }

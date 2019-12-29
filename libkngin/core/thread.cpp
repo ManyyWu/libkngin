@@ -17,21 +17,6 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-thread::pimpl::pimpl ()
-    try
-    : m_name(""),
-#ifdef _WIN32
-      m_thr({nullptr, 0}),
-#else
-      m_thr(0),
-#endif
-      m_joined(false)
-{
-} catch (...) {
-    log_fatal("thread::pimpl::pimpl() error");
-    throw;
-}
-
 thread::pimpl::pimpl (const char *_name)
     try
     : m_name(_name ? _name : ""),
@@ -49,7 +34,11 @@ thread::pimpl::pimpl (const char *_name)
 
 thread::pimpl::~pimpl () KNGIN_NOEXCP
 {
-    if (m_joined)
+#ifdef _WIN32
+    if (m_joined or !m_thr.p or !m_thr.x)
+#else
+    if (m_joined or !m_thr)
+#endif
         return;
     auto _ec = int2ec(::pthread_detach(m_thr));
     if (_ec)
@@ -88,7 +77,7 @@ thread::pimpl::join ()
     assert(!equal_to(ptid()));
 
     thread_err_code _code;
-    std::error_code _ec = int2ec(::pthread_join(m_thr, &_code.ptr));
+    auto _ec = int2ec(::pthread_join(m_thr, &_code.ptr));
     m_joined = true;
     if (_ec) {
         log_fatal("::pthread_join(), name = \"%s\", %s",

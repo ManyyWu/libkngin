@@ -16,6 +16,8 @@ class listener
     : public epoller_event,
       public std::enable_shared_from_this<listener> {
 public:
+    typedef event_loop::pimpl_weak_ptr            loop_weak_ptr;
+
     typedef std::function<void (k::socket &&)>    accept_handler;
 
     typedef std::function<void (std::error_code)> error_handler;
@@ -39,11 +41,11 @@ public:
     close          (bool _blocking = true);
 
 public:
-    event_loop_pimpl_ptr &
+    loop_weak_ptr &
     loop           () KNGIN_NOEXCP
     { return m_loop; }
 
-    const event_loop_pimpl_ptr &
+    const loop_weak_ptr &
     loop           () const KNGIN_NOEXCP
     { return m_loop; }
 
@@ -70,19 +72,19 @@ private:
     on_close       ();
 
 private:
-    event_loop_pimpl_ptr m_loop;
+    loop_weak_ptr    m_loop;
 
-    k::socket            m_socket;
+    k::socket        m_socket;
 
-    std::atomic<bool>    m_closed;
+    std::atomic_bool m_closed;
 
-    address              m_listen_addr;
+    address          m_listen_addr;
 
-    accept_handler       m_accept_handler;
+    accept_handler   m_accept_handler;
 
-    error_handler        m_error_handler;
+    error_handler    m_error_handler;
 
-    filefd               m_idle_file;
+    filefd           m_idle_file;
 };
 
 KNGIN_NAMESPACE_K_END
