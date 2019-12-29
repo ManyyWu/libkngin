@@ -68,6 +68,7 @@ barrier::wait ()
                   system_error_str(_ec).c_str());
         throw k::exception("::pthread_barrier_wait() error");
     }
+    return true;
 }
 
 void

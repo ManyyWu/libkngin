@@ -74,7 +74,7 @@ test ();
 int main()
 {
 #ifndef _WIN32
-    setenv("MALLOC_TRACE", "mtrace.txt", 1);
+    //setenv("MALLOC_TRACE", "mtrace.txt", 1);
 #endif
 
     try {

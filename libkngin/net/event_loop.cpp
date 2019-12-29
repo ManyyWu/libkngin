@@ -120,6 +120,7 @@ event_loop::pimpl::run (started_handler &&_start_handler,
     } catch (...) {
         if (m_waker and m_waker->registed())
             remove_event(*m_waker);
+        m_waker->close();
         m_waker.reset();
         if (_stop_handler) {
             log_excp_error(
@@ -128,6 +129,8 @@ event_loop::pimpl::run (started_handler &&_start_handler,
             );
         }
         m_looping = false;
+        if (!m_stop_barrier->destroyed())
+            m_stop_barrier->destroy();
         log_fatal("caught an exception in event_loop of thread \"%s\"",
                   _thr ? _thr->name() : "");
         throw;
@@ -162,6 +165,7 @@ event_loop::pimpl::stop ()
         if (_temp_ptr->wait())
             _temp_ptr->destroy();
     } else {
+        if (!m_stop_barrier->destroyed())
         m_stop_barrier->destroy();
     }
 }

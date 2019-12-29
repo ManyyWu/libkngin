@@ -10,7 +10,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class exception : public std::exception {
 public:
-    exception  () = default;
+    exception  ();
 
     explicit
     exception  (const char *_what);

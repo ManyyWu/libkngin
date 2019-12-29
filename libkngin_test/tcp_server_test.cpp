@@ -50,7 +50,7 @@ public:
                 return;
             }
 
-                // create session info
+            // create session info
             {
                 local_lock _lock(m_sessions_mutex);
                 //if (m_sessions.find(_session->key()) != m_sessions.end()) {
@@ -66,8 +66,12 @@ public:
 #define CLOSE_COND 0
 #if (true == !!CLOSE_COND)
             if (_session->peer_addr().port() > 50000) {
-                _session->close();
-                m_loop->stop();
+                auto _loop = m_loop.lock();
+                assert(_loop);
+                _loop->run_in_loop([this, _loop] () {
+                    stop();
+                    _loop->stop();
+                });
                 return;
             }
 #endif
@@ -77,29 +81,42 @@ public:
 
         m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
             log_info("session %s closed", _session.name().c_str());
-            {
+            bool _close = true;
+            do {
                 local_lock _lock(m_sessions_mutex);
-                if (m_sessions.find(_session.key()) == m_sessions.end()) // closed before add
-                    return;
+                if (m_sessions.find(_session.key()) == m_sessions.end()) { // closed before add
+                    if (m_sessions.size())
+                        _close = false;
+                    break;
+                }
+                //assert(m_sessions.find(_session.key()) == m_sessions.end());
                 m_sessions.erase(_session.key());
-                log_debug("size: %d", m_sessions.size());
-            }
+                size_t _size = m_sessions.size();
+                _close = !_size;
+                log_debug("size: %" PRIu64, _size);
+            } while (false);
+
 #define CLOSE_COND1 1
 #if (true == !!CLOSE_COND1)
-            if (m_sessions.empty()) {
-                mtrace();
+            if (_close) {
                 auto _loop = m_loop.lock();
                 assert(_loop);
-                _loop->stop();
+                _loop->run_in_loop([this, _loop] () {
+                    stop();
+                    _loop->stop();
+                });
                 return;
             }
 #endif
         }); // end of session_close_handler, run in any thread of pool
 
         m_server.set_crash_handler([this] () {
-            //assert(!"server crashed");
+            log_fatal("server crashed");
+            auto _loop = m_loop.lock();
+            assert(_loop);
             stop();
-        }); // end of server_crash_handler, run in any thread of pool
+            _loop->stop();
+        }); // end of server_crash_handler, run in main thread
         return m_server.run();
     }
 
