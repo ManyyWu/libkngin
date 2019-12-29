@@ -10,18 +10,30 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class exception : public std::exception {
 public:
-    exception  ();
+    exception ()
+        : m_what(), m_dump_str()
+    { dump_stack(); }
 
     explicit
-    exception  (const char *_what);
+    exception (const char *_what)
+        : m_what(std::string("[k::exception] ") + _what), m_dump_str()
+    { dump_stack(); }
 
     explicit
-    exception  (const std::string &_what);
+    exception (const std::string &_what)
+        : m_what(std::string("[k::exception] ") + _what), m_dump_str()
+    { dump_stack(); }
 
-    exception  (std::string &&_what);
+    exception (const k::exception &_e)
+        : m_what(_e.m_what), m_dump_str(_e.m_dump_str) {}
+
 
     virtual
     ~exception () = default;
+
+public:
+    k::exception &
+    operator = (const k::exception &) = delete;
 
 public:
     virtual const char *

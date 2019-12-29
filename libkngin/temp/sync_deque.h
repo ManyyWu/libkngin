@@ -218,7 +218,7 @@ public:
     virtual bool
     lock (timestamp _ms = timestamp::infinite())
     {
-        if (timestamp::infinite() == _ms)
+        if (_ms == timestamp::infinite())
             m_mutex.lock();
         else
             return m_mutex.timedlock(_ms);
@@ -240,7 +240,7 @@ public:
     virtual bool
     wait (timestamp _ms = timestamp::infinite())
     {
-        if (timestamp::infinite() == _ms)
+        if (_ms == timestamp::infinite())
             m_cond.wait();
         else
             return m_cond.timedwait(_ms);

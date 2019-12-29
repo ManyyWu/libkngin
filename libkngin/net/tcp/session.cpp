@@ -92,9 +92,9 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
         local_lock _lock(m_out_bufq_mutex);
 #endif
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        m_sent_handlerq.push(_handler);
+        m_sent_handlerq.push_front(_handler);
 #endif
-        m_out_bufq.push(_buf);
+        m_out_bufq.push_front(_buf);
         if (m_out_bufq.size() <= 1) {
             enable_write();
             _loop->update_event(*this);
@@ -138,9 +138,9 @@ session::recv (in_buffer _buf, message_handler &&_handler,
         local_lock _lock(m_in_bufq_mutex);
 #endif
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        m_message_handlerq.push(_handler);
+        m_message_handlerq.push_front(_handler);
 #endif
-        m_in_bufq.push(_buf);
+        m_in_bufq.push_front(_buf);
         m_callback_lowat = _lowat;
     }
 
@@ -256,7 +256,7 @@ session::on_write ()
 #endif
         if (m_out_bufq.empty())
             return;
-        _buf = &m_out_bufq.front();
+        _buf = &m_out_bufq.back();
     }
     assert(_buf and _buf->buffer().size());
 
@@ -291,14 +291,14 @@ session::on_write ()
 #if (ON != KNGIN_SESSION_NO_MUTEX)
             local_lock _lock(m_out_bufq_mutex);
 #endif
-            m_out_bufq.pop();
+            m_out_bufq.pop_back();
             if (m_out_bufq.empty()) {
                 disable_write();
                 _loop->update_event(*this);
             }
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-            _handler = m_sent_handlerq.front();
-            m_sent_handlerq.pop();
+            _handler = m_sent_handlerq.back();
+            m_sent_handlerq.pop_back();
 #endif
         }
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
@@ -344,7 +344,7 @@ session::on_read ()
 #endif
         if (m_in_bufq.empty())
             return;
-        _buf = &m_in_bufq.front();
+        _buf = &m_in_bufq.back();
     }
     assert(_buf and _buf->size());
     assert(_buf->valid() < _buf->size());
@@ -384,11 +384,11 @@ session::on_read ()
 #if (ON != KNGIN_SESSION_NO_MUTEX)
             local_lock _lock(m_in_bufq_mutex);
 #endif
-            _back = m_in_bufq.front();
-            m_in_bufq.pop();
+            _back = m_in_bufq.back();
+            m_in_bufq.pop_back();
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-            _handler = m_message_handlerq.front();
-            m_message_handlerq.pop();
+            _handler = m_message_handlerq.back();
+            m_message_handlerq.pop_back();
 #endif
         }
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)

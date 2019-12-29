@@ -1,7 +1,8 @@
 #ifndef KNGIN_EVENT_LOOP_H
 #define KNGIN_EVENT_LOOP_H
 
-#include <queue>
+#include <deque>
+#include <map>
 #include <memory>
 #include <functional>
 #include <system_error>
@@ -24,6 +25,12 @@ public:
 
     typedef timer::timeout_handler     timeout_handler;
 
+    typedef timer::timer_ptr           timer_ptr;
+
+    typedef timer::timer_weak_ptr      timer_weak_ptr;
+
+    typedef timer::timerid             timerid;
+
     typedef std::shared_ptr<barrier>   barrier_ptr;
 
     typedef std::function<void (void)> started_handler;
@@ -32,11 +39,9 @@ public:
 
     typedef std::function<void (void)> task;
 
-    typedef std::function<void (void)> slot;
+    typedef std::deque<task>           taskq;
 
-    typedef std::queue<task>           taskq;
-
-    typedef std::queue<slot>           slotq;
+    typedef std::map<int, timer_ptr>   timers;
 
 public:
     class pimpl
@@ -88,20 +93,23 @@ public:
 
     // timer
     public:
-        bool
-        cancel         (timer::timerid &_id) = delete;
+        void
+        cancel         (const timer_ptr &_timer);
 
-        bool
-        expired        (timer::timerid &_id) = delete;
+        void
+        cancel         (timerid &_id);
 
-        timer::timerid
-        run_after      (timestamp _delay, timeout_handler _handler) = delete;
+        timerid
+        run_after      (timestamp _delay, timeout_handler &&_handler,
+                        bool _realtime = false);
 
-        timer::timerid
-        run_every      (timestamp _interval, timeout_handler _handler) = delete;
+        timerid
+        run_every      (timestamp _interval, timeout_handler &&_handler,
+                        bool _realtime = false);
 
-        timer::timerid
-        run_at         (timestamp _absval, timeout_handler _handler) = delete;
+        timerid
+        run_at         (timestamp _absval, timeout_handler &&_handler,
+                        bool _realtime = false);
 
     public:
         bool
@@ -140,6 +148,10 @@ public:
         barrier_ptr            m_stop_barrier;
 
         epoll_event_set        m_events;
+
+        timers                 m_timers;
+
+        mutex                  m_timers_mutex;
     };
 
 public:
@@ -171,11 +183,8 @@ public:
     looping        () KNGIN_NOEXCP
     { return m_pimpl->looping(); }
 
+// event
 public:
-    bool
-    registed       (epoller_event &_e)
-    { return m_pimpl->registed(_e); }
-
     void
     register_event (epoller_event_ptr _e)
     { m_pimpl->register_event(_e); }
@@ -188,9 +197,41 @@ public:
     update_event   (epoller_event &_e)
     { m_pimpl->update_event(_e); }
 
+    bool
+    registed       (epoller_event &_e)
+    { return m_pimpl->registed(_e); }
+
+// task
+public:
     void
     run_in_loop    (task &&_fn)
     { m_pimpl->run_in_loop(std::move(_fn)); }
+
+// timer
+public:
+
+    void
+    cancel         (const timer_ptr &_timer)
+    { return m_pimpl->cancel(_timer); }
+
+    void
+    cancel         (timer::timerid &_id)
+    { return m_pimpl->cancel(_id); }
+
+    timer::timerid
+    run_after      (timestamp _delay, timeout_handler &&_handler,
+                    bool _realtime = false)
+    { return m_pimpl->run_after(_delay, std::move(_handler), _realtime); }
+
+    timer::timerid
+    run_every      (timestamp _interval, timeout_handler &&_handler,
+                    bool _realtime = false)
+    { return m_pimpl->run_every(_interval, std::move(_handler), _realtime); }
+
+    timer::timerid
+    run_at         (timestamp _absval, timeout_handler &&_handler,
+                    bool _realtime = false)
+    { return m_pimpl->run_at(_absval, std::move(_handler), _realtime); }
 
 public:
     bool

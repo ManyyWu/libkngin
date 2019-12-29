@@ -123,7 +123,7 @@ filefd::writen (out_buffer &&_buf, std::error_code &_ec) KNGIN_NOEXCP
         if (_size < 0) {
             if ((_ec = last_error()) == std::errc::interrupted)
                 continue;
-            return 0;
+            return (_ret - _buffer.size());
         }
         _buffer -= _size;
     }
@@ -161,7 +161,7 @@ filefd::readn (in_buffer &_buf, std::error_code &_ec) KNGIN_NOEXCP
         if (_size < 0) {
             if ((_ec = last_error()) == std::errc::interrupted)
                 continue;
-            return 0;
+            return _buf.valid();
         }
         _buf += _size;
     }
@@ -255,6 +255,7 @@ filefd::dup ()
     int _new_fd = ::dup(m_fd);
     if (_new_fd < 0)
         throw k::system_error("::dup() error");
+    return _new_fd;
 }
 
 int

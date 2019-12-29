@@ -96,7 +96,7 @@ public:
                 log_debug("size: %" PRIu64, _size);
             } while (false);
 
-#define CLOSE_COND1 1
+#define CLOSE_COND1 0
 #if (true == !!CLOSE_COND1)
             if (_close) {
                 auto _loop = m_loop.lock();
@@ -219,14 +219,33 @@ tcp_server_test ()
     test_server _s(_loop, _opts);
     assert(_s.run());
 
-//    timer::timer_ptr _timer = std::make_shared<timer>(_loop.weak_self(), [&] () {
-//        _timer->close();
-//        _s.stop();
-//        _loop.stop();
-//    });
-//    _timer->set_time(10000, 0);
-//    _loop.register_event(_timer);
+    auto _timer = [&] (const timer::timer_ptr _timer) {
+        assert(_timer);
+        _loop.cancel(_timer);
+        _s.stop();
 
+        log_warning("main thread is closing...3s");
+        timestamp _current_time = timestamp::realtime();
+        _loop.run_at(_current_time + 1000,
+                     [&] (const timer::timer_ptr &_timer) {
+            log_warning("main thread is closing...2s");
+            _loop.cancel(_timer);
+        }, true);
+        _loop.run_at(_current_time + 2000,
+                     [&] (const timer::timer_ptr &_timer) {
+            log_warning("main thread is closing...1s");
+            _loop.cancel(_timer);
+        }, true);
+        _loop.run_at(_current_time + 3000,
+                     [&] (const timer::timer_ptr &_timer) {
+            _loop.cancel(_timer);
+            _loop.stop();
+        }, true);
+    };
+
+    _loop.run_after(10000, _timer);
+
+#warning "copyable";
     _loop.run();
     _s.stop();
 }

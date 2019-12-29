@@ -30,12 +30,17 @@ event::event (event_handler &&_event_handler)
 
 event::~event() KNGIN_NOEXCP
 {
-    assert(invalid());
+    if (registed())
+        log_warning("the timer must be closed"
+                    " before object disconstructing");
+    if (valid())
+        filefd::close();
 }
 
 void
 event::notify ()
 {
+    assert(valid());
     char _arr[8];
     in_buffer(_arr, 8).write_uint64(1);
     log_excp_fatal(
@@ -47,8 +52,8 @@ event::notify ()
 void
 event::close ()
 {
-    assert(!registed());
-    filefd::close();
+    if (valid())
+        filefd::close();
 }
 
 void

@@ -27,7 +27,7 @@ system_error_str (const std::error_code &_ec);
 
 class system_error : public std::exception {
 public:
-    system_error  () = default;
+    system_error  () = delete;
 
     explicit
     system_error  (const char *_what, std::error_code _ec = k::last_error())
@@ -44,8 +44,15 @@ public:
         : m_what(std::string("[k::system_error] ")
                  + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
 
+    system_error  (const k::system_error &_e)
+        : m_what(_e.m_what), m_ec(_e.m_ec) {}
+
     virtual
     ~system_error () = default;
+
+public:
+    k::system_error &
+    operator =    (const k::system_error &_e) = delete;
 
 public:
     virtual const char *

@@ -35,7 +35,7 @@ public:
 
 public:
     timestamp &
-    operator =  (timestamp &_t) KNGIN_NOEXCP
+    operator =  (const timestamp &_t) KNGIN_NOEXCP
     { m_ms = _t.m_ms; return *this; }
     timestamp &
     operator =  (uint64_t _t) KNGIN_NOEXCP
@@ -52,13 +52,23 @@ public:
     timestamp &
     operator -= (timestamp _t) KNGIN_NOEXCP
     { m_ms -= _t.m_ms; return *this; }
+    timestamp
+    operator +  (timestamp _t) KNGIN_NOEXCP
+    { return m_ms + _t.m_ms; }
+    timestamp
+    operator -  (timestamp _t) KNGIN_NOEXCP
+    { return m_ms - _t.m_ms; }
 
 public:
     bool
     operator == (timestamp _t) const KNGIN_NOEXCP
     {return _t.m_ms == m_ms; }
+    bool
+    operator != (timestamp _t) const KNGIN_NOEXCP
+    {return _t.m_ms != m_ms; }
 
 public:
+    explicit
     operator
     uint64_t    () const KNGIN_NOEXCP
     { return m_ms; }
@@ -91,8 +101,14 @@ public:
 
 public:
     static timestamp
-    current_time () KNGIN_NOEXCP
-    {  timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
+    time_of_day () KNGIN_NOEXCP
+    { timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
+    static timestamp
+    realtime    () KNGIN_NOEXCP
+    { timespec _ts; ::clock_gettime(CLOCK_REALTIME, &_ts); return _ts; }
+    static timestamp
+    monotonic   () KNGIN_NOEXCP
+    { timespec _ts; ::clock_gettime(CLOCK_MONOTONIC, &_ts); return _ts; }
 
 private:
     uint64_t m_ms;

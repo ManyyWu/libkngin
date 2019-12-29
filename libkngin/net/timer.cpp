@@ -13,11 +13,55 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timer::timer (timeout_handler &&_handler, bool _abs /* = false */)
-    try
-    : epoller_event(::timerfd_create(_abs ? CLOCK_REALTIME : CLOCK_MONOTONIC, TFD_CLOEXEC),
+timer::timerid::timerid (timer_ptr _timer)
+    : m_timer(_timer),
+      m_key(_timer->key()),
+      m_initval(_timer->m_initval),
+      m_interval(_timer->m_interval),
+      m_realtime(_timer->m_realtime),
+      m_abs(_timer->m_abs)
+{
+}
+
+timer::timerid::timerid (const timerid &_timer)
+    : m_timer(_timer.m_timer),
+      m_key(_timer.m_key),
+      m_initval(_timer.m_initval),
+      m_interval(_timer.m_interval),
+      m_realtime(_timer.m_realtime),
+      m_abs(_timer.m_abs)
+{
+}
+
+bool
+timer::timerid::cancelled ()
+{
+    auto _timer = m_timer.lock();
+    return (_timer && _timer->registed());
+}
+
+timer::timerid &
+timer::timerid::operator = (const timerid &_timer)
+{
+    m_timer = _timer.m_timer;
+    m_key = _timer.m_key;
+    m_initval = _timer.m_initval;
+    m_interval = _timer.m_interval;
+    m_realtime = _timer.m_realtime;
+    m_abs = _timer.m_abs;
+    return *this;
+}
+
+timer::timer (timeout_handler &&_handler, bool _realtime /* = false */)
+try
+    : epoller_event(::timerfd_create(_realtime ? CLOCK_REALTIME : CLOCK_MONOTONIC,
+                                     TFD_CLOEXEC),
                     epoller_event::EVENT_TYPE_TIMER),
-      m_timeout_handler(std::move(_handler))
+      m_timeout_handler(std::move(_handler)),
+      m_initval(0),
+      m_interval(0),
+      m_realtime(_realtime),
+      m_abs(false)
 {
     arg_check(m_timeout_handler);
     if (invalid())
@@ -29,7 +73,11 @@ timer::timer (timeout_handler &&_handler, bool _abs /* = false */)
 
 timer::~timer () KNGIN_NOEXCP
 {
-    assert(invalid());
+    if (registed())
+        log_warning("the timer must be closed"
+                    " before object disconstructing");
+    if (valid())
+        ignore_excp(this->close());
 }
 
 timestamp
@@ -47,6 +95,9 @@ void
 timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 {
     assert(valid());
+    m_initval = _val;
+    m_interval = _interval;
+    m_abs = _abs;
 
     itimerspec _its;
     _val.to_timespec(_its.it_value);
@@ -60,8 +111,8 @@ timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
 void
 timer::close ()
 {
-    assert(!registed());
-    filefd::close();
+    if (valid())
+        filefd::close();
 }
 
 void
@@ -74,6 +125,7 @@ void
 timer::on_read ()
 {
     assert(valid());
+    auto _self = self();
 
     char _arr[8];
     in_buffer _buf(_arr, 8);
@@ -84,7 +136,7 @@ timer::on_read ()
 
     if (m_timeout_handler) {
         log_excp_error(
-            m_timeout_handler(),
+            m_timeout_handler(_self),
             "timer::m_timeout_handler() error"
         );
     }

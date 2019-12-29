@@ -28,7 +28,8 @@ event_loop::pimpl::pimpl ()
       m_taskq(),
       m_taskq_mutex(),
       m_stop_barrier(std::make_shared<barrier>(2)),
-      m_events(KNGIN_RESERVED_EPOLLELR_EVENT)
+      m_events(KNGIN_RESERVED_EPOLLELR_EVENT),
+      m_timers_mutex()
 {
     //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
@@ -47,7 +48,8 @@ event_loop::pimpl::pimpl (thread &_thr)
       m_taskq(),
       m_taskq_mutex(),
       m_stop_barrier(std::make_shared<barrier>(2)),
-      m_events(KNGIN_RESERVED_EPOLLELR_EVENT)
+      m_events(KNGIN_RESERVED_EPOLLELR_EVENT),
+      m_timers_mutex()
 {
     arg_check(!m_thr.expired());
     //log_debug("loop in thread \"%s\" started", m_thr->name());
@@ -59,6 +61,14 @@ event_loop::pimpl::pimpl (thread &_thr)
 
 event_loop::pimpl::~pimpl () KNGIN_NOEXCP
 {
+    size_t _size = m_timers.size();
+    if (_size)
+    {
+        log_warning("there are still have %" PRIu64
+                    " uncancelled timer in epoller", _size);
+        for (auto _iter : m_timers)
+            cancel(_iter.second);
+    }
     if (m_looping)
         ignore_excp(stop());
 }
@@ -80,39 +90,37 @@ event_loop::pimpl::run (started_handler &&_start_handler,
                 "start_handler() error"
             );
         }
-
         while (!m_stop) {
             // wait for events
             uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
 
-            //log_warning("the epoller in thread \"%s\" is awaken with %" PRIu64 " events",
-            //            m_thr->name(), _size);
-/*
+            //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
+
             // sort the events by priority and type(timer > event > file)
             std::sort(m_events.begin(), m_events.begin() + _size,
                 [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
                 epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
                 epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
-                return (_ptr1->m_type > _ptr1->m_type or
-                        (_ptr1->m_type == _ptr1->m_type and
-                         _ptr1->m_priority > _ptr1->m_priority));
-            }); // end of operator <
-*/
+                return (_ptr1->type() > _ptr1->type() or
+                        (_ptr1->type() == _ptr1->type() and
+                         _ptr1->priority() > _ptr1->priority()));
+            }); // end of operator < for sortting
+
             // process events
             epoller::process_events(m_events, _size);
 
             // process queued events
-            std::queue<task> _fnq;
+            std::deque<task> _fnq;
             {
                 local_lock _lock(m_taskq_mutex);
                 if (!m_taskq.empty())
                     _fnq.swap(m_taskq);
             }
             while (!_fnq.empty()) {
-                _fnq.front()();
-                _fnq.pop();
+                _fnq.back()();
+                _fnq.pop_back();
             }
             //log_warning("the epoller in thread \"%s\" handled %" PRIu64 " task",
             //            m_thr->name(), _fnq.size());
@@ -211,7 +219,7 @@ bool
 event_loop::pimpl::registed (epoller_event &_e)
 {
     assert(m_looping);
-    m_epoller.registed(_e);
+    return m_epoller.registed(_e);
 }
 
 void
@@ -221,10 +229,85 @@ event_loop::pimpl::run_in_loop (event_loop::task &&_fn)
     if (_fn)
     {
         local_lock _lock(m_taskq_mutex);
-        m_taskq.push(std::move(_fn));
+        m_taskq.push_front(std::move(_fn));
     }
     if (!in_loop_thread())
         wakeup();
+}
+
+void
+event_loop::pimpl::cancel (const timer_ptr &_timer)
+{
+    assert(_timer);
+    assert(_timer->registed());
+    {
+        local_lock _lock(m_timers_mutex);
+        assert(m_timers.find(_timer->key()) != m_timers.end());
+        m_timers.erase(_timer->key());
+        if (m_looping)
+            remove_event(*_timer);
+        _timer->close();
+    }
+}
+
+void
+event_loop::pimpl::cancel (timer::timerid &_id)
+{
+    auto _timer = _id.weak_ptr().lock();
+    assert(_timer);
+    assert(_timer->registed());
+    {
+        local_lock _lock(m_timers_mutex);
+        assert(m_timers.find(_id.key()) != m_timers.end());
+        m_timers.erase(_timer->key());
+        remove_event(*_timer);
+        _timer->close();
+    }
+}
+
+timer::timerid
+event_loop::pimpl::run_after (timestamp _delay, timeout_handler &&_handler,
+                              bool _realtime /* = false */)
+{
+    auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
+    _timer->set_time(_delay, 0, false);
+    register_event(_timer);
+    {
+        local_lock _lock(m_timers_mutex);
+        assert(m_timers.find(_timer->key()) == m_timers.end());
+        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
+    }
+    return timerid(_timer);
+}
+
+timer::timerid
+event_loop::pimpl::run_every (timestamp _interval, timeout_handler &&_handler,
+                              bool _realtime /* = false */)
+{
+    auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
+    _timer->set_time(_interval, _interval, false);
+    register_event(_timer);
+    {
+        local_lock _lock(m_timers_mutex);
+        assert(m_timers.find(_timer->key()) == m_timers.end());
+        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
+    }
+    return timerid(_timer);
+}
+
+timer::timerid
+event_loop::pimpl::run_at (timestamp _absval, timeout_handler &&_handler,
+                           bool _realtime /* = false */)
+{
+    auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
+    _timer->set_time(_absval, 0, true);
+    register_event(_timer);
+    {
+        local_lock _lock(m_timers_mutex);
+        assert(m_timers.find(_timer->key()) == m_timers.end());
+        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
+    }
+    return timerid(_timer);
 }
 
 void

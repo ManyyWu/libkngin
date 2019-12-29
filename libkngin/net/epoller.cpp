@@ -85,7 +85,7 @@ epoller::close ()
     m_epollfd.close();
     if (m_events.size())
         log_warning("there are still have %" PRIu64
-                    " undeleted fd in epoller", m_events.size());
+                    " undeleted event in epoller", m_events.size());
 }
 
 void

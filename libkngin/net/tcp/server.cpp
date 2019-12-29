@@ -47,8 +47,8 @@ server::server (event_loop &_loop, const server_opts &_opts)
     // check address
     auto _pos = _opts.name.find_first_of('%');
     auto _s = (_pos != std::string::npos)
-                    ? std::string(_opts.name.data(), _pos)
-                    : _opts.name;
+                  ? std::string(_opts.name.data(), _pos)
+                  : _opts.name;
     if (_opts.allow_ipv4 and _opts.allow_ipv6 and !address::is_valid_inet6_addrstr(_s))
         throw k::exception("invalid ipv6 address");
     if (_opts.allow_ipv4 and !_opts.allow_ipv6 and !address::is_valid_inet_addrstr(_opts.name))

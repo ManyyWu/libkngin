@@ -35,18 +35,18 @@ public:
     typedef std::function<void (session &)>                        sent_handler;
 
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-    typedef std::queue<message_handler>                            message_handlerq;
+    typedef std::deque<message_handler>                            message_handlerq;
 
-    typedef std::queue<sent_handler>                               sent_handlerq;
+    typedef std::deque<sent_handler>                               sent_handlerq;
 #endif
 
     typedef std::function<void (session &, uint8_t)>               oob_handler;
 
     typedef std::shared_ptr<session>                               session_ptr;
 
-    typedef std::queue<msg_buffer>                                 msg_buffer_queue;
+    typedef std::deque<msg_buffer>                                 msg_buffer_queue;
 
-    typedef std::queue<in_buffer>                                  in_buffer_queue;
+    typedef std::deque<in_buffer>                                  in_buffer_queue;
 
 public:
     session         () = delete;

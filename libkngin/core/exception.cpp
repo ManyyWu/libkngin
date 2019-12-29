@@ -13,34 +13,6 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-exception::exception ()
-    : m_what(),
-      m_dump_str()
-{
-    dump_stack();
-}
-
-exception::exception (const char *_what)
-    : m_what(std::string("[k::exception] ") + _what),
-      m_dump_str()
-{
-    dump_stack();
-}
-
-exception::exception (const std::string &_what)
-        : m_what(std::string("[k::exception] ") + _what),
-          m_dump_str()
-{
-    dump_stack();
-}
-
-exception::exception (std::string &&_what)
-        : m_what(std::string("[k::exception] ") + _what),
-          m_dump_str()
-{
-    dump_stack();
-}
-
 void
 exception::dump_stack ()
 {
