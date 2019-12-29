@@ -31,7 +31,6 @@ event_loop::pimpl::pimpl ()
       m_events(KNGIN_RESERVED_EPOLLELR_EVENT),
       m_timers_mutex()
 {
-    //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
     log_fatal("event_loop::pimpl::pimpl() error");
     throw;
@@ -52,7 +51,6 @@ event_loop::pimpl::pimpl (thread &_thr)
       m_timers_mutex()
 {
     arg_check(!m_thr.expired());
-    //log_debug("loop in thread \"%s\" started", m_thr->name());
 } catch (...) {
     m_looping = false;
     log_fatal("event_loop::pimpl::pimpl() error");
@@ -95,7 +93,6 @@ event_loop::pimpl::run (started_handler &&_start_handler,
             uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
             if (m_stop)
                 break;
-
             //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
 
             // sort the events by priority and type(timer > event > file)
@@ -122,8 +119,6 @@ event_loop::pimpl::run (started_handler &&_start_handler,
                 _fnq.back()();
                 _fnq.pop_back();
             }
-            //log_warning("the epoller in thread \"%s\" handled %" PRIu64 " task",
-            //            m_thr->name(), _fnq.size());
         }
     } catch (...) {
         if (m_waker and m_waker->registed())
