@@ -167,14 +167,18 @@ event_loop::pimpl::stop ()
         return;
 
     m_stop = true;
-    if (!in_loop_thread()) {
+    if (in_loop_thread()) {
+        if (!m_stop_barrier->destroyed())
+            m_stop_barrier->destroy();
+    } else {
         wakeup();
         std::shared_ptr<barrier> _temp_ptr = m_stop_barrier;
         if (_temp_ptr->wait())
             _temp_ptr->destroy();
-    } else {
-        if (!m_stop_barrier->destroyed())
-        m_stop_barrier->destroy();
+    }
+    {
+        local_lock _lock(m_taskq_mutex);
+        m_taskq.clear();
     }
 }
 
