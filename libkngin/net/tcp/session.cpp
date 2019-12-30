@@ -477,14 +477,16 @@ session::on_error ()
 void
 session::on_close ()
 {
-    assert(!registed())
+    assert(!registed());
     if (m_closed)
         return;
 
     auto _self = self();
     m_socket.close();
     m_closed = true;
+#if (ON != KNGIN_SESSION_NO_MUTEX)
     clear_queues();
+#endif
 }
 
 void
@@ -500,7 +502,9 @@ session::on_close (std::error_code _ec)
         _loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
+#if (ON != KNGIN_SESSION_NO_MUTEX)
     clear_queues();
+#endif
     if (m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),
@@ -512,6 +516,7 @@ session::on_close (std::error_code _ec)
 void
 session::clear_queues ()
 {
+    assert(m_closed);
 #if (ON != KNGIN_SESSION_NO_MUTEX)
     {
         local_lock _lock(m_out_bufq_mutex);
