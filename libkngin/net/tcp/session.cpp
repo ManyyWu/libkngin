@@ -473,7 +473,6 @@ session::on_error ()
 void
 session::on_close ()
 {
-    assert(!registed());
     if (m_closed)
         return;
 
@@ -516,11 +515,11 @@ session::clear_queues ()
 #if (ON != KNGIN_SESSION_NO_MUTEX)
     {
         local_lock _lock(m_out_bufq_mutex);
-        m_out_bufq.clear()
+        m_out_bufq.clear();
     }
     {
         local_lock _lock(m_in_bufq_mutex);
-        m_in_bufq.clear()
+        m_in_bufq.clear();
     }
 #endif
 }

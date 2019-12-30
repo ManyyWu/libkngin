@@ -219,7 +219,58 @@ tcp_server_test ()
     test_server _server(_loop, _opts);
     assert(_server.run());
 
-    auto _timer = [&] (const timer::timer_ptr _timer) {
+    timer::timerid _client_timer =
+        _loop.run_after(1000,
+            [&] (const timer::timer_ptr &_timer)
+    {
+        try {
+            k::socket _sock(k::socket::IPV4_TCP);
+            _sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
+
+            int _times = 0;
+            int _size  = 0;
+            {
+                char _arr[8];
+                {
+                    in_buffer _in_buf(_arr, 8);
+                    _sock.read(_in_buf);
+                    out_buffer(_arr, 8).read_int32(_times).read_int32(_size);
+                }
+                log_info("client: times = %d, size = %d", _times, _size);
+                {
+                    out_buffer _out_buf(_arr, 8);
+                    _sock.write(_out_buf);
+                }
+            }
+
+            for (int _i = 0; _i < _times; ++_i) {
+                char _arr[_size + 1]; // XXX: unsafe
+                _arr[_size] = 0;
+                {
+                    in_buffer _in_buf(_arr, _size);
+                    _sock.read(_in_buf);
+                    out_buffer(_arr, _size).read_bytes(_arr, _size);
+                }
+                log_info("client: %s", _arr);
+                {
+                    for (int _j = 0; _j < _size / 2; ++_j)
+                        std::swap(_arr[_j], _arr[_size - _j - 1]);
+                }
+                {
+                    out_buffer _out_buf(_arr, _size);
+                    _sock.write(_out_buf);
+                }
+            }
+            _sock.close();
+        } catch (...) {
+            log_error("client error");
+            _loop.cancel(_timer);
+        }
+    });
+
+    _loop.run_after(10000,
+        [&] (const timer::timer_ptr _timer)
+    {
         _loop.cancel(_timer);
         _server.stop();
 
@@ -227,63 +278,20 @@ tcp_server_test ()
         timestamp _current_time = timestamp::realtime();
         _loop.run_at(_current_time + 1000,
                      [&] (const timer::timer_ptr &_timer) {
-            log_warning("main thread is closing...2s");
-            _loop.cancel(_timer);
-        }, true);
+             log_warning("main thread is closing...2s");
+             _loop.cancel(_timer);
+         }, true);
         _loop.run_at(_current_time + 2000,
                      [&] (const timer::timer_ptr &_timer) {
-            log_warning("main thread is closing...1s");
-            _loop.cancel(_timer);
+             log_warning("main thread is closing...1s");
+             _loop.cancel(_timer);
         }, true);
         _loop.run_at(_current_time + 3000,
                      [&] (const timer::timer_ptr &_timer) {
-            _loop.cancel(_timer);
-            _loop.stop();
+             _loop.cancel(_timer);
+             _loop.cancel(_client_timer);
+             _loop.stop();
         }, true);
-    };
-
-    _loop.run_after(10000, _timer);
-
-    _loop.run_after(1000, [&] (const timer::timer_ptr &_timer) {
-        _loop.cancel(_timer);
-        k::socket _sock(k::socket::IPV4_TCP);
-        _sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
-
-        int _times = 0;
-        int _size  = 0;
-        {
-            char _arr[8];
-            {
-                in_buffer _in_buf(_arr, 8);
-                _sock.read(_in_buf);
-                out_buffer(_arr, 8).read_int32(_times).read_int32(_size);
-            }
-            log_info("client: times = %d, size = %d", _times, _size);
-            {
-                out_buffer _out_buf(_arr, 8);
-                _sock.write(_out_buf);
-            }
-        }
-
-        for (int _i = 0; _i < _times; ++_i) {
-            char _arr[_size + 1]; // XXX: unsafe
-            _arr[_size] = 0;
-            {
-                in_buffer _in_buf(_arr, _size);
-                _sock.read(_in_buf);
-                out_buffer(_arr, _size).read_bytes(_arr, _size);
-            }
-            log_info("client: %s", _arr);
-            {
-                for (int _j = 0; _j < _size / 2; ++_j)
-                    std::swap(_arr[_j], _arr[_size - _j - 1]);
-            }
-            {
-                out_buffer _out_buf(_arr, _size);
-                _sock.write(_out_buf);
-            }
-        }
-        _sock.close();
     });
 
 #warning "copyable";

@@ -42,10 +42,8 @@ arg_check_func(bool _exp, const char *_what = nullptr)
                                        } catch (const std::exception &_e) {                        \
                                            log_debug("caught an exception be ignored - %s",        \
                                                      _e.what());                                   \
-                                           assert(0);                                              \
                                        } catch (...) {                                             \
                                            log_warning("caught an undefined exception be ignored");\
-                                           assert(0);                                              \
                                        }                                                           \
                                    } while (false)
 #define log_excp_fatal(exp, ...)   do {                                 \
