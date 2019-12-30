@@ -193,8 +193,7 @@ session::close (bool _blocking /* = false */)
 #endif
     } else {
 dir_close:
-        m_socket.close();
-        m_closed = true;
+        on_close(); // no callback
     }
 }
 
@@ -476,6 +475,19 @@ session::on_error ()
 }
 
 void
+session::on_close ()
+{
+    assert(!registed())
+    if (m_closed)
+        return;
+
+    auto _self = self();
+    m_socket.close();
+    m_closed = true;
+    clear_queues();
+}
+
+void
 session::on_close (std::error_code _ec)
 {
     if (m_closed)
@@ -487,28 +499,29 @@ session::on_close (std::error_code _ec)
     if (_loop and _loop->looping() and registed())
         _loop->remove_event(*this);
     m_socket.close();
-    {
-#if (ON != KNGIN_SESSION_NO_MUTEX)
-        local_lock _lock(m_out_bufq_mutex);
-        while (m_out_bufq.size())
-            m_out_bufq.pop();
-#endif
-    }
-    {
-#if (ON != KNGIN_SESSION_NO_MUTEX)
-        local_lock _lock(m_in_bufq_mutex);
-        while (m_in_bufq.size())
-            m_in_bufq.pop();
-#endif
-    }
-
     m_closed = true;
+    clear_queues();
     if (m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),
             "listener::m_close_handler() error"
         );
     }
+}
+
+void
+session::clear_queues ()
+{
+#if (ON != KNGIN_SESSION_NO_MUTEX)
+    {
+        local_lock _lock(m_out_bufq_mutex);
+        m_out_bufq.clear()
+    }
+    {
+        local_lock _lock(m_in_bufq_mutex);
+        m_in_bufq.clear()
+    }
+#endif
 }
 
 KNGIN_NAMESPACE_TCP_END
