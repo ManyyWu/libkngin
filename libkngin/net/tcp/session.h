@@ -136,55 +136,62 @@ public:
 
 public:
     const address &
-    local_addr () const KNGIN_NOEXCP
+    local_addr          () const KNGIN_NOEXCP
     { return m_local_addr; }
 
     const address &
-    peer_addr  () const KNGIN_NOEXCP
+    peer_addr           () const KNGIN_NOEXCP
     { return m_peer_addr; }
 
     const std::string
-    name       () const KNGIN_NOEXCP
+    name                () const KNGIN_NOEXCP
     { return m_name; }
 
     const std::string &
-    key        () const KNGIN_NOEXCP
+    key                 () const KNGIN_NOEXCP
     { return m_key; }
 
 public:
     loop_weak_ptr &
-    loop       () KNGIN_NOEXCP
+    loop                () KNGIN_NOEXCP
     { return m_loop; }
 
     const loop_weak_ptr &
-    loop       () const KNGIN_NOEXCP
+    loop                () const KNGIN_NOEXCP
     { return m_loop; }
 
     session_ptr
-    self       ()
+    self                ()
     { return shared_from_this(); }
 
 private:
     k::socket &
-    socket     () KNGIN_NOEXCP
+    socket              () KNGIN_NOEXCP
     { return m_socket; }
 
 private:
     virtual void
-    on_write   ();
+    on_write            ();
 
     virtual void
-    on_read    ();
+    on_read             ();
 
     virtual void
-    on_oob     ();
+    on_oob              ();
 
     virtual void
-    on_error   ();
-
+    on_error            ();
+          
     void
-    on_close   (std::error_code _ec);
+    on_close            ();
+          
+    void
+    on_close            (std::error_code _ec);
 
+private:
+    void
+    clear_queues        ();
+          
 private:
     loop_weak_ptr     m_loop;
 
