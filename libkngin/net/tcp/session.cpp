@@ -164,10 +164,7 @@ session::close (bool _blocking /* = false */)
         return;
     auto _loop = m_loop.lock();
 
-    if (!_loop or !_loop->looping()) {
-        goto dir_close;
-    }
-    if (registed()) {
+    if (registed() and _loop and  _loop->looping()) {
 #if (ON == KNGIN_SESSION_NO_MUTEX)
         on_close(std::error_code());
 #else
@@ -192,7 +189,6 @@ session::close (bool _blocking /* = false */)
         }
 #endif
     } else {
-dir_close:
         on_close(); // no callback
     }
 }

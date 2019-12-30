@@ -50,6 +50,7 @@ out_buffer::read_bytes (void * _p, size_t _n)
     check_readable(_n);
     ::memcpy(_p, m_arr, _n);
     m_size -= _n;
+    m_arr += _n;
     return _n;
 }
 

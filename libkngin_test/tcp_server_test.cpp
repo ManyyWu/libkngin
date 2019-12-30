@@ -168,9 +168,9 @@ public:
                             in_buffer(_arr1.get(), g_data_size),
                             [_arr1] (session &_s, in_buffer _buf, size_t _size)
                         {
-                            //log_info("recv data %s from %s",
-                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                            //         _s.name().c_str());
+                            log_info("recv data %s from %s",
+                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                                     _s.name().c_str());
                         });
                     });
                 }
@@ -208,7 +208,7 @@ tcp_server_test ()
         .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
-        .thread_num             = 10,
+        .thread_num             = 1,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,
@@ -216,13 +216,12 @@ tcp_server_test ()
     };
     event_loop _loop;
 
-    test_server _s(_loop, _opts);
-    assert(_s.run());
+    test_server _server(_loop, _opts);
+    assert(_server.run());
 
     auto _timer = [&] (const timer::timer_ptr _timer) {
-        assert(_timer);
         _loop.cancel(_timer);
-        _s.stop();
+        _server.stop();
 
         log_warning("main thread is closing...3s");
         timestamp _current_time = timestamp::realtime();
@@ -245,7 +244,49 @@ tcp_server_test ()
 
     _loop.run_after(10000, _timer);
 
+    _loop.run_after(1000, [&] (const timer::timer_ptr &_timer) {
+        _loop.cancel(_timer);
+        k::socket _sock(k::socket::IPV4_TCP);
+        _sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
+
+        int _times = 0;
+        int _size  = 0;
+        {
+            char _arr[8];
+            {
+                in_buffer _in_buf(_arr, 8);
+                _sock.read(_in_buf);
+                out_buffer(_arr, 8).read_int32(_times).read_int32(_size);
+            }
+            log_info("client: times = %d, size = %d", _times, _size);
+            {
+                out_buffer _out_buf(_arr, 8);
+                _sock.write(_out_buf);
+            }
+        }
+
+        for (int _i = 0; _i < _times; ++_i) {
+            char _arr[_size + 1]; // XXX: unsafe
+            _arr[_size] = 0;
+            {
+                in_buffer _in_buf(_arr, _size);
+                _sock.read(_in_buf);
+                out_buffer(_arr, _size).read_bytes(_arr, _size);
+            }
+            log_info("client: %s", _arr);
+            {
+                for (int _j = 0; _j < _size / 2; ++_j)
+                    std::swap(_arr[_j], _arr[_size - _j - 1]);
+            }
+            {
+                out_buffer _out_buf(_arr, _size);
+                _sock.write(_out_buf);
+            }
+        }
+        _sock.close();
+    });
+
 #warning "copyable";
     _loop.run();
-    _s.stop();
+    _server.stop();
 }

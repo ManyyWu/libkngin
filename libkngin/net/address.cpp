@@ -14,6 +14,22 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+address::address (const std::string &_addrstr, uint16_t _port, bool _v6)
+{
+    if (_v6) {
+        m_sa.v6.sin6_port = ::htons(_port);
+        m_sa.v6.sin6_family = AF_INET6;
+    } else {
+        m_sa.v4.sin_port = ::htons(_port);
+        m_sa.v4.sin_family = AF_INET;
+    }
+    int _ret = ::inet_pton(_v6 ? AF_INET6 : AF_INET,
+                           _addrstr.c_str(),
+                           _v6 ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr);
+    if (_ret < 0)
+        throw k::system_error("::inet_pton() error");
+}
+
 bool
 address::inet6 () const
 {
@@ -53,29 +69,10 @@ address::port () const KNGIN_NOEXCP
 }
 
 bool
-address::is_ipv4_mapped () const
+address::is_ipv4_mapped () const KNGIN_NOEXCP
 {
-    assert(!inet6());
+    assert(inet6());
     return IN6_IS_ADDR_V4MAPPED(&m_sa.v6.sin6_addr);
-}
-
-bool
-address::addrstr2addr (const std::string &_addrstr, uint16_t _port, bool _v6,
-                       address &_addr)
-{
-    if (_v6) {
-        _addr.m_sa.v6.sin6_port = ::htons(_port);
-        _addr.m_sa.v6.sin6_family = AF_INET6;
-    } else {
-        _addr.m_sa.v4.sin_port = ::htons(_port);
-        _addr.m_sa.v4.sin_family = AF_INET;
-    }
-    int _ret = ::inet_pton(_v6 ? AF_INET6 : AF_INET,
-                           _addrstr.c_str(),
-                           _v6 ? (void *)&_addr.sa().v6.sin6_addr : (void *)&_addr.sa().v4.sin_addr);
-    if (_ret < 0)
-        throw k::system_error("::inet_pton() error");
-    return _ret;
 }
 
 bool

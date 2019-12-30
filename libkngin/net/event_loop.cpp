@@ -89,25 +89,6 @@ event_loop::pimpl::run (started_handler &&_start_handler,
             );
         }
         while (!m_stop) {
-            // wait for events
-            uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
-            if (m_stop)
-                break;
-            //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
-
-            // sort the events by priority and type(timer > event > file)
-            std::sort(m_events.begin(), m_events.begin() + _size,
-                [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
-                epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
-                epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
-                return (_ptr1->type() > _ptr1->type() or
-                        (_ptr1->type() == _ptr1->type() and
-                         _ptr1->priority() > _ptr1->priority()));
-            }); // end of operator < for sortting
-
-            // process events
-            epoller::process_events(m_events, _size);
-
             // process queued events
             std::deque<task> _fnq;
             {
@@ -119,6 +100,25 @@ event_loop::pimpl::run (started_handler &&_start_handler,
                 _fnq.back()();
                 _fnq.pop_back();
             }
+
+            // wait for events
+            uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
+            if (m_stop)
+                break;
+            //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
+
+            // sort the events by priority and type(timer > event > file)
+            std::sort(m_events.begin(), m_events.begin() + _size,
+                [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
+                epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
+                epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
+                return (_ptr1->type() > _ptr2->type() or
+                        (_ptr1->type() == _ptr2->type() and
+                         _ptr1->priority() > _ptr2->priority()));
+            }); // end of operator < for sortting
+
+            // process events
+            epoller::process_events(m_events, _size);
         }
     } catch (...) {
         if (m_waker and m_waker->registed())

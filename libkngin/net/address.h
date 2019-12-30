@@ -40,6 +40,7 @@ public:
     { m_sa = _sa.m_sa; }
     address    (const address &&_sa) KNGIN_NOEXCP
     { m_sa = _sa.m_sa; }
+    address    (const std::string &_addrstr, uint16_t _port, bool _v6);
     ~address   () = default;
 
 public:
@@ -80,6 +81,14 @@ public:
     { m_sa = _sa.m_sa; return *this; }
 
 public:
+    bool
+    operator == (const address &_sa) KNGIN_NOEXCP
+    { return !::memcmp(&m_sa, &_sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
+    bool
+    operator != (const address &_sa) KNGIN_NOEXCP
+    { return ::memcmp(&m_sa, &_sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
+
+public:
     const address::sockaddr &
     sa         () const KNGIN_NOEXCP
     { return m_sa; }
@@ -90,12 +99,9 @@ public:
 
 public:
     bool
-    is_ipv4_mapped         () const;
+    is_ipv4_mapped         () const KNGIN_NOEXCP;
 
-    static bool
-    addrstr2addr           (const std::string &_addrstr, uint16_t _port, bool _v6,
-                            address &_addr);
-
+public:
     static bool
     is_valid_inet_addrstr  (const std::string &_addrstr);
 
@@ -104,7 +110,7 @@ public:
 
 public:
     std::string
-    key                 () const;
+    key                    () const;
 
 protected:
     address::sockaddr m_sa;

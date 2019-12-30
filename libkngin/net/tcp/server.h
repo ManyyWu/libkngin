@@ -2,6 +2,7 @@
 #define KNGIN_TCP_SERVER_H
 
 #include <map>
+#include <vector>
 #include "core/define.h"
 #include "core/noncopyable.h"
 #include "net/address.h"

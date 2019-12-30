@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <map>
 #include <deque>
 #include "core/define.h"
 #include "core/buffer.h"

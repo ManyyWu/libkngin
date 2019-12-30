@@ -45,6 +45,39 @@ public:
     { return m_size; }
 
 public:
+    out_buffer &
+    peek_uint8   (uint8_t &_val)  { _val = read<uint8_t>(false); return *this; }
+    out_buffer &
+    peek_int8    (int8_t &_val)   { _val = read<int8_t>(false); return *this; }
+    out_buffer &
+    peek_uint16  (uint16_t &_val) { _val = read<uint16_t>(false); return *this; }
+    out_buffer &
+    peek_int16   (int16_t &_val)  { _val = read<int16_t>(false); return *this; }
+    out_buffer &
+    peek_uint32  (uint32_t &_val) { _val = read<uint32_t>(false); return *this; }
+    out_buffer &
+    peek_int32   (int32_t &_val)  { _val = read<int32_t>(false); return *this; }
+    out_buffer &
+    peek_uint64  (uint64_t &_val) { _val = read<uint64_t>(false); return *this; }
+    out_buffer &
+    peek_int64   (int64_t &_val)  { _val = read<int64_t>(false); return *this; }
+    out_buffer &
+    read_uint8   (uint8_t &_val)  { _val = read<uint8_t>(); return *this; }
+    out_buffer &
+    read_int8    (int8_t &_val)   { _val = read<int8_t>(); return *this; }
+    out_buffer &
+    read_uint16  (uint16_t &_val) { _val = read<uint16_t>(); return *this; }
+    out_buffer &
+    read_int16   (int16_t &_val)  { _val = read<int16_t>(); return *this; }
+    out_buffer &
+    read_uint32  (uint32_t &_val) { _val = read<uint32_t>(); return *this; }
+    out_buffer &
+    read_int32   (int32_t &_val)  { _val = read<int32_t>(); return *this; }
+    out_buffer &
+    read_uint64  (uint64_t &_val) { _val = read<uint64_t>(); return *this; }
+    out_buffer &
+    read_int64   (int64_t &_val)  { _val = read<int64_t>(); return *this; }
+
     uint8_t
     peek_uint8   () { return read<uint8_t>(false); }
     int8_t
@@ -116,8 +149,10 @@ protected:
     read           (bool _forward = true)
     {
         check_readable(sizeof(Type));
+        Type _val = *static_cast<const Type *>(static_cast<const void *>(m_arr));
         m_size -= _forward ? sizeof(Type) : 0;
-        return *static_cast<const Type *>(static_cast<const void *>(m_arr));
+        m_arr += _forward ? sizeof(Type) : 0;
+        return _val;
     }
 
 private:
