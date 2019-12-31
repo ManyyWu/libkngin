@@ -33,6 +33,8 @@ public:
 
     typedef std::function<void (session &, in_buffer, size_t)>     message_handler;
 
+    typedef std::function<void (session &, uint8_t)>               oob_handler;
+
     typedef std::function<void (session &)>                        sent_handler;
 
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
@@ -40,8 +42,6 @@ public:
 
     typedef std::deque<sent_handler>                               sent_handlerq;
 #endif
-
-    typedef std::function<void (session &, uint8_t)>               oob_handler;
 
     typedef std::shared_ptr<session>                               session_ptr;
 

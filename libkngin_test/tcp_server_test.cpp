@@ -235,8 +235,8 @@ tcp_server_test ()
                     in_buffer _in_buf(_arr, 8);
                     _sock.read(_in_buf);
                     out_buffer(_arr, 8).read_int32(_times).read_int32(_size);
+                    log_info("client: times = %d, size = %d", _times, _size);
                 }
-                log_info("client: times = %d, size = %d", _times, _size);
                 {
                     out_buffer _out_buf(_arr, 8);
                     _sock.write(_out_buf);
@@ -249,9 +249,11 @@ tcp_server_test ()
                 {
                     in_buffer _in_buf(_arr, _size);
                     _sock.read(_in_buf);
-                    out_buffer(_arr, _size).read_bytes(_arr, _size);
                 }
-                log_info("client: %s", _arr);
+                {
+                    out_buffer(_arr, _size).read_bytes(_arr, _size);
+                    log_info("client: %s", _arr);
+                }
                 {
                     for (int _j = 0; _j < _size / 2; ++_j)
                         std::swap(_arr[_j], _arr[_size - _j - 1]);
