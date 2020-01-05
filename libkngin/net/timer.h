@@ -78,7 +78,7 @@ public:
 public:
     bool
     cancelled ()
-    { return registed(); }
+    { return !registed(); }
 
     timer_ptr
     self      ()

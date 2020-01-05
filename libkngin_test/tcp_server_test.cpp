@@ -43,7 +43,7 @@ public:
         m_server.set_session_handler([this] (server::session_ptr _session) {
             assert(_session);
             log_info("new session from %s", _session->name().c_str());
-            if (sessrion->closed())
+            if (_session->closed())
                 return;
             if (!_session->connected()) {
                 _session->close();
@@ -53,11 +53,6 @@ public:
             // create session info
             {
                 local_lock _lock(m_sessions_mutex);
-                //if (m_sessions.find(_session->key()) != m_sessions.end()) {
-                //    _session->close();
-                //    log_error("address already existed, session closed");
-                //    return;
-                //}
                 assert(m_sessions.find(_session->key()) == m_sessions.end());
                 m_sessions.insert(std::make_pair(_session->key(), session_info(_session)));
                 //log_debug("size: %d", m_sessions.size());
@@ -89,7 +84,7 @@ public:
                         _close = false;
                     break;
                 }
-                //assert(m_sessions.find(_session.key()) == m_sessions.end());
+                assert(m_sessions.find(_session.key()) != m_sessions.end());
                 m_sessions.erase(_session.key());
                 size_t _size = m_sessions.size();
                 _close = !_size;
@@ -218,7 +213,7 @@ tcp_server_test ()
 
     test_server _server(_loop, _opts);
     assert(_server.run());
-
+/*
     timer::timerid _client_timer =
         _loop.run_after(1000,
             [&] (const timer::timer_ptr &_timer)
@@ -295,7 +290,7 @@ tcp_server_test ()
              _loop.stop();
         }, true);
     });
-
+*/
 #warning "copyable";
     _loop.run();
     _server.stop();
