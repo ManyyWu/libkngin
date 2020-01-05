@@ -43,10 +43,10 @@ public:
         m_server.set_session_handler([this] (server::session_ptr _session) {
             assert(_session);
             log_info("new session from %s", _session->name().c_str());
-
+            if (sessrion->closed())
+                return;
             if (!_session->connected()) {
-                if (!_session->closed())
-                    _session->close();
+                _session->close();
                 return;
             }
 
