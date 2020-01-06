@@ -247,6 +247,7 @@ server::on_new_session (socket &&_sock)
             _next_loop.run_in_loop([this, _session] () {
                 if (_session->closed()) // closed
                     return;
+                _session->set_establish();
                 log_excp_error(
                     m_session_handler(_session),
                     "server::m_session_handler() error"

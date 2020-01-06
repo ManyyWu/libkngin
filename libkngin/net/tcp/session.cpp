@@ -41,7 +41,8 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_in_bufq_mutex(),
 #endif
       m_callback_lowat(KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT),
-      m_key(m_peer_addr.key())
+      m_key(m_peer_addr.key()),
+      m_established(false)
 {
     arg_check(m_socket.valid());
 
@@ -500,7 +501,7 @@ session::on_close (std::error_code _ec)
 #if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     clear_queues();
 #endif
-    if (m_close_handler) {
+    if (m_established && m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),
             "listener::m_close_handler() error"
@@ -512,6 +513,7 @@ void
 session::clear_queues ()
 {
     assert(m_closed);
+#if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     {
         local_lock _lock(m_out_bufq_mutex);
         m_out_bufq.clear();
@@ -520,6 +522,7 @@ session::clear_queues ()
         local_lock _lock(m_in_bufq_mutex);
         m_in_bufq.clear();
     }
+#endif
 }
 
 KNGIN_NAMESPACE_TCP_END

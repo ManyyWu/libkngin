@@ -45,15 +45,15 @@ public:
             log_info("new session from %s", _session->name().c_str());
             if (_session->closed())
                 return;
-            if (!_session->connected()) {
-                _session->close();
-                return;
-            }
 
             // create session info
             {
                 local_lock _lock(m_sessions_mutex);
-                assert(m_sessions.find(_session->key()) == m_sessions.end());
+                if (m_sessions.find(_session->key()) != m_sessions.end()) {
+                    log_warning("existed session %s", _session->name().c_str());
+                    _session->close();
+                    return;
+                }
                 m_sessions.insert(std::make_pair(_session->key(), session_info(_session)));
                 //log_debug("size: %d", m_sessions.size());
             }
@@ -79,11 +79,6 @@ public:
             bool _close = true;
             do {
                 local_lock _lock(m_sessions_mutex);
-                if (m_sessions.find(_session.key()) == m_sessions.end()) { // closed before add
-                    if (m_sessions.size())
-                        _close = false;
-                    break;
-                }
                 assert(m_sessions.find(_session.key()) != m_sessions.end());
                 m_sessions.erase(_session.key());
                 size_t _size = m_sessions.size();

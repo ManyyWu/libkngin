@@ -165,6 +165,11 @@ public:
     self                ()
     { return shared_from_this(); }
 
+public:
+    void
+    set_establish       () KNGIN_NOEXCP
+    { m_established = true; }
+
 private:
     k::socket &
     socket              () KNGIN_NOEXCP
@@ -233,6 +238,8 @@ private:
     size_t            m_callback_lowat;
 
     const std::string m_key;
+
+    std::atomic_bool  m_established;
 };
 
 KNGIN_NAMESPACE_TCP_END
