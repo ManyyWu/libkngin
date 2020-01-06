@@ -479,7 +479,7 @@ session::on_close ()
     auto _self = self();
     m_socket.close();
     m_closed = true;
-#if (ON != KNGIN_SESSION_NO_MUTEX)
+#if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     clear_queues();
 #endif
 }
@@ -497,7 +497,7 @@ session::on_close (std::error_code _ec)
         _loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
-#if (ON != KNGIN_SESSION_NO_MUTEX)
+#if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     clear_queues();
 #endif
     if (m_close_handler) {
@@ -512,7 +512,6 @@ void
 session::clear_queues ()
 {
     assert(m_closed);
-#if (ON != KNGIN_SESSION_NO_MUTEX)
     {
         local_lock _lock(m_out_bufq_mutex);
         m_out_bufq.clear();
@@ -521,7 +520,6 @@ session::clear_queues ()
         local_lock _lock(m_in_bufq_mutex);
         m_in_bufq.clear();
     }
-#endif
 }
 
 KNGIN_NAMESPACE_TCP_END
