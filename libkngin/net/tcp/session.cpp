@@ -29,8 +29,8 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_message_handler(nullptr),
       m_sent_handler(nullptr),
 #else
-      m_recv_ctxq(),
-      m_send_ctxq(),
+      m_in_ctxq(),
+      m_out_ctxq(),
 #endif
 #if (ON == KNGIN_SESSION_ET_MODE)
       m_recv_complete(true),
@@ -42,7 +42,6 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_out_bufq_mutex(),
       m_in_bufq_mutex(),
 #endif
-      m_callback_lowat(KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT),
       m_key(m_peer_addr.key()),
       m_established(false)
 {
@@ -95,10 +94,11 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
         local_lock _lock(m_out_bufq_mutex);
 #endif
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        m_sent_handlerq.push_front(_handler);
+        m_out_ctxq.push_front({_buf, std::move(_handler)});
+#else
+        m_out_ctxq.push_front({_buf});
 #endif
-        m_out_bufq.push_front(_buf);
-        if (m_out_bufq.size() <= 1) {
+        if (m_out_ctxq.size() <= 1) {
             enable_write();
             _loop->update_event(*this);
         }
@@ -141,10 +141,8 @@ session::recv (in_buffer _buf, message_handler &&_handler,
         local_lock _lock(m_in_bufq_mutex);
 #endif
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        m_message_handlerq.push_front(_handler);
+        m_in_ctxq.push_front({_buf, std::move(_handler), _lowat});
 #endif
-        m_in_bufq.push_front(_buf);
-        m_callback_lowat = _lowat;
     }
 
 #if (ON == KNGIN_SESSION_NO_MUTEX)
@@ -244,22 +242,20 @@ session::on_write ()
         return;
     assert(_loop->in_loop_thread());
 
-    msg_buffer *_buf = nullptr;
+    out_context *_out_ctx = nullptr;
     {
 #if (ON != KNGIN_SESSION_NO_MUTEX)
         local_lock _lock(m_out_bufq_mutex);
 #endif
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        assert(m_out_bufq.size() == m_sent_handlerq.size());
-#endif
-        if (m_out_bufq.empty())
+        if (m_out_ctxq.empty())
             return;
-        _buf = &m_out_bufq.back();
+        _out_ctx = &m_out_ctxq.back();
     }
-    assert(_buf and _buf->buffer().size());
+    assert(_out_ctx and _out_ctx->buffer.buffer().size());
+    msg_buffer   &_buf = _out_ctx->buffer;
 
     std::error_code _ec;
-    size_t _size = m_socket.write(_buf->buffer(), _ec);
+    size_t _size = m_socket.write(_buf.buffer(), _ec);
     if (_ec) {
         if ((std::errc::operation_would_block == _ec or
              std::errc::resource_unavailable_try_again == _ec or
@@ -276,43 +272,33 @@ session::on_write ()
         on_close(_ec);
         return;
     } else {
-        if (_buf->buffer().size())
+        if (_buf.buffer().size())
             return;
-        _buf = nullptr;
 
         // write done
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        sent_handler _handler = nullptr;
+    sent_handler _handler = std::move(_out_ctx->handler);
+#else
+    sent_handler &_handler = m_sent_handler;
 #endif
+        shield_var(_buf);
+        shield_var(_out_ctx);
         {
 #if (ON != KNGIN_SESSION_NO_MUTEX)
             local_lock _lock(m_out_bufq_mutex);
 #endif
-            m_out_bufq.pop_back();
-            if (m_out_bufq.empty()) {
+            m_out_ctxq.pop_back();
+            if (m_out_ctxq.empty()) {
                 disable_write();
                 _loop->update_event(*this);
             }
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-            _handler = m_sent_handlerq.back();
-            m_sent_handlerq.pop_back();
-#endif
         }
-#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-        if (m_sent_handler) {
-            log_excp_error(
-                m_sent_handler(std::ref(*this)),
-                "session::m_sent_handler() error"
-            );
-        }
-#else
         if (_handler) {
             log_excp_error(
                 _handler(std::ref(*this)),
                 "session::m_sent_handler() error"
             );
         }
-#endif
     }
 }
 
@@ -325,29 +311,27 @@ session::on_read ()
     if_not (pollin())
         return;
     assert(_loop->in_loop_thread());
-    if (m_in_bufq.empty()) {
+    if (m_in_ctxq.empty()) {
         //log_debug("%" PRIu64 " bytes", m_socket.readable());
         on_error();
         return;
     }
 
-    in_buffer *_buf = nullptr;
+    in_context *_in_ctx = nullptr;
     {
 #if (ON != KNGIN_SESSION_NO_MUTEX)
         local_lock _lock(m_in_bufq_mutex);
 #endif
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        assert(m_in_bufq.size() == m_message_handlerq.size());
-#endif
-        if (m_in_bufq.empty())
+        if (m_in_ctxq.empty())
             return;
-        _buf = &m_in_bufq.back();
+        _in_ctx = &m_in_ctxq.back();
     }
-    assert(_buf and _buf->size());
-    assert(_buf->valid() < _buf->size());
+    assert(_in_ctx and _in_ctx->buffer.size() > _in_ctx->buffer.valid());
+    in_buffer &_buf = _in_ctx->buffer;
+    size_t    _lowat = _in_ctx->lowat;
 
     std::error_code _ec;
-    size_t _size = m_socket.read(*_buf, _ec);
+    size_t _size = m_socket.read(_buf, _ec);
     if (_ec) {
         if ((std::errc::operation_would_block == _ec or
              std::errc::resource_unavailable_try_again == _ec or
@@ -364,44 +348,35 @@ session::on_read ()
         on_close(_ec);
         return;
     } else {
-        assert(m_callback_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
-               ? _buf->size() >= m_callback_lowat : true);
-        if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT != m_callback_lowat and
-            _buf->valid() < m_callback_lowat)
+        assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
+               ? _buf.size() >= _lowat : true);
+        if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT != _lowat and
+            _buf.valid() < _lowat)
             return;
-        if (_buf->writeable())
+        if (_buf.writeable())
             return;
-        _buf = nullptr;
 
         // read done
-        message_handler _handler = nullptr;
-        in_buffer _back;
+        shield_var(_buf);
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+        message_handler _handler = std::move(_in_ctx->handler);
+#else
+        message_handler &_handler = m_message_handler;
+#endif
+        in_context _in_ctx;
         {
 #if (ON != KNGIN_SESSION_NO_MUTEX)
             local_lock _lock(m_in_bufq_mutex);
 #endif
-            _back = m_in_bufq.back();
-            m_in_bufq.pop_back();
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-            _handler = m_message_handlerq.back();
-            m_message_handlerq.pop_back();
-#endif
+            _in_ctx = m_in_ctxq.back();
+            m_in_ctxq.pop_back();
         }
-#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-        if (m_message_handler) {
-            log_excp_error(
-                m_message_handler(std::ref(*this), _back, _back.valid()),
-                "session::m_message_handler() error"
-            );
-        }
-#else
         if (_handler) {
             log_excp_error(
-                _handler(std::ref(*this), _back, _back.valid()),
+                _handler(std::ref(*this), _in_ctx.buffer, _in_ctx.buffer.valid()),
                 "session::m_message_handler() error"
             );
         }
-#endif
     }
 }
 
@@ -498,9 +473,7 @@ session::on_close (std::error_code _ec)
         _loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
-#if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     clear_queues();
-#endif
     if (m_established && m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),
@@ -513,16 +486,18 @@ void
 session::clear_queues ()
 {
     assert(m_closed);
-#if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     {
+#if (OFF == KNGIN_SESSION_NO_MUTEX)
         local_lock _lock(m_out_bufq_mutex);
-        m_out_bufq.clear();
+#endif
+        m_out_ctxq.clear();
     }
     {
+#if (OFF == KNGIN_SESSION_NO_MUTEX)
         local_lock _lock(m_in_bufq_mutex);
-        m_in_bufq.clear();
-    }
 #endif
+        m_in_ctxq.clear();
+    }
 }
 
 KNGIN_NAMESPACE_TCP_END

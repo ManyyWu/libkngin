@@ -37,23 +37,24 @@ public:
 
     typedef std::function<void (session &)>                        sent_handler;
 
-    struct recv_context {
-        msg_buffer      buffer;
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        message_handler handler;
-#endif
-    };
-
-    struct send_context {
+    struct in_context {
         in_buffer       buffer;
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
         message_handler handler;
 #endif
+        size_t          lowat;
     };
 
-    typedef std::deque<recv_context>                               recv_ctxq;
+    struct out_context {
+        msg_buffer      buffer;
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+        sent_handler handler;
+#endif
+    };
 
-    typedef std::deque<send_context>                               send_ctxq;
+    typedef std::deque<in_context>                                 in_ctxq;
+
+    typedef std::deque<out_context>                                out_ctxq;
 
     typedef std::shared_ptr<session>                               session_ptr;
 
@@ -226,9 +227,9 @@ private:
     sent_handler      m_sent_handler;
 #endif
 
-    recv_ctxq         m_recv_ctxq;
+    in_ctxq           m_in_ctxq;
 
-    send_ctxq         m_send_ctxq;
+    out_ctxq          m_out_ctxq;
 
 #if (ON == KNGIN_SESSION_ET_MODE)
     bool              m_recv_complete;
@@ -245,8 +246,6 @@ private:
 
     mutex             m_in_bufq_mutex;
 #endif
-
-    size_t            m_callback_lowat;
 
     const std::string m_key;
 

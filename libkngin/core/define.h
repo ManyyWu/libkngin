@@ -62,8 +62,13 @@ typedef SSIZE_T ssize_t;
 #endif
 
 // for session
-#define KNGIN_SESSION_TEMP_CALLBACK ON
+#define KNGIN_ONE_LOOP_PER_SESSION  ON
+#if (ON == KNGIN_ONE_LOOP_PER_SESSION)
 #define KNGIN_SESSION_NO_MUTEX      ON
+#else
+#define KNGIN_SESSION_NO_MUTEX      OFF
+#endif
+#define KNGIN_SESSION_TEMP_CALLBACK ON
 #define KNGIN_SESSION_ET_MODE       ON
 
 // for epoller
