@@ -188,7 +188,7 @@ void
 tcp_server_test ()
 {
 #define SERVER_ADDR "192.168.0.2"
-#define SERVER_ADDR "127.0.0.1"
+//#define SERVER_ADDR "127.0.0.1"
 //#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
 //#define SERVER_ADDR "::1%16"
 #define SERVER_PORT 20000
@@ -198,7 +198,7 @@ tcp_server_test ()
         .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
-        .thread_num             = 1,
+        .thread_num             = 8,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,
@@ -259,8 +259,8 @@ tcp_server_test ()
             _loop.cancel(_timer);
         }
     });
-
-    _loop.run_after(10000,
+*/
+    _loop.run_after(20000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);
@@ -281,11 +281,11 @@ tcp_server_test ()
         _loop.run_at(_current_time + 3000,
                      [&] (const timer::timer_ptr &_timer) {
              _loop.cancel(_timer);
-             _loop.cancel(_client_timer);
+             //_loop.cancel(_client_timer);
              _loop.stop();
         }, true);
     });
-*/
+
 #warning "copyable";
     _loop.run();
     _server.stop();

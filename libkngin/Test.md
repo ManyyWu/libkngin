@@ -52,3 +52,6 @@
 ### leak check
 $valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./libkngin_test
 
+### strace
+$strace -o starce.txt -c -d -ttt ./libkngin_test
+

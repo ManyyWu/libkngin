@@ -340,7 +340,7 @@ filefd::nonblock (std::error_code &_ec) const KNGIN_NOEXCP
 filefd &
 filefd::operator = (int _fd) KNGIN_NOEXCP
 {
-    assert(valid());
+    assert(FD_VALID(_fd));
     m_fd = _fd;
     return *this;
 }
