@@ -38,13 +38,6 @@ public:
 
 public:
     void
-    set_et         () = delete;
-
-    void
-    set_lt         () = delete;
-
-public:
-    void
     close          ();
 
     bool

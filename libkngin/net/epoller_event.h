@@ -63,6 +63,8 @@ protected:
     void
     enable_once    ()                KNGIN_NOEXCP { m_flags |= EPOLLONESHOT; }
     void
+    enable_et      ()                KNGIN_NOEXCP { m_flags |= EPOLLET; }
+    void
     disable_read   ()                KNGIN_NOEXCP { m_flags &= ~EPOLLIN; }
     void
     disable_write  ()                KNGIN_NOEXCP { m_flags &= ~EPOLLOUT; }
@@ -70,6 +72,8 @@ protected:
     disable_oob    ()                KNGIN_NOEXCP { m_flags &= ~EPOLLPRI; }
     void
     disable_once   ()                KNGIN_NOEXCP { m_flags &= ~EPOLLONESHOT; }
+    void
+    disable_et     ()                KNGIN_NOEXCP { m_flags &= ~EPOLLET; }
     void
     disable_all    ()                KNGIN_NOEXCP { m_flags = EPOLLHUP | EPOLLERR; }
     bool
@@ -80,6 +84,8 @@ protected:
     pollpri        () const          KNGIN_NOEXCP { return (m_flags & EPOLLPRI); }
     bool
     pollonce       () const          KNGIN_NOEXCP { return (m_flags & EPOLLONESHOT); }
+    bool
+    et             () const          KNGIN_NOEXCP { return (m_flags & EPOLLET); }
 
 protected:
     static void

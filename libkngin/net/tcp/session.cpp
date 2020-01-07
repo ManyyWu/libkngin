@@ -29,13 +29,15 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_message_handler(nullptr),
       m_sent_handler(nullptr),
 #else
-      m_message_handlerq(),
-      m_sent_handlerq(),
+      m_recv_ctxq(),
+      m_send_ctxq(),
+#endif
+#if (ON == KNGIN_SESSION_ET_MODE)
+      m_recv_complete(true),
+      m_send_complete(true),
 #endif
       m_oob_handler(nullptr),
       m_close_handler(nullptr),
-      m_out_bufq(),
-      m_in_bufq(),
 #if (ON != KNGIN_SESSION_NO_MUTEX)
       m_out_bufq_mutex(),
       m_in_bufq_mutex(),
@@ -259,10 +261,9 @@ session::on_write ()
     std::error_code _ec;
     size_t _size = m_socket.write(_buf->buffer(), _ec);
     if (_ec) {
-        if (((std::errc::operation_would_block == _ec or
-              std::errc::resource_unavailable_try_again == _ec or
-              std::errc::interrupted == _ec
-              ) and m_socket.nonblock()
+        if ((std::errc::operation_would_block == _ec or
+             std::errc::resource_unavailable_try_again == _ec or
+             std::errc::interrupted == _ec
              ) or EINTR == errno
             )
             return;
@@ -348,10 +349,9 @@ session::on_read ()
     std::error_code _ec;
     size_t _size = m_socket.read(*_buf, _ec);
     if (_ec) {
-        if (((std::errc::operation_would_block == _ec or
-              std::errc::resource_unavailable_try_again == _ec or
-              std::errc::interrupted == _ec
-              ) and m_socket.nonblock()
+        if ((std::errc::operation_would_block == _ec or
+             std::errc::resource_unavailable_try_again == _ec or
+             std::errc::interrupted == _ec
              ) or EINTR == errno
             )
             return;

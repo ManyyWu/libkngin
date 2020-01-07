@@ -64,6 +64,7 @@ typedef SSIZE_T ssize_t;
 // for session
 #define KNGIN_SESSION_TEMP_CALLBACK ON
 #define KNGIN_SESSION_NO_MUTEX      ON
+#define KNGIN_SESSION_ET_MODE       ON
 
 // for epoller
 #define KNGIN_RESERVED_EPOLLELR_EVENT 64

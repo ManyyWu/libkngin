@@ -37,17 +37,26 @@ public:
 
     typedef std::function<void (session &)>                        sent_handler;
 
+    struct recv_context {
+        msg_buffer      buffer;
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-    typedef std::deque<message_handler>                            message_handlerq;
-
-    typedef std::deque<sent_handler>                               sent_handlerq;
+        message_handler handler;
 #endif
+    };
+
+    struct send_context {
+        in_buffer       buffer;
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+        message_handler handler;
+#endif
+    };
+
+    typedef std::deque<recv_context>                               recv_ctxq;
+
+    typedef std::deque<send_context>                               send_ctxq;
 
     typedef std::shared_ptr<session>                               session_ptr;
 
-    typedef std::deque<msg_buffer>                                 msg_buffer_queue;
-
-    typedef std::deque<in_buffer>                                  in_buffer_queue;
 
 public:
     session         () = delete;
@@ -215,19 +224,21 @@ private:
     message_handler   m_message_handler;
 
     sent_handler      m_sent_handler;
-#else
-    message_handlerq  m_message_handlerq;
+#endif
 
-    sent_handlerq     m_sent_handlerq;
+    recv_ctxq         m_recv_ctxq;
+
+    send_ctxq         m_send_ctxq;
+
+#if (ON == KNGIN_SESSION_ET_MODE)
+    bool              m_recv_complete;
+
+    bool              m_send_complete;
 #endif
 
     oob_handler       m_oob_handler;
 
     close_handler     m_close_handler;
-
-    msg_buffer_queue  m_out_bufq;
-
-    in_buffer_queue   m_in_bufq;
 
 #if (ON != KNGIN_SESSION_NO_MUTEX)
     mutex             m_out_bufq_mutex;
