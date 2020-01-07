@@ -56,8 +56,13 @@ session::session (event_loop &_loop, k::socket &&_socket,
 
     // set event flags
     enable_read();
+#if (OFF == KNGIN_SESSION_ET_MODE)
     disable_write();
     disable_oob();
+#else
+    enable_write();
+    enable_oob();
+#endif
 } catch (...) {
     log_fatal("session::session() error");
     throw;
@@ -82,7 +87,7 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 #endif
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closed)
+    if (!_loop or m_closed or m_socket.wr_closed())
         return false;
 #if (ON == KNGIN_SESSION_NO_MUTEX)
     assert(_loop->in_loop_thread());
@@ -98,10 +103,12 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 #else
         m_out_ctxq.push_front({_buf});
 #endif
+#if (OFF == KNGIN_SESSION_ET_MODE)
         if (m_out_ctxq.size() <= 1) {
             enable_write();
             _loop->update_event(*this);
         }
+#endif
     }
 
 #if (ON == KNGIN_SESSION_NO_MUTEX)
@@ -127,7 +134,7 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 #endif
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closed)
+    if (!_loop or m_closed or m_socket.rd_closed())
         return false;
 #if (ON == KNGIN_SESSION_NO_MUTEX)
     assert(_loop->in_loop_thread());
@@ -288,10 +295,12 @@ session::on_write ()
             local_lock _lock(m_out_bufq_mutex);
 #endif
             m_out_ctxq.pop_back();
+#if (OFF == KNGIN_SESSION_ET_MODE)
             if (m_out_ctxq.empty()) {
                 disable_write();
                 _loop->update_event(*this);
             }
+#endif
         }
         if (_handler) {
             log_excp_error(
@@ -439,7 +448,12 @@ session::on_error ()
         return;
     } else {
         tcp_info _info = sockopts::tcp_info(m_socket);
-        if (_info.tcpi_state != TCP_ESTABLISHED)
+        if (TCP_CLOSE_WAIT == _info.tcpi_state) { // peer are closed or wr_closed
+            m_socket.rd_shutdown();
+            on_close(_ec);
+            return;
+        }
+        if (TCP_ESTABLISHED != _info.tcpi_state)
             on_close(_ec);
         //log_debug("session::on_error(), no any error was readed");
         return;
@@ -469,12 +483,18 @@ session::on_close (std::error_code _ec)
     assert(_loop ? _loop->in_loop_thread() : true);
 
     auto _self = self();
-    if (_loop and _loop->looping() and registed())
+
+    if (_ec and !m_socket.wr_closed())
+    {
+        // send all meg_buffer
+    }
+
+    if (_loop->looping() and registed())
         _loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
     clear_queues();
-    if (m_established && m_close_handler) {
+    if (m_established and m_close_handler) {
         log_excp_error(
             m_close_handler(std::cref(*this), _ec),
             "listener::m_close_handler() error"

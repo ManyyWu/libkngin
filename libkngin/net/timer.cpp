@@ -37,7 +37,7 @@ bool
 timer::timerid::cancelled ()
 {
     auto _timer = m_timer.lock();
-    return (_timer && _timer->registed());
+    return (_timer and _timer->registed());
 }
 
 timer::timerid &

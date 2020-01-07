@@ -96,7 +96,7 @@ is_single_ref_ptr (std::shared_ptr<Type> &_ptr)
 
 // others
 #define nouse_var(var) (void)(var)
-#define shield_var(var) void *var = nullptr
+#define shield_var(var) void *var = nullptr; nouse_var(var);
 
 KNGIN_NAMESPACE_K_END
 

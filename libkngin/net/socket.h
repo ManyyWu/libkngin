@@ -90,10 +90,12 @@ public:
     wr_shutdown (std::error_code &_ec) KNGIN_NOEXCP;
 
     bool
-    rd_closed   () { return m_rd_closed; }
+    rd_closed   () const KNGIN_NOEXCP
+    { return m_rd_closed; }
 
     bool
-    wr_closed   () { return m_wr_closed; }
+    wr_closed   () const KNGIN_NOEXCP
+    { return m_wr_closed; }
 
 public:
     size_t

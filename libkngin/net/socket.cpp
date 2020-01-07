@@ -147,7 +147,7 @@ socket::rd_shutdown ()
     assert(!m_rd_closed);
     if (::shutdown(m_fd, SHUT_RD) < 0)
         throw k::system_error("::shutdown(SHUT_RD) error");
-    m_rd_closed = true;
+    m_fd = ((m_rd_closed = true) and m_wr_closed) ? filefd::invalid_fd : m_fd;
 }
 
 void
@@ -155,7 +155,7 @@ socket::rd_shutdown (std::error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_rd_closed);
     _ec = (::shutdown(m_fd, SHUT_RD) < 0 ? last_error() : std::error_code());
-    m_rd_closed = true;
+    m_fd = (m_rd_closed and (m_wr_closed = true)) ? filefd::invalid_fd : m_fd;
 }
 
 void
@@ -164,7 +164,7 @@ socket::wr_shutdown ()
     assert(!m_wr_closed);
     if (::shutdown(m_fd, SHUT_WR) < 0)
         throw k::system_error("::shutdown(SHUT_WR) error");
-    m_wr_closed = true;
+    m_fd = ((m_rd_closed = true) and m_wr_closed) ? filefd::invalid_fd : m_fd;
 }
 
 void
@@ -172,7 +172,7 @@ socket::wr_shutdown (std::error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_wr_closed);
     _ec = (::shutdown(m_fd, SHUT_WR) < 0 ? last_error() : std::error_code());
-    m_wr_closed = true;
+    m_fd = (m_rd_closed and (m_wr_closed = true)) ? filefd::invalid_fd : m_fd;
 }
 
 size_t
