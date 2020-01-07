@@ -44,7 +44,7 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_ENABLE_LOG_MUTEX ON
 
 // for exception
-//#define KNGIN_EXP   noexcept(false)
+//#define KNGIN_EXCP   noexcept(false)
 #define KNGIN_NOEXCP noexcept(true)
 
 // for queues
