@@ -98,8 +98,6 @@ address::is_valid_inet6_addrstr (const std::string &_addrstr)
 std::string
 address::key () const
 {
-    std::string _key;
-    _key.reserve(KEY_SIZE);
     if (inet6())
         return std::string((char *)&m_sa.v6.sin6_addr, sizeof(struct ::in6_addr)
                            ).append(std::to_string(m_sa.v6.sin6_port));

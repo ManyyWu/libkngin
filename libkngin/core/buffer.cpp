@@ -80,11 +80,12 @@ std::string
 out_buffer::dump ()
 {
     std::string _result;
-    _result.reserve(m_size * 2 + 1);
+    _result.resize(m_size * 2 + 1);
     char _tmp[3] = {0};
     for (size_t i = 0; i < m_size; ++i) {
         ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
-        _result.append(_tmp);
+        _result[2 * i] = _tmp[0];
+        _result[2 * i + 1] = _tmp[1];
     }
     return _result;
 }
@@ -157,11 +158,12 @@ std::string
 in_buffer::dump ()
 {
     std::string _result;
-    _result.reserve(m_size * 2 + 1);
+    _result.resize(m_size * 2 + 1);
     char _tmp[3] = {0};
     for (size_t i = 0; i < m_size; ++i) {
         ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
-        _result += _tmp;
+        _result[2 * i] = _tmp[0];
+        _result[2 * i + 1] = _tmp[1];
     }
     return _result;
 }
