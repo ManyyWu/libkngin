@@ -231,6 +231,10 @@ private:
 
     out_ctxq          m_out_ctxq;
 
+    out_context *     m_next_out_ctx;
+
+    in_context *      m_next_in_ctx;
+
 #if (ON == KNGIN_SESSION_ET_MODE)
     bool              m_recv_complete;
 
