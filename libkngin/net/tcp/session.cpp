@@ -253,7 +253,7 @@ session::on_write ()
     if_not (pollout())
         return;
     assert(_loop->in_loop_thread());
-    if (m_next_out_ctx)
+    if (!m_next_out_ctx)
         return;
  
     out_context &_out_ctx = *m_next_out_ctx;
@@ -358,11 +358,6 @@ session::on_read ()
             return;
 
         // read done
-#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        message_handler _handler = std::move(_in_ctx.handler);
-#else
-        message_handler &_handler = m_message_handler;
-#endif
         shield_var(_buf);
         shield_var(_in_ctx);
         in_context _back;
@@ -374,6 +369,11 @@ session::on_read ()
             m_in_ctxq.pop_back();
             m_next_in_ctx = m_in_ctxq.empty() ? nullptr : &m_in_ctxq.back();
         }
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+        message_handler &_handler = _back.handler;
+#else
+        message_handler &_handler = m_message_handler;
+#endif
         if (_handler) {
             log_excp_error(
                 _handler(std::ref(*this), _back.buffer, _back.buffer.valid()),
@@ -460,7 +460,6 @@ session::on_close ()
     if (m_closed)
         return;
 
-    auto _self = self();
     m_socket.close();
     m_closed = true;
 #if (ON != KNGIN_SESSION_TEMP_CALLBACK)
@@ -473,12 +472,11 @@ session::on_close (std::error_code _ec)
 {
     if (m_closed)
         return;
+    auto _self = self();
     auto _loop = m_loop.lock();
     assert(_loop ? _loop->in_loop_thread() : true);
 
-    auto _self = self();
-
-    if (_ec and !m_socket.wr_closed())
+    if (!_ec and !m_socket.wr_closed())
     {
         // send all meg_buffer
     }

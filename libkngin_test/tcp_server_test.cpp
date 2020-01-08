@@ -198,7 +198,7 @@ tcp_server_test ()
         .allow_ipv4             = true,
         .allow_ipv6             = false,
         .backlog                = 10000,
-        .thread_num             = 8,
+        .thread_num             = 4,
         .disable_debug          = false,
         .disable_info           = false,
         .separate_listen_thread = true,

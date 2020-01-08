@@ -3,6 +3,8 @@
 #include "core/system_error.h"
 #include "net/epoller_event.h"
 
+#include "core/thread.h"
+#warning "test"
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
 #endif
@@ -42,14 +44,19 @@ epoller_event::on_events (epoller_event *_ptr, uint32_t _events)
             _ptr->on_error();
             return;
         }
-        if ((EPOLLERR & _events))
+        if ((EPOLLERR & _events)) {
             _ptr->on_error();
-        if ((EPOLLIN & _events))
+            return;
+        }
+        if (EPOLLIN & _events and _ptr->m_registed) {
             _ptr->on_read();
-        if ((EPOLLOUT & _events))
+        }
+        if (EPOLLOUT & _events and _ptr->m_registed) {
             _ptr->on_write();
-        if ((EPOLLPRI & _events))
+        }
+        if (EPOLLPRI & _events and _ptr->m_registed) {
             _ptr->on_oob();
+        }
     } catch (std::exception &_e) {
         log_fatal("caught an exception in epoller_event::on_event(), %s", _e.what());
         throw;
