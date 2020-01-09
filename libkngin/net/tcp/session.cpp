@@ -321,14 +321,14 @@ session::on_read ()
         return;
     assert(_loop->in_loop_thread());
     if (!m_next_in_ctx) {
-        //log_debug("%" PRIu64 " bytes", m_socket.readable());
+        log_debug("%" PRIu64 " bytes", m_socket.readable());
         on_error();
         return;
     }
 
     in_context &_in_ctx = *m_next_in_ctx;
     in_buffer & _buf = _in_ctx.buffer;
-    size_t      _lowat = _in_ctx.lowat;
+    size_t &    _lowat = _in_ctx.lowat;
     assert(_buf.size() > _buf.valid());
 
     std::error_code _ec;
@@ -351,16 +351,24 @@ session::on_read ()
     } else {
         assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
                ? _buf.size() >= _lowat : true);
-        if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT != _lowat and
-            _buf.valid() < _lowat)
-            return;
-        if (_buf.writeable())
-            return;
+        bool _writeable = false;
+        if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT == _lowat) {
+            if (_buf.writeable())
+                return;
+        } else {
+            if (_buf.valid() < _lowat)
+                return;
+            if (_buf.writeable()) {
+                _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT;
+                _writeable = true;
+            }
+        }
 
         // read done
         shield_var(_buf);
         shield_var(_in_ctx);
         in_context _back;
+        if (!_writeable)
         {
 #if (ON != KNGIN_SESSION_NO_MUTEX)
             local_lock _lock(m_in_bufq_mutex);
