@@ -27,15 +27,15 @@ class session
     : public epoller_event,
       public std::enable_shared_from_this<session> {
 public:
-    typedef event_loop::pimpl_weak_ptr                             loop_weak_ptr;
+    typedef event_loop::pimpl_weak_ptr                         loop_weak_ptr;
 
-    typedef std::function<void (const session &, std::error_code)> close_handler;
+    typedef std::function<void (session &, std::error_code)>   error_handler;
 
-    typedef std::function<void (session &, in_buffer, size_t)>     message_handler;
+    typedef std::function<void (session &, in_buffer, size_t)> message_handler;
 
-    typedef std::function<void (session &, uint8_t)>               oob_handler;
+    typedef std::function<void (session &, uint8_t)>           oob_handler;
 
-    typedef std::function<void (session &)>                        sent_handler;
+    typedef std::function<void (session &)>                    sent_handler;
 
     struct in_context {
         in_buffer       buffer;
@@ -58,73 +58,76 @@ public:
 
     typedef std::shared_ptr<session>                               session_ptr;
 
-
 public:
-    session         () = delete;
+    session             () = delete;
 
-    session         (event_loop &_loop, k::socket &&_socket,
-                     const address &_local_addr, const address &_peer_addr);
+    session             (event_loop &_loop, k::socket &&_socket,
+                         const address &_local_addr, const address &_peer_addr);
 
     virtual
-    ~session        () KNGIN_NOEXCP;
+    ~session            () KNGIN_NOEXCP;
 
 public:
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     bool
-    send            (msg_buffer _buf);
+    send                (msg_buffer _buf);
 #else
     bool
-    send            (msg_buffer _buf, sent_handler &&_handler);
+    send                (msg_buffer _buf, sent_handler &&_handler);
 #endif
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     bool
-    recv            (in_buffer _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+    recv                (in_buffer _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 #else
     bool
-    recv            (in_buffer _buf, message_handler &&_handler,
-                     size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+    recv                (in_buffer _buf, message_handler &&_handler,
+                         size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 #endif
 
     virtual void
-    close           (bool _blocking = false);
+    close               (bool _blocking = false);
 
     void
-    rd_shutdown     ();
+    rd_shutdown         ();
 
     void
-    wr_shutdown     ();
+    wr_shutdown         ();
 
     bool
-    closed          () KNGIN_NOEXCP
+    closed              () KNGIN_NOEXCP
     { return m_closed; }
 
     bool
-    connected       () const
+    connected           () const
     { return status() == TCP_ESTABLISHED; }
 
     int32_t
-    status          () const
+    status              () const
     { return sockopts::tcp_info(m_socket).tcpi_state; }
+
+    const std::error_code &
+    last_error          () const KNGIN_NOEXCP
+    { return m_last_error; }
 
 public:
     void
-    set_read_lowat  (int _size)
+    set_read_lowat      (int _size)
     { sockopts::set_rcvlowat(m_socket, _size); }
     int
-    read_lowat      ()
+    read_lowat          ()
     { return sockopts::rcvlowat(m_socket); }
     void
-    set_write_lowat (int _size)
+    set_write_lowat     (int _size)
     { sockopts::set_sndlowat(m_socket, _size); }
     int
-    write_lowat     ()
+    write_lowat         ()
     { return sockopts::sndlowat(m_socket); }
     void
-    set_keepalive   (bool _on)
+    set_keepalive       (bool _on)
     { sockopts::set_keepalive(m_socket, _on); }
     bool
-    keepalive       ()
+    keepalive           ()
     { return sockopts::keepalive(m_socket); }
 
 public:
@@ -137,11 +140,11 @@ public:
     { assert(!registed()); m_sent_handler = _handler; }
 #endif
     void
-    set_close_handler   (const close_handler &_handler)
-    { assert(!registed()); m_close_handler = _handler; }
-    void
     set_oob_handler     (const oob_handler &_handler)
     { assert(!registed()); m_oob_handler = _handler; enable_oob(); }
+    void
+    set_error_handler   (const error_handler &_handler)
+    { assert(!registed()); m_error_handler = _handler; }
 
     // TODO: Optimize callback function storage
 
@@ -174,11 +177,6 @@ public:
     session_ptr
     self                ()
     { return shared_from_this(); }
-
-public:
-    void
-    set_establish       () KNGIN_NOEXCP
-    { m_established = true; }
 
 private:
     k::socket &
@@ -215,6 +213,8 @@ private:
 
     std::atomic_bool  m_closed;
 
+    std::atomic_bool  m_closing;
+
     const address     m_local_addr;
 
     const address     m_peer_addr;
@@ -243,7 +243,7 @@ private:
 
     oob_handler       m_oob_handler;
 
-    close_handler     m_close_handler;
+    error_handler     m_error_handler;
 
 #if (ON != KNGIN_SESSION_NO_MUTEX)
     mutex             m_out_bufq_mutex;
@@ -251,9 +251,9 @@ private:
     mutex             m_in_bufq_mutex;
 #endif
 
-    const std::string m_key;
+    std::error_code   m_last_error;
 
-    std::atomic_bool  m_established;
+    const std::string m_key;
 };
 
 KNGIN_NAMESPACE_TCP_END

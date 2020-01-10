@@ -22,7 +22,8 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_loop(_loop.weak_self()),
       m_socket(std::move(_socket)), 
       m_closed(false),
-      m_local_addr(_local_addr), 
+      m_closing(false),
+      m_local_addr(_local_addr),
       m_peer_addr(_peer_addr),
       m_name(m_socket.name()),
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
@@ -38,13 +39,13 @@ session::session (event_loop &_loop, k::socket &&_socket,
       m_send_complete(true),
 #endif
       m_oob_handler(nullptr),
-      m_close_handler(nullptr),
+      m_error_handler(nullptr),
 #if (ON != KNGIN_SESSION_NO_MUTEX)
       m_out_bufq_mutex(),
       m_in_bufq_mutex(),
 #endif
-      m_key(m_peer_addr.key()),
-      m_established(false)
+      m_last_error(),
+      m_key(m_peer_addr.key())
 {
     arg_check(m_socket.valid());
 
@@ -93,6 +94,7 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 #if (ON == KNGIN_SESSION_NO_MUTEX)
     assert(_loop->in_loop_thread());
 #endif
+    assert(!m_socket.wr_closed());
     assert(_buf.buffer().begin() and _buf.buffer().size());
 
     {
@@ -142,6 +144,7 @@ session::recv (in_buffer _buf, message_handler &&_handler,
 #if (ON == KNGIN_SESSION_NO_MUTEX)
     assert(_loop->in_loop_thread());
 #endif
+    assert(!m_socket.rd_closed());
     assert(_buf.begin() and _buf.size());
     assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
            ? _buf.size() >= _lowat : true);
@@ -175,6 +178,7 @@ session::close (bool _blocking /* = false */)
 {
     if (m_closed)
         return;
+    m_closing = true;
     auto _loop = m_loop.lock();
 
     if (registed() and _loop and  _loop->looping()) {
@@ -248,7 +252,7 @@ void
 session::on_write ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closed)
+    if (!_loop or m_closing or m_closed or m_last_error)
         return;
     if_not (pollout())
         return;
@@ -263,19 +267,20 @@ session::on_write ()
     std::error_code _ec;
     size_t _size = m_socket.write(_buf.buffer(), _ec);
     if (_ec) {
-        if ((std::errc::operation_would_block == _ec or
-             std::errc::resource_unavailable_try_again == _ec or
-             std::errc::interrupted == _ec
-             ) or EINTR == errno
+        if (std::errc::operation_would_block == _ec or
+            std::errc::resource_unavailable_try_again == _ec or
+            std::errc::interrupted == _ec
             )
             return;
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
+        m_last_error = _ec;
         on_error();
         return;
     }
     if (!_size) {
-        on_close(_ec);
+        m_last_error = std::error_code();
+        on_error();
         return;
     } else {
         if (_buf.buffer().size())
@@ -315,13 +320,13 @@ void
 session::on_read ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closed)
+    if (!_loop or m_closing or m_closed or m_last_error)
         return;
     if_not (pollin())
         return;
     assert(_loop->in_loop_thread());
     if (!m_next_in_ctx) {
-        log_debug("%" PRIu64 " bytes", m_socket.readable());
+        log_debug("session %" PRIu64 " bytes", name().c_str(), m_socket.readable());
         on_error();
         return;
     }
@@ -334,19 +339,20 @@ session::on_read ()
     std::error_code _ec;
     size_t _size = m_socket.read(_buf, _ec);
     if (_ec) {
-        if ((std::errc::operation_would_block == _ec or
-             std::errc::resource_unavailable_try_again == _ec or
-             std::errc::interrupted == _ec
-             ) or EINTR == errno
+        if (std::errc::operation_would_block == _ec or
+            std::errc::resource_unavailable_try_again == _ec or
+            std::errc::interrupted == _ec
             )
             return;
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
+        m_last_error = _ec;
         on_error();
         return;
     }
     if (!_size) {
-        on_close(_ec);
+        m_last_error = std::error_code();
+        on_error();
         return;
     } else {
         assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
@@ -395,7 +401,7 @@ void
 session::on_oob ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closed)
+    if (!_loop or m_closing or m_closed or m_last_error)
         return;
     if_not (pollpri())
         return;
@@ -409,11 +415,13 @@ session::on_oob ()
     if (_ec) {
         log_error("socket::recv(MSG_OOB) error, %s",
                   system_error_str(_ec).c_str());
+        m_last_error = _ec;
         on_error();
         return;
     }
     if (!_size) {
-        on_close(_ec);
+        m_last_error = std::error_code();
+        on_error();
         return;
     } else {
         if (m_oob_handler) {
@@ -431,34 +439,38 @@ void
 session::on_error ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closed)
+    if (!_loop or m_closing or m_closed)
         return;
     assert(_loop->in_loop_thread());
 
-    auto _ec = m_socket.read_error();
-    if (_ec) {
-        if (((std::errc::operation_would_block == _ec or
-              std::errc::resource_unavailable_try_again == _ec or
-              std::errc::interrupted == _ec
-              ) and m_socket.nonblock()
-             ) or EINTR == errno
-            )
-            return;
-        log_error("socket::write() error, %s",
-                  system_error_str(_ec).c_str());
-        on_close(_ec);
-        return;
-    } else {
-        tcp_info _info = sockopts::tcp_info(m_socket);
-        if (TCP_CLOSE_WAIT == _info.tcpi_state) { // peer are closed or wr_closed
-            m_socket.rd_shutdown();
-            on_close(_ec);
-            return;
+    if (m_last_error) {
+_error:
+        if (m_error_handler) {
+            log_excp_error(
+                m_error_handler(std::ref(*this), m_last_error),
+                "session::m_error_handler() error"
+            );
+            //m_error_handler = nullptr;
         }
-        if (TCP_ESTABLISHED != _info.tcpi_state)
-            on_close(_ec);
+    } else {
+        auto _ec = m_socket.read_error();
+        if (_ec) {
+            if (std::errc::operation_would_block == _ec or
+                std::errc::resource_unavailable_try_again == _ec or
+                std::errc::interrupted == _ec
+                )
+                return;
+            log_error("socket::write() error, %s",
+                      system_error_str(_ec).c_str());
+            m_last_error = _ec;
+            goto _error;
+        } else {
+            if (!connected()) {
+                m_last_error = std::error_code();
+                goto _error;
+            }
+        }
         //log_debug("session::on_error(), no any error was readed");
-        return;
     }
 }
 
@@ -470,9 +482,7 @@ session::on_close ()
 
     m_socket.close();
     m_closed = true;
-#if (ON != KNGIN_SESSION_TEMP_CALLBACK)
     clear_queues();
-#endif
 }
 
 void
@@ -484,22 +494,11 @@ session::on_close (std::error_code _ec)
     auto _loop = m_loop.lock();
     assert(_loop ? _loop->in_loop_thread() : true);
 
-    if (!_ec and !m_socket.wr_closed())
-    {
-        // send all meg_buffer
-    }
-
-    if (_loop->looping() and registed())
+    if (_loop and _loop->looping() and registed())
         _loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
     clear_queues();
-    if (m_established and m_close_handler) {
-        log_excp_error(
-            m_close_handler(std::cref(*this), _ec),
-            "listener::m_close_handler() error"
-        );
-    }
 }
 
 void

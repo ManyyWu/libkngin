@@ -41,10 +41,9 @@ public:
     run ()
     {
         m_server.set_session_handler([this] (server::session_ptr _session) {
-            assert(_session);
-            log_info("new session from %s", _session->name().c_str());
             if (_session->closed())
                 return;
+            log_info("new session from %s", _session->name().c_str());
 
             // create session info
             {
@@ -74,30 +73,17 @@ public:
             process(_session);
         }); // end of new_session_handler, run in listner thread
 
-        m_server.set_close_handler([this] (const tcp::session &_session, std::error_code) {
-            log_info("session %s closed", _session.name().c_str());
-            bool _close = true;
-            do {
+        m_server.set_error_handler([this] (tcp::session &_session, std::error_code _ec) {
+            log_info("session %s error - %s",
+                     _session.name().c_str(), system_error_str(_ec).c_str());
+            {
                 local_lock _lock(m_sessions_mutex);
                 assert(m_sessions.find(_session.key()) != m_sessions.end());
                 m_sessions.erase(_session.key());
                 size_t _size = m_sessions.size();
-                _close = !_size;
                 log_debug("size: %" PRIu64, _size);
-            } while (false);
-
-#define CLOSE_COND1 0
-#if (true == !!CLOSE_COND1)
-            if (_close) {
-                auto _loop = m_loop.lock();
-                assert(_loop);
-                _loop->run_in_loop([this, _loop] () {
-                    stop();
-                    _loop->stop();
-                });
-                return;
             }
-#endif
+            _session.close();
         }); // end of session_close_handler, run in any thread of pool
 
         m_server.set_crash_handler([this] () {
@@ -260,7 +246,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(30000,
+    _loop.run_after(10000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);

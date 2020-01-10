@@ -54,13 +54,6 @@ typedef SSIZE_T ssize_t;
 // for log
 #define KNGIN_LOG_RELATIVE_PATH OFF
 
-// for debug
-#ifndef NDEBUG
-#define KNGIN_SERVER_MANAGE_SESSIONS OFF
-#else
-#define KNGIN_SERVER_MANAGE_SESSIONS OFF
-#endif
-
 // for session
 #define KNGIN_ONE_LOOP_PER_SESSION  ON
 #if (ON == KNGIN_ONE_LOOP_PER_SESSION)

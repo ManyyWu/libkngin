@@ -28,7 +28,7 @@ public:
 
     typedef session::oob_handler               oob_handler;
 
-    typedef session::close_handler             close_handler;
+    typedef session::error_handler             error_handler;
 
     typedef std::function<void (session_ptr)>  session_handler;
 
@@ -69,8 +69,8 @@ public:
     set_sent_handler    (sent_handler &&_handler) KNGIN_NOEXCP
     { assert(m_stopped); m_sent_handler = std::move(_handler); }
     void
-    set_close_handler   (close_handler &&_handler) KNGIN_NOEXCP
-    { assert(m_stopped); m_close_handler = std::move(_handler); }
+    set_error_handler   (error_handler &&_handler) KNGIN_NOEXCP
+    { assert(m_stopped); m_error_handler = std::move(_handler); }
     void
     set_oob_handler     (oob_handler &&_handler) KNGIN_NOEXCP
     { assert(m_stopped); m_oob_handler = std::move(_handler); }
@@ -94,10 +94,6 @@ private:
 
     io_threadpool     m_threadpool;
 
-#if (ON == KNGIN_SERVER_MANAGE_SESSIONS)
-    session_map       m_sessions;
-#endif
-
     listener_ptr      m_listener;
 
     session_handler   m_session_handler;
@@ -108,7 +104,7 @@ private:
 
     oob_handler       m_oob_handler;
 
-    close_handler     m_close_handler;
+    error_handler     m_error_handler;
 
     crash_handler     m_crash_handler;
 
