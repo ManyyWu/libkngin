@@ -64,6 +64,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
 #else
     enable_write();
     enable_oob();
+    enable_et();
 #endif
 } catch (...) {
     log_fatal("session::session() error");
@@ -98,9 +99,7 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
     assert(_buf.buffer().begin() and _buf.buffer().size());
 
     {
-#if (ON != KNGIN_SESSION_NO_MUTEX)
-        local_lock _lock(m_out_bufq_mutex);
-#endif
+        SESSION_LOCAL_LOCK(m_out_bufq_mutex);
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
         m_out_ctxq.push_front({_buf, std::move(_handler)});
 #else
@@ -116,16 +115,15 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 #endif
     }
 
-#if (ON == KNGIN_SESSION_NO_MUTEX)
-    on_write();
-#else
-    if (_loop->in_loop_thread())
+    if (_loop->in_loop_thread()) {
+        ET_MODE_SET(m_send_complete, false);
         on_write();
-    else
+    } else {
         _loop->run_in_loop([this] () {
+            ET_MODE_SET(m_send_complete, false);
             on_write();
         });
-#endif
+    }
     return true;
 }
 
@@ -150,26 +148,25 @@ session::recv (in_buffer _buf, message_handler &&_handler,
            ? _buf.size() >= _lowat : true);
 
     {
-#if (ON != KNGIN_SESSION_NO_MUTEX)
-        local_lock _lock(m_in_bufq_mutex);
-#endif
+        SESSION_LOCAL_LOCK(m_out_bufq_mutex);
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
         m_in_ctxq.push_front({_buf, std::move(_handler), _lowat});
+#else
+        m_in_ctxq.push_front({_buf, _lowat});
 #endif
         if (!m_next_in_ctx)
             m_next_in_ctx = &m_in_ctxq.back();
     }
 
-#if (ON == KNGIN_SESSION_NO_MUTEX)
-    on_read();
-#else
-    if (_loop->in_loop_thread())
+    if (_loop->in_loop_thread()) {
+        ET_MODE_SET(m_recv_complete, false);
         on_read();
-    else
+    } else {
         _loop->run_in_loop([this] () {
+            ET_MODE_SET(m_recv_complete, false);
             on_read();
         });
-#endif
+    }
     return true;
 }
 
@@ -249,14 +246,16 @@ session::on_write ()
     auto _loop = m_loop.lock();
     if (!_loop or m_closing or m_closed or m_last_error)
         return;
+    auto _self = self();
     if_not (pollout())
         return;
     assert(_loop->in_loop_thread());
+    ET_MODE_SET(m_send_complete, false);
     if (!m_next_out_ctx)
         return;
- 
+
     auto &_out_ctx = *m_next_out_ctx;
-    auto & _buf = _out_ctx.buffer;
+    auto &_buf = _out_ctx.buffer;
     assert(_buf.buffer().size());
 
     std::error_code _ec;
@@ -265,8 +264,10 @@ session::on_write ()
         if (std::errc::operation_would_block == _ec or
             std::errc::resource_unavailable_try_again == _ec or
             std::errc::interrupted == _ec
-            )
+            ) {
+            ET_MODE_EXP_SET((std::errc::interrupted != _ec), m_send_complete, true);
             return;
+        }
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         m_last_error = _ec;
@@ -290,9 +291,7 @@ session::on_write ()
         shield_var(_buf);
         shield_var(_out_ctx);
         {
-#if (ON != KNGIN_SESSION_NO_MUTEX)
-            local_lock _lock(m_out_bufq_mutex);
-#endif
+            SESSION_LOCAL_LOCK(m_out_bufq_mutex);
             m_out_ctxq.pop_back();
             m_next_out_ctx = m_out_ctxq.empty() ? nullptr : &m_out_ctxq.back();
 #if (OFF == KNGIN_SESSION_ET_MODE)
@@ -309,6 +308,10 @@ session::on_write ()
             );
         }
     }
+#if (ON == KNGIN_SESSION_ET_MODE)
+    if (!m_closed and !m_last_error)
+    on_write();
+#endif
 }
 
 void
@@ -317,18 +320,20 @@ session::on_read ()
     auto _loop = m_loop.lock();
     if (!_loop or m_closing or m_closed or m_last_error)
         return;
+    auto _self = self();
     if_not (pollin())
         return;
     assert(_loop->in_loop_thread());
+    ET_MODE_SET(m_recv_complete, false);
     if (!m_next_in_ctx) {
-        log_debug("session %" PRIu64 " bytes", name().c_str(), m_socket.readable());
+        //log_debug("session %s readable %" PRIu64 " bytes", name().c_str(), m_socket.readable());
         on_error();
         return;
     }
 
     auto &_in_ctx = *m_next_in_ctx;
-    auto & _buf = _in_ctx.buffer;
-    auto &    _lowat = _in_ctx.lowat;
+    auto &_buf = _in_ctx.buffer;
+    auto &_lowat = _in_ctx.lowat;
     assert(_buf.size() > _buf.valid());
 
     std::error_code _ec;
@@ -337,8 +342,10 @@ session::on_read ()
         if (std::errc::operation_would_block == _ec or
             std::errc::resource_unavailable_try_again == _ec or
             std::errc::interrupted == _ec
-            )
+            ) {
+            ET_MODE_EXP_SET((std::errc::interrupted != _ec), m_recv_complete, true);
             return;
+        }
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         m_last_error = _ec;
@@ -390,6 +397,10 @@ session::on_read ()
             );
         }
     }
+#if (ON == KNGIN_SESSION_ET_MODE)
+    if (!m_closed and !m_last_error)
+        on_read();
+#endif
 }
 
 void
@@ -398,6 +409,7 @@ session::on_oob ()
     auto _loop = m_loop.lock();
     if (!_loop or m_closing or m_closed or m_last_error)
         return;
+    auto _self = self();
     if_not (pollpri())
         return;
     assert(_loop->in_loop_thread());
@@ -436,6 +448,7 @@ session::on_error ()
     auto _loop = m_loop.lock();
     if (!_loop or m_closing or m_closed)
         return;
+    auto _self = self();
     assert(_loop->in_loop_thread());
 
     if (m_last_error) {
@@ -445,27 +458,27 @@ _error:
                 m_error_handler(std::ref(*this), m_last_error),
                 "session::m_error_handler() error"
             );
-            //m_error_handler = nullptr;
         }
     } else {
-        auto _ec = m_socket.read_error();
+        static char _arr[1];
+        in_buffer _buf(_arr, 1);
+        std::error_code _ec;
+        size_t _size = m_socket.recv(_buf, MSG_PEEK, _ec);
         if (_ec) {
             if (std::errc::operation_would_block == _ec or
                 std::errc::resource_unavailable_try_again == _ec or
                 std::errc::interrupted == _ec
                 )
                 return;
-            log_error("socket::write() error, %s",
+            log_error("socket::recv(MSG_PEEK) error, %s",
                       system_error_str(_ec).c_str());
             m_last_error = _ec;
             goto _error;
-        } else {
-            if (!connected()) {
-                m_last_error = std::error_code();
-                goto _error;
-            }
         }
+        if (!_size)
+            goto _error;
         //log_debug("session::on_error(), no any error was readed");
+        return;
     }
 }
 
@@ -491,15 +504,11 @@ session::clear_queues ()
 {
     assert(m_closed);
     {
-#if (OFF == KNGIN_SESSION_NO_MUTEX)
-        local_lock _lock(m_out_bufq_mutex);
-#endif
+        SESSION_LOCAL_LOCK(m_out_bufq_mutex);
         m_out_ctxq.clear();
     }
     {
-#if (OFF == KNGIN_SESSION_NO_MUTEX)
-        local_lock _lock(m_in_bufq_mutex);
-#endif
+        SESSION_LOCAL_LOCK(m_out_bufq_mutex);
         m_in_ctxq.clear();
     }
 }

@@ -3,8 +3,6 @@
 #include "core/system_error.h"
 #include "net/epoller_event.h"
 
-#include "core/thread.h"
-#warning "test"
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
 #endif

@@ -24,8 +24,11 @@ using namespace k;
 using namespace k::tcp;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
-const int   g_data_size = 64;
-const int   times = 10;
+const int   g_data_size = 5089;
+const int   times = 10000;
+
+std::atomic_size_t g_total_size(0);
+timestamp          g_ts(0);
 
 class test_server {
 public:
@@ -45,6 +48,7 @@ public:
                 return;
             log_info("new session from %s", _session->name().c_str());
 
+            g_ts = timestamp::realtime();
             // create session info
             {
                 local_lock _lock(m_sessions_mutex);
@@ -84,6 +88,8 @@ public:
                 log_debug("size: %" PRIu64, _size);
             }
             _session.close();
+            log_warning("total read:%" PRIu64 ", time: %" PRIu64 "ms",
+            g_total_size.load(), (timestamp::realtime() - g_ts).value());
         }); // end of session_error_handler, run in any thread of pool
 
         m_server.set_crash_handler([this] () {
@@ -126,29 +132,31 @@ public:
             {
                 if_not (_size == 8)
                     return;
-                if (out_buffer(_buf.begin(), 4).peek_int32() != times or
+                /*if (out_buffer(_buf.begin(), 4).peek_int32() != times or
                     out_buffer(_buf.begin() + 4, 4).peek_int32() != g_data_size) {
                     log_error("ack error");
                     _s.close();
                     return;
-                }
+                }*/
                 for (int i = 0; i < times; i++) {
-                    uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
+                    uint8_arr_ptr _arr1 = k::make_shared_array<char>(g_data_size);
+                    _s.recv( // recv reverse data
+                        in_buffer(_arr1.get(), g_data_size),
+                        [i, _arr1] (session &_s, in_buffer _buf, size_t _size)
+                    {
+                            g_total_size += _size;
+                            //log_info("recv data %s from %s",
+                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
+                            //         _s.name().c_str());
+                    });
+/*                    uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data
                         msg_buffer(_msg_arr, 0, g_data_size),
                         [] (session &_s)
                     {
-                        uint8_arr_ptr _arr1 = k::make_shared_array<char>(g_data_size);
-                        _s.recv( // recv reverse data
-                            in_buffer(_arr1.get(), g_data_size),
-                            [_arr1] (session &_s, in_buffer _buf, size_t _size)
-                        {
-                            log_info("recv data %s from %s",
-                                     out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                                     _s.name().c_str());
-                        });
-                    });
+
+                    });*/
                 }
             });
         });
@@ -246,7 +254,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(1000000,
+    _loop.run_after(10000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);
@@ -273,6 +281,7 @@ tcp_server_test ()
     });
 
 #warning "copyable";
+#warning "wait醒来event只读一次防止多次醒来";
     _loop.run();
     _server.stop();
 }

@@ -48,21 +48,16 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_NOEXCP noexcept(true)
 
 // for queues
-#define KNGIN_QUEUE_MAX (size_t)(SIZE_MAX)
-#define KNGIN_QUEUE_MIN (size_t)1
+#define KNGIN_QUEUE_MAX size_t(SIZE_MAX)
+#define KNGIN_QUEUE_MIN size_t(1)
 
 // for log
 #define KNGIN_LOG_RELATIVE_PATH OFF
 
 // for session
 #define KNGIN_ONE_LOOP_PER_SESSION  ON
-#if (ON == KNGIN_ONE_LOOP_PER_SESSION)
-#define KNGIN_SESSION_NO_MUTEX      ON
-#else
-#define KNGIN_SESSION_NO_MUTEX      OFF
-#endif
 #define KNGIN_SESSION_TEMP_CALLBACK ON
-#define KNGIN_SESSION_ET_MODE       OFF
+#define KNGIN_SESSION_ET_MODE       ON
 
 // for epoller
 #define KNGIN_RESERVED_EPOLLELR_EVENT 64

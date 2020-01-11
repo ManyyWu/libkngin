@@ -107,7 +107,7 @@ sockopts::get_timeval (int _fd, const sockopts_info &_opt_info)
 }
 
 struct ::tcp_info
-sockopts::get_tcp_info   (int _fd, const sockopts_info &_opt_info)
+sockopts::get_tcp_info (int _fd, const sockopts_info &_opt_info)
 {
     sockopt_val _value;
     socklen_t _optlen = sizeof(struct ::tcp_info);

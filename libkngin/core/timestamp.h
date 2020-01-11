@@ -22,7 +22,8 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class timestamp {
 public:
-    timestamp   () = delete;
+    timestamp   ()
+        : m_ms(0) {}
     timestamp   (uint64_t _ms) KNGIN_NOEXCP
         : m_ms(_ms) {}
     timestamp   (const timestamp &_t) KNGIN_NOEXCP

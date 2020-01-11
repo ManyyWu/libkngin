@@ -21,7 +21,6 @@ struct server_opts {
     bool        disable_info           = false;
     bool        separate_listen_thread = false;
     bool        keep_alive             = false;
-    bool        enable_et_mode         = false;
 };
 
 KNGIN_NAMESPACE_TCP_END

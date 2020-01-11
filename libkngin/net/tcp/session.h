@@ -20,8 +20,29 @@
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN
 
-#define KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT SIZE_MAX
+// mutex
+#if (ON == KNGIN_ONE_LOOP_PER_SESSION)
+#define KNGIN_SESSION_NO_MUTEX ON
+#else
+#define KNGIN_SESSION_NO_MUTEX OFF
+#endif
+#if (ON == KNGIN_SESSION_NO_MUTEX)
+#define SESSION_LOCAL_LOCK(m) static_cast<void>(0)
+#else
+#define SESSION_LOCAL_LOCK(m) local_lock _lock((m))
+#endif
 
+// for ET mode
+#if (ON == KNGIN_SESSION_ET_MODE)
+#define ET_MODE_SET(var, val)          (var) = (val)
+#define ET_MODE_EXP_SET(exp, var, val) if ((exp)) { ET_MODE_SET(var, val); };
+#else
+#define ET_MODE_SET(var, val)          static_cast<void>(0)
+#define ET_MODE_EXP_SET(exp, var, val) static_cast<void>(0)
+#endif
+
+// callback lower water line
+#define KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT SIZE_MAX
 
 class session
     : public epoller_event,
@@ -233,9 +254,9 @@ private:
     in_context *      m_next_in_ctx;
 
 #if (ON == KNGIN_SESSION_ET_MODE)
-    bool              m_recv_complete;
+    std::atomic_bool  m_recv_complete;
 
-    bool              m_send_complete;
+    std::atomic_bool  m_send_complete;
 #endif
 
     oob_handler       m_oob_handler;
