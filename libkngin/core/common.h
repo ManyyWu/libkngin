@@ -35,7 +35,7 @@ arg_check_func(bool _exp, const char *_what = nullptr)
                                           true                                  \
                                           )                                     \
                                        : false)
-#define check(exp)                 do { if_not(exp) (void)0; } while (false)
+#define check(exp)                 do { if_not(exp) static_cast<void>(0); } while (false)
 #define ignore_excp(exp)           do {                                                            \
                                        try {                                                       \
                                            {exp;}                                                  \

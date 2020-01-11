@@ -36,9 +36,17 @@ KNGIN_NAMESPACE_TCP_BEGIN
 #if (ON == KNGIN_SESSION_ET_MODE)
 #define ET_MODE_SET(var, val)          (var) = (val)
 #define ET_MODE_EXP_SET(exp, var, val) if ((exp)) { ET_MODE_SET(var, val); };
+#define ET_MODE_ON_READ()              on_read();
+#define ET_MODE_EXP_ON_READ(exp)       if ((exp)) { on_read(); };
+#define ET_MODE_ON_WRITE()             on_write();
+#define ET_MODE_EXP_ON_WRITE(exp)      if ((exp)) { on_write(); };
 #else
 #define ET_MODE_SET(var, val)          static_cast<void>(0)
 #define ET_MODE_EXP_SET(exp, var, val) static_cast<void>(0)
+#define ET_MODE_ON_READ()              static_cast<void>(0)
+#define ET_MODE_EXP_ON_READ(exp)       static_cast<void>(0)
+#define ET_MODE_ON_WRITE()             static_cast<void>(0)
+#define ET_MODE_EXP_ON_WRITE(exp)      static_cast<void>(0)
 #endif
 
 // callback lower water line

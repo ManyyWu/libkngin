@@ -148,7 +148,7 @@ session::recv (in_buffer _buf, message_handler &&_handler,
            ? _buf.size() >= _lowat : true);
 
     {
-        SESSION_LOCAL_LOCK(m_out_bufq_mutex);
+        SESSION_LOCAL_LOCK(m_in_bufq_mutex);
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
         m_in_ctxq.push_front({_buf, std::move(_handler), _lowat});
 #else
@@ -275,12 +275,13 @@ session::on_write ()
         return;
     }
     if (!_size) {
-        m_last_error = std::error_code();
         on_error();
         return;
     } else {
-        if (_buf.buffer().size())
+        if (_buf.buffer().size()) {
+            ET_MODE_ON_WRITE();
             return;
+        }
 
         // write done
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
@@ -308,10 +309,7 @@ session::on_write ()
             );
         }
     }
-#if (ON == KNGIN_SESSION_ET_MODE)
-    if (!m_closed and !m_last_error)
-    on_write();
-#endif
+    ET_MODE_EXP_ON_WRITE(!m_closed and !m_last_error);
 }
 
 void
@@ -353,7 +351,6 @@ session::on_read ()
         return;
     }
     if (!_size) {
-        m_last_error = std::error_code();
         on_error();
         return;
     } else {
@@ -361,11 +358,15 @@ session::on_read ()
                ? _buf.size() >= _lowat : true);
         bool _writeable = false;
         if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT == _lowat) {
-            if (_buf.writeable())
+            if (_buf.writeable()) {
+                ET_MODE_ON_READ();
                 return;
+            }
         } else {
-            if (_buf.valid() < _lowat)
+            if (_buf.valid() < _lowat) {
+                ET_MODE_ON_READ();
                 return;
+            }
             if (_buf.writeable()) {
                 _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT;
                 _writeable = true;
@@ -378,9 +379,7 @@ session::on_read ()
         in_context _back;
         if (!_writeable)
         {
-#if (ON != KNGIN_SESSION_NO_MUTEX)
-            local_lock _lock(m_in_bufq_mutex);
-#endif
+            SESSION_LOCAL_LOCK(m_in_bufq_mutex);
             _back = m_in_ctxq.back();
             m_in_ctxq.pop_back();
             m_next_in_ctx = m_in_ctxq.empty() ? nullptr : &m_in_ctxq.back();
@@ -397,10 +396,7 @@ session::on_read ()
             );
         }
     }
-#if (ON == KNGIN_SESSION_ET_MODE)
-    if (!m_closed and !m_last_error)
-        on_read();
-#endif
+    ET_MODE_EXP_ON_READ(!m_closed and !m_last_error);
 }
 
 void
@@ -427,7 +423,6 @@ session::on_oob ()
         return;
     }
     if (!_size) {
-        m_last_error = std::error_code();
         on_error();
         return;
     } else {
