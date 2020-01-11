@@ -199,9 +199,6 @@ private:
     void
     on_close            ();
           
-    void
-    on_close            (std::error_code _ec);
-
 private:
     void
     clear_queues        ();

@@ -93,7 +93,7 @@ thread::pimpl::cancel ()
 {
     assert(!equal_to(ptid()));
 
-    std::error_code _ec = int2ec(::pthread_cancel(m_thr));
+    auto _ec = int2ec(::pthread_cancel(m_thr));
     if (_ec) {
         log_fatal("::pthread_cancel(), name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());

@@ -182,17 +182,13 @@ session::close (bool _blocking /* = false */)
     auto _loop = m_loop.lock();
 
     if (registed() and _loop and  _loop->looping()) {
-#if (ON == KNGIN_SESSION_NO_MUTEX)
-        on_close(std::error_code());
-#else
         if (_loop->in_loop_thread()) {
-            on_close(std::error_code());
+            on_close();
         } else {
-            _loop->remove_event(*this);
             if (_blocking) {
                 auto _barrier_ptr = std::make_shared<barrier>(2);
                 _loop->run_in_loop([this, _barrier_ptr] () {
-                    on_close(std::error_code());
+                    on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
                 });
@@ -200,11 +196,10 @@ session::close (bool _blocking /* = false */)
                     _barrier_ptr->destroy();
             } else {
                 _loop->run_in_loop([this] () {
-                    on_close(std::error_code());
+                    on_close();
                 });
             }
         }
-#endif
     } else {
         on_close(); // no callback
     }
@@ -260,8 +255,8 @@ session::on_write ()
     if (!m_next_out_ctx)
         return;
  
-    out_context &_out_ctx = *m_next_out_ctx;
-    msg_buffer & _buf = _out_ctx.buffer;
+    auto &_out_ctx = *m_next_out_ctx;
+    auto & _buf = _out_ctx.buffer;
     assert(_buf.buffer().size());
 
     std::error_code _ec;
@@ -288,9 +283,9 @@ session::on_write ()
 
         // write done
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-    sent_handler _handler = std::move(_out_ctx.handler);
+    auto _handler = std::move(_out_ctx.handler);
 #else
-    sent_handler &_handler = m_sent_handler;
+    atuo &_handler = m_sent_handler;
 #endif
         shield_var(_buf);
         shield_var(_out_ctx);
@@ -331,9 +326,9 @@ session::on_read ()
         return;
     }
 
-    in_context &_in_ctx = *m_next_in_ctx;
-    in_buffer & _buf = _in_ctx.buffer;
-    size_t &    _lowat = _in_ctx.lowat;
+    auto &_in_ctx = *m_next_in_ctx;
+    auto & _buf = _in_ctx.buffer;
+    auto &    _lowat = _in_ctx.lowat;
     assert(_buf.size() > _buf.valid());
 
     std::error_code _ec;
@@ -384,9 +379,9 @@ session::on_read ()
             m_next_in_ctx = m_in_ctxq.empty() ? nullptr : &m_in_ctxq.back();
         }
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        message_handler &_handler = _back.handler;
+        auto &_handler = _back.handler;
 #else
-        message_handler &_handler = m_message_handler;
+        auto &_handler = m_message_handler;
 #endif
         if (_handler) {
             log_excp_error(
@@ -480,22 +475,12 @@ session::on_close ()
     if (m_closed)
         return;
 
-    m_socket.close();
-    m_closed = true;
-    clear_queues();
-}
-
-void
-session::on_close (std::error_code _ec)
-{
-    if (m_closed)
-        return;
     auto _self = self();
     auto _loop = m_loop.lock();
-    assert(_loop ? _loop->in_loop_thread() : true);
-
-    if (_loop and _loop->looping() and registed())
+    if (registed() and _loop and  _loop->looping()) {
+        assert(_loop->in_loop_thread());
         _loop->remove_event(*this);
+    }
     m_socket.close();
     m_closed = true;
     clear_queues();

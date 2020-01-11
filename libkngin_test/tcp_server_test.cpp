@@ -84,7 +84,7 @@ public:
                 log_debug("size: %" PRIu64, _size);
             }
             _session.close();
-        }); // end of session_close_handler, run in any thread of pool
+        }); // end of session_error_handler, run in any thread of pool
 
         m_server.set_crash_handler([this] () {
             log_fatal("server crashed");
@@ -246,7 +246,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(10000,
+    _loop.run_after(1000000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);

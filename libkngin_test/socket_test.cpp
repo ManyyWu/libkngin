@@ -61,7 +61,7 @@ static int
 server ()
 {
     bool _ok = true;
-    std::string _addr_str = {SERVER_ADDR};
+    std::string _addr_str = SERVER_ADDR;
     uint16_t    _port = SERVER_PORT;
     address     _server_addr(_addr_str, _port, false);
 

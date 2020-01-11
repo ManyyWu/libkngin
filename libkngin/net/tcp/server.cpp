@@ -172,8 +172,8 @@ server::on_new_session (socket &&_sock)
     // FIXME: stop accepting when sessions reach to the maximum number
 
     try {
-        address _local_addr = _sock.localaddr();
-        address _peer_addr = _sock.peeraddr();
+        auto _local_addr = _sock.localaddr();
+        auto _peer_addr = _sock.peeraddr();
 
         session_ptr _session = nullptr;
         auto &_next_loop = assign_thread();
