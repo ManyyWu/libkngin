@@ -30,6 +30,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 #define ET_MODE_ON_WRITE()             on_write();
 #define ET_MODE_EXP_ON_WRITE(exp)      if ((exp)) { on_write(); };
 #define ET_MODE_ON_OOB()               on_oob();
+#define ET_MODE_EXP_ON_OOB(exp)        if ((exp)) { on_oob(); };
 #else
 #define ET_MODE_SET(var, val)          static_cast<void>(0)
 #define ET_MODE_EXP_SET(exp, var, val) static_cast<void>(0)
@@ -38,6 +39,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 #define ET_MODE_ON_WRITE()             static_cast<void>(0)
 #define ET_MODE_EXP_ON_WRITE(exp)      static_cast<void>(0)
 #define ET_MODE_ON_OOB()               static_cast<void>(0)
+#define ET_MODE_EXP_ON_OOB(exp)        static_cast<void>(0)
 #endif
 
 session::session (event_loop &_loop, k::socket &&_socket,
@@ -141,11 +143,9 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
     }
 
     if (_loop->in_loop_thread()) {
-        ET_MODE_SET(m_send_complete, false);
         on_write();
     } else {
         _loop->run_in_loop([this] () {
-            ET_MODE_SET(m_send_complete, false);
             on_write();
         });
     }
@@ -184,11 +184,9 @@ session::recv (in_buffer _buf, message_handler &&_handler,
     }
 
     if (_loop->in_loop_thread()) {
-        ET_MODE_SET(m_recv_complete, false);
         on_read();
     } else {
         _loop->run_in_loop([this] () {
-            ET_MODE_SET(m_recv_complete, false);
             on_read();
         });
     }
@@ -275,7 +273,6 @@ session::on_write ()
     if_not (pollout())
         return;
     assert(_loop->in_loop_thread());
-    ET_MODE_SET(m_send_complete, false);
     if (!m_next_out_ctx)
         return;
 
@@ -289,10 +286,8 @@ session::on_write ()
         if (std::errc::operation_would_block == _ec or
             std::errc::resource_unavailable_try_again == _ec or
             std::errc::interrupted == _ec
-            ) {
-            ET_MODE_EXP_SET((std::errc::interrupted != _ec), m_send_complete, true);
+            )
             return;
-        }
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         m_last_error = _ec;
@@ -312,7 +307,7 @@ session::on_write ()
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
     auto _handler = std::move(_out_ctx.handler);
 #else
-    atuo &_handler = m_sent_handler;
+    auto &_handler = m_sent_handler;
 #endif
         shield_var(_buf);
         shield_var(_out_ctx);
@@ -347,9 +342,8 @@ session::on_read ()
     if_not (pollin())
         return;
     assert(_loop->in_loop_thread());
-    ET_MODE_SET(m_recv_complete, false);
+    //log_debug("session %s readable %" PRIu64 " bytes", name().c_str(), m_socket.readable());
     if (!m_next_in_ctx) {
-        //log_debug("session %s readable %" PRIu64 " bytes", name().c_str(), m_socket.readable());
         on_error();
         return;
     }
@@ -365,10 +359,8 @@ session::on_read ()
         if (std::errc::operation_would_block == _ec or
             std::errc::resource_unavailable_try_again == _ec or
             std::errc::interrupted == _ec
-            ) {
-            ET_MODE_EXP_SET((std::errc::interrupted != _ec), m_recv_complete, true);
+            )
             return;
-        }
         log_error("socket::write() error, %s",
                   system_error_str(_ec).c_str());
         m_last_error = _ec;
@@ -399,10 +391,23 @@ session::on_read ()
         }
 
         // read done
+        if (_writeable) {
+#if (ON == KNGIN_SESSION_TEMP_CALLBACK)
+            auto &_handler = _in_ctx.handler;
+#else
+            auto &_handler = m_message_handler;
+#endif
+            if (_handler) {
+                log_excp_error(
+                    _handler(std::ref(*this), _buf, _buf.valid()),
+                    "session::m_message_handler() error"
+                );
+            }
+            return;
+        }
         shield_var(_buf);
         shield_var(_in_ctx);
         in_context _back;
-        if (!_writeable)
         {
             SESSION_LOCAL_LOCK(m_in_bufq_mutex);
             _back = m_in_ctxq.back();
@@ -460,7 +465,7 @@ session::on_oob ()
             log_warning("unhandled oob data from %s", m_socket.name().c_str());
         }
     }
-    ET_MODE_ON_OOB();
+    ET_MODE_EXP_ON_OOB(!m_closed && m_last_error);
 }
 
 void

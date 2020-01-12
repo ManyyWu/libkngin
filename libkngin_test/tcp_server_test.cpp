@@ -24,7 +24,7 @@ using namespace k;
 using namespace k::tcp;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
-const int   g_data_size = 5089;
+const int   g_data_size = 10176;
 const int   times = 10000;
 
 std::atomic_size_t g_total_size(0);
@@ -132,31 +132,31 @@ public:
             {
                 if_not (_size == 8)
                     return;
-                /*if (out_buffer(_buf.begin(), 4).peek_int32() != times or
+                if (out_buffer(_buf.begin(), 4).peek_int32() != times or
                     out_buffer(_buf.begin() + 4, 4).peek_int32() != g_data_size) {
                     log_error("ack error");
                     _s.close();
                     return;
-                }*/
+                }
                 for (int i = 0; i < times; i++) {
-                    uint8_arr_ptr _arr1 = k::make_shared_array<char>(g_data_size);
-                    _s.recv( // recv reverse data
-                        in_buffer(_arr1.get(), g_data_size),
-                        [i, _arr1] (session &_s, in_buffer _buf, size_t _size)
-                    {
-                            g_total_size += _size;
-                            //log_info("recv data %s from %s",
-                            //         out_buffer(_buf.begin(), _buf.size()).dump().c_str(),
-                            //         _s.name().c_str());
-                    });
 /*                    uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data
                         msg_buffer(_msg_arr, 0, g_data_size),
                         [] (session &_s)
-                    {
-
-                    });*/
+                    {*/
+                        uint8_arr_ptr _arr1 = k::make_shared_array<char>(g_data_size);
+                        _s.recv( // recv reverse data
+                            in_buffer(_arr1.get(), g_data_size),
+                            [_arr1] (session &_s, in_buffer _buf, size_t _size)
+                        {
+                            if (_size < g_data_size)
+                                log_debug("first");
+                            else
+                                g_total_size += _size;
+                            //log_info("recv data %s from %s", out_buffer(_buf.begin(), _buf.size()).dump().c_str(), _s.name().c_str());
+                        }, 10);
+//                    });
                 }
             });
         });
@@ -181,7 +181,7 @@ protected:
 void
 tcp_server_test ()
 {
-#define SERVER_ADDR "192.168.0.2"
+//#define SERVER_ADDR "192.168.0.2"
 #define SERVER_ADDR "127.0.0.1"
 //#define SERVER_ADDR "fe80::26e4:35c1:eea7:68a2%eno1"
 //#define SERVER_ADDR "::1%16"
