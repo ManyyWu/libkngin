@@ -280,8 +280,6 @@ tcp_server_test ()
         }, true);
     });
 
-#warning "copyable";
-#warning "wait醒来event只读一次防止多次醒来";
     _loop.run();
     _server.stop();
 }

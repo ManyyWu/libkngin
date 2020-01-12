@@ -71,6 +71,7 @@ event::on_read ()
         this->readn(_buf), // blocked
         "event::readn() error"
     );
+    //log_debug("event read %" PRIu64, out_buffer(_arr, 8).peek_uint64());
 
     if (m_event_handler) {
         log_excp_error(
