@@ -35,7 +35,6 @@
 #define KNGIN_LOG_COLOR_WARNING "\033[01;31;49m"
 #define KNGIN_LOG_COLOR_INFO    "\033[01;32;49m"
 #define KNGIN_LOG_COLOR_DEBUG   ""
-#define KNGIN_LOG_COLOR_ASSERT  "\033[05;37;41m"
 #endif
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -59,6 +58,7 @@ enum KNGIN_LOG_LEVEL {
     KNGIN_LOG_LEVEL_WARNING,
     KNGIN_LOG_LEVEL_INFO,
     KNGIN_LOG_LEVEL_DEBUG,
+    KNGIN_LOG_LEVEL_MAX = KNGIN_LOG_LEVEL_DEBUG
 };
 
 class log_mgr;
@@ -149,6 +149,9 @@ private:
     bool           m_disable_info;
 
     bool           m_disable_debug;
+
+private:
+    static const char * const log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1];
 
 private:
     friend class log_mgr;

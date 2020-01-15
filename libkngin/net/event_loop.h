@@ -27,8 +27,6 @@ public:
 
     typedef timer::timer_ptr           timer_ptr;
 
-    typedef timer::timer_weak_ptr      timer_weak_ptr;
-
     typedef timer::timerid             timerid;
 
     typedef std::shared_ptr<barrier>   barrier_ptr;
@@ -209,7 +207,6 @@ public:
 
 // timer
 public:
-
     void
     cancel         (const timer_ptr &_timer)
     { return m_pimpl->cancel(_timer); }

@@ -31,9 +31,27 @@ public:
         operator = (const timerid &_timer);
 
     public:
-        bool
-        cancelled  ();
+        timestamp
+        initval    () const KNGIN_NOEXCP
+        { return m_initval; }
 
+        timestamp
+        interval   () const KNGIN_NOEXCP
+        { return m_interval; }
+
+        bool
+        realtime   () const KNGIN_NOEXCP
+        { return m_realtime; }
+
+        bool
+        abs        () const KNGIN_NOEXCP
+        { return m_abs; }
+
+        bool
+        cancelled  ()
+        { auto _timer = m_timer.lock(); return (_timer and _timer->registed()); }
+
+    public:
         int
         key        () const KNGIN_NOEXCP
         { return m_key; }
@@ -54,6 +72,8 @@ public:
         bool           m_realtime;
 
         bool           m_abs;
+
+        bool           m_persist;
     };
 
 public:
@@ -70,16 +90,12 @@ public:
 
     void
     set_time  (timestamp _val, timestamp _interval,
-               bool _abs = false);
+               bool _abs = false, bool _persist = false);
 
     void
     close     ();
 
 public:
-    bool
-    cancelled ()
-    { return !registed(); }
-
     timer_ptr
     self      ()
     { return shared_from_this(); }
@@ -87,10 +103,6 @@ public:
     int
     key       () const KNGIN_NOEXCP
     { return fd(); }
-
-    bool
-    repeat    () const KNGIN_NOEXCP
-    { return m_interval.value(); }
 
 private:
     virtual void
@@ -102,13 +114,15 @@ private:
 private:
     timeout_handler m_timeout_handler;
 
-    timestamp      m_initval;
+    timestamp       m_initval;
 
-    timestamp      m_interval;
+    timestamp       m_interval;
 
-    bool           m_realtime;
+    bool            m_realtime;
 
-    bool           m_abs;
+    bool            m_abs;
+
+    bool            m_persist;
 
 private:
     friend class epoller;

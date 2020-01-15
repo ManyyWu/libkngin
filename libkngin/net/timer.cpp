@@ -33,13 +33,6 @@ timer::timerid::timerid (const timerid &_timer)
 {
 }
 
-bool
-timer::timerid::cancelled ()
-{
-    auto _timer = m_timer.lock();
-    return (_timer and _timer->registed());
-}
-
 timer::timerid &
 timer::timerid::operator = (const timerid &_timer)
 {
@@ -92,12 +85,14 @@ timer::get_time ()
 }
 
 void
-timer::set_time (timestamp _val, timestamp _interval, bool _abs /* = false */)
+timer::set_time (timestamp _val, timestamp _interval,
+                 bool _abs /* = false */, bool _persist /* = false */)
 {
     assert(valid());
     m_initval = _val;
     m_interval = _interval;
     m_abs = _abs;
+    m_persist = _persist;
 
     itimerspec _its;
     _val.to_timespec(_its.it_value);

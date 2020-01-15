@@ -11,6 +11,15 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+const char * const
+log::log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1] = {
+    KNGIN_LOG_COLOR_FATAL,
+    KNGIN_LOG_COLOR_ERROR,
+    KNGIN_LOG_COLOR_WARNING,
+    KNGIN_LOG_COLOR_INFO,
+    KNGIN_LOG_COLOR_DEBUG
+};
+
 log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FILE */)
     :
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
@@ -237,31 +246,10 @@ fail:
 const char *
 log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP
 {
-    const char *_str = nullptr;
 #ifdef _WIN32
 #else
-    switch (_level) {
-    case KNGIN_LOG_LEVEL_FATAL:
-        _str = KNGIN_LOG_COLOR_FATAL;
-        break;
-    case KNGIN_LOG_LEVEL_ERROR:
-        _str = KNGIN_LOG_COLOR_ERROR;
-        break;
-    case KNGIN_LOG_LEVEL_WARNING:
-        _str = KNGIN_LOG_COLOR_WARNING;
-        break;
-    case KNGIN_LOG_LEVEL_INFO:
-        _str = KNGIN_LOG_COLOR_INFO;
-        break;
-    case KNGIN_LOG_LEVEL_DEBUG:
-        _str = KNGIN_LOG_COLOR_DEBUG;
-        break;
-    default:
-        _str = KNGIN_LOG_COLOR_ASSERT;
-        break;
-    }
+    return log::log_color_begin_tbl[_level];
 #endif
-    return _str;
 }
 
 const char *

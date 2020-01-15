@@ -23,23 +23,13 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 // for ET mode
 #if (ON == KNGIN_SESSION_ET_MODE)
-#define ET_MODE_SET(var, val)          (var) = (val)
-#define ET_MODE_EXP_SET(exp, var, val) if ((exp)) { ET_MODE_SET(var, val); };
 #define ET_MODE_ON_READ()              on_read();
-#define ET_MODE_EXP_ON_READ(exp)       if ((exp)) { on_read(); };
 #define ET_MODE_ON_WRITE()             on_write();
-#define ET_MODE_EXP_ON_WRITE(exp)      if ((exp)) { on_write(); };
 #define ET_MODE_ON_OOB()               on_oob();
-#define ET_MODE_EXP_ON_OOB(exp)        if ((exp)) { on_oob(); };
 #else
-#define ET_MODE_SET(var, val)          static_cast<void>(0)
-#define ET_MODE_EXP_SET(exp, var, val) static_cast<void>(0)
 #define ET_MODE_ON_READ()              static_cast<void>(0)
-#define ET_MODE_EXP_ON_READ(exp)       static_cast<void>(0)
 #define ET_MODE_ON_WRITE()             static_cast<void>(0)
-#define ET_MODE_EXP_ON_WRITE(exp)      static_cast<void>(0)
 #define ET_MODE_ON_OOB()               static_cast<void>(0)
-#define ET_MODE_EXP_ON_OOB(exp)        static_cast<void>(0)
 #endif
 
 session::session (event_loop &_loop, k::socket &&_socket,
@@ -267,7 +257,7 @@ void
 session::on_write ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed or m_last_error)
+    if (!_loop or m_closing or m_closed or m_last_error or m_socket.wr_closed())
         return;
     auto _self = self();
     if_not (pollout())
@@ -329,14 +319,14 @@ session::on_write ()
             );
         }
     }
-    ET_MODE_EXP_ON_WRITE(!m_closed and !m_last_error);
+    ET_MODE_ON_WRITE();
 }
 
 void
 session::on_read ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed or m_last_error)
+    if (!_loop or m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
     auto _self = self();
     if_not (pollin())
@@ -426,14 +416,14 @@ session::on_read ()
             );
         }
     }
-    ET_MODE_EXP_ON_READ(!m_closed and !m_last_error);
+    ET_MODE_ON_READ();
 }
 
 void
 session::on_oob ()
 {
     auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed or m_last_error)
+    if (!_loop or m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
     auto _self = self();
     if_not (pollpri())
@@ -465,7 +455,7 @@ session::on_oob ()
             log_warning("unhandled oob data from %s", m_socket.name().c_str());
         }
     }
-    ET_MODE_EXP_ON_OOB(!m_closed && m_last_error);
+    ET_MODE_ON_OOB();
 }
 
 void
