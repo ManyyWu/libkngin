@@ -209,7 +209,7 @@ private:
 private:
     void
     clear_queues        ();
-          
+
 private:
     loop_weak_ptr     m_loop;
 
