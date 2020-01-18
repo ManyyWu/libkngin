@@ -23,7 +23,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
                     error_handler &&_error_handler)
     try
     : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
-      m_loop(_loop.weak_self()),
+      m_loop(&_loop),
       m_socket(std::move(_socket)),
       m_closed(true),
       m_listen_addr(),
@@ -31,7 +31,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
       m_error_handler(std::move(_error_handler)),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
-    arg_check(!m_loop.expired() and m_socket.valid());
+    arg_check(m_socket.valid());
     if (!m_idle_file.valid())
         throw k::system_error("::open(\"/dev/null\") error");
 
@@ -112,16 +112,15 @@ listener::close (bool _blocking /* = true */)
 {
     if (m_closed)
         return;
-    auto _loop = m_loop.lock();
 
-    if (registed() and _loop and _loop->looping()) {
-        if (_loop->in_loop_thread()) {
+    if (registed() and m_loop and m_loop->looping()) {
+        if (m_loop->in_loop_thread()) {
             on_close();
         } else {
-            _loop->remove_event(*this);
+            m_loop->remove_event(*this);
             if (_blocking) {
                 auto _barrier_ptr = std::make_shared<barrier>(2);
-                _loop->run_in_loop([this, _barrier_ptr] () {
+                m_loop->run_in_loop([this, _barrier_ptr] () {
                     on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
@@ -129,7 +128,7 @@ listener::close (bool _blocking /* = true */)
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
             } else {
-                _loop->run_in_loop([this] () {
+                m_loop->run_in_loop([this] () {
                     on_close();
                 });
             }
@@ -141,14 +140,30 @@ listener::close (bool _blocking /* = true */)
 }
 
 void
+listener::on_events (event_loop &_loop, uint32_t _flags)
+{
+    assert(m_loop == &_loop);
+    try {
+        if ((EPOLLHUP | EPOLLERR) & _flags) {
+            this->on_read();
+            return;
+        }
+        if (EPOLLIN & _flags)
+            this->on_read();
+    } catch (std::exception &_e) {
+        log_fatal("caught an exception in listener::on_event(), %s", _e.what());
+        throw;
+    } catch (...) {
+        log_fatal("caught an undefined exception in listener::on_event()");
+        throw;
+    }
+}
+
+void
 listener::on_read ()
 {
     if (m_closed)
         return;
-    auto _loop = m_loop.lock();
-    if (!_loop)
-        return;
-    assert(_loop->in_loop_thread());
 
     address _peer_addr;
     std::error_code _ec;
@@ -191,22 +206,14 @@ listener::on_read ()
 }
 
 void
-listener::on_error ()
-{
-    on_read();
-}
-
-void
 listener::on_close ()
 {
     if (m_closed)
         return;
-    auto _loop = m_loop.lock();
-    assert(_loop ? _loop->in_loop_thread() : true);
 
     auto _self = self();
-    if (_loop and _loop->looping() and registed())
-        _loop->remove_event(*this);
+    if (m_loop and m_loop->looping() and registed())
+        m_loop->remove_event(*this);
     m_socket.close();
     m_closed = true;
 }

@@ -5,6 +5,7 @@
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/event.h"
+#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -57,9 +58,18 @@ event::close ()
 }
 
 void
-event::on_error ()
+event::on_events (event_loop &_loop, uint32_t _flags)
 {
-    on_read();
+    try {
+        if ((EPOLLHUP | EPOLLERR | EPOLLIN) & _flags)
+            this->on_read();
+    } catch (std::exception &_e) {
+        log_fatal("caught an exception in event::on_event(), %s", _e.what());
+        throw;
+    } catch (...) {
+        log_fatal("caught an undefined exception in event::on_event()");
+        throw;
+    }
 }
 
 void

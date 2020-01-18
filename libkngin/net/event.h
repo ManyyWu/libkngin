@@ -8,9 +8,12 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class event_loop;
 class event
     : public epoller_event,
       public std::enable_shared_from_this<event> {
+    friend class event_loop;
+
 public:
     typedef std::function<void (void)> event_handler;
 
@@ -19,37 +22,34 @@ public:
     typedef std::weak_ptr<event>       event_weak_ptr;
 
 public:
-    event    () = delete;
+    event     () = delete;
 
-    event    (event_handler &&_event_handler);
+    event     (event_handler &&_event_handler);
 
     virtual
-    ~event   () KNGIN_NOEXCP;
+    ~event    () KNGIN_NOEXCP;
 
 public:
     void
-    notify   ();
+    notify    ();
 
     void
-    close    ();
+    close     ();
 
 public:
     event_ptr
-    self     ()
+    self      ()
     { return shared_from_this(); }
 
 private:
     virtual void
-    on_read  ();
+    on_events (event_loop &_loop, uint32_t _flags);
 
-    virtual void
-    on_error ();
+    void
+    on_read   ();
 
 private:
     event_handler m_event_handler;
-
-private:
-    friend class epoller;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -8,7 +8,6 @@
 #include "core/common.h"
 #include "core/exception.h"
 #include "core/system_error.h"
-#include "net/event_loop.h"
 #include "net/epoller.h"
 #include "net/filefd.h"
 
@@ -62,20 +61,6 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
     }
 #endif
     return std::max(_num, 0);
-}
-
-void
-epoller::process_events (epoll_event_set &_list, size_t _size)
-{
-    assert(_list.size() >= _size);
-    for (uint32_t _i = 0; _i < _size; _i++) {
-        auto *_ptr = static_cast<epoller_event *>(_list[_i].data.ptr);
-        assert(_ptr);
-        log_excp_error(
-            epoller_event::on_events(_ptr, _list[_i].events),
-            "epoller_event::on_events() error"
-        );
-    }
 }
 
 void

@@ -18,7 +18,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 server::server (event_loop &_loop, const server_opts &_opts)
     try 
-    : m_loop(_loop.weak_self()),
+    : m_loop(&_loop),
       m_opts(_opts),
       m_threadpool(_opts.thread_num),
       m_listener(nullptr),
@@ -63,10 +63,7 @@ server::run ()
     assert(m_stopped);
 
     auto _crash_handler = [this] () {
-        auto _loop = m_loop.lock();
-        if (!_loop)
-            return;
-        _loop->run_in_loop([this] () {
+        m_loop->run_in_loop([this] () {
             if (m_crash_handler) {
                 log_excp_fatal(
                     m_crash_handler(),
@@ -77,12 +74,14 @@ server::run ()
     }; // end of crash_handler, run in thread pool
 
     // shielding SIGPIPE signal
+/*
 #ifndef _WIN32
     sigset_t _signal_mask;
     sigemptyset(&_signal_mask);
     sigaddset(&_signal_mask, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
 #endif
+*/
 
     // run threadpool
     m_threadpool.start(_crash_handler);
@@ -148,13 +147,10 @@ server::broadcast (session_list &_list, msg_buffer _buf)
         return;
 
     for (auto &_iter : _list) {
-        auto _loop = _iter->loop().lock();
-        if (!_loop)
-            return;
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
         _iter->send(msg_buffer(_buf.get(), 0, _buf.buffer().size()));
 #else
-        _loop->run_in_loop([_buf, _iter] () {
+        m_loop->run_in_loop([_buf, _iter] () {
             _iter->send(_buf, nullptr);
         }); // run in the loop corresponding to the connection
 #endif
@@ -165,10 +161,6 @@ void
 server::on_new_session (socket &&_sock)
 {
     assert(!m_stopped);
-    auto _loop = m_listener->loop().lock();
-    if (!_loop)
-        return;
-    assert(_loop->in_loop_thread());
     // FIXME: stop accepting when sessions reach to the maximum number
 
     try {
@@ -188,7 +180,7 @@ server::on_new_session (socket &&_sock)
         // run in self loop
         if (m_session_handler) {
             _next_loop.run_in_loop([this, _session] () {
-                auto _next_loop = _session->loop().lock();
+                auto _next_loop = _session->loop();
                 assert(_next_loop);
                 _session->set_oob_handler(m_oob_handler);
                 _session->set_error_handler(m_error_handler);

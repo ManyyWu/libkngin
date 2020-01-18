@@ -34,8 +34,6 @@ class session
     : public epoller_event,
       public std::enable_shared_from_this<session> {
 public:
-    typedef event_loop::pimpl_weak_ptr                         loop_weak_ptr;
-
     typedef std::function<void (session &, std::error_code)>   error_handler;
 
     typedef std::function<void (session &, in_buffer, size_t)> message_handler;
@@ -173,11 +171,11 @@ public:
     { return m_key; }
 
 public:
-    loop_weak_ptr &
+    event_loop *
     loop                () KNGIN_NOEXCP
     { return m_loop; }
 
-    const loop_weak_ptr &
+    const event_loop *
     loop                () const KNGIN_NOEXCP
     { return m_loop; }
 
@@ -192,15 +190,18 @@ private:
 
 private:
     virtual void
+    on_events      (event_loop &_loop, uint32_t _flags);
+
+    void
     on_write            ();
 
-    virtual void
+    void
     on_read             ();
 
-    virtual void
+    void
     on_oob              ();
 
-    virtual void
+    void
     on_error            ();
           
     void
@@ -211,7 +212,7 @@ private:
     clear_queues        ();
 
 private:
-    loop_weak_ptr     m_loop;
+    event_loop *      m_loop;
 
     k::socket         m_socket;
 

@@ -12,147 +12,70 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class thread : public noncopyable {
-public:
-    typedef std::function<void (pthread_t)> crash_handler;
-
-    typedef std::function<int (void)>       thr_fn;
-
-public:
-    class pimpl
-        : public noncopyable,
-          public std::enable_shared_from_this<pimpl> {
     public:
 #ifdef _WIN32
         struct thread_t;
 #endif
+    typedef std::function<void (pthread_t)> crash_handler;
 
-        union thread_err_code {
-            void *ptr;
+    typedef std::function<int (void)>       thr_fn;
 
-            int   code;
+    union thread_err_code {
+        void *ptr;
 
-            thread_err_code () KNGIN_NOEXCP
-            { ptr = nullptr; code = 0; }
+        int   code;
 
-            explicit
-            thread_err_code (int _code) KNGIN_NOEXCP
-            { ptr = nullptr; code = _code; }
-        };
-
-        struct thread_data {
-            std::string   name;
-
-            thr_fn        fn;
-
-            crash_handler handler;
-
-            thread_data (const std::string &_name,
-                         thr_fn &&_fn,
-                         crash_handler &&_handler)
-                : name(_name), fn(std::move(_fn)), handler(std::move(_handler)) {}
-        };
-
-        typedef std::shared_ptr<pimpl> pimpl_ptr;
-
-        typedef std::weak_ptr<pimpl>   pimpl_weak_ptr;
-
-    public:
-        pimpl         () = delete;
+        thread_err_code () KNGIN_NOEXCP
+        { ptr = nullptr; code = 0; }
 
         explicit
-        pimpl         (const char *_name);
+        thread_err_code (int _code) KNGIN_NOEXCP
+        { ptr = nullptr; code = _code; }
+    };
 
-        virtual
-        ~pimpl        () KNGIN_NOEXCP;
+    struct thread_data {
+        std::string   name;
 
-    public:
-        void
-        run           (thr_fn &&_fn, crash_handler &&_crash_handler);
+        thr_fn        fn;
 
-        int
-        join          ();
+        crash_handler handler;
 
-        void
-        cancel        ();
-
-        bool
-        joined        () const KNGIN_NOEXCP;
-
-        pthread_t
-        get_interface () const KNGIN_NOEXCP;
-
-        const char *
-        name          () const KNGIN_NOEXCP;
-
-    public:
-        bool
-        equal_to      (pthread_t _t) KNGIN_NOEXCP;
-
-    public:
-        pimpl_ptr
-        self          ()
-        { return shared_from_this(); }
-
-        pimpl_weak_ptr
-        weak_self     ()
-        { return shared_from_this(); }
-
-    protected:
-        static void *
-        start         (void *_args) KNGIN_NOEXCP;
-
-    protected:
-        static void
-        cleanup       (void *_args) KNGIN_NOEXCP;
-
-    protected:
-        const std::string m_name;
-
-        pthread_t         m_thr;
-
-        std::atomic_bool  m_joined;
+        thread_data (const std::string &_name,
+                     thr_fn &&_fn,
+                     crash_handler &&_handler)
+            : name(_name), fn(std::move(_fn)), handler(std::move(_handler)) {}
     };
 
 public:
-    typedef pimpl::pimpl_ptr      pimpl_ptr;
-
-    typedef pimpl::pimpl_weak_ptr pimpl_weak_ptr;
-
-public:
-    thread        ()
-        : m_pimpl(std::make_shared<pimpl>(nullptr))  {}
+    thread         ();
 
     explicit
-    thread        (const char *_name)
-        : m_pimpl(std::make_shared<pimpl>(_name)) {}
+    thread         (const char *_name);
 
     virtual
-    ~thread       () = default;
+    ~thread        () KNGIN_NOEXCP;
 
 public:
     void
-    run           (thr_fn &&_fn, crash_handler &&_crash_handler = nullptr)
-    { m_pimpl->run(std::move(_fn), std::move(_crash_handler)); }
+    run           (thr_fn &&_fn, crash_handler &&_crash_handler = nullptr);
 
     int
-    join          ()
-    { return m_pimpl->join(); }
+    join          ();
 
     void
-    cancel        ()
-    { m_pimpl->cancel(); }
+    cancel        ();
 
     bool
     joined        () const KNGIN_NOEXCP
-    { return m_pimpl->joined(); }
+    { return m_joined; }
 
     pthread_t
     get_interface () const KNGIN_NOEXCP
-    { return m_pimpl->get_interface(); }
+    { return m_thr; }
 
     const char *
     name          () const KNGIN_NOEXCP
-    { return m_pimpl->name(); }
+    { return m_name.c_str(); }
 
 public:
     static uint64_t
@@ -167,21 +90,25 @@ public:
     static bool
     equal         (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXCP;
 
-    static void
-    exit          (int _err_code) KNGIN_NOEXCP
-    { ::pthread_exit(pimpl::thread_err_code(_err_code).ptr); }
-
     bool
-    equal_to      (pthread_t _t) KNGIN_NOEXCP
-    { return m_pimpl->equal_to(_t); }
+    equal_to      (pthread_t _t) KNGIN_NOEXCP;
 
-public:
-    pimpl_weak_ptr
-    weak_self     ()
-    { return m_pimpl->weak_self(); }
+    static void
+    exit          (int _err_code) KNGIN_NOEXCP;
 
-private:
-    pimpl::pimpl_ptr m_pimpl;
+protected:
+    static void *
+    start         (void *_args) KNGIN_NOEXCP;
+
+    static void
+    cleanup       (void *_args) KNGIN_NOEXCP;
+
+protected:
+    const std::string m_name;
+
+    pthread_t         m_thr;
+
+    std::atomic_bool  m_joined;
 };
 
 KNGIN_NAMESPACE_K_END

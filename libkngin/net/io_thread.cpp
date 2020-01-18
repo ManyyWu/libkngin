@@ -35,7 +35,7 @@ io_thread::run (crash_handler &&_crash_handler /* = nullptr */)
 {
     {
         local_lock _lock(m_mutex);
-        m_loop = std::make_shared<event_loop>(*this);
+        m_loop = std::make_shared<event_loop>();
         thread::run([this] () -> int {
             return process();
         }, std::move(_crash_handler));
@@ -59,18 +59,20 @@ int
 io_thread::process ()
 {
     // shielding SIGPIPE signal
+/*
 #ifndef _WIN32
     sigset_t _signal_mask;
     sigemptyset(&_signal_mask);
     sigaddset(&_signal_mask, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
 #endif
+*/
 
     m_loop->run([this] () {
         {
             local_lock _lock(m_mutex);
+            m_cond.signal();
         }
-        m_cond.signal();
     }, nullptr);
 
     return 0;

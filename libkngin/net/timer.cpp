@@ -5,6 +5,7 @@
 #include "core/common.h"
 #include "core/system_error.h"
 #include "net/timer.h"
+#include "net/event_loop.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -111,13 +112,22 @@ timer::close ()
 }
 
 void
-timer::on_error ()
+timer::on_events (event_loop &_loop, uint32_t _flags)
 {
-    on_read();
+    try {
+        if ((EPOLLHUP | EPOLLERR | EPOLLIN) & _flags)
+            this->on_read(_loop);
+    } catch (std::exception &_e) {
+        log_fatal("caught an exception in timer::on_event(), %s", _e.what());
+        throw;
+    } catch (...) {
+        log_fatal("caught an undefined exception in timer::on_event()");
+        throw;
+    }
 }
 
 void
-timer::on_read ()
+timer::on_read (event_loop &_loop)
 {
     assert(valid());
     auto _self = self();
@@ -135,6 +145,9 @@ timer::on_read ()
             "timer::m_timeout_handler() error"
         );
     }
+
+    if (!m_persist && registed())
+        _loop.cancel(_self);
 }
 
 KNGIN_NAMESPACE_K_END

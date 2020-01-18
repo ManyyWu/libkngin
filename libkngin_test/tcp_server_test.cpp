@@ -33,7 +33,7 @@ timestamp          g_ts(0);
 class test_server {
 public:
     test_server (event_loop &_loop, const server_opts &_opts)
-        : m_loop(_loop.weak_self()),
+        : m_loop(&_loop),
           m_server(_loop, _opts),
           m_sessions(),
           m_sessions_mutex()
@@ -94,10 +94,8 @@ public:
 
         m_server.set_crash_handler([this] () {
             log_fatal("server crashed");
-            auto _loop = m_loop.lock();
-            assert(_loop);
             stop();
-            _loop->stop();
+            m_loop->stop();
         }); // end of server_crash_handler, run in main thread
         return m_server.run();
     }
@@ -163,9 +161,9 @@ public:
     }
 
 protected:
-    event_loop::pimpl_weak_ptr m_loop;
+    event_loop *m_loop;
 
-    tcp::server                m_server;
+    tcp::server m_server;
 
     struct session_info {
         session::session_ptr si_session;
@@ -254,7 +252,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(1000000,
+    _loop.run_after(10000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);

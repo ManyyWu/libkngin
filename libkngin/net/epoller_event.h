@@ -8,13 +8,16 @@
 #include <functional>
 #include <system_error>
 #include "core/define.h"
-#include "core/noncopyable.h"
 #include "net/filefd.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
 class epoller;
+class event_loop;
 class epoller_event : protected filefd {
+    friend class epoller;
+    friend class event_loop;
+
 public:
     typedef int     epollfd;
 
@@ -88,21 +91,8 @@ protected:
     et             () const          KNGIN_NOEXCP { return (m_flags & EPOLLET); }
 
 protected:
-    static void
-    on_events      (epoller_event *__ptr, uint32_t _events);
-
-protected:
     virtual void
-    on_error       () = 0;
-
-    virtual void
-    on_read        () {};
-
-    virtual void
-    on_write       () {};
-
-    virtual void
-    on_oob         () {};
+    on_events      (event_loop &_loop, uint32_t _flags) = 0;
 
 private:
     uint32_t    m_flags;
@@ -114,9 +104,6 @@ private:
     EVENT_TYPE  m_type;
 
     uint8_t     m_priority;
-
-private:
-    friend class epoller;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -13,6 +13,8 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class mutex : public noncopyable {
+    friend class cond;
+
 public:
     mutex         ();
 
@@ -33,9 +35,6 @@ public:
 
 private:
     pthread_mutex_t m_mutex;
-
-private:
-    friend class cond;
 };
 
 KNGIN_NAMESPACE_K_END

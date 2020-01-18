@@ -63,6 +63,8 @@ enum KNGIN_LOG_LEVEL {
 
 class log_mgr;
 class log : public noncopyable {
+    friend class log_mgr;
+
 public:
     log           () = delete;
 
@@ -152,9 +154,6 @@ private:
 
 private:
     static const char * const log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1];
-
-private:
-    friend class log_mgr;
 
     friend log_mgr &
     logger ();

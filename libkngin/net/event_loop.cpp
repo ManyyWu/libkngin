@@ -7,8 +7,10 @@
 #include <algorithm>
 #include "core/common.h"
 #include "core/system_error.h"
+#include "core/thread.h"
 #include "net/event_loop.h"
 #include "net/event.h"
+#include "net/epoller_event.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
@@ -17,13 +19,12 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-event_loop::pimpl::pimpl ()
+event_loop::event_loop ()
     try
-    : m_thr(std::make_shared<thread::pimpl>(nullptr)),
-      m_ptid(thread::ptid()),
+    : m_tid(0),
       m_epoller(),
       m_waker(nullptr),
-      m_looping(true),
+      m_looping(false),
       m_stop(false),
       m_taskq(),
       m_taskq_mutex(),
@@ -32,32 +33,11 @@ event_loop::pimpl::pimpl ()
       m_timers_mutex()
 {
 } catch (...) {
-    log_fatal("event_loop::pimpl::pimpl() error");
+    log_fatal("event_loop::pimpl() error");
     throw;
 }
 
-event_loop::pimpl::pimpl (thread &_thr)
-    try
-    : m_thr(_thr.weak_self()),
-      m_ptid(_thr.ptid()), // unused
-      m_epoller(),
-      m_waker(nullptr),
-      m_looping(true),
-      m_stop(false),
-      m_taskq(),
-      m_taskq_mutex(),
-      m_stop_barrier(std::make_shared<barrier>(2)),
-      m_events(KNGIN_RESERVED_EPOLLELR_EVENT),
-      m_timers_mutex()
-{
-    arg_check(!m_thr.expired());
-} catch (...) {
-    m_looping = false;
-    log_fatal("event_loop::pimpl::pimpl() error");
-    throw;
-}
-
-event_loop::pimpl::~pimpl () KNGIN_NOEXCP
+event_loop::~event_loop () KNGIN_NOEXCP
 {
     size_t _size = m_timers.size();
     if (_size)
@@ -72,12 +52,11 @@ event_loop::pimpl::~pimpl () KNGIN_NOEXCP
 }
 
 void
-event_loop::pimpl::run (started_handler &&_start_handler,
-                        stopped_handler &&_stop_handler)
+event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handler)
 {
+    m_tid = thread::tid();
     m_looping = true;
-    auto _loop = self();
-    auto _thr  = m_thr.lock();
+    log_info("event loop is running in thread %" PRIu64, thread::tid());
 
     try {
         m_waker = std::make_shared<event>([] () {});
@@ -118,7 +97,14 @@ event_loop::pimpl::run (started_handler &&_start_handler,
             }); // end of operator < for sortting
 
             // process events
-            epoller::process_events(m_events, _size);
+            for (uint32_t _i = 0; _i < _size; _i++) {
+                auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
+                assert(_ptr);
+                log_excp_error(
+                    _ptr->on_events(*this, m_events[_i].events),
+                    "epoller_event_handler::on_events() error"
+                );
+            }
         }
     } catch (...) {
         if (m_waker and m_waker->registed())
@@ -134,8 +120,7 @@ event_loop::pimpl::run (started_handler &&_start_handler,
         m_looping = false;
         if (!m_stop_barrier->destroyed())
             m_stop_barrier->destroy();
-        log_fatal("caught an exception in event_loop of thread \"%s\"",
-                  _thr ? _thr->name() : "");
+        log_fatal("caught an exception in event loop of thread %" PRIu64, thread::tid());
         throw;
     }
 
@@ -156,7 +141,7 @@ event_loop::pimpl::run (started_handler &&_start_handler,
 }
 
 void
-event_loop::pimpl::stop ()
+event_loop::stop ()
 {
     if (!m_looping)
         return;
@@ -177,65 +162,50 @@ event_loop::pimpl::stop ()
     }
 }
 
-bool
-event_loop::pimpl::in_loop_thread () const KNGIN_NOEXCP
-{
-    auto _thr = m_thr.lock();
-    if (_thr)
-        return _thr->equal_to(thread::ptid());
-    else
-        return thread::equal(m_ptid, thread::ptid());
-}
-
 void
-event_loop::pimpl::register_event (epoller_event_ptr _e)
+event_loop::register_event (epoller_event_ptr _e)
 {
-    assert(m_looping);
     m_epoller.register_event(_e);
-    if (!in_loop_thread())
+    if (m_looping && !in_loop_thread())
         wakeup();
 }
 
 void
-event_loop::pimpl::remove_event (epoller_event &_e)
+event_loop::remove_event (epoller_event &_e)
 {
-    assert(m_looping);
     m_epoller.remove_event(_e);
-    if (!in_loop_thread())
+    if (m_looping && !in_loop_thread())
         wakeup();
 }
 
 void
-event_loop::pimpl::update_event (epoller_event &_e)
+event_loop::update_event (epoller_event &_e)
 {
-    assert(m_looping);
     m_epoller.modify_event(_e);
-    if (!in_loop_thread())
+    if (m_looping && !in_loop_thread())
         wakeup();
 }
 
 bool
-event_loop::pimpl::registed (epoller_event &_e)
+event_loop::registed (epoller_event &_e)
 {
-    assert(m_looping);
     return m_epoller.registed(_e);
 }
 
 void
-event_loop::pimpl::run_in_loop (event_loop::task &&_fn)
+event_loop::run_in_loop (event_loop::task &&_fn)
 {
-    assert(m_looping);
     if (_fn)
     {
         local_lock _lock(m_taskq_mutex);
         m_taskq.push_front(std::move(_fn));
     }
-    if (!in_loop_thread())
+    if (m_looping && !in_loop_thread())
         wakeup();
 }
 
 void
-event_loop::pimpl::cancel (const timer_ptr &_timer)
+event_loop::cancel (const timer_ptr &_timer)
 {
     assert(_timer);
     assert(_timer->registed());
@@ -250,7 +220,7 @@ event_loop::pimpl::cancel (const timer_ptr &_timer)
 }
 
 void
-event_loop::pimpl::cancel (timer::timerid &_id)
+event_loop::cancel (timer::timerid &_id)
 {
     auto _timer = _id.weak_ptr().lock();
     assert(_timer);
@@ -265,55 +235,51 @@ event_loop::pimpl::cancel (timer::timerid &_id)
 }
 
 timer::timerid
-event_loop::pimpl::run_after (timestamp _delay, timeout_handler &&_handler,
-                              bool _realtime /* = false */)
+event_loop::run_after (timestamp _delay, timeout_handler &&_handler,
+                       bool _realtime /* = false */)
 {
     auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
     _timer->set_time(_delay, 0, false);
-    register_event(_timer);
-    {
-        local_lock _lock(m_timers_mutex);
-        assert(m_timers.find(_timer->key()) == m_timers.end());
-        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
-    }
+    add_timer(_timer);
     return timerid(_timer);
 }
 
 timer::timerid
-event_loop::pimpl::run_every (timestamp _interval, timeout_handler &&_handler,
-                              bool _realtime /* = false */)
+event_loop::run_every (timestamp _interval, timeout_handler &&_handler,
+                       bool _realtime /* = false */)
 {
     auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
     _timer->set_time(_interval, _interval, false);
-    register_event(_timer);
-    {
-        local_lock _lock(m_timers_mutex);
-        assert(m_timers.find(_timer->key()) == m_timers.end());
-        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
-    }
+    add_timer(_timer);
     return timerid(_timer);
 }
 
 timer::timerid
-event_loop::pimpl::run_at (timestamp _absval, timeout_handler &&_handler,
-                           bool _realtime /* = false */)
+event_loop::run_at (timestamp _absval, timeout_handler &&_handler,
+                    bool _realtime /* = false */)
 {
     auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
     _timer->set_time(_absval, 0, true);
-    register_event(_timer);
-    {
-        local_lock _lock(m_timers_mutex);
-        assert(m_timers.find(_timer->key()) == m_timers.end());
-        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
-    }
+    add_timer(_timer);
     return timerid(_timer);
 }
 
 void
-event_loop::pimpl::wakeup ()
+event_loop::wakeup ()
 {
     if (m_waker and m_looping and m_waker->registed())
         m_waker->notify(); // blocked
+}
+
+void
+event_loop::add_timer (timer_ptr &_timer)
+{
+    register_event(_timer);
+    {
+        local_lock _lock(m_timers_mutex);
+        assert(m_timers.find(_timer->key()) == m_timers.end());
+        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
+    }
 }
 
 KNGIN_NAMESPACE_K_END

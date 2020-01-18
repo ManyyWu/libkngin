@@ -1,12 +1,13 @@
 #ifdef _WIN32
+#include <Windows.h>
 #include "pthreads_win32/include/pthread.h"
 #else
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/syscall.h>
 #endif
-#include "core/system_error.h"
 #include "core/common.h"
+#include "core/system_error.h"
 #include "core/exception.h"
 #include "core/thread.h"
 
@@ -17,7 +18,22 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-thread::pimpl::pimpl (const char *_name)
+thread::thread ()
+try
+    : m_name(""),
+#ifdef _WIN32
+      m_thr({nullptr, 0}),
+#else
+      m_thr(0),
+#endif
+      m_joined(false)
+{
+} catch (...) {
+    log_fatal("thread() error");
+    throw;
+}
+
+thread::thread (const char *_name)
     try
     : m_name(_name ? _name : ""),
 #ifdef _WIN32
@@ -28,11 +44,11 @@ thread::pimpl::pimpl (const char *_name)
       m_joined(false)
 {
 } catch (...) {
-    log_fatal("thread::pimpl::pimpl() error");
+    log_fatal("thread() error");
     throw;
 }
 
-thread::pimpl::~pimpl () KNGIN_NOEXCP
+thread::~thread () KNGIN_NOEXCP
 {
 #ifdef _WIN32
     if (m_joined or !m_thr.p or !m_thr.x)
@@ -49,14 +65,14 @@ thread::pimpl::~pimpl () KNGIN_NOEXCP
 }
 
 void
-thread::pimpl::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
+thread::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
 {
     assert(_fn);
 
     auto _ec = int2ec(::pthread_create(
                           &m_thr, nullptr,
-                          thread::pimpl::start,
-                          new thread::pimpl::thread_data(
+                          thread::start,
+                          new thread::thread_data(
                               m_name,
                               std::move(_fn),
                               std::move(_crash_handler)
@@ -68,11 +84,10 @@ thread::pimpl::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */
                   m_name.c_str(), system_error_str(_ec).c_str());
         throw k::exception("::pthread_create() error");
     }
-    log_info("thread \"%s\" is running", m_name.c_str());
 }
 
 int
-thread::pimpl::join ()
+thread::join ()
 {
     assert(!equal_to(ptid()));
 
@@ -89,7 +104,7 @@ thread::pimpl::join ()
 }
 
 void
-thread::pimpl::cancel ()
+thread::cancel ()
 {
     assert(!equal_to(ptid()));
 
@@ -102,40 +117,18 @@ thread::pimpl::cancel ()
     log_info("thread \"%s\" cancelled", m_name.c_str());
 }
 
-bool
-thread::pimpl::joined () const KNGIN_NOEXCP
-{
-    return m_joined;
-}
-
-pthread_t
-thread::pimpl::get_interface () const KNGIN_NOEXCP
-{
-    return m_thr;
-}
-
-const char *
-thread::pimpl::name () const KNGIN_NOEXCP
-{
-    return m_name.c_str();
-}
-
-bool
-thread::pimpl::equal_to (pthread_t _t) KNGIN_NOEXCP
-{
-    return ::pthread_equal(_t, m_thr);
-}
-
 void *
-thread::pimpl::start (void *_args) KNGIN_NOEXCP
+thread::start (void *_args) KNGIN_NOEXCP
 {
     assert(_args);
     thread_err_code _code;
     bool _crash = true;
 
     auto _data = static_cast<thread_data *>(_args);
-    pthread_cleanup_push(thread::pimpl::cleanup, _args);
+    assert(_data);
+    pthread_cleanup_push(thread::cleanup, _args);
     try {
+        log_info("thread \"%s\" is running, tid = %" PRIu64, _data->name.c_str(), thread::tid());
         if (_data->fn)
             _code.code = _data->fn();
         _crash = false;
@@ -160,7 +153,7 @@ thread::pimpl::start (void *_args) KNGIN_NOEXCP
 }
 
 void
-thread::pimpl::cleanup (void *_args) KNGIN_NOEXCP
+thread::cleanup (void *_args) KNGIN_NOEXCP
 {
     assert(_args);
     auto _data = static_cast<thread_data *>(_args);
@@ -183,12 +176,6 @@ thread::ptid () KNGIN_NOEXCP
     return ::pthread_self();
 }
 
-bool
-thread::equal (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXCP
-{
-    return ::pthread_equal(_thr1, _thr2);
-}
-
 void
 thread::sleep (timestamp _ms) KNGIN_NOEXCP
 {
@@ -197,6 +184,24 @@ thread::sleep (timestamp _ms) KNGIN_NOEXCP
 #else
     ::usleep(_ms.value_uint() * 1000);
 #endif
+}
+
+bool
+thread::equal_to (pthread_t _t) KNGIN_NOEXCP
+{
+    return ::pthread_equal(_t, m_thr);
+}
+
+bool
+thread::equal (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXCP
+{
+    return ::pthread_equal(_thr1, _thr2);
+}
+
+void
+thread::exit (int _err_code) KNGIN_NOEXCP
+{
+    ::pthread_exit(thread::thread_err_code(_err_code).ptr);
 }
 
 KNGIN_NAMESPACE_K_END

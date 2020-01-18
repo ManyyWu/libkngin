@@ -18,8 +18,6 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 class server : public noncopyable {
 public:
-    typedef event_loop::pimpl_weak_ptr         loop_weak_ptr;
-
     typedef session::session_ptr               session_ptr;
 
     typedef session::message_handler           message_handler;
@@ -88,7 +86,7 @@ protected:
     on_new_session      (socket &&_sock);
 
 private:
-    loop_weak_ptr     m_loop;
+    event_loop *      m_loop;
 
     const server_opts m_opts;
 

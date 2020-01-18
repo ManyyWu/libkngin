@@ -36,7 +36,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
                   const address &_local_addr, const address &_peer_addr)
     try
     : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
-      m_loop(_loop.weak_self()),
+      m_loop(&_loop),
       m_socket(std::move(_socket)), 
       m_closed(false),
       m_closing(false),
@@ -106,11 +106,10 @@ bool
 session::send (msg_buffer _buf, sent_handler &&_handler)
 #endif
 {
-    auto _loop = m_loop.lock();
-    if (!_loop or m_closed or m_socket.wr_closed())
+    if (m_closed or m_socket.wr_closed())
         return false;
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    assert(_loop->in_loop_thread());
+    assert(m_loop->in_loop_thread());
 #endif
     assert(!m_socket.wr_closed());
     assert(_buf.buffer().begin() and _buf.buffer().size());
@@ -127,15 +126,15 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 #if (OFF == KNGIN_SESSION_ET_MODE)
         if (m_out_ctxq.size() <= 1) {
             enable_write();
-            _loop->update_event(*this);
+            m_loop->update_event(*this);
         }
 #endif
     }
 
-    if (_loop->in_loop_thread()) {
+    if (m_loop->in_loop_thread()) {
         on_write();
     } else {
-        _loop->run_in_loop([this] () {
+        m_loop->run_in_loop([this] () {
             on_write();
         });
     }
@@ -151,11 +150,10 @@ session::recv (in_buffer _buf, message_handler &&_handler,
                size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
 #endif
 {
-    auto _loop = m_loop.lock();
-    if (!_loop or m_closed or m_socket.rd_closed())
+    if (m_closed or m_socket.rd_closed())
         return false;
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    assert(_loop->in_loop_thread());
+    assert(m_loop->in_loop_thread());
 #endif
     assert(!m_socket.rd_closed());
     assert(_buf.begin() and _buf.size());
@@ -173,10 +171,10 @@ session::recv (in_buffer _buf, message_handler &&_handler,
             m_next_in_ctx = &m_in_ctxq.back();
     }
 
-    if (_loop->in_loop_thread()) {
+    if (m_loop->in_loop_thread()) {
         on_read();
     } else {
-        _loop->run_in_loop([this] () {
+        m_loop->run_in_loop([this] () {
             on_read();
         });
     }
@@ -189,15 +187,14 @@ session::close (bool _blocking /* = false */)
     if (m_closed)
         return;
     m_closing = true;
-    auto _loop = m_loop.lock();
 
-    if (registed() and _loop and  _loop->looping()) {
-        if (_loop->in_loop_thread()) {
+    if (registed() and m_loop->looping()) {
+        if (m_loop->in_loop_thread()) {
             on_close();
         } else {
             if (_blocking) {
                 auto _barrier_ptr = std::make_shared<barrier>(2);
-                _loop->run_in_loop([this, _barrier_ptr] () {
+                m_loop->run_in_loop([this, _barrier_ptr] () {
                     on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
@@ -205,7 +202,7 @@ session::close (bool _blocking /* = false */)
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
             } else {
-                _loop->run_in_loop([this] () {
+                m_loop->run_in_loop([this] () {
                     on_close();
                 });
             }
@@ -218,18 +215,17 @@ session::close (bool _blocking /* = false */)
 void
 session::rd_shutdown ()
 {
-    auto _loop = m_loop.lock();
-    if (!_loop)
+    if (!m_loop->looping())
         return;
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    assert(_loop->in_loop_thread());
+    assert(m_loop->in_loop_thread());
 #endif
     assert(!m_closed);
     assert(!m_socket.rd_closed());
-    if (_loop->in_loop_thread())
+    if (m_loop->in_loop_thread())
         m_socket.rd_shutdown();
     else
-        _loop->run_in_loop([this] () {
+        m_loop->run_in_loop([this] () {
             m_socket.rd_shutdown();
         });
 }
@@ -237,34 +233,50 @@ session::rd_shutdown ()
 void
 session::wr_shutdown ()
 {
-    auto _loop = m_loop.lock();
-    if (!_loop)
+    if (!m_loop->looping())
         return;
 #if (ON == KNGIN_SESSION_NO_MUTEX)
-    assert(_loop->in_loop_thread());
+    assert(m_loop->in_loop_thread());
 #endif
     assert(!m_closed);
     assert(!m_socket.wr_closed());
-    if (_loop->in_loop_thread())
+    if (m_loop->in_loop_thread())
         m_socket.wr_shutdown();
     else
-        _loop->run_in_loop([this] () {
+        m_loop->run_in_loop([this] () {
             m_socket.wr_shutdown();
         });
 }
 
 void
+session::on_events (event_loop &_loop, uint32_t _flags)
+{
+    assert(m_loop == &_loop);
+    try {
+        if ((EPOLLHUP | EPOLLERR) & _flags) {
+            this->on_error();
+            return;
+        }
+        if (EPOLLIN & _flags)
+            this->on_read();
+    } catch (std::exception &_e) {
+        log_fatal("caught an exception in session::on_event(), %s", _e.what());
+        throw;
+    } catch (...) {
+        log_fatal("caught an undefined exception in session::on_event()");
+        throw;
+    }
+}
+
+void
 session::on_write ()
 {
-    auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed or m_last_error or m_socket.wr_closed())
+    assert(pollout());
+    if (m_closing or m_closed or m_last_error or m_socket.wr_closed())
         return;
-    auto _self = self();
-    if_not (pollout())
-        return;
-    assert(_loop->in_loop_thread());
     if (!m_next_out_ctx)
         return;
+    auto _self = self();
 
     auto &_out_ctx = *m_next_out_ctx;
     auto &_buf = _out_ctx.buffer;
@@ -325,18 +337,15 @@ session::on_write ()
 void
 session::on_read ()
 {
-    auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed or m_last_error or m_socket.rd_closed())
+    assert(pollin());
+    if (m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
-    auto _self = self();
-    if_not (pollin())
-        return;
-    assert(_loop->in_loop_thread());
     //log_debug("session %s readable %" PRIu64 " bytes", name().c_str(), m_socket.readable());
     if (!m_next_in_ctx) {
         on_error();
         return;
     }
+    auto _self = self();
 
     auto &_in_ctx = *m_next_in_ctx;
     auto &_buf = _in_ctx.buffer;
@@ -422,13 +431,10 @@ session::on_read ()
 void
 session::on_oob ()
 {
-    auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed or m_last_error or m_socket.rd_closed())
+    assert(pollpri());
+    if (m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
     auto _self = self();
-    if_not (pollpri())
-        return;
-    assert(_loop->in_loop_thread());
 
     //recv
     char _data;
@@ -461,11 +467,9 @@ session::on_oob ()
 void
 session::on_error ()
 {
-    auto _loop = m_loop.lock();
-    if (!_loop or m_closing or m_closed)
+    if (m_closing or m_closed)
         return;
     auto _self = self();
-    assert(_loop->in_loop_thread());
 
     if (m_last_error) {
 _error:
@@ -505,10 +509,8 @@ session::on_close ()
         return;
 
     auto _self = self();
-    auto _loop = m_loop.lock();
-    if (registed() and _loop and  _loop->looping()) {
-        assert(_loop->in_loop_thread());
-        _loop->remove_event(*this);
+    if (registed() and m_loop->looping()) {
+        m_loop->remove_event(*this);
     }
     m_socket.close();
     m_closed = true;

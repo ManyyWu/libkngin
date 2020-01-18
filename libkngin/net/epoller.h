@@ -33,10 +33,6 @@ public:
     wait           (epoll_event_set &_list, timestamp _ms);
 
 public:
-    static void
-    process_events (epoll_event_set &_list, size_t _size);
-
-public:
     void
     close          ();
 

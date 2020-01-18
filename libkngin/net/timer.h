@@ -9,9 +9,12 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class event_loop;
 class timer
     : public epoller_event,
       public std::enable_shared_from_this<timer> {
+    friend class event_loop;
+
 public:
     typedef std::shared_ptr<timer>                  timer_ptr;
 
@@ -106,10 +109,10 @@ public:
 
 private:
     virtual void
-    on_read   ();
+    on_events (event_loop &_loop, uint32_t _flags);
 
-    virtual void
-    on_error  ();
+    void
+    on_read   (event_loop &_loop);
 
 private:
     timeout_handler m_timeout_handler;
@@ -123,9 +126,6 @@ private:
     bool            m_abs;
 
     bool            m_persist;
-
-private:
-    friend class epoller;
 };
 
 KNGIN_NAMESPACE_K_END

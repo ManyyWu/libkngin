@@ -15,6 +15,8 @@ KNGIN_NAMESPACE_K_BEGIN
 #define KEY_SIZE sizeof(struct ::in6_addr) + sizeof(::in_port_t) + 1
 
 class address {
+    friend class socket;
+
 public:
     union in_addr {
         struct ::in_addr  v4;
@@ -114,9 +116,6 @@ public:
 
 protected:
     address::sockaddr m_sa;
-
-private:
-    friend class socket;
 };
 
 KNGIN_NAMESPACE_K_END

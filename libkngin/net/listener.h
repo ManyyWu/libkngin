@@ -16,8 +16,6 @@ class listener
     : public epoller_event,
       public std::enable_shared_from_this<listener> {
 public:
-    typedef event_loop::pimpl_weak_ptr            loop_weak_ptr;
-
     typedef std::function<void (k::socket &&)>    accept_handler;
 
     typedef std::function<void (std::error_code)> error_handler;
@@ -41,11 +39,11 @@ public:
     close          (bool _blocking = true);
 
 public:
-    loop_weak_ptr &
+    event_loop *
     loop           () KNGIN_NOEXCP
     { return m_loop; }
 
-    const loop_weak_ptr &
+    const event_loop *
     loop           () const KNGIN_NOEXCP
     { return m_loop; }
 
@@ -63,16 +61,16 @@ private:
 
 private:
     virtual void
-    on_read        ();
+    on_events      (event_loop &_loop, uint32_t _flags);
 
-    virtual void
-    on_error       ();
+    void
+    on_read        ();
 
     void
     on_close       ();
 
 private:
-    loop_weak_ptr    m_loop;
+    event_loop *     m_loop;
 
     k::socket        m_socket;
 
