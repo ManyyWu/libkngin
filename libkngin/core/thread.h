@@ -47,13 +47,13 @@ class thread : public noncopyable {
     };
 
 public:
-    thread         ();
+    thread        ();
 
     explicit
-    thread         (const char *_name);
+    thread        (const char *_name);
 
     virtual
-    ~thread        () KNGIN_NOEXCP;
+    ~thread       () KNGIN_NOEXCP;
 
 public:
     void

@@ -16,15 +16,15 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class filefd : public noncopyable {
 public:
-    filefd  () = delete;
+    filefd        () = delete;
 
     explicit
-    filefd  (int _fd) KNGIN_NOEXCP;
+    filefd        (int _fd) KNGIN_NOEXCP;
 
-    filefd  (filefd &&_fd) KNGIN_NOEXCP;
+    filefd        (filefd &&_fd) KNGIN_NOEXCP;
 
     virtual
-    ~filefd () KNGIN_NOEXCP;
+    ~filefd       () KNGIN_NOEXCP;
 
 public:
     bool
