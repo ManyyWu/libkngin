@@ -93,7 +93,46 @@ server::run ()
 
     // start listener
     auto _on_new_session = [this] (socket &&_sock) {
-        on_new_session(std::move(_sock));
+        assert(!m_stopped);
+        // FIXME: stop accepting when sessions reach to the maximum number
+
+        try {
+            auto _local_addr = _sock.localaddr();
+            auto _peer_addr = _sock.peeraddr();
+
+            session_ptr _session = nullptr;
+            auto &_next_loop = assign_thread();
+            _session = std::make_shared<session>(_next_loop,
+                                                 std::move(_sock),
+                                                 _local_addr, _peer_addr);
+#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
+            _session->set_message_handler(m_message_handler);
+             _session->set_sent_handler(m_sent_handler);
+#endif
+
+            // run in self loop
+            if (m_session_handler) {
+                _next_loop.run_in_loop([this, _session] () {
+                    auto _next_loop = _session->loop();
+                    assert(_next_loop);
+                    _session->set_oob_handler(m_oob_handler);
+                    _session->set_error_handler(m_error_handler);
+                    if (m_opts.keep_alive)
+                        _session->set_keepalive(true);
+                    _next_loop->register_event(_session);
+                    log_excp_error(
+                        m_session_handler(_session),
+                        "server::m_session_handler() error"
+                    );
+                });
+            }
+        } catch (const std::exception &_e) {
+            log_error("caught an exception when accepting new session, %s", _e.what());
+            throw;
+        } catch (...) {
+            log_fatal("caught an undefined exception when accepting new session");
+            throw;
+        }
     }; // end of on_new_session
     auto _on_listener_error = [this, _crash_handler] (std::error_code _ec) {
         assert(!m_stopped);
@@ -154,51 +193,6 @@ server::broadcast (session_list &_list, msg_buffer _buf)
             _iter->send(_buf, nullptr);
         }); // run in the loop corresponding to the connection
 #endif
-    }
-}
-
-void
-server::on_new_session (socket &&_sock)
-{
-    assert(!m_stopped);
-    // FIXME: stop accepting when sessions reach to the maximum number
-
-    try {
-        auto _local_addr = _sock.localaddr();
-        auto _peer_addr = _sock.peeraddr();
-
-        session_ptr _session = nullptr;
-        auto &_next_loop = assign_thread();
-        _session = std::make_shared<session>(_next_loop,
-                                             std::move(_sock),
-                                             _local_addr, _peer_addr);
-#if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-        _session->set_message_handler(m_message_handler);
-        _session->set_sent_handler(m_sent_handler);
-#endif
-
-        // run in self loop
-        if (m_session_handler) {
-            _next_loop.run_in_loop([this, _session] () {
-                auto _next_loop = _session->loop();
-                assert(_next_loop);
-                _session->set_oob_handler(m_oob_handler);
-                _session->set_error_handler(m_error_handler);
-                if (m_opts.keep_alive)
-                    _session->set_keepalive(true);
-                _next_loop->register_event(_session);
-                log_excp_error(
-                    m_session_handler(_session),
-                    "server::m_session_handler() error"
-                );
-            });
-        }
-    } catch (const std::exception &_e) {
-        log_error("caught an exception when accepting new session, %s", _e.what());
-        throw;
-    } catch (...) {
-        log_fatal("caught an undefined exception when accepting new session");
-        throw;
     }
 }
 

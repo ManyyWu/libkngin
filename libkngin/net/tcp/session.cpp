@@ -508,7 +508,6 @@ session::on_close ()
     if (m_closed)
         return;
 
-    auto _self = self();
     if (registed() and m_loop->looping()) {
         m_loop->remove_event(*this);
     }

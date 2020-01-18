@@ -81,10 +81,6 @@ protected:
     assign_thread       ()
     { return m_threadpool.next_loop(); }
 
-protected:
-    void
-    on_new_session      (socket &&_sock);
-
 private:
     event_loop *      m_loop;
 
