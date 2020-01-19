@@ -259,6 +259,10 @@ session::on_events (event_loop &_loop, uint32_t _flags)
         }
         if (EPOLLIN & _flags)
             this->on_read();
+        if (EPOLLOUT & _flags)
+            this->on_write();
+        if (EPOLLPRI & _flags)
+            this->on_oob();
     } catch (std::exception &_e) {
         log_fatal("caught an exception in session::on_event(), %s", _e.what());
         throw;
