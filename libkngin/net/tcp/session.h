@@ -57,11 +57,11 @@ public:
 #endif
     };
 
-    typedef std::deque<in_context>                                 in_ctxq;
+    typedef std::deque<in_context>   in_ctxq;
 
-    typedef std::deque<out_context>                                out_ctxq;
+    typedef std::deque<out_context>  out_ctxq;
 
-    typedef std::shared_ptr<session>                               session_ptr;
+    typedef std::shared_ptr<session> session_ptr;
 
 public:
     session             () = delete;
@@ -190,7 +190,7 @@ private:
 
 private:
     virtual void
-    on_events      (event_loop &_loop, uint32_t _flags);
+    on_events           (event_loop &_loop, uint32_t _flags);
 
     void
     on_write            ();

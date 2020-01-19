@@ -23,13 +23,13 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 // for ET mode
 #if (ON == KNGIN_SESSION_ET_MODE)
-#define ET_MODE_ON_READ()              on_read();
-#define ET_MODE_ON_WRITE()             on_write();
-#define ET_MODE_ON_OOB()               on_oob();
+#define ET_MODE_ON_READ()  on_read();
+#define ET_MODE_ON_WRITE() on_write();
+#define ET_MODE_ON_OOB()   on_oob();
 #else
-#define ET_MODE_ON_READ()              static_cast<void>(0)
-#define ET_MODE_ON_WRITE()             static_cast<void>(0)
-#define ET_MODE_ON_OOB()               static_cast<void>(0)
+#define ET_MODE_ON_READ()  static_cast<void>(0)
+#define ET_MODE_ON_WRITE() static_cast<void>(0)
+#define ET_MODE_ON_OOB()   static_cast<void>(0)
 #endif
 
 session::session (event_loop &_loop, k::socket &&_socket,
@@ -91,8 +91,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
 session::~session () KNGIN_NOEXCP
 {
     if (!m_closed or registed()) {
-        log_warning("the TCP session must be closed"
-                    " before object disconstructing");
+        log_warning("the TCP session must be closed before object disconstructing");
         ignore_excp(this->close(true));
     }
     // FIXME; wait for m_closed to be true ( this->close(true); )
@@ -294,8 +293,7 @@ session::on_write ()
             std::errc::interrupted == _ec
             )
             return;
-        log_error("socket::write() error, %s",
-                  system_error_str(_ec).c_str());
+        log_error("socket::write() error, %s", system_error_str(_ec).c_str());
         m_last_error = _ec;
         on_error();
         return;
@@ -364,8 +362,7 @@ session::on_read ()
             std::errc::interrupted == _ec
             )
             return;
-        log_error("socket::write() error, %s",
-                  system_error_str(_ec).c_str());
+        log_error("socket::write() error, %s", system_error_str(_ec).c_str());
         m_last_error = _ec;
         on_error();
         return;
@@ -494,8 +491,7 @@ _error:
                 std::errc::interrupted == _ec
                 )
                 return;
-            log_error("socket::recv(MSG_PEEK) error, %s",
-                      system_error_str(_ec).c_str());
+            log_error("socket::recv(MSG_PEEK) error, %s", system_error_str(_ec).c_str());
             m_last_error = _ec;
             goto _error;
         }
