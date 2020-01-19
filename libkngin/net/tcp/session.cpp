@@ -508,9 +508,8 @@ session::on_close ()
     if (m_closed)
         return;
 
-    if (registed() and m_loop->looping()) {
+    if (registed() and m_loop->looping())
         m_loop->remove_event(*this);
-    }
     m_socket.close();
     m_closed = true;
     clear_queues();

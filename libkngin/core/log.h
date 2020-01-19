@@ -136,7 +136,6 @@ private:
     static const char *
     color_end     () KNGIN_NOEXCP;
 
-
 private:
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
     mutex          m_mutex;
