@@ -68,44 +68,48 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
             );
         }
         while (!m_stop) {
-            // process queued events
-            std::deque<task> _fnq;
             {
-                local_lock _lock(m_taskq_mutex);
-                if (!m_taskq.empty())
-                    _fnq.swap(m_taskq);
+                // process queued tasks
+                std::deque<task> _taskq;
+                {
+                    local_lock _lock(m_taskq_mutex);
+                    if (!m_taskq.empty())
+                        _taskq.swap(m_taskq);
+                }
+                while (!_taskq.empty()) {
+                    _taskq.back()();
+                    _taskq.pop_back();
+                }
             }
-            while (!_fnq.empty()) {
-                _fnq.back()();
-                _fnq.pop_back();
-            }
 
-            // wait for events
-            uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
-            if (m_stop)
-                break;
-            //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
+            {
+                // wait for events
+                uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
+                if (m_stop)
+                    break;
+                //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
 
-            // sort the events by priority and type(timer > event > file)
-            std::sort(m_events.begin(), m_events.begin() + _size,
-                [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
-                epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
-                epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
-                return (_ptr1->type() > _ptr2->type() or
-                        (_ptr1->type() == _ptr2->type() and
-                         _ptr1->priority() > _ptr2->priority()));
-            }); // end of operator < for sortting
+                // sort the events by priority and type(timer > event > file)
+                std::sort(m_events.begin(), m_events.begin() + _size,
+                    [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
+                    epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
+                    epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
+                    return (_ptr1->type() > _ptr2->type() or
+                            (_ptr1->type() == _ptr2->type() and
+                             _ptr1->priority() > _ptr2->priority()));
+                }); // end of operator < for sortting
 
-            // process events
-            for (uint32_t _i = 0; _i < _size; _i++) {
-                auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
-                assert(_ptr);
-                assert(_ptr->registed());
-                if (_ptr->registed()) {
-                    log_excp_error(
-                        _ptr->on_events(*this, m_events[_i].events),
-                        "epoller_event_handler::on_events() error"
-                    );
+                // process events
+                for (uint32_t _i = 0; _i < _size; _i++) {
+                    auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
+                    assert(_ptr);
+                    assert(_ptr->registed());
+                    if (_ptr->registed()) {
+                        log_excp_error(
+                            _ptr->on_events(*this, m_events[_i].events),
+                            "epoller_event_handler::on_events() error"
+                        );
+                    }
                 }
             }
         }
