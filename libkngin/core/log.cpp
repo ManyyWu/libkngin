@@ -52,7 +52,7 @@ log::error (const char *_fmt, ...) KNGIN_NOEXCP
     va_start(_vl, _fmt);
     bool _ret = write_log(KNGIN_LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
-    assert(!"log error");
+    //assert(!"log error");
     return _ret;
 }
 
@@ -163,10 +163,9 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
     if (logger().inited()) {
         local_lock _lock(m_mutex);
         return _func();
-    }
-#else
-    return _func();
+    } else
 #endif
+        return _func();
 }
 
 bool

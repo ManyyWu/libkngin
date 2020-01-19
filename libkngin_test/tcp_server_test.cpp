@@ -25,7 +25,7 @@ using namespace k::tcp;
 
 const char *g_data = "01234567889abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.";
 const int   g_data_size = 10176;
-const int   times = 10000;
+const int   times = 10;
 
 std::atomic_size_t g_total_size(0);
 timestamp          g_ts(0);
@@ -252,7 +252,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(10000,
+    _loop.run_after(1000000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);

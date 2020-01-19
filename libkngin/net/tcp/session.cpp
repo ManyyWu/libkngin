@@ -69,7 +69,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
     // set socket options
     sockopts::set_ooblinline(m_socket, false);
 
-    // set socket flags
+    // set file flags
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
 
@@ -221,12 +221,15 @@ session::rd_shutdown ()
 #endif
     assert(!m_closed);
     assert(!m_socket.rd_closed());
-    if (m_loop->in_loop_thread())
+    if (m_socket.wr_closed())
+        this->close();
+    if (m_loop->in_loop_thread()) {
         m_socket.rd_shutdown();
-    else
+    } else {
         m_loop->run_in_loop([this] () {
             m_socket.rd_shutdown();
         });
+    }
 }
 
 void
@@ -239,12 +242,15 @@ session::wr_shutdown ()
 #endif
     assert(!m_closed);
     assert(!m_socket.wr_closed());
-    if (m_loop->in_loop_thread())
+    if (m_socket.rd_closed())
+        this->close();
+    if (m_loop->in_loop_thread()) {
         m_socket.wr_shutdown();
-    else
+    } else {
         m_loop->run_in_loop([this] () {
             m_socket.wr_shutdown();
         });
+    }
 }
 
 void
@@ -274,7 +280,6 @@ session::on_events (event_loop &_loop, uint32_t _flags)
 void
 session::on_write ()
 {
-    assert(pollout());
     if (m_closing or m_closed or m_last_error or m_socket.wr_closed())
         return;
     if (!m_next_out_ctx)
@@ -339,7 +344,6 @@ session::on_write ()
 void
 session::on_read ()
 {
-    assert(pollin());
     if (m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
     //log_debug("session %s readable %" PRIu64 " bytes", name().c_str(), m_socket.readable());
@@ -432,7 +436,6 @@ session::on_read ()
 void
 session::on_oob ()
 {
-    assert(pollpri());
     if (m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
     auto _self = self();

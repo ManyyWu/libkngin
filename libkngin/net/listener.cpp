@@ -48,7 +48,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
     // listen
     m_socket.listen(_backlog);
 
-    // set socket flags
+    // set file flags
     m_socket.set_closeexec(true);
     m_socket.set_nonblock(true);
 

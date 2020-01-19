@@ -31,7 +31,7 @@ public:
     int
     add         (const std::string &_filename, KNGIN_LOG_MODE _mode) = delete;
 
-    std::string &
+    const std::string &
     filename_at (size_t _index) KNGIN_NOEXCP;
 
 public:

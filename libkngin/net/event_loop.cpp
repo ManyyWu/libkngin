@@ -100,10 +100,13 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
             for (uint32_t _i = 0; _i < _size; _i++) {
                 auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
                 assert(_ptr);
-                log_excp_error(
-                    _ptr->on_events(*this, m_events[_i].events),
-                    "epoller_event_handler::on_events() error"
-                );
+                assert(_ptr->registed());
+                if (_ptr->registed()) {
+                    log_excp_error(
+                        _ptr->on_events(*this, m_events[_i].events),
+                        "epoller_event_handler::on_events() error"
+                    );
+                }
             }
         }
     } catch (...) {
