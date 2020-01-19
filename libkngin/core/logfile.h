@@ -7,39 +7,39 @@
 
 // for log
 #if !defined(NDEBUG) and (ON == KNGIN_LOG_RELATIVE_PATH)
-#define kngin_make_log(level, level_str, file_type, fmt, ...)     \
-        do {                                                      \
-            if (k::logger().inited())                             \
-                k::logger()[file_type]                            \
-                    .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt),  \
-                           __FUNCTION__, KNGIN_FILENAME, __LINE__,\
-                           ##__VA_ARGS__);                        \
-        } while (false)
+#define kngin_make_log(level, level_str, file_type, fmt, ...) \
+    do {                                                      \
+        if (k::logger().inited())                             \
+            k::logger()[file_type]                            \
+                .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt),  \
+                       __FUNCTION__, KNGIN_FILENAME, __LINE__,\
+                       ##__VA_ARGS__);                        \
+    } while (false)
 
-#define kngin_make_log_noline(level, level_str, file_type, fmt, ...)   \
-        do {                                                           \
-            if (k::logger().inited())                                  \
-                k::logger()[file_type]                                 \
-                    .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt),\
-                           ##__VA_ARGS__);                             \
-        } while (false)
+#define kngin_make_log_noline(level, level_str, file_type, fmt, ...)\
+    do {                                                            \
+        if (k::logger().inited())                                   \
+            k::logger()[file_type]                                  \
+                .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt), \
+                       ##__VA_ARGS__);                              \
+    } while (false)
 #else
-#define kngin_make_log(level, level_str, file_type, fmt, ...)   \
-        do {                                                    \
-            if (k::logger().inited())                           \
-                k::logger()[file_type]                          \
-                    .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt),\
-                             __FUNCTION__, __FILE__, __LINE__,  \
-                             ##__VA_ARGS__);                    \
-        } while (false)
+#define kngin_make_log(level, level_str, file_type, fmt, ...)\
+    do {                                                     \
+        if (k::logger().inited())                            \
+            k::logger()[file_type]                           \
+                .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt), \
+                         __FUNCTION__, __FILE__, __LINE__,   \
+                         ##__VA_ARGS__);                     \
+    } while (false)
 
-#define kngin_make_log_noline(level, level_str, file_type, fmt, ...)   \
-        do {                                                           \
-            if (k::logger().inited())                                  \
-                k::logger()[file_type]                                 \
-                    .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt),\
-                             ##__VA_ARGS__);                           \
-        } while (false)
+#define kngin_make_log_noline(level, level_str, file_type, fmt, ...)\
+    do {                                                            \
+        if (k::logger().inited())                                   \
+            k::logger()[file_type]                                  \
+                .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt), \
+                         ##__VA_ARGS__);                            \
+    } while (false)
 #endif
 
 // server log
@@ -56,10 +56,10 @@
 
 // default log
 #if defined(NDEBUG) and (ON == KNGIN_LOG_RELATIVE_PATH)
-#define assert_log(exp)                                  \
+#define assert_log(exp)                                     \
     k::logger().inited()                                    \
         ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_assert( \
-             __FUNCTION__, KNGIN_FILENAME, __LINE__, #exp)\
+             __FUNCTION__, KNGIN_FILENAME, __LINE__, #exp)  \
         : 0
 #else
 #define assert_log(exp)                                    \
@@ -79,7 +79,7 @@
 #ifndef NDEBUG
 #define log_debug   server_debug
 #else
-#define log_debug(fmt, ...) (void)(0)
+#define log_debug(fmt, ...) static_cast<void>(0)
 #endif
 
 KNGIN_NAMESPACE_K_BEGIN

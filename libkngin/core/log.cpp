@@ -40,7 +40,7 @@ log::fatal (const char *_fmt, ...) KNGIN_NOEXCP
     va_start(_vl, _fmt);
     bool _ret = write_log(KNGIN_LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
-    //assert(!"log fatal");
+    assert(!"log fatal");
     return _ret;
 }
 
@@ -52,7 +52,7 @@ log::error (const char *_fmt, ...) KNGIN_NOEXCP
     va_start(_vl, _fmt);
     bool _ret = write_log(KNGIN_LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
-    //assert(!"log error");
+    assert(!"log error");
     return _ret;
 }
 
@@ -151,14 +151,10 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
 
         size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
-        if (KNGIN_LOG_MODE_BOTH == m_mode or
-            KNGIN_LOG_MODE_FILE == m_mode
-            )
+        if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_FILE == m_mode)
             _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(),
                                  _buf, _len);
-        if (KNGIN_LOG_MODE_BOTH == m_mode or
-            KNGIN_LOG_MODE_STDERR == m_mode
-            )
+        if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_STDERR == m_mode)
             write_stderr(_level, _buf, _len);
         return _ret;
     }; // end of write_log
@@ -167,9 +163,10 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
     if (logger().inited()) {
         local_lock _lock(m_mutex);
         return _func();
-    } else
+    }
+#else
+    return _func();
 #endif
-        return _func();
 }
 
 bool

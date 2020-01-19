@@ -47,7 +47,7 @@ log_mgr::operator [] (size_t _index) KNGIN_NOEXCP
     return *log_mgr::m_log_set[_index];
 }
 
-std::string &
+const std::string &
 log_mgr::filename_at (size_t _index) KNGIN_NOEXCP
 {
     assert(log_mgr::m_inited);
