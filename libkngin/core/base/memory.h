@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-#if (__cplusplus <= 201402)
+#if (__cplusplus <= 202000)
 
 template<typename _Tp>
 inline std::shared_ptr<_Tp>

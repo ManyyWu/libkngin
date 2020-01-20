@@ -22,6 +22,8 @@ public:
 
     typedef std::shared_ptr<listener>             listener_ptr;
 
+    typedef std::weak_ptr<listener>               listener_weak_ptr;
+
 public:
     listener       () = delete;
 
@@ -50,6 +52,10 @@ public:
     listener_ptr
     self           ()
     { return shared_from_this(); }
+
+    listener_weak_ptr
+    weak_ptr            () //KNGIN_NOEXCP
+    { return shared_from_this(); /* weak_from_this() */ }
 
     const address &
     listen_addr    () const

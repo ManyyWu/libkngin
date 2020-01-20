@@ -11,7 +11,7 @@
     do {                                                      \
         if (k::logger().inited())                             \
             k::logger()[file_type]                            \
-                .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt),  \
+                .level(KNGIN_LOG_FORMAT(level_str, fmt),      \
                        __FUNCTION__, KNGIN_FILENAME, __LINE__,\
                        ##__VA_ARGS__);                        \
     } while (false)
@@ -20,7 +20,7 @@
     do {                                                            \
         if (k::logger().inited())                                   \
             k::logger()[file_type]                                  \
-                .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt), \
+                .level(KNGIN_LOG_FORMAT_NOLINE(level_str, fmt),     \
                        ##__VA_ARGS__);                              \
     } while (false)
 #else
@@ -28,7 +28,7 @@
     do {                                                     \
         if (k::logger().inited())                            \
             k::logger()[file_type]                           \
-                .level(KNGIN_LOG_LOG_FORMAT(level_str, fmt), \
+                .level(KNGIN_LOG_FORMAT(level_str, fmt),     \
                          __FUNCTION__, __FILE__, __LINE__,   \
                          ##__VA_ARGS__);                     \
     } while (false)
@@ -37,7 +37,7 @@
     do {                                                            \
         if (k::logger().inited())                                   \
             k::logger()[file_type]                                  \
-                .level(KNGIN_LOG_LOG_FORMAT_NOLINE(level_str, fmt), \
+                .level(KNGIN_LOG_FORMAT_NOLINE(level_str, fmt),     \
                          ##__VA_ARGS__);                            \
     } while (false)
 #endif

@@ -136,7 +136,7 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
 #endif
         char _datetime[KNGIN_LOG_DATETIME_LEN];
 
-        ::strncpy(_buf, get_datetime(_datetime), KNGIN_LOG_DATETIME_LEN);
+        ::strncpy(_buf, get_datetime(_datetime, sizeof(_datetime)), sizeof(_datetime));
         ::vsnprintf(_buf + KNGIN_LOG_DATETIME_LEN - 1,
                     KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN,
                     _fmt, _vl);
@@ -182,7 +182,6 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
     tm           _tm;
     time_t       _t = ::time(nullptr);
     FILE *       _fplog = nullptr;
-    const char * _datetime = get_datetime();
 
     get_localtime(&_tm, &_t);
     ::snprintf(_filename, FILENAME_MAX, KNGIN_LOG_FILENAME_FORMT, _file,
@@ -190,34 +189,32 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
     _fplog = ::fopen(_filename, "a");
     if (!_fplog) {
         write_stderr2(KNGIN_LOG_LEVEL_FATAL,
-                      KNGIN_LOG_LOG_FORMAT("FATAL", "failed to open \"%s\", %s[%#x]"),
-                      _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
-                      ::strerror(errno), errno);
+                      "failed to open \"%s\", %s[%#x]",
+                      _filename, ::strerror(errno), errno);
         return false;
     }
 
     ::fseek(_fplog, 0, SEEK_END);
     if (0 == ftell(_fplog)) {
         // write head info
+        char _datetime[KNGIN_LOG_DATETIME_LEN];
         ::snprintf(_buf, KNGIN_LOG_BUF_SIZE,
                    "=========================================================\n"
-                   "current time: %s\n"
+                   "= %19s                                   =\n"
                    "=========================================================\n",
-                   _datetime);
+                   get_datetime(_datetime, sizeof(_datetime)));
         size_t _str_len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
         _ret = ::fwrite(_buf, 1, _str_len , _fplog);
         if (_ret < 0) {
             write_stderr2(KNGIN_LOG_LEVEL_FATAL,
-                          KNGIN_LOG_LOG_FORMAT("FATAL", "failed to write log to \"%s\", %s[%#x]"),
-                          _datetime, __FUNCTION__, __FILE__, __LINE__, _filename,
-                          ::strerror(errno), errno);
+                          "failed to write log to \"%s\", %s[%#x]",
+                          _filename, ::strerror(errno), errno);
             goto fail;
         } else if (static_cast<size_t>(_ret) != _str_len) {
              write_stderr2(KNGIN_LOG_LEVEL_FATAL,
-                           KNGIN_LOG_LOG_FORMAT("ERROR",
-                                                "the content been written to \"%s\" are too short, "
-                                                "and the disk space may be insufficient"),
-                           _datetime, __FUNCTION__, __FILE__, __LINE__, _filename);
+                           "the content been written to \"%s\" are too short, "
+                           "and the disk space may be insufficient",
+                           _filename);
             goto fail;
         }
     }
@@ -225,8 +222,7 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
     _ret = ::fwrite(_str, 1, _len, _fplog);
     if (_ret < 0) {
         write_stderr2(KNGIN_LOG_LEVEL_FATAL,
-                      KNGIN_LOG_LOG_FORMAT("FATAL", "failed to write log to \"%s\", write %s[%#x]"),
-                      _datetime, __FUNCTION__, __FILE__, __LINE__,
+                      "failed to write log to \"%s\", %s[%#x]",
                       _filename, ::strerror(errno), errno);
         goto fail;
     }
@@ -242,7 +238,7 @@ fail:
 const char *
 log::get_datetime (char _datetime[], size_t _size) KNGIN_NOEXCP
 {
-    assert(_size < KNGIN_LOG_DATETIME_LEN);
+    assert(_size >= KNGIN_LOG_DATETIME_LEN);
     time_t _t = ::time(nullptr);
     struct ::tm _tm;
     get_localtime(&_tm, &_t);

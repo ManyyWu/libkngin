@@ -15,24 +15,24 @@
 #define KNGIN_ENABLE_LOG_MUTEX ON
 #endif
 
-#define KNGIN_LOG_BUF_SIZE                     4096
-#define KNGIN_LOG_FILE_MAX_SIZE                20 * 1024 * 1024 // 20M
+#define KNGIN_LOG_BUF_SIZE                 4096
+#define KNGIN_LOG_FILE_MAX_SIZE            20 * 1024 * 1024 // 20M
 
 // "YYYY/MM/DD hh:mm:ss"
-#define KNGIN_LOG_DATETIME_FORMT               "%04d/%02d/%02d %02d:%02d:%02d"
-#define KNGIN_LOG_DATETIME_LEN                 20
+#define KNGIN_LOG_DATETIME_FORMT           "%04d/%02d/%02d %02d:%02d:%02d"
+#define KNGIN_LOG_DATETIME_LEN             20
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | func[file:line] | fmt \n"
-#define KNGIN_LOG_LOG_FORMAT(type, fmt)        " | " type " | %s[%s:%d] | " fmt
+#define KNGIN_LOG_FORMAT(type, fmt)        " | " type " | %s[%s:%d] | " fmt
 
 // "YYYY/MM/DD hh:mm:ss.ms | type | fmt \n"
-#define KNGIN_LOG_LOG_FORMAT_NOLINE(type, fmt) " | " type " | " fmt
+#define KNGIN_LOG_FORMAT_NOLINE(type, fmt) " | " type " | " fmt
 
 // "YYYY-MM-DD"
-#define KNGIN_LOG_FILENAME_FORMT               "%s_%04d-%02d-%02d.log"
+#define KNGIN_LOG_FILENAME_FORMT           "%s_%04d-%02d-%02d.log"
 
 // "****** func[file:line] ******"
-#define KNGIN_LOG_ASSERT_FORMAT                " | ASSERT  | %s[%s:%d] | ****** %s *******"
+#define KNGIN_LOG_ASSERT_FORMAT            " | ASSERT  | %s[%s:%d] | ****** %s *******"
 
 // color
 #ifdef _WIN32
@@ -77,7 +77,7 @@ class log : public noncopyable {
 public:
     typedef std::unique_ptr<char []> log_data_ptr;
 
-    typedef std::functional<void (void)> async_log;
+    typedef std::function<void (void)> async_log;
 #endif
 
 public:

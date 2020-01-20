@@ -62,6 +62,8 @@ public:
 
     typedef std::shared_ptr<session> session_ptr;
 
+    typedef std::weak_ptr<session>   session_weak_ptr;
+
 public:
     session             () = delete;
 
@@ -181,6 +183,10 @@ public:
     session_ptr
     self                ()
     { return shared_from_this(); }
+
+    session_weak_ptr
+    weak_ptr            () //KNGIN_NOEXCP
+    { return shared_from_this(); /* weak_from_this() */ }
 
 private:
     k::socket &

@@ -118,7 +118,7 @@ listener::close (bool _sync /* = true */)
             on_close();
         } else {
             m_loop->remove_event(*this);
-            auto _self_weak_ptr = weak_from_this();
+            auto _self_weak_ptr = weak_ptr();
             if (_sync) {
                 auto _barrier_ptr = std::make_shared<barrier>(2);
                 m_loop->run_in_loop([_self_weak_ptr, _barrier_ptr] () {
