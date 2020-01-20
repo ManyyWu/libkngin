@@ -121,41 +121,41 @@ log::log_assert (const char *_func, const char *_file,
     return fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
 }
 
-const char *
-log::get_datetime () KNGIN_NOEXCP
-{
-    time_t _t = ::time(nullptr);
-    struct ::tm _tm;
-    get_localtime(&_tm, &_t);
-    ::snprintf(m_datetime, KNGIN_LOG_DATETIME_LEN,
-               KNGIN_LOG_DATETIME_FORMT,
-               _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-               _tm.tm_hour, _tm.tm_min, _tm.tm_sec);
-    m_datetime[KNGIN_LOG_DATETIME_LEN - 1] = '\0';
-    return m_datetime;
-}
-
 bool
 log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOEXCP
 {
     assert(_fmt);
 
-    auto _func = [_level, _fmt, _vl, this] () -> bool {
+    auto _func = [&] () -> bool {
         bool _ret = true;
+#if (ON == KNGIN_ASYNC_LOG)
+        log_data_ptr _data = std::make_unique<char []>(KNGIN_LOG_BUF_SIZE);
+        char *_buf = _data.get();
+#else
         char _buf[KNGIN_LOG_BUF_SIZE];
+#endif
+        char _datetime[KNGIN_LOG_DATETIME_LEN];
 
-        ::strncpy(_buf, get_datetime(), KNGIN_LOG_DATETIME_LEN);
+        ::strncpy(_buf, get_datetime(_datetime), KNGIN_LOG_DATETIME_LEN);
         ::vsnprintf(_buf + KNGIN_LOG_DATETIME_LEN - 1,
                     KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN,
                     _fmt, _vl);
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
 
-        size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
-        if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_FILE == m_mode)
-            _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(),
-                                 _buf, _len);
-        if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_STDERR == m_mode)
-            write_stderr(_level, _buf, _len);
+#if (ON == KNGIN_ASYNC_LOG)
+        logger()->async_log([_filetype, _level, _mode, _data, _buf, _len] ()
+#endif
+        {
+            size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
+            if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_FILE == m_mode)
+                _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(),
+                                     _buf, _len);
+            if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_STDERR == m_mode)
+                write_stderr(_level, _buf, _len);
+        }
+#if (ON == KNGIN_ASYNC_LOG)
+        );
+#endif
         return _ret;
     }; // end of write_log
 
@@ -237,6 +237,21 @@ log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
 fail:
     ::fclose(_fplog);
     return _fail;
+}
+
+const char *
+log::get_datetime (char _datetime[], size_t _size) KNGIN_NOEXCP
+{
+    assert(_size < KNGIN_LOG_DATETIME_LEN);
+    time_t _t = ::time(nullptr);
+    struct ::tm _tm;
+    get_localtime(&_tm, &_t);
+    ::snprintf(_datetime, KNGIN_LOG_DATETIME_LEN,
+               KNGIN_LOG_DATETIME_FORMT,
+               _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
+               _tm.tm_hour, _tm.tm_min, _tm.tm_sec);
+    _datetime[KNGIN_LOG_DATETIME_LEN - 1] = '\0';
+    return _datetime;
 }
 
 const char *

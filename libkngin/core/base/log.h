@@ -3,9 +3,17 @@
 
 #include <cstdarg>
 #include <string>
+#include <memory>
+#include <functional>
 #include "core/base/define.h"
 #include "core/base/lock.h"
 #include "core/base/noncopyable.h"
+
+#if (ON == KNGIN_ASYNC_LOG)
+#define KNGIN_ENABLE_LOG_MUTEX OFF
+#else
+#define KNGIN_ENABLE_LOG_MUTEX ON
+#endif
 
 #define KNGIN_LOG_BUF_SIZE                     4096
 #define KNGIN_LOG_FILE_MAX_SIZE                20 * 1024 * 1024 // 20M
@@ -65,6 +73,13 @@ class log_mgr;
 class log : public noncopyable {
     friend class log_mgr;
 
+#if (ON == KNGIN_ASYNC_LOG)
+public:
+    typedef std::unique_ptr<char []> log_data_ptr;
+
+    typedef std::functional<void (void)> async_log;
+#endif
+
 public:
     log           () = delete;
 
@@ -110,9 +125,6 @@ public:
                    size_t _line, const char *_exp) KNGIN_NOEXCP;
 
 private:
-    const char *
-    get_datetime  () KNGIN_NOEXCP;
-
     bool
     write_log     (KNGIN_LOG_LEVEL _level,
                    const char *_fmt, va_list _vl) KNGIN_NOEXCP;
@@ -131,6 +143,9 @@ private:
 
 private:
     static const char *
+    get_datetime  (char _datetime[], size_t _size) KNGIN_NOEXCP;
+
+    static const char *
     color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP;
 
     static const char *
@@ -144,8 +159,6 @@ private:
     KNGIN_LOG_MODE m_mode;
 
     KNGIN_LOG_FILE m_filetype;
-
-    char           m_datetime[KNGIN_LOG_DATETIME_LEN];
 
     bool           m_disable_info;
 

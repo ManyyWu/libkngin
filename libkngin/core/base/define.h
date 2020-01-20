@@ -41,7 +41,7 @@ typedef SSIZE_T ssize_t;
 #endif
 
 // for log
-#define KNGIN_ENABLE_LOG_MUTEX ON
+#define KNGIN_ASYNC_LOG ON
 
 // for exception
 //#define KNGIN_EXCP   noexcept(false)
