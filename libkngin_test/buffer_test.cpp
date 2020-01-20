@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include "../libkngin/core/buffer.h"
-#include "../libkngin/core/exception.h"
+#include "../libkngin/core/base/buffer.h"
+#include "../libkngin/core/base/exception.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

@@ -29,5 +29,5 @@ add_library(kngin_net
             ${KNGIN_NET_SRC}
             ${KNGIN_NET_TCP_SRC}
             ${KNGIN_NET_UDP_SRC}
-           )
+            )
 target_link_libraries(kngin_net PUBLIC kngin_core)

@@ -1,6 +1,6 @@
-#include "core/common.h"
-#include "core/bits.h"
-#include "core/system_error.h"
+#include "core/base/common.h"
+#include "core/base/bits.h"
+#include "core/base/system_error.h"
 #include "net/socket.h"
 
 #ifdef KNGIN_FILENAME

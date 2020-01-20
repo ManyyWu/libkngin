@@ -2,9 +2,9 @@
 #include <cassert>
 #include <iostream>
 #include <functional>
-#include "../libkngin/core/thread.h"
-#include "../libkngin/core/logfile.h"
-#include "../libkngin/core/buffer.h"
+#include "../libkngin/core/base/thread.h"
+#include "../libkngin/core/base/logfile.h"
+#include "../libkngin/core/base/buffer.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/address.h"

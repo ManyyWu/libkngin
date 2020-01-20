@@ -1,14 +1,19 @@
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 14)
 
-project(libkngin_core)
+project(kngin_core)
 
 # sources
-file(GLOB KNGIN_CORE_SRC "*.cpp")
+file(GLOB KNGIN_CORE_BASE_SRC  "base/*.cpp")
+file(GLOB KNGIN_CORE_EVENT_SRC "event/*.cpp")
 
 # print source files
-message(STATUS "source files in /libkngin/core:")
-foreach(file IN LISTS KNGIN_CORE_SRC)
+message(STATUS "source files in /libkngin/core/base:")
+foreach(file IN LISTS KNGIN_CORE_BASE_SRC)
+    message(STATUS "  >>" ${file})
+endforeach(file)
+message(STATUS "source files in /libkngin/core/event:")
+foreach(file IN LISTS KNGIN_CORE_EVENT_SRC)
     message(STATUS "  >>" ${file})
 endforeach(file)
 
@@ -19,7 +24,10 @@ if(WIN32)
 endif(WIN32)
 
 # libraries
-add_library(kngin_core ${KNGIN_CORE_SRC})
+add_library(kngin_core 
+            ${KNGIN_CORE_BASE_SRC}
+            ${KNGIN_CORE_EVENT_SRC}
+            )
 
 # link
 if(TARGET pthreadw32)

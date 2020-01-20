@@ -5,12 +5,12 @@
 #include <map>
 #include <memory>
 #include <ctime>
-#include "../libkngin/core/thread.h"
-#include "../libkngin/core/memory.h"
-#include "../libkngin/core/common.h"
-#include "../libkngin/core/system_error.h"
+#include "../libkngin/core/base/thread.h"
+#include "../libkngin/core/base/memory.h"
+#include "../libkngin/core/base/common.h"
+#include "../libkngin/core/base/system_error.h"
 #include "../libkngin/net/tcp/server.h"
-#include "../libkngin/net/timer.h"
+#include "../libkngin/core/event/io_thread.h"
 #ifndef _WIN32
 #include <mcheck.h>
 #endif
@@ -252,7 +252,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(1000000,
+    _loop.run_after(10000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);

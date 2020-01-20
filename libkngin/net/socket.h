@@ -8,8 +8,8 @@
 #include <memory>
 #include <vector>
 #include <system_error>
-#include "core/buffer.h"
-#include "net/filefd.h"
+#include "core/base/buffer.h"
+#include "core/base/filefd.h"
 #include "net/address.h"
 
 KNGIN_NAMESPACE_K_BEGIN

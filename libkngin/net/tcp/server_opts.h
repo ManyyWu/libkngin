@@ -2,7 +2,7 @@
 #define KNGIN_TCP_SERVER_OPTS_H
 
 #include <string>
-#include "core/define.h"
+#include "core/base/define.h"
 #include "net/socket.h"
 
 #define DEFAULT_BACKLOG 10

@@ -1,0 +1,4 @@
+#ifndef KNGIN_THREADPOLL_H
+#define KNGIN_THREADPOLL_H
+
+#endif /* KNGIN_THREADPOLL_H */

@@ -8,7 +8,7 @@
 #include <array>
 #include <cassert>
 #include <cstring>
-#include "core/define.h"
+#include "core/base/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

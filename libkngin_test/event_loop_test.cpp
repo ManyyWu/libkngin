@@ -1,6 +1,6 @@
-#include "../libkngin/core/thread.h"
-#include "../libkngin/core/common.h"
-#include "../libkngin/net/event_loop.h"
+#include "../libkngin/core/base/thread.h"
+#include "../libkngin/core/base/common.h"
+#include "../libkngin/core/event/event_loop.h"
 
 using namespace k;
 

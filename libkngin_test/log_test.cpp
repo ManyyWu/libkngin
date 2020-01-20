@@ -1,4 +1,4 @@
-#include "../libkngin/core/common.h"
+#include "../libkngin/core/base/common.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

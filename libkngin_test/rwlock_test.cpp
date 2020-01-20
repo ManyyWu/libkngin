@@ -2,8 +2,8 @@
 #include <ctime>
 #include <atomic>
 #include <mutex>
-#include "../libkngin/core/thread.h"
-#include "../libkngin/core/lock.h"
+#include "../libkngin/core/base/thread.h"
+#include "../libkngin/core/base/lock.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

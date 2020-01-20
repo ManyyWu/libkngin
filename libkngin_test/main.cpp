@@ -1,8 +1,8 @@
 #include <iostream>
 #include <exception>
-#include "../libkngin/core/common.h"
-#include "../libkngin/core/exception.h"
-#include "../libkngin/core/system_error.h"
+#include "../libkngin/core/base/common.h"
+#include "../libkngin/core/base/exception.h"
+#include "../libkngin/core/base/system_error.h"
 #ifndef _WIN32
 #include <mcheck.h>
 #endif

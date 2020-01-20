@@ -22,13 +22,13 @@
 #include <Winsock2.h>
 #include <Windows.h>
 #endif
-#include "../libkngin/core/logfile.h"
-#include "../libkngin/core/thread.h"
-#include "../libkngin/core/lock.h"
-#include "../libkngin/core/memory.h"
-#include "../libkngin/core/buffer.h"
-#include "../libkngin/core/bits.h"
-#include "../libkngin/core/error.h"
+#include "../libkngin/core/base/logfile.h"
+#include "../libkngin/core/base/thread.h"
+#include "../libkngin/core/base/lock.h"
+#include "../libkngin/core/base/memory.h"
+#include "../libkngin/core/base/buffer.h"
+#include "../libkngin/core/base/bits.h"
+#include "../libkngin/core/base/error.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
 #include "../libkngin/net/tcp/session.h"

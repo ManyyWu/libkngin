@@ -4,18 +4,18 @@
 #include <queue>
 #include <atomic>
 #include <memory>
-#include "core/define.h"
-#include "core/logfile.h"
-#include "core/common.h"
-#include "core/timestamp.h"
-#include "core/lock.h"
+#include "core/base/define.h"
+#include "core/base/logfile.h"
+#include "core/base/common.h"
+#include "core/base/timestamp.h"
+#include "core/base/lock.h"
 
 using std::deque;
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME
 #endif
-#define KNGIN_FILENAME "libkngin/core/sync_queue.h"
+#define KNGIN_FILENAME "libkngin/core/base/sync_queue.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
