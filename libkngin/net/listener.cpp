@@ -108,7 +108,7 @@ listener::parse_addr (const std::string &_name, uint16_t _port)
 }
 
 void
-listener::close (bool _blocking /* = true */)
+listener::close (bool _sync /* = true */)
 {
     if (m_closed)
         return;
@@ -118,18 +118,23 @@ listener::close (bool _blocking /* = true */)
             on_close();
         } else {
             m_loop->remove_event(*this);
-            if (_blocking) {
+            auto _self_weak_ptr = weak_from_this();
+            if (_sync) {
                 auto _barrier_ptr = std::make_shared<barrier>(2);
-                m_loop->run_in_loop([this, _barrier_ptr] () {
-                    on_close();
+                m_loop->run_in_loop([_self_weak_ptr, _barrier_ptr] () {
+                    auto _self = _self_weak_ptr.lock();
+                    if (_self)
+                        _self->on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
                 });
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
             } else {
-                m_loop->run_in_loop([this] () {
-                    on_close();
+                m_loop->run_in_loop([_self_weak_ptr] () {
+                    auto _self = _self_weak_ptr.lock();
+                    if (_self)
+                        _self->on_close();
                 });
             }
         }
@@ -164,6 +169,7 @@ listener::on_read ()
 {
     if (m_closed)
         return;
+    auto _self = self();
 
     address _peer_addr;
     std::error_code _ec;

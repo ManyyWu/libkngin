@@ -91,7 +91,7 @@ public:
 #endif
 
     virtual void
-    close               (bool _blocking = false);
+    close               (bool _sync = false);
 
     void
     rd_shutdown         ();

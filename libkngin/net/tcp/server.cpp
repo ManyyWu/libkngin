@@ -134,6 +134,7 @@ server::run ()
             throw;
         }
     }; // end of on_new_session
+
     auto _on_listener_error = [this, _crash_handler] (std::error_code _ec) {
         assert(!m_stopped);
         if (_ec) {
@@ -141,6 +142,7 @@ server::run ()
             _crash_handler();
         }
     }; // end of on_listener_error, run in listener thread
+
     m_listener = std::make_shared<listener>(m_threadpool.get_loop(0),
                                             std::move(_listener_sock),
                                             m_opts.name, m_opts.port,

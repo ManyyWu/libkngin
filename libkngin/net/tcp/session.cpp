@@ -133,8 +133,11 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
     if (m_loop->in_loop_thread()) {
         on_write();
     } else {
-        m_loop->run_in_loop([this] () {
-            on_write();
+        auto _self_weak_ptr = weak_from_this();
+        m_loop->run_in_loop([_self_weak_ptr] () {
+            auto _self = _self_weak_ptr.lock();
+            if (_self)
+                _self->on_write();
         });
     }
     return true;
@@ -173,15 +176,18 @@ session::recv (in_buffer _buf, message_handler &&_handler,
     if (m_loop->in_loop_thread()) {
         on_read();
     } else {
-        m_loop->run_in_loop([this] () {
-            on_read();
+        auto _self_weak_ptr = weak_from_this();
+        m_loop->run_in_loop([_self_weak_ptr] () {
+            auto _self = _self_weak_ptr.lock();
+            if (_self)
+                _self->on_read();
         });
     }
     return true;
 }
 
 void
-session::close (bool _blocking /* = false */)
+session::close (bool _sync /* = false */)
 {
     if (m_closed)
         return;
@@ -191,18 +197,23 @@ session::close (bool _blocking /* = false */)
         if (m_loop->in_loop_thread()) {
             on_close();
         } else {
-            if (_blocking) {
+            auto _self_weak_ptr = weak_from_this();
+            if (_sync) {
                 auto _barrier_ptr = std::make_shared<barrier>(2);
-                m_loop->run_in_loop([this, _barrier_ptr] () {
-                    on_close();
+                m_loop->run_in_loop([_self_weak_ptr, _barrier_ptr] () {
+                    auto _self = _self_weak_ptr.lock();
+                    if (_self)
+                        _self->on_close();
                     if (_barrier_ptr->wait())
                         _barrier_ptr->destroy();
                 });
                 if (_barrier_ptr->wait())
                     _barrier_ptr->destroy();
             } else {
-                m_loop->run_in_loop([this] () {
-                    on_close();
+                m_loop->run_in_loop([_self_weak_ptr] () {
+                    auto _self = _self_weak_ptr.lock();
+                    if (_self)
+                        _self->on_close();
                 });
             }
         }
@@ -226,8 +237,11 @@ session::rd_shutdown ()
     if (m_loop->in_loop_thread()) {
         m_socket.rd_shutdown();
     } else {
-        m_loop->run_in_loop([this] () {
-            m_socket.rd_shutdown();
+        auto _self_weak_ptr = weak_from_this();
+        m_loop->run_in_loop([_self_weak_ptr] () {
+            auto _self = _self_weak_ptr.lock();
+            if (_self)
+                _self->m_socket.rd_shutdown();
         });
     }
 }
@@ -247,8 +261,11 @@ session::wr_shutdown ()
     if (m_loop->in_loop_thread()) {
         m_socket.wr_shutdown();
     } else {
-        m_loop->run_in_loop([this] () {
-            m_socket.wr_shutdown();
+        auto _self_weak_ptr = weak_from_this();
+        m_loop->run_in_loop([_self_weak_ptr] () {
+            auto _self = _self_weak_ptr.lock();
+            if (_self)
+                _self->m_socket.wr_shutdown();
         });
     }
 }

@@ -36,7 +36,7 @@ public:
 
 public:
     virtual void
-    close          (bool _blocking = true);
+    close          (bool _sync = true);
 
 public:
     event_loop *
