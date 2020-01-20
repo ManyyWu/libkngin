@@ -4,8 +4,21 @@
 #include "core/base/log.h"
 #include "core/base/logmgr.h"
 #include "core/base/common.h"
+#include "core/base/local_lock.h"
 
 KNGIN_NAMESPACE_K_BEGIN
+
+#if (ON == KNGIN_ASYNC_LOGGER)
+thread                     log_mgr::m_thr("async logger thread");
+
+log_mgr::async_log_dataq   log_mgr::m_log_dataq;
+
+mutex                      log_mgr::m_mutex;
+
+cond                       log_mgr::m_cond(&log_mgr::m_mutex);
+
+std::atomic_bool           log_mgr::m_stop(false);
+#endif
 
 std::atomic_bool           log_mgr::m_inited(false);
 
@@ -32,12 +45,73 @@ log_mgr::log_mgr ()
         throw;
     }
     m_inited = true;
+
+#if (ON == KNGIN_ASYNC_LOGGER)
+    m_thr.run(&log_mgr::log_thread);
+#endif
 }
 
 log_mgr::~log_mgr () KNGIN_NOEXCP
 {
-    m_inited = false;
+#if (ON == KNGIN_ASYNC_LOGGER)
+    log_mgr::m_stop = true;
+    {
+        local_lock _lock(log_mgr::m_mutex);
+        while (log_mgr::m_inited)
+            log_mgr::m_cond.signal();
+    }
+    log_mgr::m_thr.join();
+#endif
 }
+
+#if (ON == KNGIN_ASYNC_LOGGER)
+
+void
+log_mgr::async_log (log::async_log_data &&_data)
+{
+    if (!log_mgr::m_inited)
+        return;
+    {
+        local_lock _lock(log_mgr::m_mutex);
+        log_mgr::m_log_dataq.push_front(std::move(_data));
+    }
+    log_mgr::m_cond.signal();
+}
+
+int
+log_mgr::log_thread ()
+{
+    log::async_log_data _fn = nullptr;
+
+    try {
+        while (!log_mgr::m_stop) {
+            {
+                // wait
+                local_lock _lock(log_mgr::m_mutex);
+                while (log_mgr::m_log_dataq.empty()) {
+                    log_mgr::m_cond.timedwait(KNGIN_ASYNC_LOGGER_TIMEOUT);
+                    if (log_mgr::m_stop)
+                        break;
+                }
+
+                // get next
+                _fn = log_mgr::m_log_dataq.back();
+                log_mgr::m_log_dataq.pop_back();
+            }
+            if (_fn) {
+                _fn();
+            }
+            _fn = nullptr;
+        }
+    } catch (...) {
+        m_inited = false;
+    }
+    m_inited = false;
+
+    return 0;
+}
+
+#endif
 
 log &
 log_mgr::operator [] (size_t _index) KNGIN_NOEXCP

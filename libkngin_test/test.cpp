@@ -41,7 +41,6 @@ using namespace std::placeholders;
 
 #warning "https://zhuanlan.zhihu.com/p/88749279"
 #warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
-#warning "async log"
 /*
 client:
 

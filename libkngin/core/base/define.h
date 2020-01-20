@@ -4,7 +4,7 @@
 #define KNGIN_VERSION     010
 #define KNGIN_VERSION_STR "0.1.0"
 
-#if (__cplusplus < 201103L)
+#if (__cplusplus < 201402L)
 #error c++ version is too low, please build the project using c++11 standard.
 #endif
 
@@ -41,7 +41,8 @@ typedef SSIZE_T ssize_t;
 #endif
 
 // for log
-#define KNGIN_ASYNC_LOG OFF
+#define KNGIN_ASYNC_LOGGER         ON
+#define KNGIN_ASYNC_LOGGER_TIMEOUT 3000
 
 // for exception
 //#define KNGIN_EXCP   noexcept(false)

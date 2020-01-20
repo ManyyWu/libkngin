@@ -128,11 +128,12 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
 
     auto _func = [&] () -> bool {
         bool _ret = true;
-#if (ON == KNGIN_ASYNC_LOG)
-        log_data_ptr _data = std::make_unique<char []>(KNGIN_LOG_BUF_SIZE);
-        char *_buf = _data.get();
+#if (ON == KNGIN_ASYNC_LOGGER)
+        log_data_ptr _data_ptr = k::make_shared_array<char>(KNGIN_LOG_BUF_SIZE);
+        char *_buf = _data_ptr.get();
 #else
-        char _buf[KNGIN_LOG_BUF_SIZE];
+        char  _buf[KNGIN_LOG_BUF_SIZE];
+        char *_data_ptr = _buf;
 #endif
         char _datetime[KNGIN_LOG_DATETIME_LEN];
 
@@ -141,20 +142,22 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
                     KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN,
                     _fmt, _vl);
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
+        size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
 
-#if (ON == KNGIN_ASYNC_LOG)
-        logger()->async_log([_filetype, _level, _mode, _data, _buf, _len] ()
+#if (ON == KNGIN_ASYNC_LOGGER)
+        logger().async_log(
 #endif
-        {
-            size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
-            if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_FILE == m_mode)
-                _ret = write_logfile(_level, logger().filename_at(m_filetype).c_str(),
+        [_filetype = m_filetype, _level, _mode = m_mode,
+         _data_ptr, _buf, _len] () mutable {
+            if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
+                write_logfile(_level, logger().filename_at(_filetype).c_str(),
                                      _buf, _len);
-            if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_STDERR == m_mode)
+            if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
                 write_stderr(_level, _buf, _len);
-        }
-#if (ON == KNGIN_ASYNC_LOG)
-        );
+#if (ON == KNGIN_ASYNC_LOGGER)
+        });
+#else
+        ();
 #endif
         return _ret;
     }; // end of write_log

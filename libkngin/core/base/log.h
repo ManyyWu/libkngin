@@ -3,13 +3,13 @@
 
 #include <cstdarg>
 #include <string>
-#include <memory>
 #include <functional>
 #include "core/base/define.h"
 #include "core/base/lock.h"
+#include "core/base/memory.h"
 #include "core/base/noncopyable.h"
 
-#if (ON == KNGIN_ASYNC_LOG)
+#if (ON == KNGIN_ASYNC_LOGGER)
 #define KNGIN_ENABLE_LOG_MUTEX OFF
 #else
 #define KNGIN_ENABLE_LOG_MUTEX ON
@@ -73,11 +73,12 @@ class log_mgr;
 class log : public noncopyable {
     friend class log_mgr;
 
-#if (ON == KNGIN_ASYNC_LOG)
+#if (ON == KNGIN_ASYNC_LOGGER)
 public:
-    typedef std::unique_ptr<char []> log_data_ptr;
+    typedef std::shared_ptr<char>      log_data_ptr;
 
-    typedef std::function<void (void)> async_log;
+    typedef std::function<void (void)> async_log_data;
+
 #endif
 
 public:
@@ -124,20 +125,20 @@ public:
     log_assert    (const char *_func, const char *_file,
                    size_t _line, const char *_exp) KNGIN_NOEXCP;
 
-private:
     bool
     write_log     (KNGIN_LOG_LEVEL _level,
                    const char *_fmt, va_list _vl) KNGIN_NOEXCP;
 
-    bool
+private:
+    static bool
     write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
                    const char *_fmt, size_t _len) KNGIN_NOEXCP;
 
-    void
+    static void
     write_stderr  (KNGIN_LOG_LEVEL _level,
                    const char *_str, size_t _len) KNGIN_NOEXCP;
 
-    void
+    static void
     write_stderr2 (KNGIN_LOG_LEVEL _level,
                    const char *_fmt, ...) KNGIN_NOEXCP;
 
