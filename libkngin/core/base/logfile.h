@@ -61,17 +61,19 @@
         ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_assert( \
              __FUNCTION__, KNGIN_FILENAME, __LINE__, #exp)  \
         : 0
+
 #else
 #define assert_log(exp)                                    \
     k::logger().inited()                                   \
         ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_assert(\
-            __FUNCTION__, __FILE__, __LINE__, #exp)        \
+             __FUNCTION__, __FILE__, __LINE__, #exp)       \
         : 0
 #endif
-#define log_dump(str)                                          \
-    k::logger().inited()                                       \
-        ? k::logger()[k::KNGIN_LOG_FILE_SERVER].log_data((str))\
-        : 0
+#define log_dump(str)                                             \
+    do {                                                          \
+        if (k::logger().inited())                                 \
+            k::logger()[k::KNGIN_LOG_FILE_SERVER].log_data((str));\
+    } while (false)
 #define log_fatal   server_fatal
 #define log_error   server_error
 #define log_warning server_warning

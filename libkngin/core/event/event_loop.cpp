@@ -173,7 +173,7 @@ void
 event_loop::register_event (epoller_event_ptr _e)
 {
     m_epoller.register_event(_e);
-    if (m_looping && !in_loop_thread())
+    if (m_looping and !in_loop_thread())
         wakeup();
 }
 
@@ -181,7 +181,7 @@ void
 event_loop::remove_event (epoller_event &_e)
 {
     m_epoller.remove_event(_e);
-    if (m_looping && !in_loop_thread())
+    if (m_looping and !in_loop_thread())
         wakeup();
 }
 
@@ -189,7 +189,7 @@ void
 event_loop::update_event (epoller_event &_e)
 {
     m_epoller.modify_event(_e);
-    if (m_looping && !in_loop_thread())
+    if (m_looping and !in_loop_thread())
         wakeup();
 }
 
@@ -207,7 +207,7 @@ event_loop::run_in_loop (event_loop::task &&_fn)
         local_lock _lock(m_taskq_mutex);
         m_taskq.push_front(std::move(_fn));
     }
-    if (m_looping && !in_loop_thread())
+    if (m_looping and !in_loop_thread())
         wakeup();
 }
 

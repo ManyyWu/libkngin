@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <cassert>
 #include <exception>
 #include "core/base/log.h"
@@ -51,16 +52,18 @@ log_mgr::log_mgr ()
 #endif
 }
 
-log_mgr::~log_mgr () KNGIN_NOEXCP
+log_mgr::~log_mgr ()
 {
 #if (ON == KNGIN_ASYNC_LOGGER)
     log_mgr::m_stop = true;
     {
         local_lock _lock(log_mgr::m_mutex);
-        while (log_mgr::m_inited)
-            log_mgr::m_cond.signal();
     }
-    log_mgr::m_thr.join();
+    log_mgr::m_cond.signal();
+    if (!log_mgr::m_thr.joined())
+        log_mgr::m_thr.join();
+#else
+    m_inited = false;
 #endif
 }
 
@@ -84,27 +87,30 @@ log_mgr::log_thread ()
     log::async_log_data _fn = nullptr;
 
     try {
-        while (!log_mgr::m_stop) {
+        while (true) {
             {
                 // wait
                 local_lock _lock(log_mgr::m_mutex);
-                while (log_mgr::m_log_dataq.empty()) {
+                while (log_mgr::m_log_dataq.empty() and !log_mgr::m_stop) {
                     log_mgr::m_cond.timedwait(KNGIN_ASYNC_LOGGER_TIMEOUT);
-                    if (log_mgr::m_stop)
-                        break;
                 }
+                if (log_mgr::m_stop and log_mgr::m_log_dataq.empty())
+                    break;
 
                 // get next
                 _fn = log_mgr::m_log_dataq.back();
                 log_mgr::m_log_dataq.pop_back();
             }
-            if (_fn) {
+            // write
+            if (_fn) 
                 _fn();
-            }
             _fn = nullptr;
         }
+    }
+    catch (std::exception &_e) {
+        std::cerr << "catch an exception in log_thread: " << _e.what() << std::endl;
     } catch (...) {
-        m_inited = false;
+        std::cerr << "catch an exception in log_thread" << std::endl;
     }
     m_inited = false;
 
@@ -127,12 +133,6 @@ log_mgr::filename_at (size_t _index) KNGIN_NOEXCP
     assert(log_mgr::m_inited);
     assert(_index < log_mgr::m_log_set.size());
     return log_mgr::m_logfile_set[_index];
-}
-
-bool
-log_mgr::inited () const KNGIN_NOEXCP
-{
-    return log_mgr::m_inited;
 }
 
 log_mgr &

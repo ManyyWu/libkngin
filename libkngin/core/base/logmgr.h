@@ -17,7 +17,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class log_mgr : public noncopyable {
 public:
+#if (ON == KNGIN_ASYNC_LOGGER)
     typedef std::deque<log::async_log_data> async_log_dataq;
+#endif
 
     typedef std::unique_ptr<log>            log_ptr;
 
@@ -28,7 +30,7 @@ public:
 private:
     log_mgr     ();
 
-    ~log_mgr    () KNGIN_NOEXCP;
+    ~log_mgr    ();
 
 #if (ON == KNGIN_ASYNC_LOGGER)
 public:
@@ -52,7 +54,8 @@ public:
 
 public:
     bool
-    inited      () const KNGIN_NOEXCP;
+    inited      () const KNGIN_NOEXCP
+    { return log_mgr::m_inited; }
 
 private:
 #if (ON == KNGIN_ASYNC_LOGGER)

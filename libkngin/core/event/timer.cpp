@@ -146,7 +146,7 @@ timer::on_read (event_loop &_loop)
         );
     }
 
-    if (!m_persist && registed())
+    if (!m_persist and registed())
         _loop.cancel(_self);
 }
 

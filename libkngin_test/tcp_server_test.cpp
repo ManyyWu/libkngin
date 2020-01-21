@@ -9,8 +9,8 @@
 #include "../libkngin/core/base/memory.h"
 #include "../libkngin/core/base/common.h"
 #include "../libkngin/core/base/system_error.h"
-#include "../libkngin/net/tcp/server.h"
 #include "../libkngin/core/event/io_thread.h"
+#include "../libkngin/net/tcp/server.h"
 #ifndef _WIN32
 #include <mcheck.h>
 #endif
@@ -252,7 +252,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(10000,
+    _loop.run_after(3000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);

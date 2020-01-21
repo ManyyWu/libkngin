@@ -76,6 +76,8 @@ class log : public noncopyable {
 #if (ON == KNGIN_ASYNC_LOGGER)
 public:
     typedef std::shared_ptr<char>      log_data_ptr;
+    // XXX: use k::make_shared_array() to create log_data_ptr
+    // FIXME: use std::shared<char []> in c++ 20
 
     typedef std::function<void (void)> async_log_data;
 
@@ -103,31 +105,31 @@ public:
     enable_debug  () KNGIN_NOEXCP { m_disable_debug = false; }
 
 public:
-    bool
-    fatal         (const char *_fmt, ...) KNGIN_NOEXCP;
+    void
+    fatal         (const char *_fmt, ...);
 
-    bool
-    error         (const char *_fmt, ...) KNGIN_NOEXCP;
+    void
+    error         (const char *_fmt, ...);
 
-    bool
-    warning       (const char *_fmt, ...) KNGIN_NOEXCP;
+    void
+    warning       (const char *_fmt, ...);
 
-    bool
-    info          (const char *_fmt, ...) KNGIN_NOEXCP;
+    void
+    info          (const char *_fmt, ...);
 
-    bool
-    debug         (const char *_fmt, ...) KNGIN_NOEXCP;
+    void
+    debug         (const char *_fmt, ...);
 
-    bool
-    log_data      (const std::string &_str) KNGIN_NOEXCP;
+    void
+    log_data      (const std::string &_str);
 
     bool
     log_assert    (const char *_func, const char *_file,
-                   size_t _line, const char *_exp) KNGIN_NOEXCP;
+                   size_t _line, const char *_exp);
 
-    bool
+    void
     write_log     (KNGIN_LOG_LEVEL _level,
-                   const char *_fmt, va_list _vl) KNGIN_NOEXCP;
+                   const char *_fmt, va_list _vl);
 
 private:
     static bool

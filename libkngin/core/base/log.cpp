@@ -32,108 +32,112 @@ log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FIL
 {
 }
 
-bool
-log::fatal (const char *_fmt, ...) KNGIN_NOEXCP
+void
+log::fatal (const char *_fmt, ...)
 {
     assert(_fmt);
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = write_log(KNGIN_LOG_LEVEL_FATAL, _fmt, _vl);
+    write_log(KNGIN_LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
     assert(!"log fatal");
-    return _ret;
 }
 
-bool
-log::error (const char *_fmt, ...) KNGIN_NOEXCP
+void
+log::error (const char *_fmt, ...)
 {
     assert(_fmt);
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = write_log(KNGIN_LOG_LEVEL_ERROR, _fmt, _vl);
+    write_log(KNGIN_LOG_LEVEL_ERROR, _fmt, _vl);
     va_end(_vl);
     //assert(!"log error");
-    return _ret;
 }
 
-bool
-log::warning (const char *_fmt, ...) KNGIN_NOEXCP
+void
+log::warning (const char *_fmt, ...)
 {
     assert(_fmt);
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = write_log(KNGIN_LOG_LEVEL_WARNING, _fmt, _vl);
+    write_log(KNGIN_LOG_LEVEL_WARNING, _fmt, _vl);
     va_end(_vl);
-    return _ret;
 }
 
-bool
-log::info (const char *_fmt, ...) KNGIN_NOEXCP
+void
+log::info (const char *_fmt, ...)
 {
     assert(_fmt);
     if (m_disable_info)
-        return true;
+        return;
 
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = write_log(KNGIN_LOG_LEVEL_INFO, _fmt, _vl);
+    write_log(KNGIN_LOG_LEVEL_INFO, _fmt, _vl);
     va_end(_vl);
-    return _ret;
 }
 
-bool
-log::debug (const char *_fmt, ...) KNGIN_NOEXCP
+void
+log::debug (const char *_fmt, ...)
 {
     assert(_fmt);
     if (m_disable_debug)
-        return true;
+        return;
 
     va_list _vl;
     va_start(_vl, _fmt);
-    bool _ret = write_log(KNGIN_LOG_LEVEL_DEBUG, _fmt, _vl);
+    write_log(KNGIN_LOG_LEVEL_DEBUG, _fmt, _vl);
     va_end(_vl);
-    return _ret;
 }
 
-bool
-log::log_data (const std::string &_str) KNGIN_NOEXCP
+void
+log::log_data (const std::string &_str)
 {
     if (_str.empty())
-        return false;
+        return;
 
-    bool _ret = true;
-    if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_FILE == m_mode)
-        _ret = write_logfile(KNGIN_LOG_LEVEL_DEBUG,
-                             logger().filename_at(m_filetype).c_str(),
-                             _str.c_str(), _str.size());
-    if (KNGIN_LOG_MODE_BOTH == m_mode or KNGIN_LOG_MODE_STDERR == m_mode)
-        write_stderr(KNGIN_LOG_LEVEL_DEBUG, _str.c_str(), _str.size());
-    return _ret;
+#if (ON == KNGIN_ASYNC_LOGGER)
+    logger().async_log(
+        [_filetype = m_filetype, _mode = m_mode, _str] ()
+#else
+        [_filetype = m_filetype, _mode = m_mode, &_str] ()
+#endif
+    {
+        if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
+            write_logfile(KNGIN_LOG_LEVEL_INFO,
+                          logger().filename_at(_filetype).c_str(),
+                          _str.c_str(), _str.size());
+        if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
+            write_stderr(KNGIN_LOG_LEVEL_INFO, _str.c_str(), _str.size());
+#if (ON == KNGIN_ASYNC_LOGGER)
+    });
+#else
+    } ();
+#endif
 }
 
 bool
 log::log_assert (const char *_func, const char *_file,
-                 size_t _line, const char *_exp) KNGIN_NOEXCP
+                 size_t _line, const char *_exp)
 {
     assert(_func);
     assert(_file);
     assert(_exp);
-    return fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
+    fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
+    return true;
 }
 
-bool
-log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOEXCP
+void
+log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 {
     assert(_fmt);
 
-    auto _func = [&] () -> bool {
-        bool _ret = true;
+    auto _func = [&] () {
 #if (ON == KNGIN_ASYNC_LOGGER)
         log_data_ptr _data_ptr = k::make_shared_array<char>(KNGIN_LOG_BUF_SIZE);
         char *_buf = _data_ptr.get();
 #else
         char  _buf[KNGIN_LOG_BUF_SIZE];
-        char *_data_ptr = _buf;
 #endif
         char _datetime[KNGIN_LOG_DATETIME_LEN];
 
@@ -146,29 +150,29 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl) KNGIN_NOE
 
 #if (ON == KNGIN_ASYNC_LOGGER)
         logger().async_log(
+            [_filetype = m_filetype, _level, _mode = m_mode, _data_ptr, _buf, _len] ()
+#else
+        [_filetype = m_filetype, _level, _mode = m_mode, _buf, _len] ()
 #endif
-        [_filetype = m_filetype, _level, _mode = m_mode,
-         _data_ptr, _buf, _len] () mutable {
+        {
             if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
-                write_logfile(_level, logger().filename_at(_filetype).c_str(),
-                                     _buf, _len);
+                write_logfile(_level, logger().filename_at(_filetype).c_str(), _buf, _len);
             if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
                 write_stderr(_level, _buf, _len);
 #if (ON == KNGIN_ASYNC_LOGGER)
         });
 #else
-        ();
+        } ();
 #endif
-        return _ret;
     }; // end of write_log
 
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
     if (logger().inited()) {
         local_lock _lock(m_mutex);
-        return _func();
+        _func();
     } else
 #endif
-        return _func();
+        _func();
 }
 
 bool
