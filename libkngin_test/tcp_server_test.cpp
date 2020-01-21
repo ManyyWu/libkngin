@@ -252,7 +252,7 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(3000,
+    _loop.run_after(100000,
         [&] (const timer::timer_ptr _timer)
     {
         _loop.cancel(_timer);
