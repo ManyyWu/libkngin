@@ -54,8 +54,8 @@ public:
     { return shared_from_this(); }
 
     listener_weak_ptr
-    weak_ptr            () //KNGIN_NOEXCP
-    { return shared_from_this(); /* weak_from_this() */ }
+    weak_ptr            ()
+    { return weak_from_this(); }
 
     const address &
     listen_addr    () const
