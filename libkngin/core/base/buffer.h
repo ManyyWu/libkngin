@@ -77,7 +77,6 @@ public:
     read_uint64  (uint64_t &_val) { _val = read<uint64_t>(); return *this; }
     out_buffer &
     read_int64   (int64_t &_val)  { _val = read<int64_t>(); return *this; }
-
     uint8_t
     peek_uint8   () { return read<uint8_t>(false); }
     int8_t
