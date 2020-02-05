@@ -127,22 +127,20 @@ fail:
                 "stop_handler() error"
             );
         }
-            m_looping = false;
+        m_looping = false;
         if (_throw) {
             if (!m_stop_barrier->destroyed())
                 m_stop_barrier->destroy();
             log_fatal("caught an exception in event loop of thread %" PRIu64, thread::tid());
             throw;
         } else {
-            goto stop;
+            auto _temp_ptr = m_stop_barrier;
+            if (!_temp_ptr->destroyed() and _temp_ptr->wait())
+                _temp_ptr->destroy();
+            return;
         }
     }
-
     goto fail;
-stop:
-    auto _temp_ptr = m_stop_barrier;
-    if (!_temp_ptr->destroyed() and _temp_ptr->wait())
-        _temp_ptr->destroy();
 }
 
 void
