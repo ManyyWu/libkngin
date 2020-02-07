@@ -1,12 +1,8 @@
 #ifndef KNGIN_SYSTEM_ERROR_H
 #define KNGIN_SYSTEM_ERROR_H
 
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <cerrno>
-#endif
 #include <system_error>
+#include "core/base/error.h"
 #include "core/base/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -78,11 +74,7 @@ int2ec (int32_t _code)
 inline std::error_code
 last_error ()
 {
-#ifdef _WIN32
-    return std::make_error_code(static_cast<std::errc>(::GetLastError()));
-#else
-    return std::make_error_code(static_cast<std::errc>(errno));
-#endif
+    return std::make_error_code(static_cast<std::errc>(last_errno()));
 }
 
 inline std::string

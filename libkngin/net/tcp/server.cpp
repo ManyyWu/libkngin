@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #else
 #include <unistd.h>
-#include <signal.h>
+//#include <signal.h>
 #endif
 #include "core/base/exception.h"
 #include "core/base/system_error.h"

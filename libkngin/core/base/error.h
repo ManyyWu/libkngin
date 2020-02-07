@@ -1,7 +1,11 @@
 #ifndef KNGIN_ERROR_H
 #define KNGIN_ERROR_H
 
-#include <system_error>
+#ifdef WIN32
+#include <Windows.h>
+#else
+#include <cerrno>
+#endif
 #include "core/base/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -12,6 +16,17 @@ enum APPLICATION_ERROR_CODE {
 
     APPE_UNKNOWN = 255, // unknown error
 };
+
+inline
+uint32_t
+last_errno ()
+{
+#ifdef _WIN32
+    return ::GetLastError());
+#else
+    return (errno);
+#endif
+}
 
 KNGIN_NAMESPACE_K_END
 
