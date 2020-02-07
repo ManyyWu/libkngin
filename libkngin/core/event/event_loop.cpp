@@ -54,6 +54,7 @@ event_loop::~event_loop () KNGIN_NOEXCP
 void
 event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handler)
 {
+    bool _throw = false;
     m_tid = thread::tid();
     m_looping = true;
     log_info("event loop is running in thread %" PRIu64, thread::tid());
@@ -114,6 +115,8 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
             }
         }
     } catch (...) {
+        _throw = true;
+fail:
         if (m_waker and m_waker->registed())
             remove_event(*m_waker);
         m_waker->close();
@@ -125,26 +128,19 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
             );
         }
         m_looping = false;
-        if (!m_stop_barrier->destroyed())
-            m_stop_barrier->destroy();
-        log_fatal("caught an exception in event loop of thread %" PRIu64, thread::tid());
-        throw;
+        if (_throw) {
+            if (!m_stop_barrier->destroyed())
+                m_stop_barrier->destroy();
+            log_fatal("caught an exception in event loop of thread %" PRIu64, thread::tid());
+            throw;
+        } else {
+            auto _temp_ptr = m_stop_barrier;
+            if (!_temp_ptr->destroyed() and _temp_ptr->wait())
+                _temp_ptr->destroy();
+            return;
+        }
     }
-
-    if (m_waker and m_waker->registed())
-        remove_event(*m_waker);
-    m_waker->close();
-    m_waker.reset();
-    if (_stop_handler) {
-        log_excp_error(
-            _stop_handler(),
-            "ignore_excp() error"
-        );
-    }
-    m_looping = false;
-    auto _temp_ptr = m_stop_barrier;
-    if (!_temp_ptr->destroyed() and _temp_ptr->wait())
-        _temp_ptr->destroy();
+    goto fail;
 }
 
 void
