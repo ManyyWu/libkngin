@@ -59,68 +59,13 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
     m_looping = true;
     log_info("event loop is running in thread %" PRIu64, thread::tid());
 
-    try {
-        m_waker = std::make_shared<event>([] () {});
-        register_event(m_waker);
-        if (_start_handler) {
-            log_excp_error(
-                _start_handler(),
-                "start_handler() error"
-            );
+    auto _fail = [&] () {
+        if (m_waker) {
+            if (m_waker->registed())
+                remove_event(*m_waker);
+            m_waker->close();
+            m_waker.reset();
         }
-        while (!m_stop) {
-            {
-                // process queued tasks
-                std::deque<task> _taskq;
-                {
-                    local_lock _lock(m_taskq_mutex);
-                    if (!m_taskq.empty())
-                        _taskq.swap(m_taskq);
-                }
-                while (!_taskq.empty()) {
-                    _taskq.back()();
-                    _taskq.pop_back();
-                }
-            }
-
-            {
-                // wait for events
-                uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
-                if (m_stop)
-                    break;
-                //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
-
-                // sort the events by priority and type(timer > event > file)
-                std::sort(m_events.begin(), m_events.begin() + _size,
-                    [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
-                    epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
-                    epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
-                    return (_ptr1->type() > _ptr2->type() or
-                            (_ptr1->type() == _ptr2->type() and
-                             _ptr1->priority() > _ptr2->priority()));
-                }); // end of operator < for sortting
-
-                // process events
-                for (uint32_t _i = 0; _i < _size; _i++) {
-                    auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
-                    assert(_ptr);
-                    assert(_ptr->registed());
-                    if (_ptr->registed()) {
-                        log_excp_error(
-                            _ptr->on_events(*this, m_events[_i].events),
-                            "epoller_event_handler::on_events() error"
-                        );
-                    }
-                }
-            }
-        }
-    } catch (...) {
-        _throw = true;
-fail:
-        if (m_waker and m_waker->registed())
-            remove_event(*m_waker);
-        m_waker->close();
-        m_waker.reset();
         if (_stop_handler) {
             log_excp_error(
                 _stop_handler(),
@@ -133,14 +78,70 @@ fail:
                 m_stop_barrier->destroy();
             log_fatal("caught an exception in event loop of thread %" PRIu64, thread::tid());
             throw;
-        } else {
-            auto _temp_ptr = m_stop_barrier;
-            if (!_temp_ptr->destroyed() and _temp_ptr->wait())
-                _temp_ptr->destroy();
-            return;
         }
+
+        auto _temp_ptr = m_stop_barrier;
+        if (!_temp_ptr->destroyed() and _temp_ptr->wait())
+            _temp_ptr->destroy();
+    };
+
+    try {
+        m_waker = std::make_shared<event>([] () {});
+        register_event(m_waker);
+        if (_start_handler) {
+            log_excp_error(
+                _start_handler(),
+                "start_handler() error"
+            );
+        }
+
+        while (!m_stop) {
+            // process queued tasks
+            std::deque<task> _taskq;
+            {
+                local_lock _lock(m_taskq_mutex);
+                if (!m_taskq.empty())
+                    _taskq.swap(m_taskq);
+            }
+            while (!_taskq.empty()) {
+                _taskq.back()();
+                _taskq.pop_back();
+            }
+
+            // wait for events
+            uint32_t _size = m_epoller.wait(m_events, KNGIN_EPOLLER_TIMEOUT);
+            if (m_stop)
+                break;
+            //log_warning("the epoller is awaken with %" PRIu64 " events", _size);
+
+            // sort the events by priority and type(timer > event > file)
+            std::sort(m_events.begin(), m_events.begin() + _size,
+                [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
+                epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
+                epoller_event *_ptr2 = static_cast<epoller_event *>(_e2.data.ptr);
+                return (_ptr1->type() > _ptr2->type() or
+                        (_ptr1->type() == _ptr2->type() and
+                         _ptr1->priority() > _ptr2->priority()));
+            }); // end of operator < for sortting
+
+            // process events
+            for (uint32_t _i = 0; _i < _size; _i++) {
+                auto *_ptr = static_cast<epoller_event *>(m_events[_i].data.ptr);
+                assert(_ptr);
+                assert(_ptr->registed());
+                if (_ptr->registed()) {
+                    log_excp_error(
+                        _ptr->on_events(*this, m_events[_i].events),
+                        "epoller_event_handler::on_events() error"
+                    );
+                }
+            }
+        }
+    } catch (...) {
+        _throw = true;
+        _fail();
     }
-    goto fail;
+    _fail();
 }
 
 void
@@ -265,6 +266,12 @@ event_loop::run_at (timestamp _absval, timeout_handler &&_handler,
     _timer->set_time(_absval, 0, true);
     add_timer(_timer);
     return timerid(_timer);
+}
+
+void
+event_loop::process_events ()
+{
+
 }
 
 void

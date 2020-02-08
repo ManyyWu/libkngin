@@ -40,7 +40,7 @@ public:
 
     typedef std::map<int, timer_ptr>   timers;
 
-public:
+public  :
     event_loop     ();
 
     ~event_loop    () KNGIN_NOEXCP;
@@ -102,6 +102,9 @@ public:
     { return (m_tid == thread::tid()); }
 
 protected:
+    void
+    process_events ();
+
     void
     wakeup         ();
 

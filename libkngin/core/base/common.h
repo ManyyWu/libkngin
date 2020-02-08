@@ -94,6 +94,21 @@ is_single_ref_ptr (std::shared_ptr<Type> &_ptr)
     return (1 == _ptr.use_count());
 }
 
+// version
+inline
+uint32_t
+kngin_version ()
+{
+    return KNGIN_VERSION;
+}
+
+inline
+const char *
+kngin_version_str ()
+{
+    return KNGIN_VERSION_STR;
+}
+
 // others
 #define nouse_var(var) (void)(var)
 #define shield_var(var) void *var = nullptr; nouse_var(var);

@@ -42,9 +42,15 @@ server::server (event_loop &_loop, const server_opts &_opts)
     auto _s = (_pos != std::string::npos)
                   ? std::string(_opts.name.data(), _pos)
                   : _opts.name;
-    if (_opts.allow_ipv4 and _opts.allow_ipv6 and !address::is_valid_inet6_addrstr(_s))
+    if (_opts.allow_ipv4 and
+        _opts.allow_ipv6 and
+        !address::is_valid_inet6_addrstr(_s)
+        )
         throw k::exception("invalid ipv6 address");
-    if (_opts.allow_ipv4 and !_opts.allow_ipv6 and !address::is_valid_inet_addrstr(_opts.name))
+    if (_opts.allow_ipv4 and
+        !_opts.allow_ipv6 and
+        !address::is_valid_inet_addrstr(_opts.name)
+        )
         throw k::exception("invalid ipv4 address");
 } catch (...) {
     log_fatal("server::server() error");
@@ -87,7 +93,9 @@ server::run ()
     m_threadpool.start(_crash_handler);
 
     // create listen socket
-    socket _listener_sock(m_opts.allow_ipv6 ? socket::IPV6_TCP : socket::IPV4_TCP);
+    socket _listener_sock(m_opts.allow_ipv6
+                          ? socket::IPV6_TCP
+                          : socket::IPV4_TCP);
     if (m_opts.allow_ipv6 and !m_opts.allow_ipv4)
         sockopts::set_ipv6_only(_listener_sock, true);
 
