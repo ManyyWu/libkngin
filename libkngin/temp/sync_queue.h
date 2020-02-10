@@ -56,7 +56,7 @@ public:
     virtual
     ~sync_queue ()
     {
-        for (auto _iter : m_queue)
+        for (auto &_iter : m_queue)
             delete _iter;
     }
 

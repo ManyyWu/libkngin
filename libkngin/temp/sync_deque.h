@@ -54,7 +54,7 @@ public:
     virtual
     ~sync_deque ()
     {
-        for (auto _iter : m_deque)
+        for (auto &_iter : m_deque)
             delete _iter;
     }
 

@@ -9,19 +9,52 @@ event_loop_test ()
 {
     event_loop _loop;
 
-    thread _thr("");
+    thread _thr("event_loop_test");
     _thr.run([&_loop] () -> int {
-        thread::sleep(1000);
+        // task
         for (int i = 0; i < 10; i++) {
             _loop.run_in_loop([i] () {
-                log_info("%d", i);
+                log_info("task %d", i);
             });
         }
-        thread::sleep(1000);
-        _loop.stop();
-        return 0;
+
+        // timer
+        _loop.run_every(100,
+        [&] (const timer::timer_ptr _timer)
+        {
+            static int i = 0;
+            if (i > 10) {
+                _loop.cancel(_timer);
+                return;
+            }
+                log_info("every 100ms - %d", ++i);
+        });
+        _loop.run_after(100,
+        [&] (const timer::timer_ptr _timer)
+        {
+            log_warning("timer after 100ms");
+            timestamp _current_time = timestamp::monotonic();
+            _loop.run_at(_current_time + timestamp(1000),
+                         [&] (const timer::timer_ptr &_timer) {
+                log_warning("timer after current time + 1s");
+            });
+            _loop.run_at(_current_time + timestamp(2000),
+                         [&] (const timer::timer_ptr &_timer) {
+                log_warning("timer after current time + 2s");
+            });
+            _loop.run_at(_current_time + timestamp(3000),
+                         [&] (const timer::timer_ptr &_timer) {
+                log_warning("timer after current time + 3s");
+                _loop.stop();
+            });
+        });
     });
 
-    _loop.run(nullptr, nullptr);
+    _loop.run([] () {
+            log_info("event_loop started");
+        }, [] () {
+            log_info("event_loop stopped");
+        }
+    );
     _thr.join();
 }

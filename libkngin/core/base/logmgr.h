@@ -9,12 +9,12 @@
 #include "core/base/log.h"
 #include "core/base/define.h"
 #include "core/base/noncopyable.h"
-#include "core/base/thread.h"
-#include "core/base/mutex.h"
-#include "core/base/cond.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class thread;
+class mutex;
+class cond;
 class log_mgr : public noncopyable {
 public:
 #if (ON == KNGIN_ASYNC_LOGGER)

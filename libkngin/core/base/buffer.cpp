@@ -203,7 +203,7 @@ size_t
 net_buffer::size ()
 {
     size_t _size = 0;
-    for (auto _iter : m_list)
+    for (auto &_iter : m_list)
         _size += _iter.size();
     return _size;
 }
@@ -215,7 +215,7 @@ net_buffer::to_iovec ()
     std::swap(m_iovec, _iovec);
     size_t _size = size();
     size_t _remain = (std::min)(_size, m_windex);
-    for (auto _iter : m_list) {
+    for (auto &_iter : m_list) {
         if (_iter.size() > _remain)
             m_iovec.push_back({_iter.data() + _remain, _iter.size() - _remain});
         _remain -= (std::min)(_iter.size(), _remain);

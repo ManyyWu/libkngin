@@ -6,6 +6,11 @@
 #include "core/base/logmgr.h"
 #include "core/base/common.h"
 #include "core/base/local_lock.h"
+#if (ON == KNGIN_ASYNC_LOGGER)
+#include "core/base/thread.h"
+#include "core/base/mutex.h"
+#include "core/base/cond.h"
+#endif
 
 KNGIN_NAMESPACE_K_BEGIN
 

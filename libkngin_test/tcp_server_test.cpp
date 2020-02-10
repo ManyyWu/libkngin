@@ -1,9 +1,5 @@
-#include <iostream>
 #include <string>
-#include <array>
-#include <functional>
 #include <map>
-#include <memory>
 #include <ctime>
 #include "../libkngin/core/base/thread.h"
 #include "../libkngin/core/base/memory.h"
@@ -252,32 +248,33 @@ tcp_server_test ()
         }
     });
 */
-    _loop.run_after(100000,
+
+    _loop.run_after(60000,
         [&] (const timer::timer_ptr _timer)
     {
-        _loop.cancel(_timer);
         _server.stop();
 
         log_warning("main thread is closing...3s");
-        timestamp _current_time = timestamp::realtime();
-        _loop.run_at(_current_time + 1000,
+        timestamp _current_time = timestamp::monotonic();
+        _loop.run_at(_current_time + timestamp(1000),
                      [&] (const timer::timer_ptr &_timer) {
              log_warning("main thread is closing...2s");
-             _loop.cancel(_timer);
-         }, true);
-        _loop.run_at(_current_time + 2000,
+        });
+        _loop.run_at(_current_time + timestamp(2000),
                      [&] (const timer::timer_ptr &_timer) {
              log_warning("main thread is closing...1s");
-             _loop.cancel(_timer);
-        }, true);
-        _loop.run_at(_current_time + 3000,
+        });
+        _loop.run_at(_current_time + timestamp(3000),
                      [&] (const timer::timer_ptr &_timer) {
-             _loop.cancel(_timer);
              //_loop.cancel(_client_timer);
              _loop.stop();
-        }, true);
+        });
     });
 
     _loop.run();
     _server.stop();
 }
+
+#warning "signal event"
+#warning "log回调,type+str+size"
+#warning "map改鏈表+指针"

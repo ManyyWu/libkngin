@@ -59,11 +59,11 @@ tcp_connection_test ();
 extern void
 io_threadpool_test ();
 
-void
-event_loop_test ();
-
 extern void
 tcp_server_test ();
+
+void
+event_loop_test ();
 
 extern void
 simple_ftp_server_test ();
@@ -138,11 +138,11 @@ int main()
 //        cerr << "********************************************************\n";
 //
 //        cerr << "********************* event_loop_test ******************\n";
-//        event_loop_test ();
+        event_loop_test ();
 //        cerr << "********************************************************\n";
 
         cerr << "********************* tcp_server_test ******************\n";
-        tcp_server_test ();
+//        tcp_server_test ();
         cerr << "********************************************************\n";
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());

@@ -22,8 +22,8 @@ inline void
 arg_check_func(bool _exp, const char *_what = nullptr)
 {
     if (!(_exp) ? assert((_exp)), true : false)
-        throw k::exception(((_what ? "invalid argument - " : "invalid argument") 
-                               + std::string(_what ? _what : "")).c_str());
+        throw k::exception(((_what ? "invalid argument - " : "invalid argument")
+                             + std::string(_what ? _what : "")).c_str());
 }
 #define arg_check(exp)             arg_check_func(static_cast<bool>((exp)))
 #define arg_check2(exp, what)      arg_check_func(static_cast<bool>((exp)), (what))

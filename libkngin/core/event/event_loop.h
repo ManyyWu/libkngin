@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <map>
+#include <list>
 #include <memory>
 #include <functional>
 #include <system_error>
@@ -26,6 +27,8 @@ public:
 
     typedef timer::timer_ptr           timer_ptr;
 
+    typedef timer::timer_weak_ptr      timer_weak_ptr;
+
     typedef timer::timerid             timerid;
 
     typedef std::shared_ptr<barrier>   barrier_ptr;
@@ -38,7 +41,11 @@ public:
 
     typedef std::deque<task>           taskq;
 
+#if (ON == KNGIN_USE_TIMERFD)
     typedef std::map<int, timer_ptr>   timers;
+#else
+    typedef std::list<timer_ptr>       timers;
+#endif
 
 public  :
     event_loop     ();
@@ -102,13 +109,31 @@ public:
     { return (m_tid == thread::tid()); }
 
 protected:
+    size_t
+    io_pool        (epoll_event_set &_events);
+
     void
-    process_events ();
+    process_tasks  ();
+
+#if (OFF == KNGIN_USE_TIMERFD)
+    timestamp
+    get_next_delay ();
+
+    void
+    process_timer  ();
+#endif
+
+#ifndef _WIN32
+    void
+    sort_events    (epoll_event_set &_events, size_t _size);
+
+    void
+    process_events (epoll_event_set &_events, size_t _size);
+#endif
 
     void
     wakeup         ();
 
-protected:
     void
     add_timer      (timer_ptr &_timer);
 
@@ -129,11 +154,11 @@ private:
 
     barrier_ptr      m_stop_barrier;
 
-    epoll_event_set  m_events;
-
     timers           m_timers;
 
     mutex            m_timers_mutex;
+
+    std::atomic_bool m_timer_processing;
 };
 
 KNGIN_NAMESPACE_K_END

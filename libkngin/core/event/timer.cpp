@@ -14,23 +14,15 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+#if (ON == KNGIN_USE_TIMERFD)
+
 timer::timerid::timerid (timer_ptr _timer)
-    : m_timer(_timer),
-      m_key(_timer->key()),
-      m_initval(_timer->m_initval),
-      m_interval(_timer->m_interval),
-      m_realtime(_timer->m_realtime),
-      m_abs(_timer->m_abs)
+    : m_timer(_timer)
 {
 }
 
 timer::timerid::timerid (const timerid &_timer)
-    : m_timer(_timer.m_timer),
-      m_key(_timer.m_key),
-      m_initval(_timer.m_initval),
-      m_interval(_timer.m_interval),
-      m_realtime(_timer.m_realtime),
-      m_abs(_timer.m_abs)
+    : m_timer(_timer.m_timer)
 {
 }
 
@@ -38,12 +30,39 @@ timer::timerid &
 timer::timerid::operator = (const timerid &_timer)
 {
     m_timer = _timer.m_timer;
-    m_key = _timer.m_key;
-    m_initval = _timer.m_initval;
-    m_interval = _timer.m_interval;
-    m_realtime = _timer.m_realtime;
-    m_abs = _timer.m_abs;
     return *this;
+}
+
+timestamp
+timer::timerid::interval () const KNGIN_NOEXCP
+{
+    if (auto _timer = m_timer.lock())
+        return assert(_timer), _timer->m_interval;
+    return 0;
+}
+
+bool
+timer::timerid::realtime () const KNGIN_NOEXCP
+{
+    if (auto _timer = m_timer.lock())
+        return assert(_timer), _timer->m_realtime;
+    return false;
+}
+
+bool
+timer::timerid::abs () const KNGIN_NOEXCP
+{
+    if (auto _timer = m_timer.lock())
+        return assert(_timer), _timer->m_abs;
+    return false;
+}
+
+int
+timer::timerid::key () const KNGIN_NOEXCP
+{
+    if (auto _timer = m_timer.lock())
+        return assert(_timer), _timer->key();
+    return INVALID_FD;
 }
 
 timer::timer (timeout_handler &&_handler, bool _realtime /* = false */)
@@ -74,6 +93,7 @@ timer::~timer () KNGIN_NOEXCP
         ignore_excp(this->close());
 }
 
+/*
 timestamp
 timer::get_time ()
 {
@@ -83,17 +103,16 @@ timer::get_time ()
     if (timerfd_gettime(m_fd, &_its) < 0)
         throw k::system_error("timerfd_gettime() error");
     return _its.it_value;
-}
+}*/
 
 void
 timer::set_time (timestamp _val, timestamp _interval,
-                 bool _abs /* = false */, bool _persist /* = false */)
+                 bool _abs /* = false */)
 {
     assert(valid());
     m_initval = _val;
     m_interval = _interval;
     m_abs = _abs;
-    m_persist = _persist;
 
     itimerspec _its;
     _val.to_timespec(_its.it_value);
@@ -146,8 +165,45 @@ timer::on_read (event_loop &_loop)
         );
     }
 
-    if (!m_persist and registed())
+    if (!m_interval and registed())
         _loop.cancel(_self);
 }
+
+#else
+
+timer::timer (timeout_handler &&_handler)
+try
+    : m_timeout_handler(std::move(_handler)),
+      m_timeout(),
+      m_closed(true)
+{
+    arg_check(m_timeout_handler);
+} catch (...) {
+    log_fatal("timer::timer() error");
+    throw;
+}
+
+void
+timer::set_time (timestamp _cur_time, timestamp _delay, bool _persist)
+{
+    m_timeout.update(_cur_time);
+    m_timeout.set_interval(_delay);
+    m_timeout.set_persist(_persist);
+    m_closed = false;
+}
+
+void
+timer::on_events (event_loop &_loop, timestamp _now_time)
+{
+    auto _self = self();
+    if (m_timeout_handler) {
+        log_excp_error(
+            m_timeout_handler(_self),
+            "timer::m_timeout_handler() error"
+        );
+    }
+}
+
+#endif
 
 KNGIN_NAMESPACE_K_END

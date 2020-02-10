@@ -8,9 +8,11 @@
 #endif
 #include <ctime>
 #include <cstdint>
+#include <cassert>
 #include <limits>
 #include <algorithm>
 #include "core/base/define.h"
+#include "core/base/exception.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -67,19 +69,34 @@ public:
     bool
     operator != (timestamp _t) const KNGIN_NOEXCP
     {return _t.m_ms != m_ms; }
+    bool
+    operator >  (timestamp _t) const KNGIN_NOEXCP
+    {return m_ms > _t.m_ms; }
+    bool
+    operator <  (timestamp _t) const KNGIN_NOEXCP
+    {return m_ms < _t.m_ms; }
+    bool
+    operator >= (timestamp _t) const KNGIN_NOEXCP
+    {return m_ms >= _t.m_ms; }
+    bool
+    operator <= (timestamp _t) const KNGIN_NOEXCP
+    {return m_ms <= _t.m_ms; }
 
 public:
-    explicit
+    operator
+    bool        () const KNGIN_NOEXCP
+    { return m_ms; }
+
     operator
     uint64_t    () const KNGIN_NOEXCP
     { return m_ms; }
 
 public:
-    static uint64_t
+    static timestamp
     infinite    () KNGIN_NOEXCP
     { return UINT64_MAX; }
 
-    static uint64_t
+    static timestamp
     max         () KNGIN_NOEXCP
     { return UINT64_MAX - 1; }
 
@@ -110,6 +127,12 @@ public:
     static timestamp
     monotonic   () KNGIN_NOEXCP
     { timespec _ts; ::clock_gettime(CLOCK_MONOTONIC, &_ts); return _ts; }
+    static timestamp
+    diff        (timestamp _t1, timestamp _t2)
+    { if (_t1 < _t2) throw k::exception("t1 < t2"); return (_t1 - _t2); }
+    static timestamp
+    abs_diff    (timestamp _t1, timestamp _t2) KNGIN_NOEXCP
+    { return ((_t1.m_ms >= _t2.m_ms) ? (_t1.m_ms - _t2.m_ms) : (_t2.m_ms - _t1.m_ms)); }
 
 private:
     uint64_t m_ms;
