@@ -5,7 +5,6 @@
 #include "core/base/common.h"
 #include "core/base/exception.h"
 #include "core/base/buffer.h"
-#include "core/base/memory.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

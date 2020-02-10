@@ -1,4 +1,3 @@
-#include <cassert>
 #include "core/base/exception.h"
 
 #ifdef KNGIN_FILENAME

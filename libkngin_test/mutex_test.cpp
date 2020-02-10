@@ -4,7 +4,6 @@
 #include <mutex>
 #include "../libkngin/core/base/thread.h"
 #include "../libkngin/core/base/common.h"
-#include "../libkngin/core/base/lock.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

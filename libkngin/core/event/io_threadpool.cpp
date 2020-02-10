@@ -1,7 +1,6 @@
 #include <vector>
 #include <atomic>
 #include <memory>
-#include <functional>
 #include <algorithm>
 #include "core/base/exception.h"
 #include "core/base/common.h"

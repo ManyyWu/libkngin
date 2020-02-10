@@ -5,8 +5,6 @@
 #include <ctime>
 #include "core/base/log.h"
 #include "core/base/logmgr.h"
-#include "core/base/common.h"
-#include "core/base/lock.h"
 #include "core/base/timestamp.h"
 
 KNGIN_NAMESPACE_K_BEGIN

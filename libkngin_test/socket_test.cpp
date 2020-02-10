@@ -1,13 +1,9 @@
-#include <cstring>
-#include <cassert>
 #include <iostream>
-#include <functional>
 #include "../libkngin/core/base/thread.h"
 #include "../libkngin/core/base/logfile.h"
 #include "../libkngin/core/base/buffer.h"
 #include "../libkngin/net/socket.h"
 #include "../libkngin/net/sockopts.h"
-#include "../libkngin/net/address.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

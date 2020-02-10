@@ -3,7 +3,6 @@
 #include <fcntl.h>
 #include <netdb.h>
 #endif
-#include <functional>
 #include "core/base/common.h"
 #include "core/base/system_error.h"
 #include "net/sockopts.h"

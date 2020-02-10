@@ -1,6 +1,4 @@
-#include <iostream>
 #include "../libkngin/net/sockopts.h"
-#include "../libkngin/net/socket.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

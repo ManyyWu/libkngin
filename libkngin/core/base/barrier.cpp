@@ -5,7 +5,6 @@
 #endif
 #include "core/base/common.h"
 #include "core/base/timestamp.h"
-#include "core/base/mutex.h"
 #include "core/base/barrier.h"
 #include "core/base/exception.h"
 #include "core/base/system_error.h"

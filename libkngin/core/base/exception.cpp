@@ -4,7 +4,6 @@
 #endif
 #include <string>
 #include "core/base/exception.h"
-#include "core/base/common.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

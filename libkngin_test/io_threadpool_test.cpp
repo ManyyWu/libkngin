@@ -1,4 +1,3 @@
-#include <iostream>
 #include "../libkngin/core/base/logfile.h"
 #include "../libkngin/core/event/io_threadpool.h"
 

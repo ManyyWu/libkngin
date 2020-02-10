@@ -48,6 +48,7 @@ event_loop_test ()
                 _loop.stop();
             });
         });
+        return 0;
     });
 
     _loop.run([] () {

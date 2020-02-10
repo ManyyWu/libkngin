@@ -4,7 +4,6 @@
 #endif
 #include "core/base/exception.h"
 #include "core/base/system_error.h"
-#include "core/base/common.h"
 #include "net/address.h"
 
 #ifdef KNGIN_FILENAME

@@ -4,9 +4,7 @@
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
 #endif
-#include "core/base/common.h"
 #include "core/base/system_error.h"
-#include "core/base/filefd.h"
 #include "net/sockopts.h"
 #include "net/socket.h"
 

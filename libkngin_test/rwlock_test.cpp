@@ -1,7 +1,4 @@
 #include <cstdio>
-#include <ctime>
-#include <atomic>
-#include <mutex>
 #include "../libkngin/core/base/thread.h"
 #include "../libkngin/core/base/lock.h"
 

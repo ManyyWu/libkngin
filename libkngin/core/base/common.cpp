@@ -1,8 +1,4 @@
-#include <atomic>
 #include "core/base/common.h"
-#include "core/base/logfile.h"
-#include "core/base/log.h"
-#include "core/base/logmgr.h"
 
 #ifdef KNGIN_FILENAME
 #undef KNGIN_FILENAME

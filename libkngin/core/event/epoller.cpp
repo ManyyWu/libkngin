@@ -1,10 +1,7 @@
 #ifdef _WIN32
 #else
-#include <unistd.h>
 #include <sys/epoll.h>
 #endif
-#include <cstring>
-#include <map>
 #include "core/base/common.h"
 #include "core/base/exception.h"
 #include "core/base/system_error.h"

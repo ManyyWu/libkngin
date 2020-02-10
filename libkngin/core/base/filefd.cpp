@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #endif
-#include <cstring>
 #include "core/base/system_error.h"
 #include "core/base/common.h"
 #include "core/base/filefd.h"

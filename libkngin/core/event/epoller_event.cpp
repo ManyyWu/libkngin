@@ -1,6 +1,5 @@
 #include "core/base/common.h"
 #include "core/base/exception.h"
-#include "core/base/system_error.h"
 #include "core/event/epoller_event.h"
 
 #ifdef KNGIN_FILENAME
