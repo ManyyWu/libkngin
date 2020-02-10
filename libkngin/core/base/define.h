@@ -36,4 +36,11 @@ typedef SSIZE_T ssize_t;
 #define KNGIN_USE_TIMERFD OFF
 #endif
 
+// configuration for user
+#ifdef _WIN32
+#define KNGIN_SYSTEM_NO_REALTIME_TIMER
+#else
+#undef KNGIN_SYSTEM_NO_REALTIME_TIMER
+#endif
+
 #endif /* KNGIN_DEFINE_H */
