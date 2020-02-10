@@ -51,9 +51,11 @@ event_loop_test ()
         return 0;
     });
 
-    _loop.run([] () {
+    _loop.run(
+        [] () {
             log_info("event_loop started");
-        }, [] () {
+        },
+        [] () {
             log_info("event_loop stopped");
         }
     );

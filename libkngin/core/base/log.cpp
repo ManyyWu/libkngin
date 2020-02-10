@@ -102,8 +102,7 @@ log::log_data (const std::string &_str)
 #endif
     {
         if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
-            write_logfile(KNGIN_LOG_LEVEL_INFO,
-                          logger().filename_at(_filetype).c_str(),
+            write_logfile(logger().filename_at(_filetype).c_str(),
                           _str.c_str(), _str.size());
         if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
             write_stderr(KNGIN_LOG_LEVEL_INFO, _str.c_str(), _str.size());
@@ -154,7 +153,7 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 #endif
         {
             if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
-                write_logfile(_level, logger().filename_at(_filetype).c_str(), _buf, _len);
+                write_logfile(logger().filename_at(_filetype).c_str(), _buf, _len);
             if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
                 write_stderr(_level, _buf, _len);
 #if (ON == KNGIN_ASYNC_LOGGER)
@@ -174,8 +173,7 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 }
 
 bool
-log::write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
-                    const char *_str, size_t _len) KNGIN_NOEXCP
+log::write_logfile (const char *_file, const char *_str, size_t _len) KNGIN_NOEXCP
 {
     assert(_file);
     assert(_str);

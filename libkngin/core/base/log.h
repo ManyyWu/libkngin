@@ -133,8 +133,7 @@ public:
 
 private:
     static bool
-    write_logfile (KNGIN_LOG_LEVEL _level, const char *_file,
-                   const char *_fmt, size_t _len) KNGIN_NOEXCP;
+    write_logfile (const char *_file, const char *_fmt, size_t _len) KNGIN_NOEXCP;
 
     static void
     write_stderr  (KNGIN_LOG_LEVEL _level,
