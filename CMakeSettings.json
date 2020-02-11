@@ -15,18 +15,26 @@
       "remoteCopySourcesOutputVerbosity": "Normal",
       "remoteCopySourcesConcurrentCopies": "10",
       "remoteCopySourcesMethod": "rsync",
-      "remoteCopySourcesExclusionList": [
-        ".vs",
-        ".git"
-      ],
+      "remoteCopySourcesExclusionList": [ ".vs", ".git" ],
       "rsyncCommandArgs": "-t --delete --delete-excluded",
       "remoteCopyBuildOutput": false,
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-j8",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [
-        "linux_x64"
-      ]
+      "inheritEnvironments": [ "linux_x64" ],
+      "variables": []
+    },
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": []
     }
   ]
 }

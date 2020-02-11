@@ -4,6 +4,9 @@
 #define KNGIN_VERSION     010
 #define KNGIN_VERSION_STR "0.1.0"
 
+#ifdef _WIN32
+#include <ciso646>
+#endif
 #include "core/base/config.h"
 
 // types
