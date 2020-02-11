@@ -186,7 +186,7 @@ private:
 
 private:
     void
-    on_events (event_loop &_loop, timestamp _now_time);
+    on_events (event_loop &_loop);
 
 private:
     timeout_handler  m_timeout_handler;

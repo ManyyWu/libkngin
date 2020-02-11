@@ -193,7 +193,7 @@ timer::set_time (timestamp _cur_time, timestamp _delay, bool _persist)
 }
 
 void
-timer::on_events (event_loop &_loop, timestamp _now_time)
+timer::on_events (event_loop &_loop)
 {
     auto _self = self();
     if (m_timeout_handler) {

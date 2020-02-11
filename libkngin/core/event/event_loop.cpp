@@ -362,7 +362,7 @@ event_loop::process_timer ()
                 break;
             timer_ptr _timer = *_iter;
             assert(_timer);
-            timestamp _now_time = timestamp::monotonic();
+            auto _now_time = timestamp::monotonic();
             auto _remaining = _timer->m_timeout.remaining(_now_time);
 
             // remove closed timer
@@ -374,7 +374,7 @@ event_loop::process_timer ()
                 continue;
 
             log_excp_error(
-                _timer->on_events(*this, _now_time),
+                _timer->on_events(*this),
                 "epoller_event_handler::on_events() error"
             );
 
