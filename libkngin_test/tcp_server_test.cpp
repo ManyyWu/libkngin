@@ -249,7 +249,7 @@ tcp_server_test ()
     });
 */
 
-    _loop.run_after(1000,
+    _loop.run_after(60000,
         [&] (const timer::timer_ptr _timer)
     {
         _server.stop();
@@ -274,6 +274,3 @@ tcp_server_test ()
     _loop.run();
     _server.stop();
 }
-
-#warning "signal event"
-#warning "map改鏈表+指针"
