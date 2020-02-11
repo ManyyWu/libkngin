@@ -28,7 +28,7 @@
 #define KNGIN_LOG_RELATIVE_PATH         OFF
 
 // for timer
-#define KNGIN_USE_TIMERFD               ON
+#define KNGIN_USE_TIMERFD               OFF
 #define KNGIN_TIMER_REMAINING_PRESISION 1ULL
 
 // for session

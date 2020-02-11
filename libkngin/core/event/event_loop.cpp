@@ -265,10 +265,7 @@ event_loop::run_at (timestamp _absval, timeout_handler &&_handler)
 #else
     auto _timer = std::make_shared<timer>(std::move(_handler));
     auto _now_time = timestamp::monotonic();
-    _timer->set_time(_now_time, (_now_time > _absval
-                                ? timestamp(0)
-                                : timestamp::diff(_absval, _now_time)),
-                     false);
+    _timer->set_time(_now_time, timestamp::diff(_absval, timestamp::realtime()), false);
 #endif
     add_timer(_timer);
     return timerid(_timer);
