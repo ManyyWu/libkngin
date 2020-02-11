@@ -106,6 +106,9 @@ log::log_data (const std::string &_str)
                           _str.c_str(), _str.size());
         if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
             write_stderr(KNGIN_LOG_LEVEL_INFO, _str.c_str(), _str.size());
+        if (auto _log_cb = logger().get_log_callback())
+            _log_cb(logger().filename_at(_filetype).c_str(), KNGIN_LOG_LEVEL_INFO,
+                    _str.c_str(), _str.size());
 #if (ON == KNGIN_ASYNC_LOGGER)
     });
 #else
@@ -156,6 +159,9 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
                 write_logfile(logger().filename_at(_filetype).c_str(), _buf, _len);
             if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
                 write_stderr(_level, _buf, _len);
+            if (auto _log_cb = logger().get_log_callback())
+                _log_cb(logger().filename_at(_filetype).c_str(), _level,
+                        _buf, _len);
 #if (ON == KNGIN_ASYNC_LOGGER)
         });
 #else

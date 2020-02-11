@@ -128,6 +128,9 @@ public:
     monotonic   () KNGIN_NOEXCP
     { timespec _ts; ::clock_gettime(CLOCK_MONOTONIC, &_ts); return _ts; }
     static timestamp
+    boot_time   () KNGIN_NOEXCP
+    { timespec _ts; ::clock_gettime(CLOCK_BOOTTIME, &_ts); return _ts; }
+    static timestamp
     diff        (timestamp _t1, timestamp _t2)
     { if (_t1 < _t2) throw k::exception("t1 < t2"); return (_t1 - _t2); }
     static timestamp

@@ -27,35 +27,48 @@ public:
 
     typedef std::vector<std::string>        kngin_logfile_set;
 
-private:
-    log_mgr     ();
+    typedef void (*log_callback) (const char *_file, KNGIN_LOG_LEVEL _level,
+                                  const char *_str, size_t _len);
 
-    ~log_mgr    ();
+private:
+    log_mgr          ();
+
+    ~log_mgr         ();
 
 #if (ON == KNGIN_ASYNC_LOGGER)
 public:
     void
-    async_log   (log::async_log_data &&_data);
+    async_log        (log::async_log_data &&_data);
 
 private:
     static int
-    log_thread  ();
+    log_thread       ();
 #endif
 
 public:
     log &
-    operator [] (size_t _index) KNGIN_NOEXCP;
+    operator []      (size_t _index) KNGIN_NOEXCP;
 
     int
-    add         (const std::string &_filename, KNGIN_LOG_MODE _mode) = delete;
+    add              (const std::string &_filename, KNGIN_LOG_MODE _mode) = delete;
 
     const std::string &
-    filename_at (size_t _index) KNGIN_NOEXCP;
+    filename_at      (size_t _index) KNGIN_NOEXCP;
 
 public:
     bool
-    inited      () const KNGIN_NOEXCP
+    inited           () const KNGIN_NOEXCP
     { return log_mgr::m_inited; }
+
+    // no thread-safe
+    void
+    set_log_callback (log_callback _cb) KNGIN_NOEXCP
+    { m_log_cb = _cb; }
+
+    // no thread-safe
+    log_callback
+    get_log_callback () KNGIN_NOEXCP
+    { return m_log_cb; }
 
 private:
 #if (ON == KNGIN_ASYNC_LOGGER)
@@ -75,6 +88,8 @@ private:
     static kngin_logfile_set m_logfile_set;
 
     static std::atomic_bool  m_inited;
+
+    static log_callback      m_log_cb;
 
 private:
     friend log_mgr &

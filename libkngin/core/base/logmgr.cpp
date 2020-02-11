@@ -22,16 +22,18 @@ mutex                      log_mgr::m_mutex;
 
 cond                       log_mgr::m_cond(&log_mgr::m_mutex);
 
-std::atomic_bool           log_mgr::m_stop(false);
-#endif
-
-std::atomic_bool           log_mgr::m_inited(false);
-
 log_mgr::kngin_log_set     log_mgr::m_log_set;
 
 log_mgr::kngin_logfile_set log_mgr::m_logfile_set = {
     "kngin_server", // default
 };
+
+std::atomic_bool           log_mgr::m_stop(false);
+#endif
+
+std::atomic_bool           log_mgr::m_inited(false);
+
+log_mgr::log_callback      log_mgr::m_log_cb(nullptr);
 
 log_mgr::log_mgr ()
 {
