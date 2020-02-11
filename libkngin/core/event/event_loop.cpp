@@ -27,7 +27,6 @@ event_loop::event_loop ()
       m_taskq(),
       m_taskq_mutex(),
       m_stop_barrier(std::make_shared<barrier>(2)),
-      m_timers(),
       m_timers_mutex(),
       m_timer_processing(false)
 {
@@ -38,18 +37,6 @@ event_loop::event_loop ()
 
 event_loop::~event_loop () KNGIN_NOEXCP
 {
-    size_t _size = m_timers.size();
-    if (_size)
-    {
-#if (ON == KNGIN_USE_TIMERFD)
-        log_warning("there are still have %" PRIu64
-                    " uncancelled timer in epoller", _size);
-        for (auto &_iter : m_timers)
-            cancel(_iter.second);
-#else
-        m_timers.clear();
-#endif
-    }
     if (m_looping)
         ignore_excp(stop());
 }
@@ -201,10 +188,7 @@ event_loop::cancel (const timer_ptr &_timer)
     if (_timer->registed())
     {
         local_lock _lock(m_timers_mutex);
-        assert(m_timers.find(_timer->key()) != m_timers.end());
-        m_timers.erase(_timer->key());
-        if (m_looping)
-            remove_event(*_timer);
+        remove_event(*_timer);
         _timer->close();
     }
 #else
@@ -227,8 +211,6 @@ event_loop::cancel (timer::timerid &_id) {
     if (_timer->registed())
     {
         local_lock _lock(m_timers_mutex);
-        assert(m_timers.find(_id.key()) != m_timers.end());
-        m_timers.erase(_timer->key());
         remove_event(*_timer);
         _timer->close();
     }
@@ -435,11 +417,6 @@ event_loop::add_timer (timer_ptr &_timer)
 {
 #if (ON == KNGIN_USE_TIMERFD)
     register_event(_timer);
-    {
-        local_lock _lock(m_timers_mutex);
-        assert(m_timers.find(_timer->key()) == m_timers.end());
-        m_timers.insert(std::pair<int, timer_ptr>(_timer->key(), _timer));
-    }
 #else
     if (m_timer_processing and m_looping and in_loop_thread()) {
         m_timers.push_front(_timer);

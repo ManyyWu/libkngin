@@ -154,9 +154,11 @@ private:
 
     barrier_ptr      m_stop_barrier;
 
+#if (OFF == KNGIN_USE_TIMERFD)
     timers           m_timers;
 
     mutex            m_timers_mutex;
+#endif
 
     std::atomic_bool m_timer_processing;
 };

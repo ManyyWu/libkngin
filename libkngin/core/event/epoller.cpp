@@ -51,7 +51,8 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
     {
         local_lock _lock(m_mutex);
         for (auto &_iter : m_events)
-            if (is_single_ref_ptr(_iter.second))
+            if (epoller_event::EVENT_TYPE_TIMER != _iter.second->type() and
+                is_single_ref_ptr(_iter.second))
                 log_warning("an event that does not be cancelled listening, "
                             "and is only managed by epoller");
     }
@@ -64,6 +65,7 @@ epoller::close ()
 {
     assert(m_epollfd.valid());
     m_epollfd.close();
+    m_events.clear();
     if (m_events.size())
         log_warning("there are still have %" PRIu64
                     " undeleted event in epoller", m_events.size());

@@ -276,5 +276,4 @@ tcp_server_test ()
 }
 
 #warning "signal event"
-#warning "log回调,type+str+size"
 #warning "map改鏈表+指针"
