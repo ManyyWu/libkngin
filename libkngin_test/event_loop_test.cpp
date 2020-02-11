@@ -33,7 +33,7 @@ event_loop_test ()
         [&] (const timer::timer_ptr _timer)
         {
             log_warning("timer after 100ms");
-            timestamp _current_time = timestamp::monotonic();
+            timestamp _current_time = timestamp::realtime();
             _loop.run_at(_current_time + timestamp(1000),
                          [&] (const timer::timer_ptr &_timer) {
                 log_warning("timer after current time + 1s");

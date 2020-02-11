@@ -92,16 +92,13 @@ public:
     cancel         (timerid &_id);
 
     timerid
-    run_after      (timestamp _delay, timeout_handler &&_handler,
-                    bool _realtime = false);
+    run_after      (timestamp _delay, timeout_handler &&_handler);
 
     timerid
-    run_every      (timestamp _interval, timeout_handler &&_handler,
-                    bool _realtime = false);
+    run_every      (timestamp _interval, timeout_handler &&_handler);
 
     timerid
-    run_at         (timestamp _absval, timeout_handler &&_handler,
-                    bool _realtime = false);
+    run_at         (timestamp _absval, timeout_handler &&_handler);
 
 public:
     bool

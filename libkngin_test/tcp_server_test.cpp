@@ -249,13 +249,13 @@ tcp_server_test ()
     });
 */
 
-    _loop.run_after(60000,
+    _loop.run_after(1000,
         [&] (const timer::timer_ptr _timer)
     {
         _server.stop();
 
         log_warning("main thread is closing...3s");
-        timestamp _current_time = timestamp::monotonic();
+        timestamp _current_time = timestamp::realtime();
         _loop.run_at(_current_time + timestamp(1000),
                      [&] (const timer::timer_ptr &_timer) {
              log_warning("main thread is closing...2s");

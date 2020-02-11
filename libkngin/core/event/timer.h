@@ -42,9 +42,6 @@ public:
         interval   () const KNGIN_NOEXCP;
 
         bool
-        realtime   () const KNGIN_NOEXCP;
-
-        bool
         abs        () const KNGIN_NOEXCP;
 
         bool
@@ -66,7 +63,7 @@ public:
 public:
     timer     () = delete;
 
-    timer     (timeout_handler &&_handler, bool _realtime  = false);
+    timer     (timeout_handler &&_handler);
 
     virtual
     ~timer    () KNGIN_NOEXCP;
@@ -101,8 +98,6 @@ private:
     timestamp       m_initval;
 
     timestamp       m_interval;
-
-    bool            m_realtime;
 
     bool            m_abs;
 };

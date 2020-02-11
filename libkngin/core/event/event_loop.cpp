@@ -27,7 +27,9 @@ event_loop::event_loop ()
       m_taskq(),
       m_taskq_mutex(),
       m_stop_barrier(std::make_shared<barrier>(2)),
+#if (OFF == KNGIN_USE_TIMERFD)
       m_timers_mutex(),
+#endif
       m_timer_processing(false)
 {
 } catch (...) {
@@ -187,7 +189,6 @@ event_loop::cancel (const timer_ptr &_timer)
 #if (ON == KNGIN_USE_TIMERFD)
     if (_timer->registed())
     {
-        local_lock _lock(m_timers_mutex);
         remove_event(*_timer);
         _timer->close();
     }
@@ -210,7 +211,6 @@ event_loop::cancel (timer::timerid &_id) {
 #if (ON == KNGIN_USE_TIMERFD)
     if (_timer->registed())
     {
-        local_lock _lock(m_timers_mutex);
         remove_event(*_timer);
         _timer->close();
     }
@@ -226,12 +226,11 @@ event_loop::cancel (timer::timerid &_id) {
 }
 
 timer::timerid
-event_loop::run_after (timestamp _delay, timeout_handler &&_handler,
-                       bool _realtime /* = false */)
+event_loop::run_after (timestamp _delay, timeout_handler &&_handler)
 {
     assert(_delay);
 #if (ON == KNGIN_USE_TIMERFD)
-    auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
+    auto _timer = std::make_shared<timer>(std::move(_handler));
     _timer->set_time(_delay, 0, false);
 #else
     auto _timer = std::make_shared<timer>(std::move(_handler));
@@ -242,12 +241,11 @@ event_loop::run_after (timestamp _delay, timeout_handler &&_handler,
 }
 
 timer::timerid
-event_loop::run_every (timestamp _interval, timeout_handler &&_handler,
-                       bool _realtime /* = false */)
+event_loop::run_every (timestamp _interval, timeout_handler &&_handler)
 {
     assert(_interval);
 #if (ON == KNGIN_USE_TIMERFD)
-    auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
+    auto _timer = std::make_shared<timer>(std::move(_handler));
     _timer->set_time(_interval, _interval, false);
 #else
     auto _timer = std::make_shared<timer>(std::move(_handler));
@@ -258,13 +256,12 @@ event_loop::run_every (timestamp _interval, timeout_handler &&_handler,
 }
 
 timer::timerid
-event_loop::run_at (timestamp _absval, timeout_handler &&_handler,
-                    bool _realtime /* = false */)
+event_loop::run_at (timestamp _absval, timeout_handler &&_handler)
 {
     assert(_absval);
 #if (ON == KNGIN_USE_TIMERFD)
-    auto _timer = std::make_shared<timer>(std::move(_handler), _realtime);
-    _timer->set_time(_absval, 0, true);
+    auto _timer = std::make_shared<timer>(std::move(_handler));
+    _timer->set_time(timestamp::diff(_absval, timestamp::realtime()), 0, false);
 #else
     auto _timer = std::make_shared<timer>(std::move(_handler));
     auto _now_time = timestamp::monotonic();

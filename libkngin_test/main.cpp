@@ -136,11 +136,11 @@ int main()
 //        cerr << "********************************************************\n";
 //
 //        cerr << "********************* event_loop_test ******************\n";
-        event_loop_test ();
+//        event_loop_test ();
 //        cerr << "********************************************************\n";
 
         cerr << "********************* tcp_server_test ******************\n";
-//        tcp_server_test ();
+        tcp_server_test ();
         cerr << "********************************************************\n";
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());

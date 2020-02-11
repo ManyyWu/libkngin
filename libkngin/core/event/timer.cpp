@@ -42,14 +42,6 @@ timer::timerid::interval () const KNGIN_NOEXCP
 }
 
 bool
-timer::timerid::realtime () const KNGIN_NOEXCP
-{
-    if (auto _timer = m_timer.lock())
-        return assert(_timer), _timer->m_realtime;
-    return false;
-}
-
-bool
 timer::timerid::abs () const KNGIN_NOEXCP
 {
     if (auto _timer = m_timer.lock())
@@ -65,15 +57,13 @@ timer::timerid::key () const KNGIN_NOEXCP
     return INVALID_FD;
 }
 
-timer::timer (timeout_handler &&_handler, bool _realtime /* = false */)
+timer::timer (timeout_handler &&_handler)
 try
-    : epoller_event(::timerfd_create(_realtime ? CLOCK_REALTIME : CLOCK_MONOTONIC,
-                                     TFD_CLOEXEC),
+    : epoller_event(::timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC),
                     epoller_event::EVENT_TYPE_TIMER),
       m_timeout_handler(std::move(_handler)),
       m_initval(0),
       m_interval(0),
-      m_realtime(_realtime),
       m_abs(false)
 {
     arg_check(m_timeout_handler);
