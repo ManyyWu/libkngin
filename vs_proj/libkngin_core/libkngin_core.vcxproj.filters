@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="base">
+      <UniqueIdentifier>{e70122f7-2ea0-4706-a32f-93a6c24686bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="event">
+      <UniqueIdentifier>{1934286a-b99e-4de5-902b-2dba9db9f3aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libkngin\core\base\barrier.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\buffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\common.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\cond.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\error.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\exception.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\filefd.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\log.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\logmgr.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\mutex.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\rwlock.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\thread.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\threadpool.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\timeout.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\timestamp.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\epoller.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\epoller_event.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\event.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\event_loop.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\io_thread.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\io_threadpool.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\timer.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\iocp_event.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\iocp_poller.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\event\win_utils.cpp">
+      <Filter>event</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libkngin\core\base\barrier.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\bits.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\buffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\common.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\cond.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\config.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\define.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\error.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\exception.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\filefd.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\local_lock.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\lock.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\log.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\logfile.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\logmgr.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\memory.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\mutex.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\noncopyable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\rwlock.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\system_error.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\thread.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\threadpool.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\timeout.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\timestamp.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\epoller.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\epoller_event.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\event.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\event_loop.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\io_thread.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\io_threadpool.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\timer.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\iocp_event.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\iocp_poller.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\event\win_utils.h">
+      <Filter>event</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

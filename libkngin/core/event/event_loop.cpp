@@ -4,15 +4,13 @@
 #include <sys/eventfd.h>
 #endif
 #include <algorithm>
+#include "core/base/bits.h"
 #include "core/base/common.h"
 #include "core/base/system_error.h"
 #include "core/base/thread.h"
 #include "core/event/event_loop.h"
 #include "core/event/event.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/event/event_loop.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -20,8 +18,10 @@ KNGIN_NAMESPACE_K_BEGIN
 event_loop::event_loop ()
     try
     : m_tid(0),
-      m_epoller(),
+      m_poller(),
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
       m_waker(nullptr),
+#endif
       m_looping(false),
       m_stop(false),
       m_taskq(),
@@ -52,12 +52,14 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
     log_info("event loop is running in thread %" PRIu64, thread::tid());
 
     auto _fail = [&] () {
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
         if (m_waker) {
             if (m_waker->registed())
                 remove_event(*m_waker);
             m_waker->close();
             m_waker.reset();
         }
+#endif
         if (_stop_handler) {
             log_excp_error(
                 _stop_handler(),
@@ -78,9 +80,11 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
     };
 
     try {
-        epoll_event_set _events(KNGIN_RESERVED_EPOLLELR_EVENT);
+        poller_event_set _events(KNGIN_RESERVED_POLLELR_EVENT);
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
         m_waker = std::make_shared<event>([] () {});
         register_event(m_waker);
+#endif
         if (_start_handler) {
             log_excp_error(
                 _start_handler(),
@@ -93,7 +97,6 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
             process_tasks();
 
             // wait for events
-
             size_t _size = io_pool(_events);
             if (m_stop)
                 break;
@@ -103,13 +106,11 @@ event_loop::run (started_handler &&_start_handler, stopped_handler &&_stop_handl
             process_timer();
 #endif
 
-#ifndef _WIN32
             // sort the events by priority and type(timer > event > file)
             sort_events(_events, _size);
 
             // process events
             process_events(_events, _size);
-#endif
         }
     } catch (...) {
         _throw = true;
@@ -141,33 +142,33 @@ event_loop::stop ()
 }
 
 void
-event_loop::register_event (epoller_event_ptr _e)
+event_loop::register_event (poller_event_ptr _e)
 {
-    m_epoller.register_event(_e);
+    m_poller.register_event(_e);
     if (m_looping and !in_loop_thread())
         wakeup();
 }
 
 void
-event_loop::remove_event (epoller_event &_e)
+event_loop::remove_event (poller_event &_e)
 {
-    m_epoller.remove_event(_e);
+    m_poller.remove_event(_e);
     if (m_looping and !in_loop_thread())
         wakeup();
 }
 
 void
-event_loop::update_event (epoller_event &_e)
+event_loop::update_event (poller_event &_e)
 {
-    m_epoller.modify_event(_e);
+    m_poller.modify_event(_e);
     if (m_looping and !in_loop_thread())
         wakeup();
 }
 
 bool
-event_loop::registed (epoller_event &_e)
+event_loop::registed (poller_event &_e)
 {
-    return m_epoller.registed(_e);
+    return m_poller.registed(_e);
 }
 
 void
@@ -272,20 +273,14 @@ event_loop::run_at (timestamp _absval, timeout_handler &&_handler)
 }
 
 size_t
-event_loop::io_pool (epoll_event_set &_events)
+event_loop::io_pool (poller_event_set &_events)
 {
 #if (OFF == KNGIN_USE_TIMERFD)
     auto _delay = get_next_delay();
 #else
     static auto _delay = timestamp(KNGIN_DEFAULT_POLLER_TIMEOUT);
 #endif
-#ifdef _WIN32
-    size_t _size = 0;
-
-    return _size;
-#else
-    return m_epoller.wait(_events, _delay);
-#endif
+    return m_poller.wait(_events, _delay);
 }
 
 void
@@ -315,7 +310,7 @@ event_loop::get_next_delay ()
             if (_remaining < _min)
                 _min = _remaining;
         }
-        log_debug("next delay: %" PRIu64, _min.value());
+        server_debug("next delay: %" PRIu64, _min.value());
         return _min;
     };
 
@@ -334,7 +329,7 @@ event_loop::process_timer ()
     {
         local_lock _lock(m_timers_mutex);
         for (auto _iter = m_timers.begin(); _iter != m_timers.end(); ++_iter) {
-            if (m_timers.empty())
+            if (m_timers.empty() or m_stop)
                 break;
             timer_ptr _timer = *_iter;
             assert(_timer);
@@ -348,31 +343,33 @@ event_loop::process_timer ()
             // handle timer
             if (_remaining  > timestamp(KNGIN_TIMER_REMAINING_PRESISION))
                 continue;
-
             log_excp_error(
                 _timer->on_events(*this),
-                "epoller_event_handler::on_events() error"
+                "poller_event_handler::on_events() error"
             );
 
-            // remove once timer
             if (!_timer->closed() and !_timer->m_timeout.persist()) {
+                // remove once timer
 remove:
                 _timer->close();
                 _iter = m_timers.erase(_iter);
-                continue;
+                if (_iter == m_timers.end())
+                    break;
+            } else {
+                // update
+                _timer->m_timeout.update(_now_time);
             }
-
-            // update
-            _timer->m_timeout.update(_now_time);
         }
     }
     m_timer_processing = false;
 }
-#endif
+#endif /* (OFF == KNGIN_USE_TIMERFD) */
 
 void
-event_loop::sort_events (epoll_event_set &_events, size_t _size)
+event_loop::sort_events (poller_event_set &_events, size_t _size)
 {
+#ifdef _WIN32
+#else
     std::sort(_events.begin(), _events.begin() + _size,
         [] (struct ::epoll_event &_e1, struct ::epoll_event &_e2) -> bool {
         epoller_event *_ptr1 = static_cast<epoller_event *>(_e1.data.ptr);
@@ -381,13 +378,16 @@ event_loop::sort_events (epoll_event_set &_events, size_t _size)
                 (_ptr1->type() == _ptr2->type() and
                  _ptr1->priority() > _ptr2->priority()));
     }); // end of operator < for sortting
+#endif
 }
 
 void
-event_loop::process_events (epoll_event_set &_events, size_t _size)
+event_loop::process_events (poller_event_set &_events, size_t _size)
 {
-    for (uint32_t _i = 0; _i < _size; _i++) {
-        auto *_ptr = static_cast<epoller_event *>(_events[_i].data.ptr);
+    for (uint32_t _i = 0; _i < _size and !m_stop; _i++) {
+#ifdef _WIN32
+#else
+        auto *_ptr = static_cast<poller_event *>(_events[_i].data.ptr);
         assert(_ptr);
         assert(_ptr->registed());
         if (_ptr->registed()) {
@@ -396,14 +396,19 @@ event_loop::process_events (epoll_event_set &_events, size_t _size)
                 "epoller_event_handler::on_events() error"
             );
         }
+#endif
     }
 }
 
 void
 event_loop::wakeup ()
 {
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
     if (m_waker and m_looping and m_waker->registed())
         m_waker->notify(); // blocked
+#else
+    m_poller.wakeup();
+#endif
 }
 
 void

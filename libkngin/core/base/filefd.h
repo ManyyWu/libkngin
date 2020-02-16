@@ -1,9 +1,11 @@
 #ifndef KNGIN_FILEFD_H
 #define KNGIN_FILEFD_H
 
+#include "core/base/define.h"
+#ifdef KNGIN_FLAG_HAVE_FILEFD
+
 #include <list>
 #include <system_error>
-#include "core/base/define.h"
 #include "core/base/noncopyable.h"
 #include "core/base/exception.h"
 #include "core/base/buffer.h"
@@ -129,3 +131,5 @@ protected:
 KNGIN_NAMESPACE_K_END
 
 #endif /* KNGIN_FILEFD_H */
+
+#endif /* KNGIN_FLAG_HAVE_FILEFD */

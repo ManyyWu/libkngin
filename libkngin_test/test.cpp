@@ -18,9 +18,6 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <execinfo.h>
-#else
-#include <Winsock2.h>
-#include <Windows.h>
 #endif
 #include "../libkngin/core/base/logfile.h"
 #include "../libkngin/core/base/thread.h"
@@ -29,19 +26,16 @@
 #include "../libkngin/core/base/buffer.h"
 #include "../libkngin/core/base/bits.h"
 #include "../libkngin/core/base/error.h"
-#include "../libkngin/net/socket.h"
-#include "../libkngin/net/sockopts.h"
-#include "../libkngin/net/tcp/session.h"
-#include "../libkngin/net/tcp/server.h"
-#include "../libkngin/net/listener.h"
 
 using namespace k;
 using namespace std;
 using namespace std::placeholders;
 
-#warning "https://zhuanlan.zhihu.com/p/88749279"
-#warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
-#warning "signal event"
+//#warning "https://zhuanlan.zhihu.com/p/88749279"
+//#warning "https://github.com/ossrs/state-threads/blob/master/examples/server.c"
+//#warning "signal event"
+//#warning "endif /**/"
+//#warning "ptr 统一在对应类内部定义，ptr容器哪个类使用就在哪定义"
 /*
 client:
 
@@ -78,13 +72,7 @@ default:
   sockets::close(sockfd);
   break;
 }
-
 */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
 
 void
 test ()

@@ -1,9 +1,11 @@
 #ifndef KNGIN_EVENT_H
 #define KNGIN_EVENT_H
 
+#include "core/base/define.h"
+#ifdef KNGIN_FLAG_HAVE_EVENTFD
+
 #include <memory>
 #include <functional>
-#include "core/base/define.h"
 #include "core/event/epoller_event.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -55,3 +57,5 @@ private:
 KNGIN_NAMESPACE_K_END
 
 #endif /* KNGIN_EVENT_H */
+
+#endif /* KNGIN_FLAG_HAVE_EVENTFD */

@@ -7,9 +7,6 @@
 #include "core/event/timer.h"
 #include "core/event/event_loop.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/event/timer.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN

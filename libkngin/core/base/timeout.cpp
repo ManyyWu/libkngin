@@ -1,8 +1,5 @@
 #include "core/base/timeout.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/base/timeout.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -30,14 +27,14 @@ timeout::timeout (timestamp _now_time, timestamp  _interval, bool _persist)
 timestamp
 timeout::remaining () const KNGIN_NOEXCP
 {
-    uint64_t _diff = timestamp::diff(timestamp::monotonic(), m_update_time);
+    time_t _diff = timestamp::diff(timestamp::monotonic(), m_update_time);
     return (_diff > m_interval.value() ? 0 : m_interval.value() - _diff);
 }
 
 timestamp
 timeout::remaining (timestamp _now_time) const KNGIN_NOEXCP
 {
-    uint64_t _diff = timestamp::diff(_now_time, m_update_time);
+    time_t _diff = timestamp::diff(_now_time, m_update_time);
     return (_diff > m_interval.value() ? 0 : m_interval.value() - _diff);
 }
 

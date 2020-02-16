@@ -1,9 +1,6 @@
 #include <cstdio>
 #include "../libkngin/core/base/thread.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin_test/thread_test.cpp"
 
 using namespace k;

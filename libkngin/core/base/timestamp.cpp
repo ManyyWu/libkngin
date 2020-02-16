@@ -1,18 +1,12 @@
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <sys/time.h>
-#endif
 #include <ctime>
 #include <algorithm>
 #include "core/base/timestamp.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/base/timestamp.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
+
+KNGIN_NAMESPACE_K_END
 
 #ifdef _WIN32
 
@@ -52,5 +46,3 @@ int gettimeofday(struct ::timeval *tv, struct ::timezone *tz)
 }
 
 #endif
-
-KNGIN_NAMESPACE_K_END

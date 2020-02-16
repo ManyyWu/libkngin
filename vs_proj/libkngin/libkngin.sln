@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libkngin", "libkngin.vcxproj", "{51112979-5E9A-45C3-B726-5C9106A6F1CA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34} = {9642E709-7BBE-4E34-8412-6ABEBE10CC34}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libkngin_core", "..\libkngin_core\libkngin_core.vcxproj", "{9642E709-7BBE-4E34-8412-6ABEBE10CC34}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libkngin_net", "..\libkngin_net\libkngin_net.vcxproj", "{7ADFE708-9C53-4CDE-A253-901A6C58E55D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libkngin_test", "..\libkngin_test\libkngin_test.vcxproj", "{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34} = {9642E709-7BBE-4E34-8412-6ABEBE10CC34}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Debug|x64.ActiveCfg = Debug|x64
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Debug|x64.Build.0 = Debug|x64
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Debug|x86.ActiveCfg = Debug|Win32
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Debug|x86.Build.0 = Debug|Win32
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Release|x64.ActiveCfg = Release|x64
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Release|x64.Build.0 = Release|x64
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Release|x86.ActiveCfg = Release|Win32
+		{51112979-5E9A-45C3-B726-5C9106A6F1CA}.Release|x86.Build.0 = Release|Win32
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Debug|x64.ActiveCfg = Debug|x64
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Debug|x64.Build.0 = Debug|x64
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Debug|x86.ActiveCfg = Debug|Win32
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Debug|x86.Build.0 = Debug|Win32
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Release|x64.ActiveCfg = Release|x64
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Release|x64.Build.0 = Release|x64
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Release|x86.ActiveCfg = Release|Win32
+		{9642E709-7BBE-4E34-8412-6ABEBE10CC34}.Release|x86.Build.0 = Release|Win32
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Debug|x64.ActiveCfg = Debug|x64
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Debug|x64.Build.0 = Debug|x64
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Debug|x86.ActiveCfg = Debug|Win32
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Debug|x86.Build.0 = Debug|Win32
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Release|x64.ActiveCfg = Release|x64
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Release|x64.Build.0 = Release|x64
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Release|x86.ActiveCfg = Release|Win32
+		{7ADFE708-9C53-4CDE-A253-901A6C58E55D}.Release|x86.Build.0 = Release|Win32
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Debug|x64.ActiveCfg = Debug|x64
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Debug|x64.Build.0 = Debug|x64
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Debug|x86.ActiveCfg = Debug|Win32
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Debug|x86.Build.0 = Debug|Win32
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Release|x64.ActiveCfg = Release|x64
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Release|x64.Build.0 = Release|x64
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Release|x86.ActiveCfg = Release|Win32
+		{9CC71B44-F9C9-4B2A-A457-F1632D8BC9BE}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D33C500-7779-44F2-9C8D-E8CF46EE8293}
+	EndGlobalSection
+EndGlobal

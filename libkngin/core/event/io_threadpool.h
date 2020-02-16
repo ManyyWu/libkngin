@@ -74,7 +74,7 @@ private:
 
     mutex             m_mutex;
 
-    uint16_t          m_next;
+    size_t            m_next;
 };
 
 KNGIN_NAMESPACE_K_END

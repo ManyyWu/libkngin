@@ -1,3 +1,6 @@
+#include "core/base/define.h"
+#ifdef KNGIN_FLAG_HAVE_FILEFD
+
 #ifdef _WIN32
 #else
 #include <unistd.h>
@@ -8,9 +11,6 @@
 #include "core/base/common.h"
 #include "core/base/filefd.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/base/filefd.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -345,3 +345,5 @@ filefd::operator = (int _fd) KNGIN_NOEXCP
 }
 
 KNGIN_NAMESPACE_K_END
+
+#endif /* KNGIN_FLAG_HAVE_FILEFD */

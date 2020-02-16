@@ -1,9 +1,6 @@
 #include <iostream>
 #include "../libkngin/core/base/common.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin_test/log_test.cpp"
 
 using namespace k;

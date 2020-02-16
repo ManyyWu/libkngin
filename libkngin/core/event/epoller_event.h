@@ -1,13 +1,15 @@
 #ifndef KNGIN_EPOLLER_EVENT_H
 #define KNGIN_EPOLLER_EVENT_H
 
+#include "core/base/define.h"
+#ifdef KNGIN_FLAG_HAVE_EPOLLER_EVENT
+
 #ifdef _WIN32
 #else
 #include <sys/epoll.h>
 #endif
 #include <functional>
 #include <system_error>
-#include "core/base/define.h"
 #include "core/base/filefd.h"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -19,7 +21,11 @@ class epoller_event : protected filefd {
     friend class event_loop;
 
 public:
-    typedef int     epollfd;
+    typedef int                            epollfd;
+
+    typedef std::shared_ptr<epoller_event> epoller_event_ptr;
+
+    typedef std::weak_ptr<epoller_event>   epoller_event_weak_ptr ;
 
     enum EVENT_TYPE {
         EVENT_TYPE_TIMER = 0,
@@ -51,6 +57,19 @@ public:
     uint8_t
     priority       () const KNGIN_NOEXCP
     { return m_priority; }
+
+protected:
+    void
+    set_registed   (bool _on) KNGIN_NOEXCP
+    { m_registed = _on; }
+
+    void
+    set_index      (epoller_event_ptr &_e)
+    { m_index = _e; }
+
+    epoller_event_weak_ptr &
+    index          () KNGIN_NOEXCP
+    { return m_index; }
 
 protected:
     void
@@ -95,17 +114,21 @@ protected:
     on_events      (event_loop &_loop, uint32_t _flags) = 0;
 
 private:
-    uint32_t    m_flags;
+    uint32_t               m_flags;
 
-    epoll_event m_event;
+    epoll_event            m_event;
 
-    bool        m_registed;
+    bool                   m_registed;
 
-    EVENT_TYPE  m_type;
+    EVENT_TYPE             m_type;
 
-    uint8_t     m_priority;
+    uint8_t                m_priority;
+
+    epoller_event_weak_ptr m_index;
 };
 
 KNGIN_NAMESPACE_K_END
 
 #endif /* KNGIN_EPOLLER_EVENT_H */
+
+#endif /* KNGIN_FLAG_HAVE_EPOLLER_EVENT */

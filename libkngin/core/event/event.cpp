@@ -1,3 +1,6 @@
+#include "core/base/define.h"
+#ifdef KNGIN_FLAG_HAVE_EVENTFD
+
 #ifdef _WIN32
 #else
 #include <sys/eventfd.h>
@@ -7,9 +10,6 @@
 #include "core/event/event.h"
 #include "core/event/event_loop.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/event/event.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -92,3 +92,5 @@ event::on_read ()
 }
 
 KNGIN_NAMESPACE_K_END
+
+#endif /* KNGIN_FLAG_HAVE_EVENTFD */

@@ -7,10 +7,7 @@
 #include "core/event/io_thread.h"
 #include "core/event/io_threadpool.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
-#define KNGIN_FILENAME "io_threadpool.cpp"
+#define KNGIN_FILENAME "libkngin/core/event/io_threadpool.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
 

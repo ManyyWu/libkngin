@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="tcp">
+      <UniqueIdentifier>{e17f2abe-4d2e-41cd-a8ec-ac7c1008f47b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="udp">
+      <UniqueIdentifier>{a4d83a99-9451-440a-9f25-90a78c8e9d3a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libkngin\net\address.cpp" />
+    <ClCompile Include="..\..\libkngin\net\listener.cpp" />
+    <ClCompile Include="..\..\libkngin\net\socket.cpp" />
+    <ClCompile Include="..\..\libkngin\net\sockopts.cpp" />
+    <ClCompile Include="..\..\libkngin\net\udp\client.cpp">
+      <Filter>udp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\net\udp\server.cpp">
+      <Filter>udp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\net\tcp\client.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\net\tcp\server.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin\net\tcp\session.cpp">
+      <Filter>tcp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libkngin\net\address.h" />
+    <ClInclude Include="..\..\libkngin\net\listener.h" />
+    <ClInclude Include="..\..\libkngin\net\socket.h" />
+    <ClInclude Include="..\..\libkngin\net\sockopts.h" />
+    <ClInclude Include="..\..\libkngin\net\udp\client.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\net\udp\server.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\net\udp\server_opts.h">
+      <Filter>udp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\net\tcp\client.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\net\tcp\server.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\net\tcp\server_opts.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\net\tcp\session.h">
+      <Filter>tcp</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

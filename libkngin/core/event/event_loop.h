@@ -11,7 +11,11 @@
 #include "core/base/lock.h"
 #include "core/base/noncopyable.h"
 #include "core/base/thread.h"
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
 #include "core/event/epoller.h"
+#else
+#include "core/event/iocp_poller.h"
+#endif
 #include "core/event/event.h"
 #include "core/event/timer.h"
 
@@ -19,35 +23,47 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop : public noncopyable {
 public:
-    typedef epoller::epoller_event_ptr epoller_event_ptr;
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
+    typedef epoller_event               poller_event;
 
-    typedef epoller::epoll_event_set   epoll_event_set;
+    typedef epoller::epoller_event_ptr  poller_event_ptr;
 
-    typedef timer::timeout_handler     timeout_handler;
+    typedef epoller::epoll_event_set    poller_event_set;
 
-    typedef timer::timer_ptr           timer_ptr;
-
-    typedef timer::timer_weak_ptr      timer_weak_ptr;
-
-    typedef timer::timerid             timerid;
-
-    typedef std::shared_ptr<barrier>   barrier_ptr;
-
-    typedef std::function<void (void)> started_handler;
-
-    typedef std::function<void (void)> stopped_handler;
-
-    typedef std::function<void (void)> task;
-
-    typedef std::deque<task>           taskq;
-
-#if (ON == KNGIN_USE_TIMERFD)
-    typedef std::map<int, timer_ptr>   timers;
+    typedef event::event_ptr            event_ptr;
 #else
-    typedef std::list<timer_ptr>       timers;
+    typedef iocp_event                  poller_event;
+
+    typedef iocp_poller::iocp_event_ptr poller_event_ptr;
+
+    typedef iocp_poller::iocp_event_set poller_event_set;
 #endif
 
-public  :
+    typedef timer::timeout_handler      timeout_handler;
+
+    typedef timer::timer_ptr            timer_ptr;
+
+    typedef timer::timer_weak_ptr       timer_weak_ptr;
+
+    typedef timer::timerid              timerid;
+
+    typedef std::shared_ptr<barrier>    barrier_ptr;
+
+    typedef std::function<void (void)>  started_handler;
+
+    typedef std::function<void (void)>  stopped_handler;
+
+    typedef std::function<void (void)>  task;
+
+    typedef std::deque<task>            taskq;
+
+#if (ON == KNGIN_USE_TIMERFD)
+    typedef std::map<int, timer_ptr>    timers;
+#else
+    typedef std::list<timer_ptr>        timers;
+#endif
+
+public:
     event_loop     ();
 
     ~event_loop    () KNGIN_NOEXCP;
@@ -67,16 +83,13 @@ public:
 // event
 public:
     void
-    register_event (epoller_event_ptr _e);
-
+    register_event (poller_event_ptr _e);
     void
-    remove_event   (epoller_event &_e);
-
+    remove_event   (poller_event &_e);
     void
-    update_event   (epoller_event &_e);
-
+    update_event   (poller_event &_e);
     bool
-    registed       (epoller_event &_e);
+    registed       (poller_event &_e);
 
 // task
 public:
@@ -106,8 +119,12 @@ public:
     { return (m_tid == thread::tid()); }
 
 protected:
+    void
+    wakeup         ();
+
+private:
     size_t
-    io_pool        (epoll_event_set &_events);
+    io_pool        (poller_event_set &_events);
 
     void
     process_tasks  ();
@@ -120,16 +137,11 @@ protected:
     process_timer  ();
 #endif
 
-#ifndef _WIN32
-    void
-    sort_events    (epoll_event_set &_events, size_t _size);
+void
+    sort_events    (poller_event_set &_events, size_t _size);
 
     void
-    process_events (epoll_event_set &_events, size_t _size);
-#endif
-
-    void
-    wakeup         ();
+    process_events (poller_event_set &_events, size_t _size);
 
     void
     add_timer      (timer_ptr &_timer);
@@ -137,9 +149,13 @@ protected:
 private:
     uint64_t         m_tid;
 
-    epoller          m_epoller;
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
+    epoller          m_poller;
 
-    event::event_ptr m_waker;
+    event_ptr        m_waker;
+#else
+    iocp_poller      m_poller;
+#endif
 
     std::atomic_bool m_looping;
 

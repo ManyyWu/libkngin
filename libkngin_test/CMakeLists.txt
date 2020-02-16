@@ -1,13 +1,16 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-set(CMAKE_CXX_STANDARD 17)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
-project(libkngin_test LANGUAGES C CXX)
+if(MSVC)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /Zc:__cplusplus /EHa")
+else()
+set(CMAKE_CXX_STANDARD 17)
+endif(MSVC)
 
 # head files
 include_directories(".")
 
 # source files
-file(GLOB KNGIN_TEST_SRC *.cpp)
+file(GLOB KNGIN_TEST_SRC test.cpp)
 file(GLOB KNGIN_TEST_SRC_SFS simple_ftp_server/*.cpp)
 
 # library

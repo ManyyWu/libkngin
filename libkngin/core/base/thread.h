@@ -1,6 +1,11 @@
 #ifndef KNGIN_THREAD_H
 #define KNGIN_THREAD_H
 
+#ifdef _WIN32
+#include "pthread.h"
+#else
+#include <pthread.h>
+#endif
 #include <cstring>
 #include <atomic>
 #include <memory>
@@ -12,10 +17,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class thread : public noncopyable {
-    public:
-#ifdef _WIN32
-        struct thread_t;
-#endif
+public:
     typedef std::function<void (pthread_t)> crash_handler;
 
     typedef std::function<int (void)>       thr_fn;

@@ -2,7 +2,7 @@
 #define KNGIN_BARRIER_H
 
 #ifdef _WIN32
-#include "pthreads_win32/include/pthread.h"
+#include "pthread.h"
 #else
 #include <pthread.h>
 #endif

@@ -7,8 +7,8 @@
 #include <string>
 #include <cinttypes>
 #include <cassert>
-#include "core/base/exception.h"
 #include "core/base/define.h"
+#include "core/base/exception.h"
 #include "core/base/logfile.h"
 
 KNGIN_NAMESPACE_K_BEGIN

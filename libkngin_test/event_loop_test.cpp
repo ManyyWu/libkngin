@@ -2,6 +2,8 @@
 #include "../libkngin/core/base/common.h"
 #include "../libkngin/core/event/event_loop.h"
 
+#define KNGIN_FILENAME "libkngin_test/event_loop_test.cpp"
+
 using namespace k;
 
 void
@@ -27,7 +29,7 @@ event_loop_test ()
                 _loop.cancel(_timer);
                 return;
             }
-                log_info("every 100ms - %d", ++i);
+            log_info("every 100ms - %d", ++i);
         });
         _loop.run_after(100,
         [&] (const timer::timer_ptr _timer)

@@ -1,13 +1,11 @@
 #include <iostream>
 #include <exception>
 #include "../libkngin/core/base/common.h"
+#include "../libkngin/core/event/win_utils.h"
 #ifndef _WIN32
 #include <mcheck.h>
 #endif
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin_test/main.cpp"
 
 using namespace std;
@@ -60,17 +58,18 @@ io_threadpool_test ();
 extern void
 tcp_server_test ();
 
-void
+extern void
 event_loop_test ();
 
 extern void
 simple_ftp_server_test ();
 
-void
-test ();
-
 int main()
 {
+#ifdef _WIN32
+    k::wsa_init();
+#endif
+
 #ifndef _WIN32
     //setenv("MALLOC_TRACE", "mtrace.txt", 1);
 #endif
@@ -79,10 +78,10 @@ int main()
         // init logger
         assert(k::logger().inited());
 
-        cerr << "********************* test *****************************\n";
-        test();
-        cerr << "********************************************************\n";
-
+//        cerr << "********************* test *****************************\n";
+//        test();
+//        cerr << "********************************************************\n";
+//
 //        cerr << "********************* log_test *************************\n";
 //        log_test();
 //        cerr << "********************************************************\n";
@@ -135,13 +134,13 @@ int main()
 //        io_threadpool_test ();
 //        cerr << "********************************************************\n";
 //
-//        cerr << "********************* event_loop_test ******************\n";
-//        event_loop_test ();
-//        cerr << "********************************************************\n";
-
-        cerr << "********************* tcp_server_test ******************\n";
-        tcp_server_test ();
+        cerr << "********************* event_loop_test ******************\n";
+        event_loop_test ();
         cerr << "********************************************************\n";
+
+//        cerr << "********************* tcp_server_test ******************\n";
+//        tcp_server_test ();
+//        cerr << "********************************************************\n";
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());
         log_dump(_e.dump().c_str());
@@ -150,6 +149,10 @@ int main()
     } catch (...) {
         log_fatal("caught an undefined exception");
     }
+
+#ifdef _WIN32
+    k::wsa_deinit();
+#endif
 
 #ifdef _WIN32
     getchar();

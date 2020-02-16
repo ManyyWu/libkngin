@@ -1,6 +1,4 @@
-#ifdef _WIN32
-#include <WinSock2.h>
-#else
+#ifndef _WIN32
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
 #endif

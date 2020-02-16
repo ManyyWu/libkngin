@@ -1,7 +1,10 @@
 #ifndef KNGIN_SOCK_OPTS_H
 #define KNGIN_SOCK_OPTS_H
 
+#ifdef _WIN32
+#else
 #include <netinet/tcp.h>
+#endif
 #include <time.h>
 #include "core/base/define.h"
 #include "core/base/error.h"

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="test">
+      <UniqueIdentifier>{804042d0-7714-48bb-801e-d1b052f3fed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\simple_ftp_server">
+      <UniqueIdentifier>{13ca7ed1-8421-4934-b7bd-5d67aaf49af1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libkngin_test\main.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\simple_ftp_server\file.cpp">
+      <Filter>test\simple_ftp_server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\simple_ftp_server\msg.cpp">
+      <Filter>test\simple_ftp_server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\buffer_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\cond_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\event_loop_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\log_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\mutex_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\rwlock_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\thread_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libkngin_test\simple_ftp_server\file.h">
+      <Filter>test\simple_ftp_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin_test\simple_ftp_server\msg.h">
+      <Filter>test\simple_ftp_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin_test\mylogfile.h">
+      <Filter>test</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

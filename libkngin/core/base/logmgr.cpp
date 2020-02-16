@@ -22,14 +22,14 @@ mutex                      log_mgr::m_mutex;
 
 cond                       log_mgr::m_cond(&log_mgr::m_mutex);
 
+std::atomic_bool           log_mgr::m_stop(false);
+#endif
+
 log_mgr::kngin_log_set     log_mgr::m_log_set;
 
 log_mgr::kngin_logfile_set log_mgr::m_logfile_set = {
     "kngin_server", // default
 };
-
-std::atomic_bool           log_mgr::m_stop(false);
-#endif
 
 std::atomic_bool           log_mgr::m_inited(false);
 
@@ -43,7 +43,7 @@ log_mgr::log_mgr ()
     try {
         // reserved type
         m_log_set.push_back(
-            std::make_unique<log>(KNGIN_LOG_FILE_SERVER, KNGIN_LOG_MODE_STDERR));
+            std::make_unique<log>(KNGIN_LOG_FILE_SERVER, KNGIN_LOG_MODE_BOTH));
     } catch (std::exception &_e) {
         std::cerr << "logger init failed: " << _e.what() << std::endl;
         throw;

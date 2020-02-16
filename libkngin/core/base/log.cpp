@@ -9,6 +9,8 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+#ifdef _WIN32
+#else
 const char * const
 log::log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1] = {
     KNGIN_LOG_COLOR_FATAL,
@@ -17,6 +19,7 @@ log::log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1] = {
     KNGIN_LOG_COLOR_INFO,
     KNGIN_LOG_COLOR_DEBUG
 };
+#endif
 
 log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FILE */)
     :
@@ -38,7 +41,7 @@ log::fatal (const char *_fmt, ...)
     va_start(_vl, _fmt);
     write_log(KNGIN_LOG_LEVEL_FATAL, _fmt, _vl);
     va_end(_vl);
-    assert(!"log fatal");
+    //assert(!"log fatal");
 }
 
 void
@@ -139,12 +142,16 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 #else
         char  _buf[KNGIN_LOG_BUF_SIZE];
 #endif
-        char _datetime[KNGIN_LOG_DATETIME_LEN];
 
+#ifdef NDEBUG
+        char _datetime[KNGIN_LOG_DATETIME_LEN];
         ::strncpy(_buf, get_datetime(_datetime, sizeof(_datetime)), sizeof(_datetime));
         ::vsnprintf(_buf + KNGIN_LOG_DATETIME_LEN - 1,
                     KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN,
                     _fmt, _vl);
+#else
+        ::vsnprintf(_buf, KNGIN_LOG_BUF_SIZE, _fmt, _vl);
+#endif
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
         size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
 
@@ -263,6 +270,7 @@ const char *
 log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP
 {
 #ifdef _WIN32
+    return "";
 #else
     return log::log_color_begin_tbl[_level];
 #endif
@@ -272,6 +280,7 @@ const char *
 log::color_end () KNGIN_NOEXCP
 {
 #ifdef _WIN32
+    return "";
 #else
     return KNGIN_LOG_COLOR_NONE;
 #endif
@@ -300,9 +309,15 @@ log::write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...) KNGIN_NOEXCP
     ::vsnprintf(_buf, KNGIN_LOG_BUF_SIZE, _fmt, _vl);
     va_end(_vl);
 
+#ifdef _WIN32
+#else
     ::fputs(color_begin(_level), stderr);
+#endif
     ::fwrite(_buf, 1, ::strnlen(_buf, KNGIN_LOG_BUF_SIZE), stderr);
+#ifdef _WIN32
+#else
     ::fputs(KNGIN_LOG_COLOR_NONE, stderr);
+#endif
     ::fputc('\n', stderr);
 }
 

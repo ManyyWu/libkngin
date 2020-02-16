@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+
+if(MSVC)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /Zc:__cplusplus /EHa")
+else()
 set(CMAKE_CXX_STANDARD 17)
+endif(MSVC)
 
 project(kngin_core)
 
@@ -35,3 +40,4 @@ if(TARGET pthreadw32)
 else()
     target_link_libraries(kngin_core PUBLIC -lpthread)
 endif()
+

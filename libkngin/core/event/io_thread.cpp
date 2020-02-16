@@ -5,9 +5,6 @@
 #include "core/base/common.h"
 #include "core/event/io_thread.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/net/work_thread.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN

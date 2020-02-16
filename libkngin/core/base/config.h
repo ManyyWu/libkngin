@@ -1,10 +1,6 @@
 #ifndef KNGIN_CONFIG_H
 #define KNGIN_CONFIG_H
 
-#if (__cplusplus < 201402L)
-#error c++ version is too low, please build the project using c++11 standard.
-#endif
-
 #include <cstdint>
 #include <climits>
 
@@ -17,15 +13,13 @@
 #endif
 
 // for log
-#define KNGIN_ASYNC_LOGGER              ON
+#define KNGIN_LOG_RELATIVE_PATH         ON
+#define KNGIN_ASYNC_LOGGER              OFF
 #define KNGIN_ASYNC_LOGGER_TIMEOUT      3000ULL
 
 // for queues
 #define KNGIN_QUEUE_MAX                 size_t(SIZE_MAX)
 #define KNGIN_QUEUE_MIN                 size_t(1)
-
-// for log
-#define KNGIN_LOG_RELATIVE_PATH         OFF
 
 // for timer
 #define KNGIN_USE_TIMERFD               OFF
@@ -37,7 +31,7 @@
 #define KNGIN_SESSION_ET_MODE           ON
 
 // for epoller
-#define KNGIN_RESERVED_EPOLLELR_EVENT   64
-#define KNGIN_DEFAULT_POLLER_TIMEOUT    10000ULL
+#define KNGIN_RESERVED_POLLELR_EVENT    64
+#define KNGIN_DEFAULT_POLLER_TIMEOUT    3000ULL
 
 #endif /* KNGIN_CONFIG_H */

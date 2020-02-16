@@ -6,9 +6,6 @@
 #include "core/base/exception.h"
 #include "core/base/buffer.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/base/buffer.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN

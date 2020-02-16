@@ -1,5 +1,5 @@
 #ifdef _WIN32
-#include "pthreads_win32/include/pthread.h"
+#include "pthread.h"
 #else
 #include <pthread.h>
 #endif
@@ -9,9 +9,6 @@
 #include "core/base/exception.h"
 #include "core/base/system_error.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/base/barrier.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN

@@ -1,3 +1,6 @@
+#include "core/base/define.h"
+#ifdef KNGIN_FLAG_HAVE_EPOLLER
+
 #ifdef _WIN32
 #else
 #include <sys/epoll.h>
@@ -7,9 +10,6 @@
 #include "core/base/system_error.h"
 #include "core/event/epoller.h"
 
-#ifdef KNGIN_FILENAME
-#undef KNGIN_FILENAME
-#endif
 #define KNGIN_FILENAME "libkngin/core/event/epoller.cpp"
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -33,7 +33,7 @@ epoller::~epoller () KNGIN_NOEXCP
         ignore_excp(this->close());
 }
 
-uint32_t
+size_t
 epoller::wait (epoll_event_set &_list, timestamp _ms)
 {
     assert(_list.size());
@@ -78,9 +78,10 @@ epoller::register_event (epoller_event_ptr _e)
     assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
-        assert(m_events.find(_e->fd()) == m_events.end());
-        _e->m_registed = true;
-        m_events.insert(std::make_pair(_e->fd(), _e));
+        assert(!_e.registed());
+        m_events.push_back(_e);
+        _e->set_registed(true);
+        _e->set_index(m_events.back())
         update_event(EPOLL_CTL_ADD, _e->fd(), _e.get());
     }
 }
@@ -91,10 +92,11 @@ epoller::remove_event (epoller_event &_e)
     assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
-        assert(m_events.find(_e.fd()) != m_events.end());
-        _e.m_registed = false;
+        assert(_e.registed());
+        _e->set_registed(false);
         update_event(EPOLL_CTL_DEL, _e.fd(), &_e);
-        m_events.erase(_e.fd());
+        if (auto _index = _e.index().lock())
+            m_events.remove(_index);
     }
 }
 
@@ -104,7 +106,7 @@ epoller::modify_event (epoller_event &_e)
     assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
-        assert(m_events.find(_e.fd()) != m_events.end());
+        assert(_e.registed());
         update_event(EPOLL_CTL_MOD, _e.fd(), &_e);
     }
 }
@@ -114,8 +116,9 @@ epoller::registed (epoller_event &_e) KNGIN_NOEXCP
 {
     assert(m_epollfd.valid());
     {
-        local_lock _lock(m_mutex);
-        return (m_events.find(_e.fd()) != m_events.end());
+        //local_lock _lock(m_mutex);
+        return _e.registed();
+        //return (m_events.find(_e.fd()) != m_events.end());
     }
 }
 
@@ -145,3 +148,5 @@ epoller::update_event (int _opt, int _fd, epoller_event *_e)
 }
 
 KNGIN_NAMESPACE_K_END
+
+#endif /* KNGIN_FLAG_HAVE_EPOLLER */

@@ -1,6 +1,7 @@
 #ifndef KNGIN_SYSTEM_ERROR_H
 #define KNGIN_SYSTEM_ERROR_H
 
+#include <string>
 #include <system_error>
 #include "core/base/error.h"
 #include "core/base/define.h"
