@@ -307,12 +307,12 @@ session::on_write ()
     auto &_buf = _out_ctx.buffer;
     assert(_buf.buffer().size());
 
-    std::error_code _ec;
+    error_code _ec;
     size_t _size = m_socket.write(_buf.buffer(), _ec);
     if (_ec) {
-        if (std::errc::operation_would_block == _ec or
-            std::errc::resource_unavailable_try_again == _ec or
-            std::errc::interrupted == _ec
+        if (EWOULDBLOCK == _ec or
+            EAGAIN == _ec or
+            EINTR == _ec
             )
             return;
         log_error("socket::write() error, %s", system_error_str(_ec).c_str());
@@ -375,12 +375,12 @@ session::on_read ()
     auto &_lowat = _in_ctx.lowat;
     assert(_buf.size() > _buf.valid());
 
-    std::error_code _ec;
+    error_code _ec;
     size_t _size = m_socket.read(_buf, _ec);
     if (_ec) {
-        if (std::errc::operation_would_block == _ec or
-            std::errc::resource_unavailable_try_again == _ec or
-            std::errc::interrupted == _ec
+        if (EWOULDBLOCK == _ec or
+            EAGAIN == _ec or
+            EINTR == _ec
             )
             return;
         log_error("socket::write() error, %s", system_error_str(_ec).c_str());
@@ -460,7 +460,7 @@ session::on_oob ()
     //recv
     char _data;
     in_buffer _buf(&_data, 1);
-    std::error_code _ec;
+    error_code _ec;
     size_t _size = m_socket.recv(_buf, MSG_OOB, _ec);
     if (_ec) {
         log_error("socket::recv(MSG_OOB) error, %s",
@@ -503,12 +503,12 @@ _error:
     } else {
         static char _arr[1];
         in_buffer _buf(_arr, 1);
-        std::error_code _ec;
+        error_code _ec;
         size_t _size = m_socket.recv(_buf, MSG_PEEK, _ec);
         if (_ec) {
-            if (std::errc::operation_would_block == _ec or
-                std::errc::resource_unavailable_try_again == _ec or
-                std::errc::interrupted == _ec
+            if (EWOULDBLOCK == _ec or
+                EAGAIN == _ec or
+                EINTR == _ec
                 )
                 return;
             log_error("socket::recv(MSG_PEEK) error, %s", system_error_str(_ec).c_str());

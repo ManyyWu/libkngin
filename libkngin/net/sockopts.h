@@ -7,7 +7,6 @@
 #endif
 #include <time.h>
 #include "core/base/define.h"
-#include "core/base/error.h"
 #include "core/base/system_error.h"
 #include "net/socket.h"
 
@@ -80,9 +79,9 @@ public:
     static void
     set_nonroute   (const socket &_s, bool _on)
     { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
-    static std::error_code
+    static error_code
     error          (const socket &_s)
-    { return int2ec(sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR])); }
+    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR]); }
     static bool
     keepalive      (const socket &_s)
     { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]); }

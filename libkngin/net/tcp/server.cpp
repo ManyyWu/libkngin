@@ -142,7 +142,7 @@ server::run ()
         }
     }; // end of on_new_session
 
-    auto _on_listener_error = [this, _crash_handler] (std::error_code _ec) {
+    auto _on_listener_error = [this, _crash_handler] (error_code _ec) {
         assert(!m_stopped);
         if (_ec) {
             log_error("listener error, %s", system_error_str(_ec).c_str());

@@ -18,7 +18,7 @@ class listener
 public:
     typedef std::function<void (k::socket &&)>    accept_handler;
 
-    typedef std::function<void (std::error_code)> error_handler;
+    typedef std::function<void (error_code)>      error_handler;
 
     typedef std::shared_ptr<listener>             listener_ptr;
 

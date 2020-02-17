@@ -21,7 +21,7 @@ mutex::mutex ()
 mutex::~mutex ()
 {
     ignore_excp(
-        auto _ec = int2ec(::pthread_mutex_destroy(&m_mutex));
+        auto _ec = ::pthread_mutex_destroy(&m_mutex);
         if (_ec)
             log_fatal("::pthread_mutex_destroy() error, %s",
                       system_error_str(_ec).c_str());
@@ -31,7 +31,7 @@ mutex::~mutex ()
 void
 mutex::lock ()
 {
-    auto _ec = int2ec(::pthread_mutex_lock(&m_mutex));
+    auto _ec = ::pthread_mutex_lock(&m_mutex);
     if (_ec) {
         log_fatal("::pthread_mutex_lock() error, %s",
                   system_error_str(_ec).c_str());
@@ -42,8 +42,8 @@ mutex::lock ()
 bool
 mutex::trylock ()
 {
-    auto _ec = int2ec(::pthread_mutex_trylock(&m_mutex));
-    if (std::errc::device_or_resource_busy == _ec)
+    auto _ec = ::pthread_mutex_trylock(&m_mutex);
+    if (EBUSY == _ec)
         return false;
     if (_ec) {
         log_fatal("::pthread_mutex_trylock() error, %s",
@@ -60,8 +60,8 @@ mutex::timedlock (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    auto _ec = int2ec(::pthread_mutex_timedlock(&m_mutex, &_ts));
-    if (std::errc::timed_out == _ec)
+    auto _ec = ::pthread_mutex_timedlock(&m_mutex, &_ts);
+    if (ETIMEDOUT == _ec)
         return false;
     if (_ec) {
         log_fatal("::pthread_mutex_timedlock() error, %s",
@@ -74,7 +74,7 @@ mutex::timedlock (timestamp _ms)
 void
 mutex::unlock ()
 {
-    auto _ec = int2ec(::pthread_mutex_unlock(&m_mutex));
+    auto _ec = ::pthread_mutex_unlock(&m_mutex);
     if (_ec) {
         log_fatal("::pthread_mutex_unlock() error, %s",
                   system_error_str(_ec).c_str());

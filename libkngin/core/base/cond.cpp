@@ -23,7 +23,7 @@ cond::cond (mutex *_mutex)
 cond::~cond () KNGIN_NOEXCP
 {
     ignore_excp(
-        auto _ec = int2ec(::pthread_cond_destroy(&m_cond));
+        auto _ec = ::pthread_cond_destroy(&m_cond);
         if (_ec)
             log_fatal("::pthread_cond_destroy() error, %s",
                       system_error_str(_ec).c_str());
@@ -33,7 +33,7 @@ cond::~cond () KNGIN_NOEXCP
 void
 cond::wait ()
 {
-    auto _ec = int2ec(::pthread_cond_wait(&m_cond, &m_mutex->m_mutex));
+    auto _ec = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
     if (_ec) {
         log_fatal("::pthread_cond_wait() error, %s",
                   system_error_str(_ec).c_str());
@@ -48,8 +48,8 @@ cond::timedwait (timestamp _ms)
     ::timespec_get(&_ts, TIME_UTC);
     timestamp _time = _ts;
     (_time += _ms).to_timespec(_ts);
-    auto _ec = int2ec(::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &_ts));
-    if (std::errc::timed_out == _ec)
+    auto _ec = ::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &_ts);
+    if (ETIMEDOUT == _ec)
         return false;
     if (_ec) {
         log_fatal("::pthread_cond_timedwait() error, %s",
@@ -62,7 +62,7 @@ cond::timedwait (timestamp _ms)
 void
 cond::signal ()
 {
-    auto _ec = int2ec(::pthread_cond_signal(&m_cond));
+    auto _ec = ::pthread_cond_signal(&m_cond);
     if (_ec) {
         log_fatal("::pthread_cond_signal() error, %s",
                   system_error_str(_ec).c_str());
@@ -73,7 +73,7 @@ cond::signal ()
 void
 cond::broadcast ()
 {
-    auto _ec = int2ec(::pthread_cond_broadcast(&m_cond));
+    auto _ec = ::pthread_cond_broadcast(&m_cond);
     if (_ec) {
         log_fatal("::pthread_cond_broadcast() error, %s",
                   system_error_str(_ec).c_str());

@@ -174,7 +174,7 @@
     <ClCompile Include="..\..\libkngin\core\base\buffer.cpp" />
     <ClCompile Include="..\..\libkngin\core\base\common.cpp" />
     <ClCompile Include="..\..\libkngin\core\base\cond.cpp" />
-    <ClCompile Include="..\..\libkngin\core\base\error.cpp" />
+    <ClCompile Include="..\..\libkngin\core\base\error_code.cpp" />
     <ClCompile Include="..\..\libkngin\core\base\exception.cpp" />
     <ClCompile Include="..\..\libkngin\core\base\filefd.cpp" />
     <ClCompile Include="..\..\libkngin\core\base\log.cpp" />
@@ -204,7 +204,7 @@
     <ClInclude Include="..\..\libkngin\core\base\cond.h" />
     <ClInclude Include="..\..\libkngin\core\base\config.h" />
     <ClInclude Include="..\..\libkngin\core\base\define.h" />
-    <ClInclude Include="..\..\libkngin\core\base\error.h" />
+    <ClInclude Include="..\..\libkngin\core\base\error_code.h" />
     <ClInclude Include="..\..\libkngin\core\base\exception.h" />
     <ClInclude Include="..\..\libkngin\core\base\filefd.h" />
     <ClInclude Include="..\..\libkngin\core\base\local_lock.h" />

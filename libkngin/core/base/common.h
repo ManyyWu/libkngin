@@ -18,7 +18,8 @@ KNGIN_NAMESPACE_K_BEGIN
 #define safe_release_array(ptr) do { delete [] (ptr); (ptr) = nullptr; } while (false)
 
 // for arguments
-inline void
+inline
+void
 arg_check_func(bool _exp, const char *_what = nullptr)
 {
     if (!(_exp) ? assert((_exp)), true : false)
@@ -88,7 +89,8 @@ is_nullptr_ref (Type &_ref) KNGIN_NOEXCP
 
 // for std::shared_ptr
 template <typename Type>
-inline bool
+inline
+bool
 is_single_ref_ptr (std::shared_ptr<Type> &_ptr)
 {
     return (1 == _ptr.use_count());

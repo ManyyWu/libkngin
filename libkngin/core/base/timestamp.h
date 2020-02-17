@@ -162,13 +162,15 @@ private:
     time_t m_ms;
 };
 
-inline timestamp
+inline
+timestamp
 timediff (const timeval &_tvl, const timeval &_tvr) KNGIN_NOEXCP
 {
     return (timestamp(_tvl).value() - timestamp(_tvr).value());
 }
 
-inline timestamp
+inline
+timestamp
 timediff (const timespec &_tsl, const timespec &_tsr) KNGIN_NOEXCP
 {
     return (timestamp(_tsl).value() - timestamp(_tsr).value());

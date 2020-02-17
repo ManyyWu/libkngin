@@ -21,9 +21,6 @@
     <ClCompile Include="..\..\libkngin\core\base\cond.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\libkngin\core\base\error.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\libkngin\core\base\exception.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -84,6 +81,9 @@
     <ClCompile Include="..\..\libkngin\core\event\win_utils.cpp">
       <Filter>event</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libkngin\core\base\error_code.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libkngin\core\base\barrier.h">
@@ -105,9 +105,6 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libkngin\core\base\define.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libkngin\core\base\error.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libkngin\core\base\exception.h">
@@ -187,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="..\..\libkngin\core\event\win_utils.h">
       <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libkngin\core\base\error_code.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

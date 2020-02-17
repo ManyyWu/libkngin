@@ -25,7 +25,6 @@
 #include "../libkngin/core/base/memory.h"
 #include "../libkngin/core/base/buffer.h"
 #include "../libkngin/core/base/bits.h"
-#include "../libkngin/core/base/error.h"
 
 using namespace k;
 using namespace std;

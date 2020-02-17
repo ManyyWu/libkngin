@@ -73,7 +73,7 @@ public:
             process(_session);
         }); // end of new_session_handler, run in listner thread
 
-        m_server.set_error_handler([this] (tcp::session &_session, std::error_code _ec) {
+        m_server.set_error_handler([this] (tcp::session &_session, error_code _ec) {
             log_info("session %s error - %s",
                      _session.name().c_str(), system_error_str(_ec).c_str());
             {

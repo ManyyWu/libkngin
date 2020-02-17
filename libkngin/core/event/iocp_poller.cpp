@@ -77,7 +77,7 @@ iocp_poller::poll (iocp_event_set &_events, timestamp _ms)
                 --_count; // wakeup;
             }
         }
-    } else if (WAIT_TIMEOUT == last_errno()) {
+    } else if (WAIT_TIMEOUT == last_error()) {
         return 0;
     } else {
         throw k::system_error("::GetQueuedCompletionStatusEx() error");
@@ -100,7 +100,7 @@ iocp_poller::poll_wine (iocp_event_set &_events, timestamp _ms)
                                     &_key,
                                     &_overlapped,
                                     _ms.value_uint());
-        auto _err = last_errno();
+        auto _err = last_error();
         if (_ok) {
             if (_overlapped)
                 assert(_events[_count++] = (per_io_data  *)CONTAINING_RECORD(

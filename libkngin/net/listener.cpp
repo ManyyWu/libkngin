@@ -171,21 +171,21 @@ listener::on_read ()
     auto _self = self();
 
     address _peer_addr;
-    std::error_code _ec;
+    error_code _ec;
     int _sockfd = m_socket.accept(_peer_addr, _ec); // nonblocking
     if (_ec) {
-        if (std::errc::too_many_files_open == _ec) {
+        if (EMFILE == _ec) {
             m_idle_file.close();
             m_idle_file = m_socket.accept(_peer_addr);
             m_idle_file.close();
             m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
-        } else if (std::errc::resource_unavailable_try_again == _ec or
-                   std::errc::operation_would_block == _ec or
-                   std::errc::protocol_error == _ec or
-                   std::errc::connection_aborted == _ec or
-                   std::errc::interrupted == _ec) {
+        } else if (EAGAIN == _ec or
+                   EWOULDBLOCK == _ec or
+                   EPROTO == _ec or
+                   ECONNABORTED == _ec or
+                   EINTR == _ec) {
             log_debug("listener::on_accept() ignore error, %s",
                       system_error_str(_ec).c_str());
             return;

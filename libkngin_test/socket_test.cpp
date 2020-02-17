@@ -23,7 +23,7 @@ client ()
 
     address _server_addr(_addr_str, _port, false);
     k::socket _server_sock(socket::IPV4_TCP);
-    std::error_code _ec;
+    error_code _ec;
     _server_sock.connect(_server_addr, _ec);
     if (_ec) {
         log_error("connect() error, %s", system_error_str(_ec).c_str());

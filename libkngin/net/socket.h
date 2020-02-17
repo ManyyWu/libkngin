@@ -50,43 +50,43 @@ public:
     bind        (const address &_addr);
 
     void
-    bind        (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
+    bind        (const address &_addr, error_code &_ec) KNGIN_NOEXCP;
 
     void
     listen      (int _backlog);
 
     void
-    listen      (int _backlog, std::error_code &_ec) KNGIN_NOEXCP;
+    listen      (int _backlog, error_code &_ec) KNGIN_NOEXCP;
 
     int
     accept      (address &_addr);
 
     int
-    accept      (address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
+    accept      (address &_addr, error_code &_ec) KNGIN_NOEXCP;
 
     void
     connect     (const address &_addr);
 
     void
-    connect     (const address &_addr, std::error_code &_ec) KNGIN_NOEXCP;
+    connect     (const address &_addr, error_code &_ec) KNGIN_NOEXCP;
 
     virtual void
     close       ();
 
     virtual void
-    close       (std::error_code &_ec) KNGIN_NOEXCP;
+    close       (error_code &_ec) KNGIN_NOEXCP;
 
     void
     rd_shutdown ();
 
     void
-    rd_shutdown (std::error_code &_ec) KNGIN_NOEXCP;
+    rd_shutdown (error_code &_ec) KNGIN_NOEXCP;
 
     void
     wr_shutdown ();
 
     void
-    wr_shutdown (std::error_code &_ec) KNGIN_NOEXCP;
+    wr_shutdown (error_code &_ec) KNGIN_NOEXCP;
 
     bool
     rd_closed   () const KNGIN_NOEXCP
@@ -102,14 +102,14 @@ public:
 
     size_t
     send        (out_buffer &_buf, int _flags,
-                 std::error_code &_ec) KNGIN_NOEXCP;
+                 error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     recv        (in_buffer &_buf, int _flags);
 
     size_t
     recv        (in_buffer &_buf, int _flags,
-                 std::error_code &_ec) KNGIN_NOEXCP;
+                 error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     sendto      (const address &_addr, out_buffer &_buf,
@@ -117,7 +117,7 @@ public:
 
     size_t
     sendto      (const address &_addr, out_buffer &_buf,
-                 int _flags, std::error_code &_ec) KNGIN_NOEXCP;
+                 int _flags, error_code &_ec) KNGIN_NOEXCP;
 
     size_t
     recvfrom    (address &_addr, in_buffer &_buf,
@@ -125,20 +125,20 @@ public:
 
     size_t
     recvfrom    (address &_addr, in_buffer &_buf,
-                 int _flags, std::error_code &_ec) KNGIN_NOEXCP;
+                 int _flags, error_code &_ec) KNGIN_NOEXCP;
 
 public:
     address
     localaddr   () const;
 
     address
-    localaddr   (std::error_code &_ec) const KNGIN_NOEXCP;
+    localaddr   (error_code &_ec) const KNGIN_NOEXCP;
 
     address
     peeraddr    () const;
 
     address
-    peeraddr    (std::error_code &_ec) const KNGIN_NOEXCP;
+    peeraddr    (error_code &_ec) const KNGIN_NOEXCP;
 
     std::string
     name        () const;

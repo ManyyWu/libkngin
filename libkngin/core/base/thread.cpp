@@ -52,7 +52,7 @@ thread::~thread () KNGIN_NOEXCP
     if (m_joined or !m_thr)
 #endif
         return;
-    auto _ec = int2ec(::pthread_detach(m_thr));
+    auto _ec = ::pthread_detach(m_thr);
     if (_ec)
         log_fatal("::pthread_detach() error, name = \"%s\", %s",
                    m_name.c_str(), system_error_str(_ec).c_str());
@@ -65,7 +65,7 @@ thread::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
 {
     assert(_fn);
 
-    auto _ec = int2ec(::pthread_create(
+    auto _ec = error_code(::pthread_create(
                           &m_thr, nullptr,
                           thread::start,
                           new thread::thread_data(
@@ -88,7 +88,7 @@ thread::join ()
     assert(!equal_to(ptid()));
 
     thread_err_code _code;
-    auto _ec = int2ec(::pthread_join(m_thr, &_code.ptr));
+    auto _ec = ::pthread_join(m_thr, &_code.ptr);
     m_joined = true;
     if (_ec) {
         log_fatal("::pthread_join(), name = \"%s\", %s",
@@ -104,7 +104,7 @@ thread::cancel ()
 {
     assert(!equal_to(ptid()));
 
-    auto _ec = int2ec(::pthread_cancel(m_thr));
+    auto _ec = ::pthread_cancel(m_thr);
     if (_ec) {
         log_fatal("::pthread_cancel(), name = \"%s\", %s",
                   m_name.c_str(), system_error_str(_ec).c_str());

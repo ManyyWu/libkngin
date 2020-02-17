@@ -33,7 +33,7 @@ class session
     : public epoller_event,
       public std::enable_shared_from_this<session> {
 public:
-    typedef std::function<void (session &, std::error_code)>   error_handler;
+    typedef std::function<void (session &, error_code)>        error_handler;
 
     typedef std::function<void (session &, in_buffer, size_t)> message_handler;
 
@@ -112,7 +112,7 @@ public:
     status              () const
     { return sockopts::tcp_info(m_socket).tcpi_state; }
 
-    const std::error_code &
+    const error_code &
     last_error          () const KNGIN_NOEXCP
     { return m_last_error; }
 
@@ -261,7 +261,7 @@ private:
     mutex             m_in_bufq_mutex;
 #endif
 
-    std::error_code   m_last_error;
+    error_code        m_last_error;
 
     const std::string m_key;
 };
