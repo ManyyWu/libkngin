@@ -72,7 +72,7 @@ iocp_poller::poll (iocp_event_set &_events, timestamp _ms)
             auto _overlapped = _overlappeds[_i].lpOverlapped;
             if (_overlapped) {
                 assert(_events[_i] = (per_io_data *)CONTAINING_RECORD(
-                                        &_overlappeds[_i], per_io_data, overlapped));
+                                         &_overlappeds[_i], per_io_data, overlapped));
             } else {
                 --_count; // wakeup;
             }

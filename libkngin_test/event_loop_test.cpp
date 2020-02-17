@@ -1,5 +1,6 @@
 #include "../libkngin/core/base/thread.h"
 #include "../libkngin/core/base/common.h"
+#include "../libkngin/core/base/system_error.h"
 #include "../libkngin/core/event/event_loop.h"
 
 #define KNGIN_FILENAME "libkngin_test/event_loop_test.cpp"

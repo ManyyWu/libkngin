@@ -17,6 +17,8 @@ error_code::format_error_str (error_type _code)
         _result = "Unknown error";
     if (_buf)
         LocalFree(_buf);
+    if (_result.size() > 3)
+        _result.resize(_result.size() - 2); // remove \r\n
     return _result;
 #else
     return std::string(::strerror(errno));
