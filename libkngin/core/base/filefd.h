@@ -8,6 +8,7 @@
 #include <system_error>
 #include "core/base/noncopyable.h"
 #include "core/base/exception.h"
+#include "core/base/error_code.h"
 #include "core/base/buffer.h"
 
 #define FD_VALID(fd)   (fd >= 0)
