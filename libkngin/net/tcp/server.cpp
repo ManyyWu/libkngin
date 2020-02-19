@@ -82,9 +82,9 @@ server::run ()
 /*
 #ifndef _WIN32
     sigset_t _signal_mask;
-    sigemptyset(&_signal_mask);
-    sigaddset(&_signal_mask, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
+    ::sigemptyset(&_signal_mask);
+    ::sigaddset(&_signal_mask, SIGPIPE);
+    ::pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
 #endif
 */
 

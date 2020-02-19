@@ -101,7 +101,7 @@ socket_test ()
     _server_thr.run(server);
     k::thread::sleep(1000);
 
-    for (int i = 0; i< 100; ++i) {
+    for (int _i = 0; _i< 100; ++_i) {
         k::thread _client_thr("client");
         _client_thr.run(client);
         if (_client_thr.join())

@@ -185,15 +185,11 @@
     <ClCompile Include="..\..\libkngin_test\main.cpp" />
     <ClCompile Include="..\..\libkngin_test\mutex_test.cpp" />
     <ClCompile Include="..\..\libkngin_test\rwlock_test.cpp" />
-    <ClCompile Include="..\..\libkngin_test\simple_ftp_server\file.cpp" />
-    <ClCompile Include="..\..\libkngin_test\simple_ftp_server\msg.cpp" />
     <ClCompile Include="..\..\libkngin_test\test.cpp" />
     <ClCompile Include="..\..\libkngin_test\thread_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libkngin_test\mylogfile.h" />
-    <ClInclude Include="..\..\libkngin_test\simple_ftp_server\file.h" />
-    <ClInclude Include="..\..\libkngin_test\simple_ftp_server\msg.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

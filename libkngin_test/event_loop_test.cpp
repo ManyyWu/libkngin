@@ -15,9 +15,9 @@ event_loop_test ()
     thread _thr("event_loop_test");
     _thr.run([&_loop] () -> int {
         // task
-        for (int i = 0; i < 10; i++) {
-            _loop.run_in_loop([i] () {
-                log_info("task %d", i);
+        for (int _i = 0; _i < 10; _i++) {
+            _loop.run_in_loop([_i] () {
+                log_info("task %d", _i);
             });
         }
 
@@ -25,12 +25,12 @@ event_loop_test ()
         _loop.run_every(100,
         [&] (const timer::timer_ptr _timer)
         {
-            static int i = 0;
-            if (i > 10) {
+            static int _i = 0;
+            if (_i > 10) {
                 _loop.cancel(_timer);
                 return;
             }
-            log_info("every 100ms - %d", ++i);
+            log_info("every 100ms - %d", ++_i);
         });
         _loop.run_after(100,
         [&] (const timer::timer_ptr _timer)

@@ -20,9 +20,9 @@ exception::dump_stack ()
 
     m_dump_str += "invocation stack: ";
     if (_size and _stacks)
-        for (int i = 0; i < _size; ++i)
-            if (_stacks[i])
-                m_dump_str += std::string("\n") + _stacks[i];
+        for (int _i = 0; _i < _size; ++_i)
+            if (_stacks[_i])
+                m_dump_str += std::string("\n") + _stacks[_i];
 #endif
 }
 

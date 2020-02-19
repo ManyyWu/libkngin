@@ -10,36 +10,40 @@ bool g_win_inited = false;
 
 extern bool g_have_get_iocp_status_ex = false;
 
-bool
+void
 wsa_init ()
 {
     if (!g_win_inited) {
         WSADATA _data;
-        return (!::WSAStartup(MAKEWORD(2, 2), &_data));
+        cond_sys_err(
+            0 != ::WSAStartup(MAKEWORD(2, 2), &_data),
+            "::WSAStartup() error"
+        );
     }
-    return true;
 }
 
-bool
+void
 wsa_deinit ()
 {
     if (g_win_inited) {
-        return (!::WSACleanup());
+        cond_sys_err(
+            0 == !::WSACleanup(),
+            "::WSACleanup() error"
+        );
     }
-    return true;
 }
 
-bool
+void
 win_api_init ()
 {
     g_have_get_iocp_status_ex = true;
-    return true;   
 }
 
-bool
+void
 win_init_once ()
 {
-    return (wsa_init() && win_api_init());
+    wsa_init();
+    win_api_init();
 }
 
 KNGIN_NAMESPACE_K_END

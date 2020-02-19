@@ -20,7 +20,7 @@ static std::mutex       g_std_mutex;
 static int
 process_mutex ()
 {
-    for (int i = 0; i < 1000000; ++i) {
+    for (int _i = 0; _i < 1000000; ++_i) {
         g_mutex.lock();
         g_num1 += 1;
         g_mutex.unlock();
@@ -31,7 +31,7 @@ process_mutex ()
 static int
 process_std_mutex ()
 {
-    for (int i = 0; i < 1000000; ++i) {
+    for (int _i = 0; _i < 1000000; ++_i) {
         g_std_mutex.lock();
         g_num2 += 1;
         g_std_mutex.unlock();
@@ -42,7 +42,7 @@ process_std_mutex ()
 static int
 process_atomic ()
 {
-    for (int i = 0; i < 1000000; ++i) {
+    for (int _i = 0; _i < 1000000; ++_i) {
         g_num3 += 1;
     }
     return 0;
@@ -57,14 +57,14 @@ mutex_test ()
     timespec ts1;
     ::timespec_get(&ts1, TIME_UTC);
 
-    for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i] = new thread("");
-        thrs[i]->run(process_mutex);
+    for (int _i = 0; _i < THR_NUM; ++_i) {
+        thrs[_i] = new thread("");
+        thrs[_i]->run(process_mutex);
     }
 
-    for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join();
-        safe_release(thrs[i]);
+    for (int _i = 0; _i < THR_NUM; ++_i) {
+        thrs[_i]->join();
+        safe_release(thrs[_i]);
     }
 
     timespec ts2;
@@ -76,14 +76,14 @@ mutex_test ()
     /* std::mutex */
     ::timespec_get(&ts1, TIME_UTC);
 
-    for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i] = new thread("");
-        thrs[i]->run(process_std_mutex);
+    for (int _i = 0; _i < THR_NUM; ++_i) {
+        thrs[_i] = new thread("");
+        thrs[_i]->run(process_std_mutex);
     }
 
-    for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join();
-        safe_release(thrs[i]);
+    for (int _i = 0; _i < THR_NUM; ++_i) {
+        thrs[_i]->join();
+        safe_release(thrs[_i]);
     }
 
     ::timespec_get(&ts2, TIME_UTC);
@@ -94,14 +94,14 @@ mutex_test ()
     /* atomic */
     ::timespec_get(&ts1, TIME_UTC);
 
-    for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i] = new thread("");
-        thrs[i]->run(process_atomic);
+    for (int _i = 0; _i < THR_NUM; ++_i) {
+        thrs[_i] = new thread("");
+        thrs[_i]->run(process_atomic);
     }
 
-    for (int i = 0; i < THR_NUM; ++i) {
-        thrs[i]->join();
-        safe_release(thrs[i]);
+    for (int _i = 0; _i < THR_NUM; ++_i) {
+        thrs[_i]->join();
+        safe_release(thrs[_i]);
     }
 
     ::timespec_get(&ts2, TIME_UTC);

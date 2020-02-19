@@ -20,7 +20,7 @@ barrier::barrier (int _count)
     auto _ec = ::pthread_barrier_init(&m_barrier, nullptr, _count);
     if (_ec) {
         log_fatal("::pthread_barrier_init() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_barrier_init() error");
     }
 } catch (...) {
@@ -43,7 +43,7 @@ barrier::reinit (int _count)
     auto _ec = ::pthread_barrier_init(&m_barrier, nullptr, _count);
     if (_ec) {
         log_fatal("::pthread_barrier_init() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_barrier_init() error");
     }
     m_inited = true;
@@ -53,15 +53,14 @@ bool
 barrier::wait ()
 {
     assert(m_inited);
-    int _ret = ::pthread_barrier_wait(&m_barrier);
+    auto _ret = ::pthread_barrier_wait(&m_barrier);
     if (0 == _ret)
         return false;
     if (PTHREAD_BARRIER_SERIAL_THREAD == _ret)
         return true;
-    auto _ec = error_code(_ret);
-    if (_ec) {
+    if (_ret) {
         log_fatal("::pthread_barrier_wait() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ret)).c_str());
         throw k::exception("::pthread_barrier_wait() error");
     }
     return true;
@@ -75,7 +74,7 @@ barrier::destroy ()
     auto _ec = ::pthread_barrier_destroy(&m_barrier);
     if (_ec) {
         log_fatal("::pthread_barrier_destroy() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_barrier_destroy() error");
     }
 }
