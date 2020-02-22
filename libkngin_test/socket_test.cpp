@@ -110,3 +110,46 @@ socket_test ()
 
     _server_thr.join();
 }
+
+/*
+k::socket _sock(k::socket::IPV4_TCP);
+_sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
+
+int _times = 0;
+int _size  = 0;
+{
+    char _arr[8];
+    {
+        in_buffer _in_buf(_arr, 8);
+        _sock.read(_in_buf);
+        out_buffer(_arr, 8).read_int32(_times).read_int32(_size);
+        log_info("client: times = %d, size = %d", _times, _size);
+    }
+    {
+        out_buffer _out_buf(_arr, 8);
+        _sock.write(_out_buf);
+    }
+}
+
+for (int _i = 0; _i < _times; ++_i) {
+    char _arr[_size + 1]; // XXX: unsafe
+    _arr[_size] = 0;
+    {
+        in_buffer _in_buf(_arr, _size);
+        _sock.read(_in_buf);
+    }
+    {
+        out_buffer(_arr, _size).read_bytes(_arr, _size);
+        log_info("client: %s", _arr);
+    }
+    {
+        for (int _j = 0; _j < _size / 2; ++_j)
+            std::swap(_arr[_j], _arr[_size - _j - 1]);
+    }
+    {
+        out_buffer _out_buf(_arr, _size);
+        _sock.write(_out_buf);
+    }
+}
+_sock.close();
+*/

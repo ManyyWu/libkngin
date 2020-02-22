@@ -185,6 +185,8 @@
     <ClCompile Include="..\..\libkngin_test\main.cpp" />
     <ClCompile Include="..\..\libkngin_test\mutex_test.cpp" />
     <ClCompile Include="..\..\libkngin_test\rwlock_test.cpp" />
+    <ClCompile Include="..\..\libkngin_test\socket_test.cpp" />
+    <ClCompile Include="..\..\libkngin_test\sockopts_test.cpp" />
     <ClCompile Include="..\..\libkngin_test\test.cpp" />
     <ClCompile Include="..\..\libkngin_test\thread_test.cpp" />
   </ItemGroup>

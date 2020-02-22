@@ -118,7 +118,7 @@ iocp_poller::poll_wine (iocp_event_set &_events, timestamp _ms)
 void
 iocp_poller::close ()
 {
-    assert(INVALID_HANDLE_VALUE == m_iocp_handle);
+    assert(INVALID_HANDLE_VALUE != m_iocp_handle);
     cond_sys_err(
         FALSE == ::CloseHandle(m_iocp_handle),
         "::CloseHandle() error"

@@ -11,7 +11,6 @@
 #include "net/listener.h"
 #include "net/tcp/server_opts.h"
 #include "net/tcp/session.h"
-#include "net/tcp/server.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 KNGIN_NAMESPACE_TCP_BEGIN

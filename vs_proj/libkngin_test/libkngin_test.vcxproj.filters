@@ -33,6 +33,12 @@
     <ClCompile Include="..\..\libkngin_test\thread_test.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\socket_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libkngin_test\sockopts_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libkngin_test\mylogfile.h">

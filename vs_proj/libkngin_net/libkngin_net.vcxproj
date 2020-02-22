@@ -171,27 +171,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libkngin\net\address.cpp" />
-    <ClCompile Include="..\..\libkngin\net\listener.cpp" />
     <ClCompile Include="..\..\libkngin\net\socket.cpp" />
     <ClCompile Include="..\..\libkngin\net\sockopts.cpp" />
-    <ClCompile Include="..\..\libkngin\net\tcp\client.cpp" />
-    <ClCompile Include="..\..\libkngin\net\tcp\server.cpp" />
-    <ClCompile Include="..\..\libkngin\net\tcp\session.cpp" />
-    <ClCompile Include="..\..\libkngin\net\udp\client.cpp" />
-    <ClCompile Include="..\..\libkngin\net\udp\server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libkngin\net\address.h" />
-    <ClInclude Include="..\..\libkngin\net\listener.h" />
     <ClInclude Include="..\..\libkngin\net\socket.h" />
     <ClInclude Include="..\..\libkngin\net\sockopts.h" />
-    <ClInclude Include="..\..\libkngin\net\tcp\client.h" />
-    <ClInclude Include="..\..\libkngin\net\tcp\server.h" />
-    <ClInclude Include="..\..\libkngin\net\tcp\server_opts.h" />
-    <ClInclude Include="..\..\libkngin\net\tcp\session.h" />
-    <ClInclude Include="..\..\libkngin\net\udp\client.h" />
-    <ClInclude Include="..\..\libkngin\net\udp\server.h" />
-    <ClInclude Include="..\..\libkngin\net\udp\server_opts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
