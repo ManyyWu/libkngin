@@ -67,7 +67,7 @@ io_threadpool::stop ()
 
     {
         local_lock _lock(m_mutex);
-        size_t _size = m_threads.size();
+        auto _size = m_threads.size();
         for (uint16_t _i = 0; _i < _size; ++_i)
             m_threads[_i]->stop();
         m_threads.clear();

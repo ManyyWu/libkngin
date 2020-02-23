@@ -9,7 +9,6 @@
 #include <sys/epoll.h>
 #endif
 #include <functional>
-#include <system_error>
 #include "core/base/filefd.h"
 
 KNGIN_NAMESPACE_K_BEGIN

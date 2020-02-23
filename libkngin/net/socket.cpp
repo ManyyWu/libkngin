@@ -1,6 +1,5 @@
 #include "core/base/common.h"
 #include "core/base/bits.h"
-#include "core/base/system_error.h"
 #include "net/socket.h"
 
 #ifdef KNGIN_FILENAME
@@ -10,7 +9,30 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-socket::socket (int _fd)
+socket_type filefd::invalid_fd = INVALID_SOCKET;
+
+void
+filefd::close ()
+{
+    if (invalid())
+        return;
+    if (::closesocket(m_fd) < 0) {
+        m_fd = filefd::invalid_fd;
+        throw k::system_error("::close() error");
+    }
+    m_fd = filefd::invalid_fd;
+}
+
+void
+filefd::close (error_code &_ec) KNGIN_NOEXCP
+{
+    if (invalid())
+        return;
+    _ec = (::closesocket(m_fd) < 0) ? last_error() : error_code();
+    m_fd = filefd::invalid_fd;
+}
+
+socket::socket (socket_type _fd)
     : filefd(_fd),
       m_rd_closed(invalid()),
       m_wr_closed(invalid())
@@ -83,25 +105,25 @@ socket::listen (int _backlog, error_code &_ec) KNGIN_NOEXCP
     _ec = (::listen(m_fd, _backlog) < 0) ? last_error() : error_code();
 }
 
-int
+socket_type
 socket::accept (address &_addr)
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
-    int _fd = ::accept(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len);
+    socket_type _fd = ::accept(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len);
     if (_fd < 0)
         throw k::system_error("::accept() error");
     return _fd;
 }
 
-int
+socket_type
 socket::accept (address &_addr, error_code &_ec) KNGIN_NOEXCP
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
     socklen_t _len = sizeof(_addr.m_sa);
-    int _fd = ::accept(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len);
+    socket_type _fd = ::accept(m_fd, (struct ::sockaddr *)&_addr.m_sa, &_len);
     _ec = (_fd < 0) ? last_error() : error_code();
     return _fd;
 }
@@ -180,7 +202,7 @@ socket::send (out_buffer &_buf, int _flags)
 {
     assert(_buf.size());
     assert(!m_wr_closed);
-    ssize_t _size = ::send(m_fd, _buf.begin(), _buf.size(), _flags);
+    auto _size = ::send(m_fd, (char *)_buf.begin(), len_type(_buf.size()), _flags);
     if (_size < 0)
         throw k::system_error("::send() error");
     _buf -= _size;
@@ -192,7 +214,7 @@ socket::send (out_buffer &_buf, int _flags, error_code &_ec) KNGIN_NOEXCP
 {
     assert(_buf.size());
     assert(!m_wr_closed);
-    ssize_t _size = ::send(m_fd, _buf.begin(), _buf.size(), _flags);
+    auto _size = ::send(m_fd, (char *)_buf.begin(), len_type(_buf.size()), _flags);
     if (_size < 0) {
         _ec = last_error();
         return 0;
@@ -208,7 +230,7 @@ socket::recv (in_buffer &_buf, int _flags)
 {
     assert(_buf.writeable());
     assert(!m_rd_closed);
-    ssize_t _size = ::recv(m_fd, _buf.begin(), _buf.writeable(), _flags);
+    auto _size = ::recv(m_fd, (char *)_buf.begin(), len_type(_buf.writeable()), _flags);
     if (_size < 0)
         throw k::system_error("::recv() error");
     _buf += _size;
@@ -220,7 +242,7 @@ socket::recv (in_buffer &_buf, int _flags, error_code &_ec) KNGIN_NOEXCP
 {
     assert(_buf.writeable());
     assert(!m_rd_closed);
-    ssize_t _size = ::recv(m_fd, _buf.begin(), _buf.writeable(), _flags);
+    auto _size = ::recv(m_fd, (char *)_buf.begin(), len_type(_buf.writeable()), _flags);
     if (_size < 0) {
         _ec = last_error();
         return 0;
@@ -236,7 +258,7 @@ socket::sendto (const address &_addr, out_buffer &_buf, int _flags)
 {
     assert(_buf.size());
     assert(!m_wr_closed);
-    ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
+    auto _size = ::sendto(m_fd, (const char *)_buf.begin(), len_type(_buf.size()), _flags,
                              (const struct ::sockaddr *)&_addr.sa(),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size < 0)
@@ -251,7 +273,7 @@ socket::sendto (const address &_addr, out_buffer &_buf, int _flags,
 {
     assert(_buf.size());
     assert(!m_wr_closed);
-    ssize_t _size = ::sendto(m_fd, (const char *)_buf.begin(), _buf.size(), _flags,
+    auto _size = ::sendto(m_fd, (const char *)_buf.begin(), len_type(_buf.size()), _flags,
                              (const struct ::sockaddr *)&_addr.sa(),
                              _addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
     if (_size < 0) {
@@ -270,7 +292,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags)
     assert(_buf.writeable());
     assert(!m_rd_closed);
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
-    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
+    auto _size = ::recvfrom(m_fd, (char *)_buf.begin(), len_type(_buf.writeable()), _flags,
                                (struct ::sockaddr *)&_addr.sa(),
                                &_addr_len);
     if (_size < 0)
@@ -286,7 +308,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
     assert(_buf.writeable());
     assert(!m_rd_closed);
     socklen_t _addr_len = (_addr.inet6() ? sizeof(_addr.sa().v6) : sizeof(_addr.sa().v4));
-    ssize_t _size = ::recvfrom(m_fd, (char *)_buf.begin(), _buf.writeable(), _flags,
+    auto _size = ::recvfrom(m_fd, (char *)_buf.begin(), len_type(_buf.writeable()), _flags,
                                (struct ::sockaddr *)&_addr.sa(),
                                &_addr_len);
     if (_size < 0) {

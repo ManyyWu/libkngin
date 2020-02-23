@@ -153,7 +153,7 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
         ::vsnprintf(_buf, KNGIN_LOG_BUF_SIZE, _fmt, _vl);
 #endif
         _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
-        size_t _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
+        auto _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
 
 #if (ON == KNGIN_ASYNC_LOGGER)
         logger().async_log(
@@ -219,7 +219,7 @@ log::write_logfile (const char *_file, const char *_str, size_t _len) KNGIN_NOEX
                    "= %19s                                   =\n"
                    "=========================================================\n",
                    get_datetime(_datetime, sizeof(_datetime)));
-        size_t _str_len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
+        auto _str_len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
         _ret = ::fwrite(_buf, 1, _str_len , _fplog);
         if (_ret < 0) {
             write_stderr2(KNGIN_LOG_LEVEL_FATAL,

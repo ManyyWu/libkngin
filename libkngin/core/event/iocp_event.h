@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <functional>
-#include <system_error>
 
 KNGIN_NAMESPACE_K_BEGIN
 

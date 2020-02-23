@@ -150,7 +150,7 @@ public:
     set_error_handler   (const error_handler &_handler)
     { assert(!registed()); m_error_handler = _handler; }
 
-    // TODO: Optimize callback function storage
+    // TODO: Optimize for callback storage
 
 public:
     const address &

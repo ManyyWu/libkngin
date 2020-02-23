@@ -69,7 +69,6 @@ int main()
         k::wsa_init();
 #endif
 
-
         // init logger
         assert(k::logger().inited());
 
@@ -122,7 +121,7 @@ int main()
 //        cerr << "********************************************************\n";
 
 //        cerr << "********************* tcp_server_test ******************\n";
-//        tcp_server_test ();
+        tcp_server_test ();
 //        cerr << "********************************************************\n";
     } catch (const k::exception &_e) {
         log_fatal("caught an exception %s", _e.what());

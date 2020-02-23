@@ -20,7 +20,9 @@ protected:
         long              l_val;
         struct ::linger   linger_val;
         struct ::timeval  timeval_val;
+#ifndef _WIN32
         struct ::tcp_info tcp_info;
+#endif
     };
 
     struct sockopts_info {
@@ -51,7 +53,9 @@ protected:
         SOCKOPTS_TYPE_IPV6_V6ONLY,
         SOCKOPTS_TYPE_TCP_MAXSEG,
         SOCKOPTS_TYPE_TCP_NODELAY,
+#ifndef _WIN32
         SOCKOPTS_TYPE_TCP_INFO,
+#endif
         SOCKOPTS_TYPE_MAX
     };
 
@@ -92,8 +96,12 @@ public:
     linger         (const socket &_s)
     { return sockopts::get_linger(_s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static void
+#ifdef _WIN32
+    set_linger     (const socket &_s, bool _on, u_short _t /* = 0 */)
+#else
     set_linger     (const socket &_s, bool _on, int _t /* = 0 */)
-    { sockopt_val _val; _val.linger_val = {static_cast<int>(_on), _t}; sockopts::set_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
+#endif
+    { sockopt_val _val; _val.linger_val = {_on, _t}; sockopts::set_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static bool
     oobinline      (const socket &_s)
     { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]); }
@@ -158,7 +166,7 @@ public:
     set_ip_tos     (const socket &_s, int _t)
     { sockopt_val _val{_t}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]); }
     static int
-    ip_ttl         (const socket &_s, int &_ttl)
+    ip_ttl         (const socket &_s)
     { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]); }
     static void
     set_ip_ttl     (const socket &_s, int _t)
@@ -181,37 +189,39 @@ public:
     static void
     set_nodelay    (const socket &_s, bool _on)
     { sockopt_val _val{_on}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]); }
-    static struct ::tcp_info
-    tcp_info       (const socket &_s)
-    { return sockopts::get_tcp_info(_s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_INFO]); }
+//    static struct ::tcp_info
+//    tcp_info       (const socket &_s)
+//    { return sockopts::get_tcp_info(_s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_INFO]); }
 
 protected:
     static bool
-    get_flag       (int _fd, const sockopts_info &_opt_info);
+    get_flag       (socket_type _fd, const sockopts_info &_opt_info);
 
     static int
-    get_int        (int _fd, const sockopts_info &_opt_info);
+    get_int        (socket_type _fd, const sockopts_info &_opt_info);
 
     static struct ::linger
-    get_linger     (int _fd, const sockopts_info &_opt_info);
+    get_linger     (socket_type _fd, const sockopts_info &_opt_info);
 
     static struct ::timeval
-    get_timeval    (int _fd, const sockopts_info &_opt_info);
+    get_timeval    (socket_type _fd, const sockopts_info &_opt_info);
 
+#ifndef _WIN32
     static struct ::tcp_info
     get_tcp_info   (int _fd, const sockopts_info &_opt_info);
+#endif
 
     static void
-    set_flag       (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info);
+    set_flag       (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
 
     static void
-    set_int        (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info);
+    set_int        (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
 
     static void
-    set_linger     (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info);
+    set_linger     (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
 
     static void
-    set_timeval    (const sockopt_val &_val, int _fd, const sockopts_info &_opt_info);
+    set_timeval    (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
 
 protected:
     static const sockopts_info opts_entry[SOCKOPTS_TYPE_MAX];
