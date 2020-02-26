@@ -61,6 +61,9 @@ void throw_system_error(error_code &ec);
 // lock
 class scoped_lock noncopyable {};
 
+// timer
+// win ::QueryPerformanceCounter
+
 // reactor
 #if defined(KNGIN_HAVE_KQUEUE)
 class kqueue_reactor : noncopyable {};
