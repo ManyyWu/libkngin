@@ -6,7 +6,6 @@
 #include <list>
 #include <memory>
 #include <functional>
-#include <system_error>
 #include "core/base/define.h"
 #include "core/base/lock.h"
 #include "core/base/noncopyable.h"

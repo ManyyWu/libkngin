@@ -39,7 +39,9 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
 
     // set socket options
     sockopts::set_reuseaddr(m_socket, true);
+#ifndef _WIN32
     sockopts::set_reuseport(m_socket, true);
+#endif
 
     // bind
     m_socket.bind(m_listen_addr);

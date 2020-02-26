@@ -2,6 +2,7 @@
 #define KNGIN_ADDRESS_H
 
 #ifdef _WIN32
+#include <ws2ipdef.h>
 #else
 #include <netinet/in.h>
 #endif

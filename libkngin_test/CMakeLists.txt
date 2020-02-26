@@ -10,7 +10,7 @@ endif(MSVC)
 include_directories(".")
 
 # source files
-file(GLOB KNGIN_TEST_SRC test.cpp)
+file(GLOB KNGIN_TEST_SRC *.cpp)
 file(GLOB KNGIN_TEST_SRC_SFS simple_ftp_server/*.cpp)
 
 # library

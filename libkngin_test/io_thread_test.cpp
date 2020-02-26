@@ -17,14 +17,14 @@
 //{
 //    work_thread *_c = (work_thread *)_args;
 //    srand((unsigned int)time(nullptr));
-//    for (int i = 0; i < 100; ++i)
+//    for (int _i = 0; _i < 100; ++_i)
 //    {
 //        work_task *_wt = nullptr;
 //        knew(_wt, work_task, (_c));
 //        assert(_wt);
 //        netmsg_test *_msg = nullptr;
 //        knew(_msg, netmsg_test, (_wt));
-//        assert(_msg->create((ACTION)(rand() % 10), i * rand()));
+//        assert(_msg->create((ACTION)(rand() % 10), _i * rand()));
 //        assert(_msg);
 //        assert(_wt->create((msg **)&_msg));
 //        assert(_c->recv_task(&_wt));
@@ -33,10 +33,10 @@
 //            // then _msg is nullptr
 //            msg *_reply_msg = _c->send_msg();
 //            if (!_reply_msg)
-//                ::fprintf(stderr, "index: %d, no reply, error occured!\n", i);
+//                ::fprintf(stderr, "index: %d, no reply, error occured!\n", _i);
 //            else {
 //                ::fprintf(stderr, "index: %d, action: %d, result: %d\n",
-//                       i, ((int *)_reply_msg->buf())[0], ((int *)_reply_msg->buf())[1]);
+//                       _i, ((int *)_reply_msg->buf())[0], ((int *)_reply_msg->buf())[1]);
 //                _reply_msg->release(); // commonly call by msg filter
 //                _reply_msg = nullptr;
 //            }

@@ -31,25 +31,24 @@ iocp_poller::iocp_poller ()
 iocp_poller::~iocp_poller () KNGIN_NOEXCP
 {
     if (INVALID_HANDLE_VALUE != m_iocp_handle)
-        assert(::CloseHandle(m_iocp_handle));
+        ignore_excp(this->close());
 }
 
 size_t
 iocp_poller::wait (iocp_event_set &_events, timestamp _ms)
 {
-    if (g_have_get_iocp_status_ex)
-        poll(_events, _ms);
-    else
-        poll_wine(_events, _ms);
-
-    return 0;
+    return (g_have_get_iocp_status_ex ? poll(_events, _ms) : poll_wine(_events, _ms));
 }
 
 void
 iocp_poller::wakeup ()
 {
-    if (m_iocp_handle)
-        ::PostQueuedCompletionStatus(m_iocp_handle, 0, 0, nullptr);
+    if (m_iocp_handle) {
+        cond_sys_err(
+            FALSE == ::PostQueuedCompletionStatus(m_iocp_handle, -1, 0, nullptr),
+            "::PostQueuedCompletionStatus() error"
+        );
+    }
 }
 
 size_t
@@ -103,7 +102,7 @@ iocp_poller::poll_wine (iocp_event_set &_events, timestamp _ms)
         auto _err = last_error();
         if (_ok) {
             if (_overlapped)
-                assert(_events[_count++] = (per_io_data  *)CONTAINING_RECORD(
+                assert(_events[_count++] = (per_io_data *)CONTAINING_RECORD(
                                                _overlapped, per_io_data, overlapped));
             else
                 break; // wakeup
@@ -119,8 +118,11 @@ iocp_poller::poll_wine (iocp_event_set &_events, timestamp _ms)
 void
 iocp_poller::close ()
 {
-    assert(INVALID_HANDLE_VALUE == m_iocp_handle);
-    assert(::CloseHandle(m_iocp_handle));
+    assert(INVALID_HANDLE_VALUE != m_iocp_handle);
+    cond_sys_err(
+        FALSE == ::CloseHandle(m_iocp_handle),
+        "::CloseHandle() error"
+    );
     m_events.clear();
     if (m_events.size())
         log_warning("there are still have %" PRIu64

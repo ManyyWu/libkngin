@@ -19,13 +19,13 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class epoller : public noncopyable {
 public:
-    typedef std::vector<struct ::epoll_event>     epoll_event_set;
-
     typedef epoller_event::epoller_event_ptr      epoller_event_ptr;
 
-    typedef epoller_event::epoller_event_weak_ptr epoller_event_ptr;
+    typedef epoller_event::epoller_event_weak_ptr epoller_event_weak_ptr;
 
     typedef std::list<epoller_event_ptr>          epoller_event_list;
+
+    typedef std::vector<struct ::epoll_event>     epoll_event_set;
 
 public:
     epoller        ();

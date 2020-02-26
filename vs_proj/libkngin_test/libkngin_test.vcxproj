@@ -128,7 +128,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\build\lib\;$(ProjectDir)..\..\pthreads_win32\lib\x64\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Ws2_32.lib;Kernel32.lib;pthreadVC2.lib;libkngin_core_x64d.lib;</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;Kernel32.lib;pthreadVC2.lib;libkngin_core_x64d.lib;libkngin_net_x64d.lib;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -185,15 +185,13 @@
     <ClCompile Include="..\..\libkngin_test\main.cpp" />
     <ClCompile Include="..\..\libkngin_test\mutex_test.cpp" />
     <ClCompile Include="..\..\libkngin_test\rwlock_test.cpp" />
-    <ClCompile Include="..\..\libkngin_test\simple_ftp_server\file.cpp" />
-    <ClCompile Include="..\..\libkngin_test\simple_ftp_server\msg.cpp" />
+    <ClCompile Include="..\..\libkngin_test\socket_test.cpp" />
+    <ClCompile Include="..\..\libkngin_test\sockopts_test.cpp" />
     <ClCompile Include="..\..\libkngin_test\test.cpp" />
     <ClCompile Include="..\..\libkngin_test\thread_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libkngin_test\mylogfile.h" />
-    <ClInclude Include="..\..\libkngin_test\simple_ftp_server\file.h" />
-    <ClInclude Include="..\..\libkngin_test\simple_ftp_server\msg.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

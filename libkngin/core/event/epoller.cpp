@@ -51,8 +51,8 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
     {
         local_lock _lock(m_mutex);
         for (auto &_iter : m_events)
-            if (epoller_event::EVENT_TYPE_TIMER != _iter.second->type() and
-                is_single_ref_ptr(_iter.second))
+            if (epoller_event::EVENT_TYPE_TIMER != _iter->type() and
+                is_single_ref_ptr(_iter))
                 log_warning("an event that does not be cancelled listening, "
                             "and is only managed by epoller");
     }
@@ -78,10 +78,10 @@ epoller::register_event (epoller_event_ptr _e)
     assert(m_epollfd.valid());
     {
         local_lock _lock(m_mutex);
-        assert(!_e.registed());
+        assert(!_e->registed());
         m_events.push_back(_e);
         _e->set_registed(true);
-        _e->set_index(m_events.back())
+        _e->set_index(m_events.back());
         update_event(EPOLL_CTL_ADD, _e->fd(), _e.get());
     }
 }
@@ -93,7 +93,7 @@ epoller::remove_event (epoller_event &_e)
     {
         local_lock _lock(m_mutex);
         assert(_e.registed());
-        _e->set_registed(false);
+        _e.set_registed(false);
         update_event(EPOLL_CTL_DEL, _e.fd(), &_e);
         if (auto _index = _e.index().lock())
             m_events.remove(_index);

@@ -1,4 +1,5 @@
 #ifdef _WIN32
+#include <WS2tcpip.h>
 #else
 #include <arpa/inet.h>
 #endif

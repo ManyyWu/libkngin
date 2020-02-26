@@ -5,23 +5,25 @@
 #ifdef KNGIN_FLAG_HAVE_FILEFD
 
 #include <list>
-#include <system_error>
 #include "core/base/noncopyable.h"
 #include "core/base/exception.h"
+#include "core/base/error_code.h"
 #include "core/base/buffer.h"
 
-#define FD_VALID(fd)   (fd >= 0)
-#define FD_INVALID(fd) (fd < 0)
-#define INVALID_FD     (-1);
-
 KNGIN_NAMESPACE_K_BEGIN
+
+typedef filefd_type int;
+
+#define FD_VALID(fd)   (filefd_type(fd) >= 0)
+#define FD_INVALID(fd) (filefd_type(fd) < 0)
+#define INVALID_FD     (-1);
 
 class filefd : public noncopyable {
 public:
     filefd        () = delete;
 
     explicit
-    filefd        (int _fd) KNGIN_NOEXCP;
+    filefd        (filefd_type _fd) KNGIN_NOEXCP;
 
     filefd        (filefd &&_fd) KNGIN_NOEXCP;
 
@@ -37,7 +39,7 @@ public:
     invalid       () const KNGIN_NOEXCP
     { return FD_INVALID(m_fd); }
 
-    int
+    filefd_type
     fd            () const KNGIN_NOEXCP
     { return m_fd; }
 
@@ -89,10 +91,10 @@ public:
     virtual void
     close         (error_code &_ec) KNGIN_NOEXCP;
 
-    int
+    filefd_type
     dup           ();
 
-    int
+    filefd_type
     dup           (error_code &_ec);
 
     error_code
@@ -119,13 +121,13 @@ public:
 
 public:
     filefd &
-    operator =    (int _fd) KNGIN_NOEXCP;
+    operator =    (filefd_type _fd) KNGIN_NOEXCP;
 
 public:
-    static int invalid_fd;
+    static filefd_type invalid_fd;
 
 protected:
-    int        m_fd;
+    filefd_type m_fd;
 };
 
 KNGIN_NAMESPACE_K_END
