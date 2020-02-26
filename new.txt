@@ -55,6 +55,9 @@ KNGIN_SYSTEM_UNIX_LIKE
 // common
 void throw_system_error(error_code &ec);
 
+#define LOG_EXCP_FATAL_BEGIN
+#define LOG_EXCP_FATAL_END
+
 // lock
 class scoped_lock noncopyable {};
 
