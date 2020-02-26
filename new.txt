@@ -112,3 +112,8 @@ private:
 
   impl_type impl_;
 };
+
+// links
+https://www.zybuluo.com/khan-lau/note/307144
+https://www.cnblogs.com/junye/p/6077806.html
+https://copyfuture.com/blogs-details/20191217095617692d7gme4uiulz2arc
