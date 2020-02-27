@@ -8,6 +8,7 @@
  * 不再使用KNGIN_NOEXCP，使用noexcept
  * 防止泄漏内部实现，尽量多使用前置声明+impl，少引用头文件
  * 选项全部使用#if defined(KNGIN_XXX)
+ * epoll iocp socket 等先封装exception和ec再使用，api.h,inline
  */
 
 目录结构
@@ -63,6 +64,11 @@ class scoped_lock noncopyable {};
 
 // timer
 // win ::QueryPerformanceCounter
+
+// operation_context
+class operation_context {
+    data, op_type, handler, overlapped,
+};
 
 // reactor
 #if defined(KNGIN_HAVE_KQUEUE)
