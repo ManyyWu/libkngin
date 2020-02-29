@@ -69,7 +69,7 @@ protected:
     socket_type m_fd;
 };
 #else /* _WIN32 */
-typedef socket socket_type;
+typedef int socket_type;
 typedef size_t len_type;
 #endif /* _WIN32 */
 

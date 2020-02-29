@@ -23,7 +23,7 @@ error_code::format_error_str (error_type _code)
         return _str ? _str : "Unknown error";
     }
 #else
-    const char * _str = std::string(::strerror(errno));
+    auto *_str = ::strerror(errno);
     return _str ? _str : "Unknown error";
 #endif
 }

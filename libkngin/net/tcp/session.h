@@ -102,13 +102,13 @@ public:
     closed              () KNGIN_NOEXCP
     { return m_closed; }
 
-    bool
-    connected           () const
-    { return status() == TCP_ESTABLISHED; }
+    //bool
+    //connected           () const
+    //{ return status() == TCP_ESTABLISHED; }
 
-    int32_t
-    status              () const
-    { return sockopts::tcp_info(m_socket).tcpi_state; }
+    //int32_t
+    //status              () const
+    //{ return sockopts::tcp_info(m_socket).tcpi_state; }
 
     const error_code &
     last_error          () const KNGIN_NOEXCP

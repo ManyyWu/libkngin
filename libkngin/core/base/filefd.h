@@ -12,7 +12,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-typedef filefd_type int;
+typedef int filefd_type;
 
 #define FD_VALID(fd)   (filefd_type(fd) >= 0)
 #define FD_INVALID(fd) (filefd_type(fd) < 0)

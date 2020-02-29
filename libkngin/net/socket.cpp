@@ -9,6 +9,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+#ifdef _WIN32
 socket_type filefd::invalid_fd = INVALID_SOCKET;
 
 void
@@ -31,6 +32,7 @@ filefd::close (error_code &_ec) KNGIN_NOEXCP
     _ec = (::closesocket(m_fd) < 0) ? last_error() : error_code();
     m_fd = filefd::invalid_fd;
 }
+#endif
 
 socket::socket (socket_type _fd)
     : filefd(_fd),

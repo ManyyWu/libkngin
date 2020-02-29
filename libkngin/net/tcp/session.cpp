@@ -370,7 +370,7 @@ session::on_read ()
     assert(_buf.size() > _buf.valid());
 
     error_code _ec;
-    atuo _size = m_socket.read(_buf, _ec);
+    auto _size = m_socket.read(_buf, _ec);
     if (_ec) {
         if (EWOULDBLOCK == _ec or
             EAGAIN == _ec or
