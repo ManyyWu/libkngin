@@ -132,7 +132,7 @@ public:
                     _s.close();
                     return;
                 }
-                for (int i = 0; i < times; i++) {
+                for (int _i = 0; _i < times; _i++) {
 /*                    uint8_arr_ptr _msg_arr = k::make_shared_array<char>(g_data_size);
                     in_buffer(_msg_arr.get(), g_data_size).write_bytes(g_data, g_data_size);
                     _s.send( // send data

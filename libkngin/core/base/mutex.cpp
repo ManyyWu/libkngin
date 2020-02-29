@@ -24,7 +24,7 @@ mutex::~mutex ()
         auto _ec = ::pthread_mutex_destroy(&m_mutex);
         if (_ec)
             log_fatal("::pthread_mutex_destroy() error, %s",
-                      system_error_str(_ec).c_str());
+                      system_error_str(CERR(_ec)).c_str());
     );
 }
 
@@ -34,7 +34,7 @@ mutex::lock ()
     auto _ec = ::pthread_mutex_lock(&m_mutex);
     if (_ec) {
         log_fatal("::pthread_mutex_lock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_mutex_lock() error");
     }
 }
@@ -47,7 +47,7 @@ mutex::trylock ()
         return false;
     if (_ec) {
         log_fatal("::pthread_mutex_trylock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_mutex_trylock() error");
     }
     return true;
@@ -65,7 +65,7 @@ mutex::timedlock (timestamp _ms)
         return false;
     if (_ec) {
         log_fatal("::pthread_mutex_timedlock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_mutex_timedlock() error");
     }
     return true;
@@ -77,7 +77,7 @@ mutex::unlock ()
     auto _ec = ::pthread_mutex_unlock(&m_mutex);
     if (_ec) {
         log_fatal("::pthread_mutex_unlock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_mutex_unlock() error");
     }
 }

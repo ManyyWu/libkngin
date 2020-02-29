@@ -55,7 +55,7 @@ thread::~thread () KNGIN_NOEXCP
     auto _ec = ::pthread_detach(m_thr);
     if (_ec)
         log_fatal("::pthread_detach() error, name = \"%s\", %s",
-                   m_name.c_str(), system_error_str(_ec).c_str());
+                   m_name.c_str(), system_error_str(CERR(_ec)).c_str());
     else
         log_info("thread \"%s\" has detached", m_name.c_str());
 }
@@ -65,19 +65,18 @@ thread::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
 {
     assert(_fn);
 
-    auto _ec = error_code(::pthread_create(
-                          &m_thr, nullptr,
-                          thread::start,
-                          new thread::thread_data(
-                              m_name,
-                              std::move(_fn),
-                              std::move(_crash_handler)
-                              )
-                          )
-                      );
+    auto _ec = ::pthread_create(
+                   &m_thr, nullptr,
+                   thread::start,
+                   new thread::thread_data(
+                       m_name,
+                       std::move(_fn),
+                       std::move(_crash_handler)
+                   )
+               );
     if (_ec) {
         log_fatal("::pthread_create() error, name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(_ec).c_str());
+                  m_name.c_str(), system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_create() error");
     }
 }
@@ -92,7 +91,7 @@ thread::join ()
     m_joined = true;
     if (_ec) {
         log_fatal("::pthread_join(), name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(_ec).c_str());
+                  m_name.c_str(), system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_join() error");
     }
     log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), _code.code);
@@ -107,7 +106,7 @@ thread::cancel ()
     auto _ec = ::pthread_cancel(m_thr);
     if (_ec) {
         log_fatal("::pthread_cancel(), name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(_ec).c_str());
+                  m_name.c_str(), system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_cancel() error");
     }
     log_info("thread \"%s\" cancelled", m_name.c_str());

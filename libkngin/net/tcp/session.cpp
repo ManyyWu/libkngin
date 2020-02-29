@@ -1,10 +1,4 @@
 #include "core/base/common.h"
-#include "core/base/lock.h"
-#include "core/base/buffer.h"
-#include "core/base/system_error.h"
-#include "core/event/epoller.h"
-#include "core/event/epoller.h"
-#include "net/socket.h"
 #include "net/tcp/session.h"
 
 #ifdef KNGIN_FILENAME
@@ -308,7 +302,7 @@ session::on_write ()
     assert(_buf.buffer().size());
 
     error_code _ec;
-    size_t _size = m_socket.write(_buf.buffer(), _ec);
+    auto _size = m_socket.write(_buf.buffer(), _ec);
     if (_ec) {
         if (EWOULDBLOCK == _ec or
             EAGAIN == _ec or
@@ -376,7 +370,7 @@ session::on_read ()
     assert(_buf.size() > _buf.valid());
 
     error_code _ec;
-    size_t _size = m_socket.read(_buf, _ec);
+    atuo _size = m_socket.read(_buf, _ec);
     if (_ec) {
         if (EWOULDBLOCK == _ec or
             EAGAIN == _ec or
@@ -461,7 +455,7 @@ session::on_oob ()
     char _data;
     in_buffer _buf(&_data, 1);
     error_code _ec;
-    size_t _size = m_socket.recv(_buf, MSG_OOB, _ec);
+    auto _size = m_socket.recv(_buf, MSG_OOB, _ec);
     if (_ec) {
         log_error("socket::recv(MSG_OOB) error, %s",
                   system_error_str(_ec).c_str());
@@ -504,7 +498,7 @@ _error:
         static char _arr[1];
         in_buffer _buf(_arr, 1);
         error_code _ec;
-        size_t _size = m_socket.recv(_buf, MSG_PEEK, _ec);
+        auto _size = m_socket.recv(_buf, MSG_PEEK, _ec);
         if (_ec) {
             if (EWOULDBLOCK == _ec or
                 EAGAIN == _ec or

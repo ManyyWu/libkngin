@@ -1,0 +1,128 @@
+/**
+ * 2空格缩进
+ * 函数声明不对齐，返回值类型和函数分行
+ * 函数括号不换行
+ * 三段public protected private 只出现一次
+ * friend类放最前面 typedef放三段最前面
+ * 类成员_结尾，静态成员、局部变量不加修饰，局部变量g_开头, 函数式宏小写，常量、表达式宏大写
+ * 不再使用KNGIN_NOEXCP，使用noexcept
+ * 防止泄漏内部实现，尽量多使用前置声明+impl，少引用头文件
+ * 选项全部使用#if defined(KNGIN_XXX)
+ * epoll iocp socket 等先封装exception和ec再使用，api.h,inline
+ */
+
+目录结构
+libkngin\
+	include\
+		core\
+			base\
+			event\
+		net\
+			tcp\
+			udp\
+	src
+		core\
+			base\
+				impl\
+			event\
+				impl\
+		net\
+			tcp\
+				impl\
+			udp\
+				impl\
+		http\
+libs\
+    pthread_Win32\
+        include\
+        lib\
+            x86\
+            x64\
+        bin\
+            x86\
+            x64\
+
+// define
+#ifdef _WIN32
+#define KNGIN_SYSTEM_WIN32
+#ifdef W64
+#define KNGIN_SYSTEM_WIN64
+#endif
+#endif
+...
+KNGIN_SYSTEM_UNIX_LIKE
+...
+
+// common
+void throw_system_error(error_code &ec);
+
+#define LOG_EXCP_FATAL_BEGIN
+#define LOG_EXCP_FATAL_END
+
+// lock
+class scoped_lock noncopyable {};
+
+// timer
+// win ::QueryPerformanceCounter
+
+// operation_context
+class operation_context {
+    data, op_type, handler, overlapped,
+};
+
+// reactor
+#if defined(KNGIN_HAVE_KQUEUE)
+class kqueue_reactor : noncopyable {};
+#endif /* defined(KNGIN_HAVE_KQUEUE) */
+
+#if defined(KNGIN_HAVE_SELECT)
+class select_reactor : noncopyable {};
+#endif /* defined(KNGIN_HAVE_SELECT) */
+
+#if defined(KNGIN_HAVE_POLL)
+class poll_reactor : noncopyable {};
+#endif /* defined(KNGIN_HAVE_POLL) */
+
+#if defined(KNGIN_HAVE_EPOLL)
+class epoll_reactor : noncopyable {};
+#endif /* defined(KNGIN_HAVE_EPOLL) */
+
+#if defined(KNGIN_HAVE_IOCP)
+class iocp_reactor : noncopyable {};
+#endif /* defined(KNGIN_HAVE_IOCP) */
+
+// event_loop_impl
+class event_loop_impl : noncopyable {
+public:
+  run_at()
+  run_in_loop()
+  run_until(every loop)
+  run_every()
+  m_stop --> m_shutdown
+
+private:
+#if defined(KNGIN_SYSTEM_WIN32)
+  typedef iocp_reactor reactor;
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+#if defined(KNGIN_SYSTEM_UNIX_LIKE)
+#if defined(KNGIN_HAVE_EPOLL)
+  typedef epoll_reactor reactor;
+#endif /* defined(KNGIN_HAVE_EPOLL) */
+#endif /* defined(KNGIN_SYSTEM_UNIX_LIKE) */
+
+  reactor reactor_;
+};
+
+// event_loop
+class event_loop_impl;
+class event_loop : noncopyable {
+private:
+  typedef event_loop_impl impl_type;
+
+  impl_type impl_;
+};
+
+// links
+https://www.zybuluo.com/khan-lau/note/307144
+https://www.cnblogs.com/junye/p/6077806.html
+https://copyfuture.com/blogs-details/20191217095617692d7gme4uiulz2arc

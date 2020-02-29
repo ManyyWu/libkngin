@@ -37,8 +37,8 @@ io_threadpool::start (crash_handler _handler)
 {
     assert(m_stopped);
 
-    for (int i = 0; i < m_num; ++i) {
-        auto _name = std::string("io_thread_") + std::to_string(i);
+    for (int _i = 0; _i < m_num; ++_i) {
+        auto _name = std::string("io_thread_") + std::to_string(_i);
         m_threads.push_back(std::make_unique<io_thread>(_name.c_str()));
         try {
             //log_debug("%s", m_threads.back()->name());
@@ -67,9 +67,9 @@ io_threadpool::stop ()
 
     {
         local_lock _lock(m_mutex);
-        size_t _size = m_threads.size();
-        for (uint16_t i = 0; i < _size; ++i)
-            m_threads[i]->stop();
+        auto _size = m_threads.size();
+        for (uint16_t _i = 0; _i < _size; ++_i)
+            m_threads[_i]->stop();
         m_threads.clear();
     }
     m_stopped = true;

@@ -26,7 +26,7 @@ cond::~cond () KNGIN_NOEXCP
         auto _ec = ::pthread_cond_destroy(&m_cond);
         if (_ec)
             log_fatal("::pthread_cond_destroy() error, %s",
-                      system_error_str(_ec).c_str());
+                      system_error_str(CERR(_ec)).c_str());
     );
 }
 
@@ -36,7 +36,7 @@ cond::wait ()
     auto _ec = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
     if (_ec) {
         log_fatal("::pthread_cond_wait() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_cond_wait() error");
     }
 }
@@ -53,7 +53,7 @@ cond::timedwait (timestamp _ms)
         return false;
     if (_ec) {
         log_fatal("::pthread_cond_timedwait() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_cond_timedwait() error");
     }
     return true;
@@ -65,7 +65,7 @@ cond::signal ()
     auto _ec = ::pthread_cond_signal(&m_cond);
     if (_ec) {
         log_fatal("::pthread_cond_signal() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_cond_signal() error");
     }
 }
@@ -76,7 +76,7 @@ cond::broadcast ()
     auto _ec = ::pthread_cond_broadcast(&m_cond);
     if (_ec) {
         log_fatal("::pthread_cond_broadcast() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_cond_broadcast() error");
     }
 }

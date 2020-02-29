@@ -24,7 +24,7 @@ rwlock::~rwlock () KNGIN_NOEXCP
         auto _ec = ::pthread_rwlock_destroy(&m_rwlock);
         if (_ec)
             log_fatal("::pthread_rwlock_destroy() error %s",
-                      system_error_str(_ec).c_str());
+                      system_error_str(CERR(_ec)).c_str());
     );
 }
 
@@ -34,7 +34,7 @@ rwlock::rdlock ()
     auto _ec = ::pthread_rwlock_rdlock(&m_rwlock);
     if (_ec) {
         log_fatal("::pthread_rwlock_rdlock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_rdlock() error");
     }
 }
@@ -45,7 +45,7 @@ rwlock::wrlock ()
     auto _ec = ::pthread_rwlock_wrlock(&m_rwlock);
     if (_ec) {
         log_fatal("::pthread_rwlock_wrlock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_wrlock() error");
     }
 }
@@ -58,7 +58,7 @@ rwlock::tryrdlock ()
         return false;
     if (_ec) {
         log_fatal("::pthread_rwlock_tryrdlock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_tryrdlock() error");
     }
     return true;
@@ -72,7 +72,7 @@ rwlock::trywrlock ()
         return false;
     if (_ec) {
         log_fatal("::pthread_rwlock_trywrlock() error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_trywrlock() error");
     }
     return true;
@@ -90,7 +90,7 @@ rwlock::timedrdlock (timestamp _ms)
         return false;
     if (_ec) {
         log_fatal("::pthread_rwlock_timedrdlock(), error, %s",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_timedrdlock() error");
     }
     return true;
@@ -108,7 +108,7 @@ rwlock::timedwrlock (timestamp _ms)
         return false;
     if (_ec) {
         log_fatal("::pthread_rwlock_timedwrlock() error, %d",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_timedwrlock() error");
     }
     return true;
@@ -120,7 +120,7 @@ rwlock::unlock ()
     auto _ec = ::pthread_rwlock_unlock(&m_rwlock);
     if (_ec) {
         log_fatal("::pthread_rwlock_unlock() return %d",
-                  system_error_str(_ec).c_str());
+                  system_error_str(CERR(_ec)).c_str());
         throw k::exception("::pthread_rwlock_unlock() error");
     }
 }

@@ -78,10 +78,10 @@ out_buffer::dump ()
     std::string _result;
     _result.resize(m_size * 2 + 1);
     char _tmp[3] = {0};
-    for (size_t i = 0; i < m_size; ++i) {
-        ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
-        _result[2 * i] = _tmp[0];
-        _result[2 * i + 1] = _tmp[1];
+    for (size_t _i = 0; _i < m_size; ++_i) {
+        ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[_i]);
+        _result[2 * _i] = _tmp[0];
+        _result[2 * _i + 1] = _tmp[1];
     }
     return _result;
 }
@@ -156,10 +156,10 @@ in_buffer::dump ()
     std::string _result;
     _result.resize(m_size * 2 + 1);
     char _tmp[3] = {0};
-    for (size_t i = 0; i < m_size; ++i) {
-        ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[i]);
-        _result[2 * i] = _tmp[0];
-        _result[2 * i + 1] = _tmp[1];
+    for (size_t _i = 0; _i < m_size; ++_i) {
+        ::snprintf(_tmp, sizeof(_tmp), "%02x", m_arr[_i]);
+        _result[2 * _i] = _tmp[0];
+        _result[2 * _i + 1] = _tmp[1];
     }
     return _result;
 }

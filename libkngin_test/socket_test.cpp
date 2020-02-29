@@ -15,30 +15,21 @@ using namespace k;
 #define SERVER_ADDR "127.0.0.1"
 #define SERVER_PORT 40000
 
-static int
+static int 
 client ()
 {
-    std::string _addr_str = {SERVER_ADDR};
-    uint16_t    _port = SERVER_PORT;
-
-    address _server_addr(_addr_str, _port, false);
-    k::socket _server_sock(socket::IPV4_TCP);
-    error_code _ec;
-    _server_sock.connect(_server_addr, _ec);
-    if (_ec) {
-        log_error("connect() error, %s", system_error_str(_ec).c_str());
-        return 1;
-    }
+    k::socket _sock(k::socket::IPV4_TCP);
     log_info("connecting...");
+    _sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
 
-    // read
     int _reply = 0;
     {
         char _arr[4];
         in_buffer _buf(_arr, 4);
-        _server_sock.read(_buf);
+        _sock.read(_buf);
         log_info("read integer %d", out_buffer(_arr, 4).peek_int32());
     }
+
     std::cerr << "> ";
     std::cin >> _reply;
     // write
@@ -46,10 +37,10 @@ client ()
         char _arr[4];
         in_buffer(_arr, 4).write_int32(_reply);
         out_buffer _buf(_arr, 4);
-        _server_sock.write(_buf);
+        _sock.write(_buf);
     }
 
-    _server_sock.close();
+    _sock.close();
     return 0;
 }
 
@@ -63,7 +54,9 @@ server ()
 
     k::socket _server_sock(socket::IPV4_TCP);
     sockopts::set_reuseaddr(_server_sock, true);
+#ifndef _WIN32
     sockopts::set_reuseport(_server_sock, true);
+#endif
     _server_sock.bind(_server_addr);
     _server_sock.listen(5);
     log_info("listening...");
@@ -101,7 +94,7 @@ socket_test ()
     _server_thr.run(server);
     k::thread::sleep(1000);
 
-    for (int i = 0; i< 100; ++i) {
+    for (int _i = 0; _i< 100; ++_i) {
         k::thread _client_thr("client");
         _client_thr.run(client);
         if (_client_thr.join())
@@ -110,3 +103,4 @@ socket_test ()
 
     _server_thr.join();
 }
+

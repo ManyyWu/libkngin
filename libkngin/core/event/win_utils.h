@@ -10,16 +10,16 @@ extern bool g_win_inited;
 
 extern bool g_have_get_iocp_status_ex;
 
-bool
+void
 wsa_init ();
 
-bool
+void
 wsa_deinit ();
 
-bool
+void
 win_api_init ();
 
-bool
+void
 win_init_once ();
 
 KNGIN_NAMESPACE_K_END

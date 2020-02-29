@@ -4,8 +4,6 @@
 #include <functional>
 #include <cassert>
 #include <memory>
-#include <system_error>
-#include "core/base/noncopyable.h"
 #include "core/event/event_loop.h"
 #include "net/socket.h"
 #include "net/address.h"
