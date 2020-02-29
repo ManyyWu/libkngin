@@ -8,7 +8,21 @@
  * 不再使用KNGIN_NOEXCP，使用noexcept
  * 防止泄漏内部实现，尽量多使用前置声明+impl，少引用头文件
  * 选项全部使用#if defined(KNGIN_XXX)
- * epoll iocp socket 等先封装exception和ec再使用，api.h,inline
+ * epoll iocp socket 等先封装exception和ec再使用，api.h,inline, namespace
+ */
+
+/*
+ * filefd改discriptor, 成员函数改静态
+ * 非win模拟投递，使用operation_context
+ * handler, data, 等尽量使用typedef，方便切换shared_ptr/指针、function/函数指针
+ * 尽量使用前置声明，尤其是pthread_t timer_fd, SOCKET, epoll_event等
+ * KNGIN_HAS_TIMERFD, KNGIN_HAS_PTHREAD, KNGIN_HAS_EPOLL, KNGIN_HAS_IOCP
+ * timer回调带tmiestamp
+ * get_ready_timers, process_timers, udpate_timers
+ * listener stop start filter
+ * Windows 选项:timer线程
+ * 选项:投递数据包时是否创建大段空间，并拷贝
+ * 线程: thread(process), ~thread(), detach(), join(), joinable(), sleep(), get_id(), name(), 分别使用pthread,winapi,std::thread实现
  */
 
 目录结构
@@ -67,7 +81,7 @@ class scoped_lock noncopyable {};
 
 // operation_context
 class operation_context {
-    data, op_type, handler, overlapped,
+    data, op_type, handler, overlapped, do_complete
 };
 
 // reactor
