@@ -11,15 +11,15 @@ exception::dump_stack ()
 {
 #if defined(KNGIN_SYSTEM_WIN32)
 #else
-  void * _array[100];
-  int    _size = ::backtrace(_array, 100);
-  char **_stacks = ::backtrace_symbols(_array, _size);
+  void * array[100];
+  int    size = ::backtrace(array, 100);
+  char **statcks = ::backtrace_symbols(array, size);
 
   dump_str_ += "invocation stack: ";
-  if (_size and _stacks)
-    for (int _i = 0; _i < _size; ++_i)
-      if (_stacks[_i])
-        dump_str_ += std::string("\n") + _stacks[_i];
+  if (size and statcks)
+    for (int i = 0; i < size; ++i)
+      if (statcks[i])
+        dump_str_ += std::string("\n") + statcks[i];
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 }
 

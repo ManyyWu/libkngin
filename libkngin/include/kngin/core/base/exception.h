@@ -16,14 +16,14 @@ public:
   }
 
   explicit
-  exception (const char *_what)
-    : what_(std::string("[k::exception] ") + _what), dump_str_() {
+  exception (const char *what)
+    : what_(std::string("[k::exception] ") + what), dump_str_() {
     dump_stack();
   }
 
   explicit
-  exception (const std::string &_what)
-    : what_(std::string("[k::exception] ") + _what), dump_str_() {
+  exception (const std::string &what)
+    : what_(std::string("[k::exception] ") + what), dump_str_() {
     dump_stack();
   }
 
@@ -40,7 +40,7 @@ public:
   }
 
   const char *
-  dump       () const {
+  dump       () const noexcept {
     return dump_str_.c_str();
   }
 
