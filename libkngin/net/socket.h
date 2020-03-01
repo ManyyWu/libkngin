@@ -40,7 +40,7 @@ class filefd
 {
 public:
     filefd  (socket_type fd) noexcept
-        : m_fd(fd) {}
+        : fd_(fd) {}
 
 public:
     void
@@ -52,21 +52,21 @@ public:
 public:
     bool
     invalid () const noexcept
-    { return FD_INVALID(m_fd); }
+    { return FD_INVALID(fd_); }
 
     bool
     valid   () const noexcept
-    { return FD_VALID(m_fd); }
+    { return FD_VALID(fd_); }
 
     socket_type
     fd      () const noexcept
-    { return m_fd; } 
+    { return fd_; }
 
 protected:
     static socket_type invalid_fd;
 
 protected:
-    socket_type m_fd;
+    socket_type fd_;
 };
 #else /* _WIN32 */
 typedef int socket_type;
@@ -141,11 +141,11 @@ public:
 
     bool
     rd_closed   () const noexcept
-    { return m_rd_closed; }
+    { return rd_closed_; }
 
     bool
     wr_closed   () const noexcept
-    { return m_wr_closed; }
+    { return wr_closed_; }
 
 #ifdef _WIN32
 public:
@@ -217,9 +217,9 @@ public:
     full_name   () const;
 */
 private:
-    bool        m_rd_closed;
+    bool        rd_closed_;
 
-    bool        m_wr_closed;
+    bool        wr_closed_;
 };
 
 KNGIN_NAMESPACE_K_END

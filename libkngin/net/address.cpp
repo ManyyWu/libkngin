@@ -17,15 +17,15 @@ KNGIN_NAMESPACE_K_BEGIN
 address::address (const std::string &addrstr, uint16_t port, bool v6)
 {
     if (v6) {
-        m_sa.v6.sin6_port = ::htons(port);
-        m_sa.v6.sin6_family = AF_INET6;
+        sa_.v6.sin6_port = ::htons(port);
+        sa_.v6.sin6_family = AF_INET6;
     } else {
-        m_sa.v4.sin_port = ::htons(port);
-        m_sa.v4.sin_family = AF_INET;
+        sa_.v4.sin_port = ::htons(port);
+        sa_.v4.sin_family = AF_INET;
     }
     int ret = ::inet_pton(v6 ? AF_INET6 : AF_INET,
                            addrstr.c_str(),
-                           v6 ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr);
+                           v6 ? (void *)&sa_.v6.sin6_addr : (void *)&sa_.v4.sin_addr);
     if (ret < 0)
         throw k::system_error("::inet_pton() error");
 }
@@ -33,7 +33,7 @@ address::address (const std::string &addrstr, uint16_t port, bool v6)
 bool
 address::inet6 () const
 {
-    struct ::sockaddr *addr = (struct ::sockaddr *)&m_sa.v6;
+    struct ::sockaddr *addr = (struct ::sockaddr *)&sa_.v6;
     if (AF_INET == addr->sa_family)
         return false;
     else if (AF_INET6 == addr->sa_family)
@@ -54,7 +54,7 @@ address::addrstr () const
     char buf[INET6_ADDRSTRLEN];
     const char *ret =
         ::inet_ntop(inet6() ? AF_INET6 : AF_INET,
-                    inet6() ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr,
+                    inet6() ? (void *)&sa_.v6.sin6_addr : (void *)&sa_.v4.sin_addr,
                     buf, sizeof(buf)
                     );
     if (!ret)
@@ -65,14 +65,14 @@ address::addrstr () const
 uint16_t
 address::port () const noexcept
 {
-    return ::ntohs(inet6() ? m_sa.v4.sin_port : m_sa.v6.sin6_port);
+    return ::ntohs(inet6() ? sa_.v4.sin_port : sa_.v6.sin6_port);
 }
 
 bool
 address::is_ipv4_mapped () const noexcept
 {
     assert(inet6());
-    return IN6_IS_ADDR_V4MAPPED(&m_sa.v6.sin6_addr);
+    return IN6_IS_ADDR_V4MAPPED(&sa_.v6.sin6_addr);
 }
 
 bool
@@ -99,11 +99,11 @@ std::string
 address::key () const
 {
     if (inet6())
-        return std::string((char *)&m_sa.v6.sin6_addr, sizeof(struct ::in6_addr)
-                           ).append(std::to_string(m_sa.v6.sin6_port));
+        return std::string((char *)&sa_.v6.sin6_addr, sizeof(struct ::in6_addr)
+                           ).append(std::to_string(sa_.v6.sin6_port));
     else
-        return std::string((char *)&m_sa.v4.sin_addr, sizeof(struct ::in_addr)
-                           ).append(std::to_string(m_sa.v4.sin_port));
+        return std::string((char *)&sa_.v4.sin_addr, sizeof(struct ::in_addr)
+                           ).append(std::to_string(sa_.v4.sin_port));
 }
 
 KNGIN_NAMESPACE_K_END

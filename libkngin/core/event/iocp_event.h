@@ -55,75 +55,75 @@ public:
 public:
     HANDLE
     handle         () const noexcept
-    { return m_handle; }
+    { return handle_; }
 
     bool
     registed       () const noexcept
-    { return m_registed; }
+    { return registed_; }
 
     EVENT_TYPE
     type           () const noexcept
-    { return m_type; }
+    { return type_; }
 
     uint8_t
     priority       () const noexcept
-    { return m_priority; }
+    { return priority_; }
 
 protected:
     void
     set_registed   (bool on) noexcept
-    { m_registed = on; }
+    { registed_ = on; }
 
     void
     set_index      (iocp_event_ptr &_e)
-    { m_index = _e; }
+    { index_ = _e; }
 
     iocp_event_weak_ptr &
     index          () noexcept
-    { return m_index; }
+    { return index_; }
 
 protected:
     void
-    set_flags      (uint32_t _flags) noexcept { m_flags = _flags; }
+    set_flags      (uint32_t _flags) noexcept { flags_ = _flags; }
     uint32_t
-    flags          () const          noexcept { return m_flags; }
+    flags          () const          noexcept { return flags_; }
     void
-    enable_read    ()                noexcept { m_flags |= IOCP_EVENT_IN; }
+    enable_read    ()                noexcept { flags_ |= IOCP_EVENT_IN; }
     void
-    enable_write   ()                noexcept { m_flags |= IOCP_EVENT_OUT; }
+    enable_write   ()                noexcept { flags_ |= IOCP_EVENT_OUT; }
     void
-    enable_oob     ()                noexcept { m_flags |= IOCP_EVENT_PRI; }
+    enable_oob     ()                noexcept { flags_ |= IOCP_EVENT_PRI; }
     void
-    disable_read   ()                noexcept { m_flags &= ~IOCP_EVENT_IN; }
+    disable_read   ()                noexcept { flags_ &= ~IOCP_EVENT_IN; }
     void
-    disable_write  ()                noexcept { m_flags &= ~IOCP_EVENT_OUT; }
+    disable_write  ()                noexcept { flags_ &= ~IOCP_EVENT_OUT; }
     void
-    disable_oob    ()                noexcept { m_flags &= ~IOCP_EVENT_PRI; }
+    disable_oob    ()                noexcept { flags_ &= ~IOCP_EVENT_PRI; }
     void
-    disable_all    ()                noexcept { m_flags = IOCP_EVENT_HUP | IOCP_EVENT_ERR; }
+    disable_all    ()                noexcept { flags_ = IOCP_EVENT_HUP | IOCP_EVENT_ERR; }
     bool
-    pollin         () const          noexcept { return (m_flags & IOCP_EVENT_IN); }
+    pollin         () const          noexcept { return (flags_ & IOCP_EVENT_IN); }
     bool
-    pollout        () const          noexcept { return (m_flags & IOCP_EVENT_OUT); }
+    pollout        () const          noexcept { return (flags_ & IOCP_EVENT_OUT); }
     bool
-    pollpri        () const          noexcept { return (m_flags & IOCP_EVENT_PRI); }
+    pollpri        () const          noexcept { return (flags_ & IOCP_EVENT_PRI); }
 
 protected:
     virtual void
     on_events      (event_loop &_loop, uint32_t _flags) = 0;
 
 private:
-    uint32_t            m_flags;
+    uint32_t            flags_;
 
-    HANDLE              m_handle;
+    HANDLE              handle_;
 
-    bool                m_registed;
+    bool                registed_;
 
-    EVENT_TYPE          m_type;
+    EVENT_TYPE          type_;
 
-    uint8_t             m_priority;
+    uint8_t             priority_;
         
-    iocp_event_weak_ptr m_index;
+    iocp_event_weak_ptr index_;
 };
 
 KNGIN_NAMESPACE_K_END

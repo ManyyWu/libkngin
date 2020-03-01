@@ -16,11 +16,11 @@ KNGIN_NAMESPACE_K_BEGIN
 
 epoller::epoller ()
     try
-    : m_events(),
-      m_mutex(),
-      m_epollfd(::epoll_create1(EPOLL_CLOEXEC))
+    : events_(),
+      mutex_(),
+      epollfd_(::epoll_create1(EPOLL_CLOEXEC))
 {
-    if (!m_epollfd.valid())
+    if (!epollfd_.valid())
         throw k::system_error("::epoll_create1() error");
 } catch (...) {
     log_fatal("epoller::epoller() error");
@@ -29,7 +29,7 @@ epoller::epoller ()
 
 epoller::~epoller () noexcept
 {
-    if (m_epollfd.valid())
+    if (epollfd_.valid())
         ignore_excp(this->close());
 }
 
@@ -37,8 +37,8 @@ size_t
 epoller::wait (epoll_event_set &list, timestamp ms)
 {
     assert(list.size());
-    assert(m_epollfd.valid());
-    int num = ::epoll_wait(m_epollfd.fd(), list.data(),
+    assert(epollfd_.valid());
+    int num = ::epoll_wait(epollfd_.fd(), list.data(),
                             static_cast<int>(list.size()),
                             static_cast<int>(ms.value_int()));
     if (num < 0) {
@@ -49,8 +49,8 @@ epoller::wait (epoll_event_set &list, timestamp ms)
 
 #ifndef NDEBUG
     {
-        local_lock lock(m_mutex);
-        for (auto &iter : m_events)
+        local_lock lock(mutex_);
+        for (auto &iter : events_)
             if (epoller_event::EVENT_TYPE_TIMER != iter->type() and
                 is_single_ref_ptr(iter))
                 log_warning("an event that does not be cancelled listening, "
@@ -63,25 +63,25 @@ epoller::wait (epoll_event_set &list, timestamp ms)
 void
 epoller::close ()
 {
-    assert(m_epollfd.valid());
-    m_epollfd.close();
-    m_events.clear();
-    if (m_events.size())
+    assert(epollfd_.valid());
+    epollfd_.close();
+    events_.clear();
+    if (events_.size())
         log_warning("there are still have %" PRIu64
-                    " undeleted event in epoller", m_events.size());
+                    " undeleted event in epoller", events_.size());
 }
 
 void
 epoller::register_event (epoller_event_ptr e)
 {
     assert(e);
-    assert(m_epollfd.valid());
+    assert(epollfd_.valid());
     {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         assert(!e->registed());
-        m_events.push_back(e);
+        events_.push_back(e);
         e->set_registed(true);
-        e->set_index(m_events.back());
+        e->set_index(events_.back());
         update_event(EPOLL_CTL_ADD, e->fd(), e.get());
     }
 }
@@ -89,23 +89,23 @@ epoller::register_event (epoller_event_ptr e)
 void
 epoller::remove_event (epoller_event &e)
 {
-    assert(m_epollfd.valid());
+    assert(epollfd_.valid());
     {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         assert(e.registed());
         e.set_registed(false);
         update_event(EPOLL_CTL_DEL, e.fd(), &e);
         if (auto index = e.index().lock())
-            m_events.remove(index);
+            events_.remove(index);
     }
 }
 
 void
 epoller::modify_event (epoller_event &e)
 {
-    assert(m_epollfd.valid());
+    assert(epollfd_.valid());
     {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         assert(e.registed());
         update_event(EPOLL_CTL_MOD, e.fd(), &e);
     }
@@ -114,11 +114,11 @@ epoller::modify_event (epoller_event &e)
 bool
 epoller::registed (epoller_event &e) noexcept
 {
-    assert(m_epollfd.valid());
+    assert(epollfd_.valid());
     {
-        //local_lock lock(m_mutex);
+        //local_lock lock(mutex_);
         return e.registed();
-        //return (m_events.find(e.fd()) != m_events.end());
+        //return (events_.find(e.fd()) != events_.end());
     }
 }
 
@@ -140,10 +140,10 @@ epoller::update_event (int opt, int fd, epoller_event *e)
      * particular behavior in this scenario must be considered buggy.
      * */
     assert(e);
-    assert(m_epollfd.valid());
+    assert(epollfd_.valid());
 
-    e->m_event = (epoll_event){e->m_flags, static_cast<void *>(e)};
-    if (::epoll_ctl(m_epollfd.fd(), opt, fd, &e->m_event) < 0)
+    e->event_ = (epoll_event){e->flags_, static_cast<void *>(e)};
+    if (::epoll_ctl(epollfd_.fd(), opt, fd, &e->event_) < 0)
         throw k::system_error("::epoll_ctl() error");
 }
 

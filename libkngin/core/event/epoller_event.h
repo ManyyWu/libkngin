@@ -47,83 +47,83 @@ public:
 public:
     bool
     registed       () const noexcept
-    { return m_registed; }
+    { return registed_; }
 
     EVENT_TYPE
     type           () const noexcept
-    { return m_type; }
+    { return type_; }
 
     uint8_t
     priority       () const noexcept
-    { return m_priority; }
+    { return priority_; }
 
 protected:
     void
     set_registed   (bool on) noexcept
-    { m_registed = on; }
+    { registed_ = on; }
 
     void
     set_index      (epoller_event_ptr &e)
-    { m_index = e; }
+    { index_ = e; }
 
     epoller_event_weak_ptr &
     index          () noexcept
-    { return m_index; }
+    { return index_; }
 
 protected:
     void
-    set_flags      (uint32_t flags) noexcept { m_flags = flags; }
+    set_flags      (uint32_t flags) noexcept { flags_ = flags; }
     uint32_t
-    flags          () const          noexcept { return m_flags; }
+    flags          () const          noexcept { return flags_; }
     void
-    enable_read    ()                noexcept { m_flags |= EPOLLIN; }
+    enable_read    ()                noexcept { flags_ |= EPOLLIN; }
     void
-    enable_write   ()                noexcept { m_flags |= EPOLLOUT; }
+    enable_write   ()                noexcept { flags_ |= EPOLLOUT; }
     void
-    enable_oob     ()                noexcept { m_flags |= EPOLLPRI; }
+    enable_oob     ()                noexcept { flags_ |= EPOLLPRI; }
     void
-    enable_once    ()                noexcept { m_flags |= EPOLLONESHOT; }
+    enable_once    ()                noexcept { flags_ |= EPOLLONESHOT; }
     void
-    enable_et      ()                noexcept { m_flags |= EPOLLET; }
+    enable_et      ()                noexcept { flags_ |= EPOLLET; }
     void
-    disable_read   ()                noexcept { m_flags &= ~EPOLLIN; }
+    disable_read   ()                noexcept { flags_ &= ~EPOLLIN; }
     void
-    disable_write  ()                noexcept { m_flags &= ~EPOLLOUT; }
+    disable_write  ()                noexcept { flags_ &= ~EPOLLOUT; }
     void
-    disable_oob    ()                noexcept { m_flags &= ~EPOLLPRI; }
+    disable_oob    ()                noexcept { flags_ &= ~EPOLLPRI; }
     void
-    disable_once   ()                noexcept { m_flags &= ~EPOLLONESHOT; }
+    disable_once   ()                noexcept { flags_ &= ~EPOLLONESHOT; }
     void
-    disable_et     ()                noexcept { m_flags &= ~EPOLLET; }
+    disable_et     ()                noexcept { flags_ &= ~EPOLLET; }
     void
-    disable_all    ()                noexcept { m_flags = EPOLLHUP | EPOLLERR; }
+    disable_all    ()                noexcept { flags_ = EPOLLHUP | EPOLLERR; }
     bool
-    pollin         () const          noexcept { return (m_flags & EPOLLIN); }
+    pollin         () const          noexcept { return (flags_ & EPOLLIN); }
     bool
-    pollout        () const          noexcept { return (m_flags & EPOLLOUT); }
+    pollout        () const          noexcept { return (flags_ & EPOLLOUT); }
     bool
-    pollpri        () const          noexcept { return (m_flags & EPOLLPRI); }
+    pollpri        () const          noexcept { return (flags_ & EPOLLPRI); }
     bool
-    pollonce       () const          noexcept { return (m_flags & EPOLLONESHOT); }
+    pollonce       () const          noexcept { return (flags_ & EPOLLONESHOT); }
     bool
-    et             () const          noexcept { return (m_flags & EPOLLET); }
+    et             () const          noexcept { return (flags_ & EPOLLET); }
 
 protected:
     virtual void
     on_events      (event_loop &loop, uint32_t flags) = 0;
 
 private:
-    uint32_t               m_flags;
+    uint32_t               flags_;
 
-    epoll_event            m_event;
+    epoll_event            event_;
 
-    bool                   m_registed;
+    bool                   registed_;
 
-    EVENT_TYPE             m_type;
+    EVENT_TYPE             type_;
 
-    uint8_t                m_priority;
+    uint8_t                priority_;
 
-    epoller_event_weak_ptr m_index;
+    epoller_event_weak_ptr index_;
 };
 
 KNGIN_NAMESPACE_K_END

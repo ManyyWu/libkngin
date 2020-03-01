@@ -14,42 +14,42 @@ KNGIN_NAMESPACE_K_BEGIN
 #if (ON == KNGIN_USE_TIMERFD)
 
 timer::timerid::timerid (timer_ptr timer)
-    : m_timer(timer)
+    : timer_(timer)
 {
 }
 
 timer::timerid::timerid (const timerid &timer)
-    : m_timer(timer.m_timer)
+    : timer_(timer.timer_)
 {
 }
 
 timer::timerid &
 timer::timerid::operator = (const timerid &timer)
 {
-    m_timer = timer.m_timer;
+    timer_ = timer.timer_;
     return *this;
 }
 
 timestamp
 timer::timerid::interval () const noexcept
 {
-    if (auto timer = m_timer.lock())
-        return assert(timer), timer->m_interval;
+    if (auto timer = timer_.lock())
+        return assert(timer), timer->interval_;
     return 0;
 }
 
 bool
 timer::timerid::abs () const noexcept
 {
-    if (auto timer = m_timer.lock())
-        return assert(timer), timer->m_abs;
+    if (auto timer = timer_.lock())
+        return assert(timer), timer->abs_;
     return false;
 }
 
 int
 timer::timerid::key () const noexcept
 {
-    if (auto timer = m_timer.lock())
+    if (auto timer = timer_.lock())
         return assert(timer), timer->key();
     return INVALID_FD;
 }
@@ -58,12 +58,12 @@ timer::timer (timeout_handler &&handler)
 try
     : epoller_event(::timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC),
                     epoller_event::EVENT_TYPE_TIMER),
-      m_timeout_handler(std::move(handler)),
-      m_initval(0),
-      m_interval(0),
-      m_abs(false)
+      timeout_handler_(std::move(handler)),
+      initval_(0),
+      interval_(0),
+      abs_(false)
 {
-    arg_check(m_timeout_handler);
+    arg_check(timeout_handler_);
     if (invalid())
         throw k::system_error("::timerfd_create() erorr");
 } catch (...) {
@@ -87,7 +87,7 @@ timer::get_time ()
     assert(valid());
 
     itimerspec its;
-    if (timerfd_gettime(m_fd, &its) < 0)
+    if (timerfd_gettime(fd_, &its) < 0)
         throw k::system_error("timerfd_gettime() error");
     return its.it_value;
 }*/
@@ -97,14 +97,14 @@ timer::set_time (timestamp val, timestamp interval,
                  bool abs /* = false */)
 {
     assert(valid());
-    m_initval = val;
-    m_interval = interval;
-    m_abs = abs;
+    initval_ = val;
+    interval_ = interval;
+    abs_ = abs;
 
     itimerspec its;
     val.to_timespec(its.it_value);
     interval.to_timespec(its.it_interval);
-    if (timerfd_settime(m_fd, abs ? TFD_TIMER_ABSTIME : 0,
+    if (timerfd_settime(fd_, abs ? TFD_TIMER_ABSTIME : 0,
                         &its, nullptr) < 0)
         throw k::system_error("timerfd_settime() error");
     enable_read();
@@ -145,14 +145,14 @@ timer::on_read (event_loop &loop)
         "timer::readn() error"
     );
 
-    if (m_timeout_handler) {
+    if (timeout_handler_) {
         log_excp_error(
-            m_timeout_handlers,
-            "timer::m_timeout_handler() error"
+            timeout_handlers_,
+            "timer::timeout_handler_() error"
         );
     }
 
-    if (!m_interval and registed())
+    if (!interval_ and registed())
         loop.cancels;
 }
 
@@ -160,11 +160,11 @@ timer::on_read (event_loop &loop)
 
 timer::timer (timeout_handler &&handler)
 try
-    : m_timeout_handler(std::move(handler)),
-      m_timeout(),
-      m_closed(true)
+    : timeout_handler_(std::move(handler)),
+      timeout_(),
+      closed_(true)
 {
-    arg_check(m_timeout_handler);
+    arg_check(timeout_handler_);
 } catch (...) {
     log_fatal("timer::timer() error");
     throw;
@@ -173,20 +173,20 @@ try
 void
 timer::set_time (timestamp cur_time, timestamp delay, bool persist)
 {
-    m_timeout.update(cur_time);
-    m_timeout.set_interval(delay);
-    m_timeout.set_persist(persist);
-    m_closed = false;
+    timeout_.update(cur_time);
+    timeout_.set_interval(delay);
+    timeout_.set_persist(persist);
+    closed_ = false;
 }
 
 void
 timer::on_events (event_loop &loop)
 {
     auto s = self();
-    if (m_timeout_handler) {
+    if (timeout_handler_) {
         log_excp_error(
-            m_timeout_handler(s),
-            "timer::m_timeout_handler() error"
+            timeout_handler_(s),
+            "timer::timeout_handler_() error"
         );
     }
 }

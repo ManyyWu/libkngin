@@ -47,7 +47,7 @@ public:
 
     bool
     closed         () noexcept
-    { return (INVALID_HANDLE_VALUE == m_iocp_handle); }
+    { return (INVALID_HANDLE_VALUE == iocp_handle_); }
 
 public:
     void
@@ -70,11 +70,11 @@ private:
     poll_wine      (iocp_event_set &events, timestamp ms);
 
 private:
-    event_list m_events;
+    event_list events_;
 
-    mutex      m_mutex;
+    mutex      mutex_;
 
-    HANDLE     m_iocp_handle;
+    HANDLE     iocp_handle_;
 };
 
 KNGIN_NAMESPACE_K_END

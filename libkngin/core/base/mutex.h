@@ -34,7 +34,7 @@ public:
     timedlock     (timestamp ms);
 
 private:
-    pthread_mutex_t m_mutex;
+    pthread_mutex_t mutex_;
 };
 
 KNGIN_NAMESPACE_K_END

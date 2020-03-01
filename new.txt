@@ -112,7 +112,7 @@ public:
   run_in_loop()
   run_until(every loop)
   run_every()
-  m_stop --> m_shutdown
+  stop_ --> shutdown_
 
 private:
 #if defined(KNGIN_SYSTEM_WIN32)

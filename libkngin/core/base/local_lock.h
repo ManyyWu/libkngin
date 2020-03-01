@@ -11,13 +11,13 @@ class local_lock : public noncopyable {
 public:
     explicit
     local_lock  (mutex &m)
-        : m_mutex(m) { m_mutex.lock(); }
+        : mutex_(m) { mutex_.lock(); }
 
     ~local_lock ()
-    { m_mutex.unlock(); }
+    { mutex_.unlock(); }
 
 protected:
-    mutex &m_mutex;
+    mutex &mutex_;
 };
 
 KNGIN_NAMESPACE_K_END

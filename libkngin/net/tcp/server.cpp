@@ -17,17 +17,17 @@ KNGIN_NAMESPACE_TCP_BEGIN
 
 server::server (event_loop &loop, const server_opts &opts)
     try 
-    : m_loop(&loop),
-      m_opts(opts),
-      m_threadpool(opts.thread_num),
-      m_listener(nullptr),
-      m_sent_handler(nullptr),
-      m_message_handler(nullptr),
-      m_oob_handler(nullptr),
-      m_error_handler(nullptr),
-      m_crash_handler(nullptr),
-      m_stopped(true),
-      m_stopping(false)
+    : loop_(&loop),
+      opts_(opts),
+      threadpool_(opts.thread_num),
+      listener_(nullptr),
+      sent_handler_(nullptr),
+      message_handler_(nullptr),
+      oob_handler_(nullptr),
+      error_handler_(nullptr),
+      crash_handler_(nullptr),
+      stopped_(true),
+      stopping_(false)
 {
     if (opts.disable_debug)
         logger()[0].disable_debug();
@@ -58,21 +58,21 @@ server::server (event_loop &loop, const server_opts &opts)
 
 server::~server () noexcept
 {
-    if (!m_stopped)
+    if (!stopped_)
         ignore_excp(stop());
 }
 
 bool
 server::run ()
 {
-    assert(m_stopped);
+    assert(stopped_);
 
     auto crash_handler = [this] () {
-        m_loop->run_in_loop([this] () {
-            if (m_crash_handler) {
+        loop_->run_in_loop([this] () {
+            if (crash_handler_) {
                 log_excp_fatal(
-                    m_crash_handler(),
-                    "server::m_crash_hander() error"
+                    crash_handler_(),
+                    "server::crash_hander_() error"
                 );
             }
         }); // run in main thread
@@ -89,18 +89,18 @@ server::run ()
 */
 
     // run threadpool
-    m_threadpool.start(crash_handler);
+    threadpool_.start(crash_handler);
 
     // create listen socket
-    socket listener_sock(m_opts.allow_ipv6
+    socket listener_sock(opts_.allow_ipv6
                           ? socket::IPV6_TCP
                           : socket::IPV4_TCP);
-    if (m_opts.allow_ipv6 and !m_opts.allow_ipv4)
+    if (opts_.allow_ipv6 and !opts_.allow_ipv4)
         sockopts::set_ipv6_only(listener_sock, true);
 
     // start listener
     auto on_new_session = [this] (socket &&sock) {
-        assert(!m_stopped);
+        assert(!stopped_);
         // FIXME: stop accepting when sessions reach to the maximum number
 
         try {
@@ -113,23 +113,23 @@ server::run ()
                                                 std::move(sock),
                                                 local_addr, peer_addr);
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-            session->set_message_handler(m_message_handler);
-             session->set_sent_handler(m_sent_handler);
+            session->set_message_handler(message_handler_);
+             session->set_sent_handler(sent_handler_);
 #endif
 
             // run in self loop
-            if (m_session_handler) {
+            if (session_handler_) {
                 next_loop.run_in_loop([this, new_session ] () {
                     auto next_loop = new_session->loop();
                     assert(next_loop);
-                    new_session->set_oob_handler(m_oob_handler);
-                    new_session->set_error_handler(m_error_handler);
-                    if (m_opts.keep_alive)
+                    new_session->set_oob_handler(oob_handler_);
+                    new_session->set_error_handler(error_handler_);
+                    if (opts_.keep_alive)
                         new_session->set_keepalive(true);
                     next_loop->register_event(new_session);
                     log_excp_error(
-                        m_session_handler(new_session),
-                        "server::m_session_handler() error"
+                        session_handler_(new_session),
+                        "server::session_handler_() error"
                     );
                 });
             }
@@ -143,25 +143,25 @@ server::run ()
     }; // end of on_new_session
 
     auto on_listener_error = [this, crash_handler] (error_code ec) {
-        assert(!m_stopped);
+        assert(!stopped_);
         if (ec) {
             log_error("listener error, %s", system_error_str(ec).c_str());
             crash_handler();
         }
     }; // end of on_listener_error, run in listener thread
 
-    m_listener = std::make_shared<listener>(m_threadpool.get_loop(0),
+    listener_ = std::make_shared<listener>(threadpool_.get_loop(0),
                                             std::move(listener_sock),
-                                            m_opts.name, m_opts.port,
-                                            m_opts.backlog,
+                                            opts_.name, opts_.port,
+                                            opts_.backlog,
                                             std::move(on_new_session),
                                             std::move(on_listener_error));
-    m_threadpool.get_loop(0).register_event(m_listener);
+    threadpool_.get_loop(0).register_event(listener_);
     log_info("listening for [[%s]:%d]",
-             m_listener->listen_addr().addrstr().c_str(),
-             m_listener->listen_addr().port());
+             listener_->listen_addr().addrstr().c_str(),
+             listener_->listen_addr().port());
 
-    m_stopped = false;
+    stopped_ = false;
     log_info("TCP server is running");
     return true;
 }
@@ -169,19 +169,19 @@ server::run ()
 void
 server::stop ()
 {
-    if (m_stopped or m_stopping)
+    if (stopped_ or stopping_)
         return;
-    m_stopping = true;
+    stopping_ = true;
     log_info("stopping TCP server");
 
     // close listener
-    if (m_listener)
-        m_listener->close(true);
+    if (listener_)
+        listener_->close(true);
 
     // close all threads but self
-    if (!m_stopped)
-        m_threadpool.stop(); 
-    m_stopped = true;
+    if (!stopped_)
+        threadpool_.stop();
+    stopped_ = true;
     log_info("TCP server has stopped");
 }
 
@@ -189,16 +189,16 @@ void
 server::broadcast (session_list &list, msg_buffer buf)
 {
     assert(list.size());
-    assert(!m_stopped);
+    assert(!stopped_);
 
-    if (m_stopping)
+    if (stopping_)
         return;
 
     for (auto &iter : list) {
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
         iter->send(msg_buffer(buf.get(), 0, buf.buffer().size()));
 #else
-        m_loop->run_in_loop([buf, iter] () {
+        loop_->run_in_loop([buf, iter] () {
             iter->send(buf, nullptr);
         }); // run in the loop corresponding to the connection
 #endif

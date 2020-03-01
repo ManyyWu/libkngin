@@ -18,9 +18,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 /*
  * I/O thread pool
- * m_core_size: The number of threads whose will not be destroyed when timeout occurs
- * m_max_size:  The number of threads in thread pool
- * m_alive:     The maxinum time a thread can live while idle
+ * core_size_: The number of threads whose will not be destroyed when timeout occurs
+ * max_size_:  The number of threads in thread pool
+ * alive_:     The maxinum time a thread can live while idle
  * */
 
 class io_threadpool : public noncopyable {
@@ -55,7 +55,7 @@ public:
 
     bool
     stopped        ()
-    { return m_stopped; }
+    { return stopped_; }
 
     event_loop &
     next_loop      ();
@@ -64,17 +64,17 @@ public:
     get_loop       (size_t idx);
 
 private:
-    const uint16_t    m_num;
+    const uint16_t    num_;
 
-    threads           m_threads;
+    threads           threads_;
 
-    std::atomic_bool  m_stopped;
+    std::atomic_bool  stopped_;
 
-    std::atomic_bool  m_crash;
+    std::atomic_bool  crash_;
 
-    mutex             m_mutex;
+    mutex             mutex_;
 
-    size_t            m_next;
+    size_t            next_;
 };
 
 KNGIN_NAMESPACE_K_END

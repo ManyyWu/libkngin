@@ -93,16 +93,16 @@ public:
 
 public:
     void
-    disable_info  () noexcept { m_disable_info = true; }
+    disable_info  () noexcept { disable_info_ = true; }
 
     void
-    disable_debug () noexcept { m_disable_debug = true; }
+    disable_debug () noexcept { disable_debug_ = true; }
 
     void
-    enable_info   () noexcept { m_disable_info = false; }
+    enable_info   () noexcept { disable_info_ = false; }
 
     void
-    enable_debug  () noexcept { m_disable_debug = false; }
+    enable_debug  () noexcept { disable_debug_ = false; }
 
 public:
     void
@@ -155,16 +155,16 @@ private:
 
 private:
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
-    mutex          m_mutex;
+    mutex          mutex_;
 #endif
 
-    KNGIN_LOG_MODE m_mode;
+    KNGIN_LOG_MODE mode_;
 
-    KNGIN_LOG_FILE m_filetype;
+    KNGIN_LOG_FILE filetype_;
 
-    bool           m_disable_info;
+    bool           disable_info_;
 
-    bool           m_disable_debug;
+    bool           disable_debug_;
 
 private:
     static const char * const log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1];

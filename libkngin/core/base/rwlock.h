@@ -41,7 +41,7 @@ public:
     unlock        ();
 
 private:
-    pthread_rwlock_t m_rwlock;
+    pthread_rwlock_t rwlock_;
 };
 
 KNGIN_NAMESPACE_K_END

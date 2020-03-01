@@ -17,20 +17,20 @@ KNGIN_NAMESPACE_K_BEGIN
 
 event_loop::event_loop ()
     try
-    : m_tid(0),
-      m_poller(),
+    : tid_(0),
+      poller_(),
 #ifdef KNGIN_FLAG_HAVE_EPOLLER
-      m_waker(nullptr),
+      waker_(nullptr),
 #endif
-      m_looping(false),
-      m_stop(false),
-      m_taskq(),
-      m_taskq_mutex(),
-      m_stop_barrier(std::make_shared<barrier>(2)),
+      looping_(false),
+      stop_(false),
+      taskq_(),
+      taskq_mutex_(),
+      stop_barrier_(std::make_shared<barrier>(2)),
 #if (OFF == KNGIN_USE_TIMERFD)
-      m_timers_mutex(),
+      timers_mutex_(),
 #endif
-      m_timer_processing(false)
+      timer_processing_(false)
 {
 } catch (...) {
     log_fatal("event_loop::pimpl() error");
@@ -39,7 +39,7 @@ event_loop::event_loop ()
 
 event_loop::~event_loop () noexcept
 {
-    if (m_looping)
+    if (looping_)
         ignore_excp(stop());
 }
 
@@ -47,17 +47,17 @@ void
 event_loop::run (started_handler &&start_handler, stopped_handler &&stop_handler)
 {
     bool _throw = false;
-    m_tid = thread::tid();
-    m_looping = true;
+    tid_ = thread::tid();
+    looping_ = true;
     log_info("event loop is running in thread %" PRIu64, thread::tid());
 
     auto fail = [&] () {
 #ifdef KNGIN_FLAG_HAVE_EPOLLER
-        if (m_waker) {
-            if (m_waker->registed())
-                remove_event(*m_waker);
-            m_waker->close();
-            m_waker.reset();
+        if (waker_) {
+            if (waker_->registed())
+                remove_event(*waker_);
+            waker_->close();
+            waker_.reset();
         }
 #endif
         if (stop_handler) {
@@ -66,15 +66,15 @@ event_loop::run (started_handler &&start_handler, stopped_handler &&stop_handler
                 "stop_handler() error"
             );
         }
-        m_looping = false;
+        looping_ = false;
         if (_throw) {
-            if (!m_stop_barrier->destroyed())
-                m_stop_barrier->destroy();
+            if (!stop_barrier_->destroyed())
+                stop_barrier_->destroy();
             log_fatal("caught an exception in event loop of thread %" PRIu64, thread::tid());
             throw;
         }
 
-        auto temp_ptr = m_stop_barrier;
+        auto temp_ptr = stop_barrier_;
         if (!temp_ptr->destroyed() and temp_ptr->wait())
             temp_ptr->destroy();
     };
@@ -82,8 +82,8 @@ event_loop::run (started_handler &&start_handler, stopped_handler &&stop_handler
     try {
         poller_event_set events(KNGIN_RESERVED_POLLELR_EVENT);
 #ifdef KNGIN_FLAG_HAVE_EPOLLER
-        m_waker = std::make_shared<event>([] () {});
-        register_event(m_waker);
+        waker_ = std::make_shared<event>([] () {});
+        register_event(waker_);
 #endif
         if (start_handler) {
             log_excp_error(
@@ -92,13 +92,13 @@ event_loop::run (started_handler &&start_handler, stopped_handler &&stop_handler
             );
         }
 
-        while (!m_stop) {
+        while (!stop_) {
             // process queued tasks
             process_tasks();
 
             // wait for events
             size_t size = io_pool(events);
-            if (m_stop)
+            if (stop_)
                 break;
 
             // process timer
@@ -122,53 +122,53 @@ event_loop::run (started_handler &&start_handler, stopped_handler &&stop_handler
 void
 event_loop::stop ()
 {
-    if (!m_looping)
+    if (!looping_)
         return;
 
-    m_stop = true;
+    stop_ = true;
     if (in_loop_thread()) {
-        if (!m_stop_barrier->destroyed())
-            m_stop_barrier->destroy();
+        if (!stop_barrier_->destroyed())
+            stop_barrier_->destroy();
     } else {
         wakeup();
-        std::shared_ptr<barrier> temp_ptr = m_stop_barrier;
+        std::shared_ptr<barrier> temp_ptr = stop_barrier_;
         if (temp_ptr->wait())
             temp_ptr->destroy();
     }
     {
-        local_lock lock(m_taskq_mutex);
-        m_taskq.clear();
+        local_lock lock(taskq_mutex_);
+        taskq_.clear();
     }
 }
 
 void
 event_loop::register_event (poller_event_ptr e)
 {
-    m_poller.register_event(e);
-    if (m_looping and !in_loop_thread())
+    poller_.register_event(e);
+    if (looping_ and !in_loop_thread())
         wakeup();
 }
 
 void
 event_loop::remove_event (poller_event &e)
 {
-    m_poller.remove_event(e);
-    if (m_looping and !in_loop_thread())
+    poller_.remove_event(e);
+    if (looping_ and !in_loop_thread())
         wakeup();
 }
 
 void
 event_loop::update_event (poller_event &e)
 {
-    m_poller.modify_event(e);
-    if (m_looping and !in_loop_thread())
+    poller_.modify_event(e);
+    if (looping_ and !in_loop_thread())
         wakeup();
 }
 
 bool
 event_loop::registed (poller_event &e)
 {
-    return m_poller.registed(e);
+    return poller_.registed(e);
 }
 
 void
@@ -176,10 +176,10 @@ event_loop::run_in_loop (event_loop::task &&fn)
 {
     if (fn)
     {
-        local_lock lock(m_taskq_mutex);
-        m_taskq.push_front(std::move(fn));
+        local_lock lock(taskq_mutex_);
+        taskq_.push_front(std::move(fn));
     }
-    if (m_looping and !in_loop_thread())
+    if (looping_ and !in_loop_thread())
         wakeup();
 }
 
@@ -194,12 +194,12 @@ event_loop::cancel (const timer_ptr &timer)
         timer->close();
     }
 #else
-    if (m_timer_processing) {
+    if (timer_processing_) {
         timer->close(); // remove on the next processing
     } else {
-        local_lock lock(m_timers_mutex);
+        local_lock lock(timers_mutex_);
         timer->close();
-        m_timers.remove(timer);
+        timers_.remove(timer);
     }
 #endif
 }
@@ -216,12 +216,12 @@ event_loop::cancel (timer::timerid &id) {
         timer->close();
     }
 #else
-    if (m_timer_processing) {
+    if (timer_processing_) {
         timer->close(); // remove on the next processing
     } else {
-        local_lock lock(m_timers_mutex);
+        local_lock lock(timers_mutex_);
         timer->close();
-        m_timers.remove(timer);
+        timers_.remove(timer);
     }
 #endif
 }
@@ -280,7 +280,7 @@ event_loop::io_pool (poller_event_set &events)
 #else
     static auto delay = timestamp(KNGIN_DEFAULT_POLLER_TIMEOUT);
 #endif
-    return m_poller.wait(events, delay);
+    return poller_.wait(events, delay);
 }
 
 void
@@ -288,9 +288,9 @@ event_loop::process_tasks ()
 {
     std::deque<task> taskq;
     {
-        local_lock lock(m_taskq_mutex);
-        if (!m_taskq.empty())
-            taskq.swap(m_taskq);
+        local_lock lock(taskq_mutex_);
+        if (!taskq_.empty())
+            taskq.swap(taskq_);
     }
     while (!taskq.empty()) {
         taskq.back()();
@@ -305,8 +305,8 @@ event_loop::get_next_delay ()
     auto get_min_delay = [this] () -> timestamp {
         timestamp now_time = timestamp::monotonic();
         timestamp min = KNGIN_DEFAULT_POLLER_TIMEOUT;
-        for (auto &iter : m_timers) {
-            auto remaining = iter->m_timeout.remaining(now_time);
+        for (auto &iter : timers_) {
+            auto remaining = iter->timeout_.remaining(now_time);
             if (remaining < min)
                 min = remaining;
         }
@@ -314,10 +314,10 @@ event_loop::get_next_delay ()
         return min;
     };
 
-    if (m_timer_processing and in_loop_thread()) {
+    if (timer_processing_ and in_loop_thread()) {
         return get_min_delay();
     } else {
-        local_lock lock(m_timers_mutex);
+        local_lock lock(timers_mutex_);
         return get_min_delay();
     }
 }
@@ -325,16 +325,16 @@ event_loop::get_next_delay ()
 void
 event_loop::process_timer ()
 {
-    m_timer_processing = true;
+    timer_processing_ = true;
     {
-        local_lock lock(m_timers_mutex);
-        for (auto iter = m_timers.begin(); iter != m_timers.end(); ++iter) {
-            if (m_timers.empty() or m_stop)
+        local_lock lock(timers_mutex_);
+        for (auto iter = timers_.begin(); iter != timers_.end(); ++iter) {
+            if (timers_.empty() or stop_)
                 break;
             timer_ptr timer = *iter;
             assert(timer);
             auto now_time = timestamp::monotonic();
-            auto remaining = timer->m_timeout.remaining(now_time);
+            auto remaining = timer->timeout_.remaining(now_time);
 
             // remove closed timer
             if (timer->closed())
@@ -348,20 +348,20 @@ event_loop::process_timer ()
                 "poller_event_handler::on_events() error"
             );
 
-            if (!timer->closed() and !timer->m_timeout.persist()) {
+            if (!timer->closed() and !timer->timeout_.persist()) {
                 // remove once timer
 remove:
                 timer->close();
-                iter = m_timers.erase(iter);
-                if (iter == m_timers.end())
+                iter = timers_.erase(iter);
+                if (iter == timers_.end())
                     break;
             } else {
                 // update
-                timer->m_timeout.update(now_time);
+                timer->timeout_.update(now_time);
             }
         }
     }
-    m_timer_processing = false;
+    timer_processing_ = false;
 }
 #endif /* (OFF == KNGIN_USE_TIMERFD) */
 
@@ -384,7 +384,7 @@ event_loop::sort_events (poller_event_set &events, size_t size)
 void
 event_loop::process_events (poller_event_set &events, size_t size)
 {
-    for (uint32_t i = 0; i < size and !m_stop; i++) {
+    for (uint32_t i = 0; i < size and !stop_; i++) {
 #ifdef _WIN32
 #else
         auto *ptr = static_cast<poller_event *>(events[i].data.ptr);
@@ -404,10 +404,10 @@ void
 event_loop::wakeup ()
 {
 #ifdef KNGIN_FLAG_HAVE_EPOLLER
-    if (m_waker and m_looping and m_waker->registed())
-        m_waker->notify(); // blocked
+    if (waker_ and looping_ and waker_->registed())
+        waker_->notify(); // blocked
 #else
-    m_poller.wakeup();
+    poller_.wakeup();
 #endif
 }
 
@@ -417,11 +417,11 @@ event_loop::add_timer (timer_ptr &timer)
 #if (ON == KNGIN_USE_TIMERFD)
     register_event(timer);
 #else
-    if (m_timer_processing and m_looping and in_loop_thread()) {
-        m_timers.push_front(timer);
+    if (timer_processing_ and looping_ and in_loop_thread()) {
+        timers_.push_front(timer);
     } else {
-        local_lock lock(m_timers_mutex);
-        m_timers.push_front(timer);
+        local_lock lock(timers_mutex_);
+        timers_.push_front(timer);
     }
     wakeup();
 #endif

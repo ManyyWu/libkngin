@@ -16,13 +16,13 @@ KNGIN_NAMESPACE_K_BEGIN
 
 thread::thread ()
 try
-    : m_name(""),
+    : name_(""),
 #ifdef _WIN32
-      m_thr({nullptr, 0}),
+      thr_({nullptr, 0}),
 #else
-      m_thr(0),
+      thr_(0),
 #endif
-      m_joined(false)
+      joined_(false)
 {
 } catch (...) {
     log_fatal("thread() error");
@@ -31,13 +31,13 @@ try
 
 thread::thread (const char *name)
     try
-    : m_name(name ? name : ""),
+    : name_(name ? name : ""),
 #ifdef _WIN32
-      m_thr({nullptr, 0}),
+      thr_({nullptr, 0}),
 #else
-      m_thr(0),
+      thr_(0),
 #endif
-      m_joined(false)
+      joined_(false)
 {
 } catch (...) {
     log_fatal("thread() error");
@@ -47,17 +47,17 @@ thread::thread (const char *name)
 thread::~thread () noexcept
 {
 #ifdef _WIN32
-    if (m_joined or !m_thr.p or !m_thr.x)
+    if (joined_ or !thr_.p or !thr_.x)
 #else
-    if (m_joined or !m_thr)
+    if (joined_ or !thr_)
 #endif
         return;
-    auto ec = ::pthread_detach(m_thr);
+    auto ec = ::pthread_detach(thr_);
     if (ec)
         log_fatal("::pthread_detach() error, name = \"%s\", %s",
-                   m_name.c_str(), system_error_str(CERR(ec)).c_str());
+                   name_.c_str(), system_error_str(CERR(ec)).c_str());
     else
-        log_info("thread \"%s\" has detached", m_name.c_str());
+        log_info("thread \"%s\" has detached", name_.c_str());
 }
 
 void
@@ -66,17 +66,17 @@ thread::run (thr_fn &&fn, crash_handler &&crash_handler /* = nullptr */)
     assert(fn);
 
     auto ec = ::pthread_create(
-                   &m_thr, nullptr,
+                   &thr_, nullptr,
                    thread::start,
                    new thread::thread_data(
-                       m_name,
+                       name_,
                        std::move(fn),
                        std::move(crash_handler)
                    )
                );
     if (ec) {
         log_fatal("::pthread_create() error, name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(CERR(ec)).c_str());
+                  name_.c_str(), system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_create() error");
     }
 }
@@ -87,14 +87,14 @@ thread::join ()
     assert(!equal_to(ptid()));
 
     thread_err_code code;
-    auto ec = ::pthread_join(m_thr, &code.ptr);
-    m_joined = true;
+    auto ec = ::pthread_join(thr_, &code.ptr);
+    joined_ = true;
     if (ec) {
         log_fatal("::pthread_join(), name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(CERR(ec)).c_str());
+                  name_.c_str(), system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_join() error");
     }
-    log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), code.code);
+    log_info("thread \"%s\" has joined with code: %d", name_.c_str(), code.code);
     return code.code;
 }
 
@@ -103,13 +103,13 @@ thread::cancel ()
 {
     assert(!equal_to(ptid()));
 
-    auto ec = ::pthread_cancel(m_thr);
+    auto ec = ::pthread_cancel(thr_);
     if (ec) {
         log_fatal("::pthread_cancel(), name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(CERR(ec)).c_str());
+                  name_.c_str(), system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_cancel() error");
     }
-    log_info("thread \"%s\" cancelled", m_name.c_str());
+    log_info("thread \"%s\" cancelled", name_.c_str());
 }
 
 void *
@@ -184,7 +184,7 @@ thread::sleep (timestamp ms) noexcept
 bool
 thread::equal_to (pthread_t t) noexcept
 {
-    return ::pthread_equal(t, m_thr);
+    return ::pthread_equal(t, thr_);
 }
 
 bool

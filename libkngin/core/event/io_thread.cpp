@@ -12,9 +12,9 @@ KNGIN_NAMESPACE_K_BEGIN
 io_thread::io_thread (const char *name)
     try
     : thread(name),
-      m_loop(nullptr),
-      m_mutex(),
-      m_cond(&m_mutex)
+      loop_(nullptr),
+      mutex_(),
+      cond_(&mutex_)
 {
 } catch (...) {
     log_fatal("io_thread::iothread() error");
@@ -23,21 +23,21 @@ io_thread::io_thread (const char *name)
 
 io_thread::~io_thread ()
 {
-    if (m_loop and m_loop->looping())
-        ignore_excp(m_loop->stop());
+    if (loop_ and loop_->looping())
+        ignore_excp(loop_->stop());
 }
 
 void
 io_thread::run (crash_handler &&crash_handler /* = nullptr */)
 {
     {
-        local_lock lock(m_mutex);
-        m_loop = std::make_shared<event_loop>();
+        local_lock lock(mutex_);
+        loop_ = std::make_shared<event_loop>();
         thread::run([this] () -> int {
             return process();
         }, std::move(crash_handler));
-        while (!m_loop->looping())
-            m_cond.wait();
+        while (!loop_->looping())
+            cond_.wait();
     }
 }
 
@@ -46,8 +46,8 @@ io_thread::stop ()
 {
     if (!equal_to(thread::ptid()))
     {
-        local_lock lock(m_mutex);
-        m_loop->stop();
+        local_lock lock(mutex_);
+        loop_->stop();
         join();
     }
 }
@@ -65,10 +65,10 @@ io_thread::process ()
 #endif
 */
 
-    m_loop->run([this] () {
+    loop_->run([this] () {
         {
-            local_lock lock(m_mutex);
-            m_cond.signal();
+            local_lock lock(mutex_);
+            cond_.signal();
         }
     }, nullptr);
 

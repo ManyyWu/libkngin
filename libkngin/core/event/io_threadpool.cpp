@@ -13,14 +13,14 @@ KNGIN_NAMESPACE_K_BEGIN
 
 io_threadpool::io_threadpool (uint16_t num)
     try
-    : m_num((std::max<uint16_t>)(num, 1)),
-      m_threads(),
-      m_stopped(true),
-      m_crash(false),
-      m_mutex(),
-      m_next(1)
+    : num_((std::max<uint16_t>)(num, 1)),
+      threads_(),
+      stopped_(true),
+      crash_(false),
+      mutex_(),
+      next_(1)
 {
-    m_threads.reserve(m_num);
+    threads_.reserve(num_);
 } catch (...) {
     log_fatal("io_threadpool::io_threadpool() error");
     throw;
@@ -28,51 +28,51 @@ io_threadpool::io_threadpool (uint16_t num)
 
 io_threadpool::~io_threadpool ()
 {
-    if (!m_stopped)
+    if (!stopped_)
         ignore_excp(stop());
 }
 
 void
 io_threadpool::start (crash_handler handler)
 {
-    assert(m_stopped);
+    assert(stopped_);
 
-    for (int i = 0; i < m_num; ++i) {
+    for (int i = 0; i < num_; ++i) {
         auto name = std::string("io_thread_") + std::to_string(i);
-        m_threads.push_back(std::make_unique<io_thread>(name.c_str()));
+        threads_.push_back(std::make_unique<io_thread>(name.c_str()));
         try {
-            //log_debug("%s", m_threads.back()->name());
-            m_threads.back()->run([this, handler] (pthread_t t) {
-                if (m_crash)
+            //log_debug("%s", threads_.back()->name());
+            threads_.back()->run([this, handler] (pthread_t t) {
+                if (crash_)
                     return;
-                m_crash = true;
+                crash_ = true;
                 ignore_excp(handler());
-                m_stopped = false;
+                stopped_ = false;
             }); // end of crash_handler
         } catch (...) {
-            m_stopped = false;
+            stopped_ = false;
             ignore_excp(stop());
             throw k::exception("thread pool startup failed");
         }
     }
 
-    m_stopped = false;
+    stopped_ = false;
     log_info("thread pool started");
 }
 
 void
 io_threadpool::stop ()
 {
-    assert(!m_stopped);
+    assert(!stopped_);
 
     {
-        local_lock lock(m_mutex);
-        auto size = m_threads.size();
+        local_lock lock(mutex_);
+        auto size = threads_.size();
         for (uint16_t i = 0; i < size; ++i)
-            m_threads[i]->stop();
-        m_threads.clear();
+            threads_[i]->stop();
+        threads_.clear();
     }
-    m_stopped = true;
+    stopped_ = true;
     log_info("thread pool stopped");
 }
 
@@ -80,11 +80,11 @@ void
 io_threadpool::add_task (task &&task)
 {
     assert(task);
-    assert(!m_stopped);
+    assert(!stopped_);
 
     event_loop &next = next_loop();
     {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         if (next.looping())
             next.run_in_loop(std::move(task));
     }
@@ -93,26 +93,26 @@ io_threadpool::add_task (task &&task)
 event_loop &
 io_threadpool::next_loop ()
 {
-    assert(!m_stopped);
+    assert(!stopped_);
     {
-        local_lock lock(m_mutex);
-        size_t size = m_threads.size();
+        local_lock lock(mutex_);
+        size_t size = threads_.size();
         assert(size);
-        if (m_next >= size)
-            m_next = std::max<size_t>(size - 1, 0);
-        return *(m_threads[m_next++]->get_loop());
+        if (next_ >= size)
+            next_ = std::max<size_t>(size - 1, 0);
+        return *(threads_[next_++]->get_loop());
     }
 }
 
 event_loop &
 io_threadpool::get_loop (size_t idx)
 {
-    assert(!m_stopped);
+    assert(!stopped_);
     {
-        local_lock lock(m_mutex);
-        size_t size = m_threads.size();
+        local_lock lock(mutex_);
+        size_t size = threads_.size();
         assert(idx < size);
-        return *(m_threads[idx]->get_loop());
+        return *(threads_[idx]->get_loop());
     }
 }
 

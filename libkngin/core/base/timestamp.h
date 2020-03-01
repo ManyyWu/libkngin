@@ -37,88 +37,88 @@ KNGIN_NAMESPACE_K_BEGIN
 class timestamp {
 public:
     timestamp   ()
-        : m_ms(0) {}
+        : ms_(0) {}
     timestamp   (time_t ms) noexcept
-        : m_ms(ms) {}
+        : ms_(ms) {}
     timestamp   (const timestamp &t) noexcept
-        : m_ms(t.m_ms) {}
+        : ms_(t.ms_) {}
     timestamp   (const timeval &tv) noexcept
-        : m_ms(tv.tv_sec * 1000 + tv.tv_usec / 1000) {}
+        : ms_(tv.tv_sec * 1000 + tv.tv_usec / 1000) {}
     timestamp   (const timespec &ts) noexcept
-        : m_ms(ts.tv_sec * 1000 + ts.tv_nsec / 1000000) {}
+        : ms_(ts.tv_sec * 1000 + ts.tv_nsec / 1000000) {}
     ~timestamp  () = default;
 
 public:
     timestamp &
     operator =  (const timestamp &t) noexcept
-    { m_ms = t.m_ms; return *this; }
+    { ms_ = t.ms_; return *this; }
     timestamp &
     operator =  (time_t t) noexcept
-    { m_ms = t; return *this; }
+    { ms_ = t; return *this; }
     timestamp &
     operator =  (const timeval &tv) noexcept
-    { m_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000; return *this; }
+    { ms_ = tv.tv_sec * 1000 + tv.tv_usec / 1000; return *this; }
     timestamp &
     operator =  (const timespec &ts) noexcept
-    { m_ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000; return *this; }
+    { ms_ = ts.tv_sec * 1000 + ts.tv_nsec / 1000000; return *this; }
     timestamp &
     operator += (timestamp t) noexcept
-    { m_ms += t.m_ms; return *this; }
+    { ms_ += t.ms_; return *this; }
     timestamp &
     operator -= (timestamp t) noexcept
-    { m_ms -= t.m_ms; return *this; }
+    { ms_ -= t.ms_; return *this; }
     timestamp
     operator +  (timestamp t) noexcept
-    { return m_ms + t.m_ms; }
+    { return ms_ + t.ms_; }
     timestamp
     operator -  (timestamp t) noexcept
-    { return m_ms - t.m_ms; }
+    { return ms_ - t.ms_; }
 
 public:
     bool
     operator == (timestamp t) const noexcept
-    {return t.m_ms == m_ms; }
+    {return t.ms_ == ms_; }
     bool
     operator != (timestamp t) const noexcept
-    {return t.m_ms != m_ms; }
+    {return t.ms_ != ms_; }
     bool
     operator >  (timestamp t) const noexcept
-    {return m_ms > t.m_ms; }
+    {return ms_ > t.ms_; }
     bool
     operator <  (timestamp t) const noexcept
-    {return m_ms < t.m_ms; }
+    {return ms_ < t.ms_; }
     bool
     operator >= (timestamp t) const noexcept
-    {return m_ms >= t.m_ms; }
+    {return ms_ >= t.ms_; }
     bool
     operator <= (timestamp t) const noexcept
-    {return m_ms <= t.m_ms; }
+    {return ms_ <= t.ms_; }
 
 public:
     operator
     bool        () const noexcept
-    { return m_ms; }
+    { return ms_; }
 
     operator
     time_t      () const noexcept
-    { return m_ms; }
+    { return ms_; }
 
 public:
     time_t
     value       () const noexcept
-    { return m_ms; }
+    { return ms_; }
     int32_t
     value_int   () const noexcept
-    { return static_cast<int>(std::min<time_t>(m_ms, INT32_MAX)); }
+    { return static_cast<int>(std::min<time_t>(ms_, INT32_MAX)); }
     uint32_t
     value_uint  () const noexcept
-    { return static_cast<uint32_t>(std::min<time_t>(m_ms, UINT32_MAX)); }
+    { return static_cast<uint32_t>(std::min<time_t>(ms_, UINT32_MAX)); }
     void
     to_timeval  (timeval &tv) const noexcept
-    { tv.tv_sec = long(m_ms / 1000); tv.tv_usec = long(1000 * (m_ms % 1000)); }
+    { tv.tv_sec = long(ms_ / 1000); tv.tv_usec = long(1000 * (ms_ % 1000)); }
     void
     to_timespec (timespec &ts) const noexcept
-    { ts.tv_sec = long(m_ms / 1000); ts.tv_nsec = long(1000000 * (m_ms % 1000)); }
+    { ts.tv_sec = long(ms_ / 1000); ts.tv_nsec = long(1000000 * (ms_ % 1000)); }
 
 public:
     static timestamp
@@ -156,10 +156,10 @@ public:
     { if (t1 < t2) throw k::exception("t1 < t2"); return (t1 - t2); }
     static timestamp
     abs_diff    (timestamp t1, timestamp t2) noexcept
-    { return (abs)(t1.m_ms - t2.m_ms); }
+    { return (abs)(t1.ms_ - t2.ms_); }
 
 private:
-    time_t m_ms;
+    time_t ms_;
 };
 
 inline

@@ -42,7 +42,7 @@ public:
 
     bool
     closed         () noexcept
-    { return m_epollfd.invalid(); }
+    { return epollfd_.invalid(); }
 
 public:
     void
@@ -62,11 +62,11 @@ private:
     update_event   (int opt, int fd, epoller_event *e);
 
 private:
-    epoller_event_list m_events;
+    epoller_event_list events_;
 
-    mutex              m_mutex;
+    mutex              mutex_;
 
-    filefd             m_epollfd;
+    filefd             epollfd_;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -15,9 +15,9 @@ KNGIN_NAMESPACE_K_BEGIN
 
 barrier::barrier (int count)
     try
-    : m_inited(true)
+    : inited_(true)
 {
-    auto ec = ::pthread_barrier_init(&m_barrier, nullptr, count);
+    auto ec = ::pthread_barrier_init(&barrier_, nullptr, count);
     if (ec) {
         log_fatal("::pthread_barrier_init() error, %s",
                   system_error_str(CERR(ec)).c_str());
@@ -30,7 +30,7 @@ barrier::barrier (int count)
 
 barrier::~barrier ()
 {
-    if (m_inited) {
+    if (inited_) {
         ignore_excp(destroy());
         log_warning("undestroyed barrier");
     }
@@ -39,21 +39,21 @@ barrier::~barrier ()
 void
 barrier::reinit (int count)
 {
-    assert(!m_inited);
-    auto ec = ::pthread_barrier_init(&m_barrier, nullptr, count);
+    assert(!inited_);
+    auto ec = ::pthread_barrier_init(&barrier_, nullptr, count);
     if (ec) {
         log_fatal("::pthread_barrier_init() error, %s",
                   system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_barrier_init() error");
     }
-    m_inited = true;
+    inited_ = true;
 }
 
 bool
 barrier::wait ()
 {
-    assert(m_inited);
-    auto ret = ::pthread_barrier_wait(&m_barrier);
+    assert(inited_);
+    auto ret = ::pthread_barrier_wait(&barrier_);
     if (0 == ret)
         return false;
     if (PTHREAD_BARRIER_SERIAL_THREAD == ret)
@@ -69,9 +69,9 @@ barrier::wait ()
 void
 barrier::destroy ()
 {
-    assert(m_inited);
-    m_inited = false;
-    auto ec = ::pthread_barrier_destroy(&m_barrier);
+    assert(inited_);
+    inited_ = false;
+    auto ec = ::pthread_barrier_destroy(&barrier_);
     if (ec) {
         log_fatal("::pthread_barrier_destroy() error, %s",
                   system_error_str(CERR(ec)).c_str());

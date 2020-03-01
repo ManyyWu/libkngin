@@ -29,17 +29,17 @@ timestamp          g_ts(0);
 class test_server {
 public:
     test_server (event_loop &loop, const server_opts &opts)
-        : m_loop(&loop),
-          m_server(loop, opts),
-          m_sessions(),
-          m_sessions_mutex()
+        : loop_(&loop),
+          server_(loop, opts),
+          sessions_(),
+          sessions_mutex_()
     {
     }
 
     bool
     run ()
     {
-        m_server.set_session_handler([this] (server::session_ptr session) {
+        server_.set_session_handler([this] (server::session_ptr session) {
             if (session->closed())
                 return;
             log_info("new session from %s", session->name().c_str());
@@ -47,20 +47,20 @@ public:
             g_ts = timestamp::realtime();
             // create session info
             {
-                local_lock lock(m_sessions_mutex);
-                if (m_sessions.find(session->key()) != m_sessions.end()) {
+                local_lock lock(sessions_mutex_);
+                if (sessions_.find(session->key()) != sessions_.end()) {
                     log_warning("existed session %s", session->name().c_str());
                     session->close();
                     return;
                 }
-                m_sessions.insert(std::make_pair(session->key(), session_info(session)));
-                //log_debug("size: %d", m_sessions.size());
+                sessions_.insert(std::make_pair(session->key(), session_info(session)));
+                //log_debug("size: %d", sessions_.size());
             }
 
 #define CLOSE_COND 0
 #if (true == !!CLOSE_COND)
             if (session->peer_addr().port() > 50000) {
-                auto loop = m_loop.lock();
+                auto loop = loop_.lock();
                 assert(loop);
                 loop->run_in_loop([this, loop] () {
                     stop();
@@ -73,14 +73,14 @@ public:
             process(session);
         }); // end of new_session_handler, run in listner thread
 
-        m_server.set_error_handler([this] (tcp::session &session, error_code ec) {
+        server_.set_error_handler([this] (tcp::session &session, error_code ec) {
             log_info("session %s error - %s",
                      session.name().c_str(), system_error_str(ec).c_str());
             {
-                local_lock lock(m_sessions_mutex);
-                assert(m_sessions.find(session.key()) != m_sessions.end());
-                m_sessions.erase(session.key());
-                size_t size = m_sessions.size();
+                local_lock lock(sessions_mutex_);
+                assert(sessions_.find(session.key()) != sessions_.end());
+                sessions_.erase(session.key());
+                size_t size = sessions_.size();
                 log_debug("size: %" PRIu64, size);
             }
             session.close();
@@ -88,25 +88,25 @@ public:
             g_total_size.load(), (timestamp::realtime() - g_ts).value());
         }); // end of session_error_handler, run in any thread of pool
 
-        m_server.set_crash_handler([this] () {
+        server_.set_crash_handler([this] () {
             log_fatal("server crashed");
             stop();
-            m_loop->stop();
+            loop_->stop();
         }); // end of server_crash_handler, run in main thread
-        return m_server.run();
+        return server_.run();
     }
 
     void
     stop ()
     {
-        m_server.stop();
+        server_.stop();
         {
-            local_lock lock(m_sessions_mutex);
-            for (auto &iter : m_sessions) {
+            local_lock lock(sessions_mutex_);
+            for (auto &iter : sessions_) {
                 if (!iter.second.si_session->closed())
                     iter.second.si_session->close(true);
             }
-            m_sessions.clear();
+            sessions_.clear();
         }
     }
 
@@ -157,9 +157,9 @@ public:
     }
 
 protected:
-    event_loop *m_loop;
+    event_loop *loop_;
 
-    tcp::server m_server;
+    tcp::server server_;
 
     struct session_info {
         session::session_ptr si_session;
@@ -168,8 +168,8 @@ protected:
             : si_session(session) {}
     };
     typedef std::map<std::string, session_info> buffer_map;
-    buffer_map             m_sessions;
-    mutex                  m_sessions_mutex;
+    buffer_map             sessions_;
+    mutex                  sessions_mutex_;
 };
 
 void

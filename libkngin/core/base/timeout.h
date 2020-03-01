@@ -19,23 +19,23 @@ public:
 public:
     void
     update       () noexcept
-    { m_update_time = timestamp::monotonic(); }
+    { update_time_ = timestamp::monotonic(); }
 
     void
     update       (timestamp timeval) noexcept
-    { m_update_time = timeval; }
+    { update_time_ = timeval; }
 
     void
     clear        () noexcept
-    { m_update_time = 0; m_interval = 0; m_persist = false; }
+    { update_time_ = 0; interval_ = 0; persist_ = false; }
 
     bool
     timed_out    () const noexcept
-    { return (timestamp::monotonic() - m_update_time) >= m_interval; }
+    { return (timestamp::monotonic() - update_time_) >= interval_; }
 
     bool
     timed_out    (timestamp now_time) const noexcept
-    { return (now_time - m_update_time) >= m_interval; }
+    { return (now_time - update_time_) >= interval_; }
 
     timestamp
     remaining    () const noexcept;
@@ -46,30 +46,30 @@ public:
 public:
     void
     set_interval (timestamp interval) noexcept
-    { m_interval = interval; }
+    { interval_ = interval; }
 
     void
     set_persist  (bool on) noexcept
-    { m_persist = on; }
+    { persist_ = on; }
 
     timestamp
     update_time  () const noexcept
-    { return m_update_time; }
+    { return update_time_; }
 
     timestamp
     interval     () const noexcept
-    { return m_interval; }
+    { return interval_; }
 
     bool
     persist      () const noexcept
-    { return m_persist; }
+    { return persist_; }
 
 private:
-    timestamp m_update_time;
+    timestamp update_time_;
 
-    timestamp m_interval;
+    timestamp interval_;
 
-    bool      m_persist;
+    bool      persist_;
 };
 
 

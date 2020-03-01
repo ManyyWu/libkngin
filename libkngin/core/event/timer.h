@@ -46,7 +46,7 @@ public:
 
         bool
         cancelled  ()
-        { return bool(m_timer.expired()); }
+        { return bool(timer_.expired()); }
 
     public:
         int
@@ -54,10 +54,10 @@ public:
 
         timer_weak_ptr
         weak_ptr   ()
-        { return m_timer; }
+        { return timer_; }
 
     private:
-        timer_weak_ptr m_timer;
+        timer_weak_ptr timer_;
     };
 
 public:
@@ -93,13 +93,13 @@ private:
     on_read   (event_loop &loop);
 
 private:
-    timeout_handler m_timeout_handler;
+    timeout_handler timeout_handler_;
 
-    timestamp       m_initval;
+    timestamp       initval_;
 
-    timestamp       m_interval;
+    timestamp       interval_;
 
-    bool            m_abs;
+    bool            abs_;
 };
 
 #else
@@ -120,38 +120,38 @@ public:
     class timerid {
     public:
         timerid    (timer_ptr timer)
-            : m_timer(timer) {}
+            : timer_(timer) {}
 
         timerid    (const timerid &timer)
-            : m_timer(timer.m_timer) {}
+            : timer_(timer.timer_) {}
 
         ~timerid   () = default;
 
     public:
         timerid &
         operator = (const timerid &timer)
-        { m_timer = timer.m_timer; return *this; }
+        { timer_ = timer.timer_; return *this; }
 
     public:
         timestamp
         interval   () const noexcept
-        { if (auto timer = m_timer.lock()) return assert(timer), timer->m_timeout.interval(); return 0ULL; }
+        { if (auto timer = timer_.lock()) return assert(timer), timer->timeout_.interval(); return 0ULL; }
 
         bool
         persist    () const noexcept
-        { if (auto timer = m_timer.lock()) return assert(timer), timer->m_timeout.persist(); return false; }
+        { if (auto timer = timer_.lock()) return assert(timer), timer->timeout_.persist(); return false; }
 
         bool
         cancelled  ()
-        { return bool(m_timer.expired()); }
+        { return bool(timer_.expired()); }
 
     public:
         timer_weak_ptr
         weak_ptr   ()
-        { return m_timer; }
+        { return timer_; }
 
     private:
-        timer_weak_ptr m_timer;
+        timer_weak_ptr timer_;
     };
 
 public:
@@ -168,11 +168,11 @@ public:
 
     void
     close     ()
-    { m_timeout.clear(); m_closed = true; }
+    { timeout_.clear(); closed_ = true; }
 
     bool
     closed    () const noexcept
-    { return m_closed; }
+    { return closed_; }
 
 private:
     timer_ptr
@@ -184,11 +184,11 @@ private:
     on_events (event_loop &loop);
 
 private:
-    timeout_handler  m_timeout_handler;
+    timeout_handler  timeout_handler_;
 
-    timeout          m_timeout;
+    timeout          timeout_;
 
-    std::atomic_bool m_closed;
+    std::atomic_bool closed_;
 };
 
 #endif

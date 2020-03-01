@@ -18,11 +18,11 @@ exception::dump_stack ()
     int    size = ::backtrace(array, 100);
     char **stacks = ::backtrace_symbols(array, size);
 
-    m_dump_str += "invocation stack: ";
+    dump_str_ += "invocation stack: ";
     if (size and stacks)
         for (int i = 0; i < size; ++i)
             if (stacks[i])
-                m_dump_str += std::string("\n") + stacks[i];
+                dump_str_ += std::string("\n") + stacks[i];
 #endif
 }
 

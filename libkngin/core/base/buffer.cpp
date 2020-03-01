@@ -11,15 +11,15 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 out_buffer::out_buffer() noexcept
-    : m_arr(nullptr),
-      m_size(0)
+    : arr_(nullptr),
+      size_(0)
 {
 }
 
 out_buffer::out_buffer (const void * arr, size_t size)
     try
-    : m_arr(static_cast<const unsigned char *>(arr)),
-      m_size(size)
+    : arr_(static_cast<const unsigned char *>(arr)),
+      size_(size)
 {
     arg_check(arr and size);
 } catch (...) {
@@ -27,15 +27,15 @@ out_buffer::out_buffer (const void * arr, size_t size)
 }
 
 out_buffer::out_buffer(const out_buffer &buf) noexcept
-    : m_arr(buf.m_arr), m_size(buf.m_size)
+    : arr_(buf.arr_), size_(buf.size_)
 {
 }
 
 out_buffer::out_buffer(out_buffer &&buf) noexcept
-    : m_arr(nullptr), m_size(0)
+    : arr_(nullptr), size_(0)
 {
-    std::swap(m_arr, buf.m_arr);
-    std::swap(m_size, buf.m_size);
+    std::swap(arr_, buf.arr_);
+    std::swap(size_, buf.size_);
 }
 
 size_t
@@ -44,9 +44,9 @@ out_buffer::read_bytes (void * p, size_t n)
     assert(p);
     assert(n);
     check_readable(n);
-    ::memcpy(p, m_arr, n);
-    m_size -= n;
-    m_arr += n;
+    ::memcpy(p, arr_, n);
+    size_ -= n;
+    arr_ += n;
     return n;
 }
 
@@ -55,31 +55,31 @@ out_buffer::reset (const void * arr, size_t size)
 {
     assert(arr);
     assert(size);
-    m_arr = static_cast<const unsigned char *>(arr);
-    m_size = size;
+    arr_ = static_cast<const unsigned char *>(arr);
+    size_ = size;
 }
 
 void
 out_buffer::swap (out_buffer &buf) noexcept
 {
-    std::swap(m_arr, buf.m_arr);
-    std::swap(m_size, buf.m_size);
+    std::swap(arr_, buf.arr_);
+    std::swap(size_, buf.size_);
 }
 
 std::shared_ptr<out_buffer>
 out_buffer::clone ()
 {
-    return std::make_shared<out_buffer>(m_arr, m_size);
+    return std::make_shared<out_buffer>(arr_, size_);
 }
 
 std::string
 out_buffer::dump ()
 {
     std::string result;
-    result.resize(m_size * 2 + 1);
+    result.resize(size_ * 2 + 1);
     char tmp[3] = {0};
-    for (size_t i = 0; i < m_size; ++i) {
-        ::snprintf(tmp, sizeof(tmp), "%02x", m_arr[i]);
+    for (size_t i = 0; i < size_; ++i) {
+        ::snprintf(tmp, sizeof(tmp), "%02x", arr_[i]);
         result[2 * i] = tmp[0];
         result[2 * i + 1] = tmp[1];
     }
@@ -87,17 +87,17 @@ out_buffer::dump ()
 }
 
 in_buffer::in_buffer() noexcept
-    : m_arr(nullptr),
-      m_size(0),
-      m_valid(0)
+    : arr_(nullptr),
+      size_(0),
+      valid_(0)
 {
 }
 
 in_buffer::in_buffer (void * arr, size_t size)
     try
-    : m_arr(static_cast<unsigned char *>(arr)),
-      m_size(size),
-      m_valid(0)
+    : arr_(static_cast<unsigned char *>(arr)),
+      size_(size),
+      valid_(0)
 {
     arg_check(arr and size);
 } catch (...) {
@@ -105,20 +105,20 @@ in_buffer::in_buffer (void * arr, size_t size)
 }
 
 in_buffer::in_buffer (const in_buffer &buf) noexcept
-    : m_arr(buf.m_arr),
-      m_size(buf.m_size),
-      m_valid(buf.m_valid)
+    : arr_(buf.arr_),
+      size_(buf.size_),
+      valid_(buf.valid_)
 {
 }
 
 in_buffer::in_buffer (in_buffer &&buf) noexcept
-    : m_arr(nullptr),
-      m_size(0),
-      m_valid(0)
+    : arr_(nullptr),
+      size_(0),
+      valid_(0)
 {
-    std::swap(m_arr, buf.m_arr);
-    std::swap(m_size, buf.m_size);
-    std::swap(m_valid, buf.m_valid);
+    std::swap(arr_, buf.arr_);
+    std::swap(size_, buf.size_);
+    std::swap(valid_, buf.valid_);
 }
 
 in_buffer &
@@ -127,8 +127,8 @@ in_buffer::write_bytes (const void * p, size_t n)
     assert(p);
     assert(n);
     check_writeable(n);
-    ::memcpy(m_arr + m_valid, p, n);
-    m_valid += n;
+    ::memcpy(arr_ + valid_, p, n);
+    valid_ += n;
     return *this;
 }
 
@@ -137,27 +137,27 @@ in_buffer::reset (void * arr, size_t size)
 {
     assert(arr);
     assert(size);
-    m_arr = static_cast<unsigned char *>(arr);
-    m_size = size;
-    m_valid = 0;
+    arr_ = static_cast<unsigned char *>(arr);
+    size_ = size;
+    valid_ = 0;
 }
 
 void
 in_buffer::swap (in_buffer &buf) noexcept
 {
-    std::swap(m_arr, buf.m_arr);
-    std::swap(m_size, buf.m_size);
-    std::swap(m_valid, buf.m_valid);
+    std::swap(arr_, buf.arr_);
+    std::swap(size_, buf.size_);
+    std::swap(valid_, buf.valid_);
 }
 
 std::string
 in_buffer::dump ()
 {
     std::string result;
-    result.resize(m_size * 2 + 1);
+    result.resize(size_ * 2 + 1);
     char tmp[3] = {0};
-    for (size_t i = 0; i < m_size; ++i) {
-        ::snprintf(tmp, sizeof(tmp), "%02x", m_arr[i]);
+    for (size_t i = 0; i < size_; ++i) {
+        ::snprintf(tmp, sizeof(tmp), "%02x", arr_[i]);
         result[2 * i] = tmp[0];
         result[2 * i + 1] = tmp[1];
     }
@@ -169,37 +169,37 @@ void
 net_buffer::receive (size_t n)
 {
     check_readable(n);
-    m_windex += n;
+    windex_ += n;
 }
 
 void
 net_buffer::send (size_t n)
 {
     check_writeable(n);
-    m_rindex += n;
+    rindex_ += n;
 }
 
 size_t
 net_buffer::readable ()
 {
     size_t size = writeable();
-    m_rindex = (std::min)(size, m_rindex);
-    return size - m_rindex;
+    rindex_ = (std::min)(size, rindex_);
+    return size - rindex_;
 }
 
 size_t
 net_buffer::writeable ()
 {
     size_t size = size();
-    m_windex = (std::min)(size, m_windex);
-    return size - m_windex;
+    windex_ = (std::min)(size, windex_);
+    return size - windex_;
 }
 
 size_t
 net_buffer::size ()
 {
     size_t size = 0;
-    for (auto &iter : m_list)
+    for (auto &iter : list_)
         size += iter.size();
     return size;
 }
@@ -208,23 +208,23 @@ std::vector<struct ::iovec> &
 net_buffer::to_iovec ()
 {
     std::vector<struct ::iovec> iovec;
-    std::swap(m_iovec, iovec);
+    std::swap(iovec_, iovec);
     size_t size = size();
-    size_t remain = (std::min)(size, m_windex);
-    for (auto &iter : m_list) {
+    size_t remain = (std::min)(size, windex_);
+    for (auto &iter : list_) {
         if (iter.size() > remain)
-            m_iovec.push_back({iter.data() + remain, iter.size() - remain});
+            iovec_.push_back({iter.data() + remain, iter.size() - remain});
         remain -= (std::min)(iter.size(), remain);
     }
-    return m_iovec;
+    return iovec_;
 }
 void
 net_buffer::swap (net_buffer &buf)
 {
-    std::swap(m_list, buf.m_list);
-    std::swap(m_rindex, buf.m_rindex);
-    std::swap(m_windex, buf.m_windex);
-    std::swap(m_iovec, buf.m_iovec);
+    std::swap(list_, buf.list_);
+    std::swap(rindex_, buf.rindex_);
+    std::swap(windex_, buf.windex_);
+    std::swap(iovec_, buf.iovec_);
 }
 
 void

@@ -34,61 +34,61 @@ last_error ()
 class error_code {
 public:
     error_code          () noexcept
-        : m_code(0) {}
+        : code_(0) {}
 
     error_code          (error_type code) noexcept
-        : m_code(code) {}
+        : code_(code) {}
 
     error_code          (const error_code &code) noexcept
-        : m_code(code.m_code) {}
+        : code_(code.code_) {}
 
     error_code          (const error_code &&code) noexcept
-        : m_code(code.m_code) {}
+        : code_(code.code_) {}
 
     ~error_code         () = default;
 
 public:
     std::string
     message             () const
-    { return format_error_str(m_code); }
+    { return format_error_str(code_); }
 
     error_type
     value               () const noexcept
-    { return m_code; }
+    { return code_; }
 
 public:
     explicit
     operator bool       () const noexcept
-    { return m_code; }
+    { return code_; }
 
     explicit
     operator error_type () const noexcept
-    { return m_code; }
+    { return code_; }
 
     error_code &
     operator =          (error_type code) noexcept
-    { m_code = code; return *this; }
+    { code_ = code; return *this; }
 
     error_code &
     operator =          (const error_code &code) noexcept
-    { m_code = code.m_code; return *this; }
+    { code_ = code.code_; return *this; }
 
     error_code &
     operator =          (const error_code &&code) noexcept
-    { m_code = code.m_code; return *this; }
+    { code_ = code.code_; return *this; }
 
 public:
     bool
     operator ==         (const error_type code) const noexcept
-    { return (m_code == code); }
+    { return (code_ == code); }
 
     bool
     operator ==         (const error_code &code) const noexcept
-    { return (m_code == code.m_code); }
+    { return (code_ == code.code_); }
 
     bool
     operator ==         (const error_code &&code) const noexcept
-    { return (m_code == code.m_code); }
+    { return (code_ == code.code_); }
 
     friend
     bool
@@ -103,18 +103,18 @@ private:
     format_error_str    (error_type code);
 
 private:
-    error_type m_code;
+    error_type code_;
 };
 
 inline
 bool
 operator == (int code1, const error_code &code2) noexcept
-{ return (code1 == code2.m_code); }
+{ return (code1 == code2.code_); }
 
 inline
 bool
 operator == (int code1, const error_code &&code2) noexcept
-{ return (code1 == code2.m_code); }
+{ return (code1 == code2.code_); }
 
 KNGIN_NAMESPACE_K_END
 

@@ -29,18 +29,18 @@ public:
 
     event_loop_ptr &
     get_loop   ()
-    { return m_loop; }
+    { return loop_; }
 
 private:
     int
     process    ();
 
 private:
-    event_loop_ptr m_loop;
+    event_loop_ptr loop_;
 
-    mutex          m_mutex;
+    mutex          mutex_;
 
-    cond           m_cond;
+    cond           cond_;
 };
 
 KNGIN_NAMESPACE_K_END

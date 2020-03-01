@@ -15,15 +15,15 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 cond::cond (mutex *mutex)
-    : m_cond(PTHREAD_COND_INITIALIZER),
-      m_mutex(mutex)
+    : cond_(PTHREAD_COND_INITIALIZER),
+      mutex_(mutex)
 {
 }
 
 cond::~cond () noexcept
 {
     ignore_excp(
-        auto ec = ::pthread_cond_destroy(&m_cond);
+        auto ec = ::pthread_cond_destroy(&cond_);
         if (ec)
             log_fatal("::pthread_cond_destroy() error, %s",
                       system_error_str(CERR(ec)).c_str());
@@ -33,7 +33,7 @@ cond::~cond () noexcept
 void
 cond::wait ()
 {
-    auto ec = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
+    auto ec = ::pthread_cond_wait(&cond_, &mutex_->mutex_);
     if (ec) {
         log_fatal("::pthread_cond_wait() error, %s",
                   system_error_str(CERR(ec)).c_str());
@@ -48,7 +48,7 @@ cond::timedwait (timestamp ms)
     ::timespec_get(&ts, TIME_UTC);
     timestamp time = ts;
     (time += ms).to_timespec(ts);
-    auto ec = ::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &ts);
+    auto ec = ::pthread_cond_timedwait(&cond_, &mutex_->mutex_, &ts);
     if (ETIMEDOUT == ec)
         return false;
     if (ec) {
@@ -62,7 +62,7 @@ cond::timedwait (timestamp ms)
 void
 cond::signal ()
 {
-    auto ec = ::pthread_cond_signal(&m_cond);
+    auto ec = ::pthread_cond_signal(&cond_);
     if (ec) {
         log_fatal("::pthread_cond_signal() error, %s",
                   system_error_str(CERR(ec)).c_str());
@@ -73,7 +73,7 @@ cond::signal ()
 void
 cond::broadcast ()
 {
-    auto ec = ::pthread_cond_broadcast(&m_cond);
+    auto ec = ::pthread_cond_broadcast(&cond_);
     if (ec) {
         log_fatal("::pthread_cond_broadcast() error, %s",
                   system_error_str(CERR(ec)).c_str());

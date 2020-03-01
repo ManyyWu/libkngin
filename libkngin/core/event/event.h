@@ -51,7 +51,7 @@ private:
     on_read   ();
 
 private:
-    event_handler m_event_handler;
+    event_handler event_handler_;
 };
 
 KNGIN_NAMESPACE_K_END

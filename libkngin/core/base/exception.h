@@ -11,21 +11,21 @@ KNGIN_NAMESPACE_K_BEGIN
 class exception : public std::exception {
 public:
     exception ()
-        : m_what(), m_dump_str()
+        : what_(), dump_str_()
     { dump_stack(); }
 
     explicit
     exception (const char *what)
-        : m_what(std::string("[k::exception] ") + what), m_dump_str()
+        : what_(std::string("[k::exception] ") + what), dump_str_()
     { dump_stack(); }
 
     explicit
     exception (const std::string &what)
-        : m_what(std::string("[k::exception] ") + what), m_dump_str()
+        : what_(std::string("[k::exception] ") + what), dump_str_()
     { dump_stack(); }
 
     exception (const k::exception &e)
-        : m_what(e.m_what), m_dump_str(e.m_dump_str) {}
+        : what_(e.what_), dump_str_(e.dump_str_) {}
 
 
     virtual
@@ -38,20 +38,20 @@ public:
 public:
     virtual const char *
     what       () const noexcept
-    { return m_what.c_str(); }
+    { return what_.c_str(); }
 
     const std::string &
     dump       () const
-    { return m_dump_str; }
+    { return dump_str_; }
 
 protected:
     void
     dump_stack ();
 
 private:
-    const std::string m_what;
+    const std::string what_;
 
-    std::string       m_dump_str;
+    std::string       dump_str_;
 };
 
 KNGIN_NAMESPACE_K_END

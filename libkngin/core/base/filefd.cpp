@@ -18,14 +18,14 @@ KNGIN_NAMESPACE_K_BEGIN
 filefd_type filefd::invalid_fd = INVALID_FD;
 
 filefd::filefd (filefd_type fd) noexcept
-    : m_fd(fd)
+    : fd_(fd)
 {
 }
 
 filefd::filefd (filefd &&fd) noexcept
-    : m_fd(fd.m_fd)
+    : fd_(fd.fd_)
 {
-    fd.m_fd = filefd::invalid_fd;
+    fd.fd_ = filefd::invalid_fd;
 }
 
 filefd::~filefd() noexcept
@@ -37,7 +37,7 @@ filefd::write (out_buffer &buf)
 {
     assert(buf.size());
     assert(valid());
-    auto size = ::write(m_fd, buf.begin(), buf.size());
+    auto size = ::write(fd_, buf.begin(), buf.size());
     if (size < 0)
         throw k::system_error("::write() error");
     buf -= size;
@@ -49,7 +49,7 @@ filefd::write (out_buffer &buf, error_code &ec) noexcept
 {
     assert(buf.size());
     assert(valid());
-    auto size = ::write(m_fd, buf.begin(), buf.size());
+    auto size = ::write(fd_, buf.begin(), buf.size());
     if (size < 0) {
         ec = last_error();
         return 0;
@@ -65,7 +65,7 @@ filefd::read (in_buffer &buf)
 {
     assert(buf.writeable());
     assert(valid());
-    auto size = ::read(m_fd, buf.begin(), buf.writeable());
+    auto size = ::read(fd_, buf.begin(), buf.writeable());
     if (size < 0)
         throw k::system_error("::read() error");
     buf += size;
@@ -77,7 +77,7 @@ filefd::read (in_buffer &buf, error_code &ec) noexcept
 {
     assert(buf.writeable());
     assert(valid());
-    auto size = ::read(m_fd, buf.begin(), buf.writeable());
+    auto size = ::read(fd_, buf.begin(), buf.writeable());
     if (size < 0) {
         ec = last_error();
         return 0;
@@ -97,7 +97,7 @@ filefd::writen (out_buffer &&buf)
     out_buffer buffer = std::move(buf);
     auto ret = buffer.size();
     while (buffer.size()) {
-        auto size = ::write(m_fd, buffer.begin(), buffer.size());
+        auto size = ::write(fd_, buffer.begin(), buffer.size());
         if (size < 0) {
             auto ec = last_error();
             if (EINTR == ec)
@@ -118,7 +118,7 @@ filefd::writen (out_buffer &&buf, error_code &ec) noexcept
     out_buffer buffer = std::move(buf);
     auto ret = buffer.size();
     while (buffer.size()) {
-        auto size = ::write(m_fd, buffer.begin(), buffer.size());
+        auto size = ::write(fd_, buffer.begin(), buffer.size());
         if (size < 0) {
             if (EINTR == (ec = last_error()))
                 continue;
@@ -137,7 +137,7 @@ filefd::readn (in_buffer &buf)
     assert(valid());
     assert(!nonblock());
     while (buf.writeable()) {
-        auto size = ::read(m_fd, buf.begin(), buf.writeable());
+        auto size = ::read(fd_, buf.begin(), buf.writeable());
         if (size < 0) {
             auto ec = last_error();
             if (EINTR == ec)
@@ -156,7 +156,7 @@ filefd::readn (in_buffer &buf, error_code &ec) noexcept
     assert(valid());
     assert(!nonblock());
     while (buf.writeable()) {
-        auto size = ::read(m_fd, buf.begin(), buf.writeable());
+        auto size = ::read(fd_, buf.begin(), buf.writeable());
         if (size < 0) {
             if (EINTR == (ec = last_error()))
                 continue;
@@ -173,7 +173,7 @@ filefd::readn (in_buffer &buf, error_code &ec) noexcept
 //{
 //    assert(valid());
 //    assert(buf.readable() >= nbytes);
-//    auto size = ::writev(m_fd, buf.to_iovec().data(), nbytes);
+//    auto size = ::writev(fd_, buf.to_iovec().data(), nbytes);
 //    if (size < 0)
 //        throw k::system_error("::writev() error");
 //    buf.send(size);
@@ -185,7 +185,7 @@ filefd::readn (in_buffer &buf, error_code &ec) noexcept
 //{
 //    assert(valid());
 //    assert(buf.readable() >= nbytes);
-//    auto size = ::writev(m_fd, buf.to_iovec().data(), nbytes);
+//    auto size = ::writev(fd_, buf.to_iovec().data(), nbytes);
 //    if (size < 0) {
 //        ec = last_error();
 //        return 0;
@@ -201,7 +201,7 @@ filefd::readn (in_buffer &buf, error_code &ec) noexcept
 //{
 //    assert(valid());
 //    assert(buf.writeable() >= nbytes);
-//    auto size = ::readv(m_fd, buf.to_iovec().data(), nbytes);
+//    auto size = ::readv(fd_, buf.to_iovec().data(), nbytes);
 //    if (size < 0)
 //        throw k::system_error("::readv() error");
 //    buf.receive(size);
@@ -213,7 +213,7 @@ filefd::readable ()
 {
     assert(valid());
     size_t bytes = 0;
-    if (::ioctl(m_fd, FIONREAD, &bytes) < 0)
+    if (::ioctl(fd_, FIONREAD, &bytes) < 0)
         throw k::system_error("::ioctl(FIONREAD) failed");
     return bytes;
 }
@@ -223,7 +223,7 @@ filefd::readable (error_code &ec) noexcept
 {
     assert(valid());
     size_t bytes;
-    ec = (::ioctl(m_fd, FIONREAD, &bytes) < 0) ? last_error() : error_code();
+    ec = (::ioctl(fd_, FIONREAD, &bytes) < 0) ? last_error() : error_code();
     return bytes;
 }
 
@@ -232,11 +232,11 @@ filefd::close ()
 {
     if (invalid())
         return;
-    if (::close(m_fd) < 0) {
-        m_fd = filefd::invalid_fd;
+    if (::close(fd_) < 0) {
+        fd_ = filefd::invalid_fd;
         throw k::system_error("::close() error");
     }
-    m_fd = filefd::invalid_fd;
+    fd_ = filefd::invalid_fd;
 }
 
 void
@@ -244,14 +244,14 @@ filefd::close (error_code &ec) noexcept
 {
     if (invalid())
         return;
-    ec = (::close(m_fd) < 0) ? last_error() : error_code();
-    m_fd = filefd::invalid_fd;
+    ec = (::close(fd_) < 0) ? last_error() : error_code();
+    fd_ = filefd::invalid_fd;
 }
 
 filefd_type
 filefd::dup ()
 {
-    filefd_type new_fd = ::dup(m_fd);
+    filefd_type new_fd = ::dup(fd_);
     if (new_fd < 0)
         throw k::system_error("::dup() error");
     return new_fd;
@@ -260,7 +260,7 @@ filefd::dup ()
 filefd_type
 filefd::dup (error_code &ec)
 {
-    filefd_type new_fd = ::dup(m_fd);
+    filefd_type new_fd = ::dup(fd_);
     if (new_fd < 0) {
         ec = last_error();
         return filefd::invalid_fd;
@@ -273,7 +273,7 @@ error_code
 filefd::read_error () noexcept
 {
     assert(valid());
-    auto size = ::read(m_fd, nullptr, 0);
+    auto size = ::read(fd_, nullptr, 0);
     if (size < 0)
         return last_error();
     return error_code();
@@ -283,9 +283,9 @@ void
 filefd::set_nonblock (bool on)
 {
     assert(valid());
-    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    filefd_type flags = ::fcntl(fd_, F_GETFL, 0);
     flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
-    if (::fcntl(m_fd, F_SETFL, flags) < 0)
+    if (::fcntl(fd_, F_SETFL, flags) < 0)
         throw k::system_error("::fcntl() set O_NONBLOCK flag failed");
 }
 
@@ -293,18 +293,18 @@ void
 filefd::set_nonblock (bool on, error_code &ec) noexcept
 {
     assert(valid());
-    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    filefd_type flags = ::fcntl(fd_, F_GETFL, 0);
     flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
-    ec = (::fcntl(m_fd, F_SETFL, flags) < 0) ? last_error() : error_code();
+    ec = (::fcntl(fd_, F_SETFL, flags) < 0) ? last_error() : error_code();
 }
 
 void
 filefd::set_closeexec (bool on)
 {
     assert(valid());
-    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    filefd_type flags = ::fcntl(fd_, F_GETFL, 0);
     flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
-    if (::fcntl(m_fd, F_SETFL, flags) < 0)
+    if (::fcntl(fd_, F_SETFL, flags) < 0)
         throw k::system_error("::fcntl() set O_CLOEXEC flag failed");
 }
 
@@ -312,16 +312,16 @@ void
 filefd::set_closeexec (bool on, error_code &ec) noexcept
 {
     assert(valid());
-    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    filefd_type flags = ::fcntl(fd_, F_GETFL, 0);
     flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
-    ec = (::fcntl(m_fd, F_SETFL, flags) < 0) ? last_error() : error_code();
+    ec = (::fcntl(fd_, F_SETFL, flags) < 0) ? last_error() : error_code();
 }
 
 bool
 filefd::nonblock () const
 {
     assert(valid());
-    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    filefd_type flags = ::fcntl(fd_, F_GETFL, 0);
     if (flags < 0)
         throw k::system_error("::fcntl() get O_CLOEXEC flag failed");
     return (flags & O_NONBLOCK);
@@ -331,7 +331,7 @@ bool
 filefd::nonblock (error_code &ec) const noexcept
 {
     assert(valid());
-    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    filefd_type flags = ::fcntl(fd_, F_GETFL, 0);
     ec = (flags < 0) ? last_error() : error_code();
     return (flags & O_NONBLOCK);
 }
@@ -340,7 +340,7 @@ filefd &
 filefd::operator = (filefd_type fd) noexcept
 {
     assert(FD_VALID(fd));
-    m_fd = fd;
+    fd_ = fd;
     return *this;
 }
 

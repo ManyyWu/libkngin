@@ -69,15 +69,15 @@ public:
 
     bool
     joined        () const noexcept
-    { return m_joined; }
+    { return joined_; }
 
     pthread_t
     get_interface () const noexcept
-    { return m_thr; }
+    { return thr_; }
 
     const char *
     name          () const noexcept
-    { return m_name.c_str(); }
+    { return name_.c_str(); }
 
 public:
     static uint64_t
@@ -106,11 +106,11 @@ protected:
     cleanup       (void *args) noexcept;
 
 protected:
-    const std::string m_name;
+    const std::string name_;
 
-    pthread_t         m_thr;
+    pthread_t         thr_;
 
-    std::atomic_bool  m_joined;
+    std::atomic_bool  joined_;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -29,7 +29,7 @@
 //
 //public:
 //    netmsg_test (task_base *task)
-//    : msg(task), m_info(nullptr)
+//    : msg(task), info_(nullptr)
 //    {
 //    }
 //
@@ -37,19 +37,19 @@
 //    virtual
 //    ~netmsg_test ()
 //    {
-//        kdelete_array(m_info);
+//        kdelete_array(info_);
 //    }
 //
 //public:
 //    virtual bool
 //    create (ACTION action, int param)
 //    {
-//        //knew(m_info, test_info, ({action, param}));
-//        knew(m_info, test_info, ({action, param}));
-//        assert(m_info);
-//        if (!m_info)
+//        //knew(info_, test_info, ({action, param}));
+//        knew(info_, test_info, ({action, param}));
+//        assert(info_);
+//        if (!info_)
 //            return false;
-//        return msg::create((uint8_t *)m_info, sizeof(test_info), MSG_TYPE_TEST0);
+//        return msg::create((uint8_t *)info_, sizeof(test_info), MSG_TYPE_TEST0);
 //    }
 //
 //public:
@@ -57,7 +57,7 @@
 //    process ()
 //    {
 //        return [this] () mutable -> bool {
-//            switch (this->m_info->action) {
+//            switch (this->info_->action) {
 //            case ACTION_0:
 //                return [this] (int param) -> bool {
 //                    netmsg_test *msg = nullptr;
@@ -70,7 +70,7 @@
 //                    }
 //                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
-//                }(this->m_info->param);
+//                }(this->info_->param);
 //                break;
 //            case ACTION_1:
 //                return [this] (int param) -> bool {
@@ -84,7 +84,7 @@
 //                    }
 //                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
-//                }(this->m_info->param);
+//                }(this->info_->param);
 //                break;
 //            case ACTION_2:
 //                return [this] (int param) -> bool {
@@ -98,7 +98,7 @@
 //                    }
 //                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
-//                }(this->m_info->param);
+//                }(this->info_->param);
 //                break;
 //            case ACTION_3:
 //                return [this] (int param) -> bool {
@@ -112,7 +112,7 @@
 //                    }
 //                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
-//                }(this->m_info->param);
+//                }(this->info_->param);
 //                break;
 //            default:
 //                log_error("invalid message type");
@@ -125,7 +125,7 @@
 //    const uint8_t *
 //    get_buf ()
 //    {
-//        return m_buf;
+//        return buf_;
 //    }
 //
 //protected:
@@ -136,5 +136,5 @@
 //    };
 //#pragma pack(pop)
 //
-//    struct test_info *m_info;
+//    struct test_info *info_;
 //};

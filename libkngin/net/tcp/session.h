@@ -100,7 +100,7 @@ public:
 
     bool
     closed              () noexcept
-    { return m_closed; }
+    { return closed_; }
 
     //bool
     //connected           () const
@@ -108,75 +108,75 @@ public:
 
     //int32_t
     //status              () const
-    //{ return sockopts::tcp_info(m_socket).tcpi_state; }
+    //{ return sockopts::tcp_info(socket_).tcpi_state; }
 
     const error_code &
     last_error          () const noexcept
-    { return m_last_error; }
+    { return last_error_; }
 
 public:
     void
     set_read_lowat      (int size)
-    { sockopts::set_rcvlowat(m_socket, size); }
+    { sockopts::set_rcvlowat(socket_, size); }
     int
     read_lowat          ()
-    { return sockopts::rcvlowat(m_socket); }
+    { return sockopts::rcvlowat(socket_); }
     void
     set_write_lowat     (int size)
-    { sockopts::set_sndlowat(m_socket, size); }
+    { sockopts::set_sndlowat(socket_, size); }
     int
     write_lowat         ()
-    { return sockopts::sndlowat(m_socket); }
+    { return sockopts::sndlowat(socket_); }
     void
     set_keepalive       (bool on)
-    { sockopts::set_keepalive(m_socket, on); }
+    { sockopts::set_keepalive(socket_, on); }
     bool
     keepalive           ()
-    { return sockopts::keepalive(m_socket); }
+    { return sockopts::keepalive(socket_); }
 
 public:
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     void
     set_message_handler (const message_handler &handler)
-    { assert(!registed()); m_message_handler = handler; }
+    { assert(!registed()); message_handler_ = handler; }
     void
     set_sent_handler    (const sent_handler &handler)
-    { assert(!registed()); m_sent_handler = handler; }
+    { assert(!registed()); sent_handler_ = handler; }
 #endif
     void
     set_oob_handler     (const oob_handler &handler)
-    { assert(!registed()); m_oob_handler = handler; enable_oob(); }
+    { assert(!registed()); oob_handler_ = handler; enable_oob(); }
     void
     set_error_handler   (const error_handler &handler)
-    { assert(!registed()); m_error_handler = handler; }
+    { assert(!registed()); error_handler_ = handler; }
 
     // TODO: Optimize for callback storage
 
 public:
     const address &
     local_addr          () const noexcept
-    { return m_local_addr; }
+    { return local_addr_; }
 
     const address &
     peer_addr           () const noexcept
-    { return m_peer_addr; }
+    { return peer_addr_; }
 
     const std::string
     name                () const noexcept
-    { return m_name; }
+    { return name_; }
 
     const std::string &
     key                 () const noexcept
-    { return m_key; }
+    { return key_; }
 
 public:
     event_loop *
     loop                () noexcept
-    { return m_loop; }
+    { return loop_; }
 
     const event_loop *
     loop                () const noexcept
-    { return m_loop; }
+    { return loop_; }
 
     session_ptr
     self                ()
@@ -189,7 +189,7 @@ public:
 private:
     k::socket &
     socket              () noexcept
-    { return m_socket; }
+    { return socket_; }
 
 private:
     virtual void
@@ -215,53 +215,53 @@ private:
     clear_queues        ();
 
 private:
-    event_loop *      m_loop;
+    event_loop *      loop_;
 
-    k::socket         m_socket;
+    k::socket         socket_;
 
-    std::atomic_bool  m_closed;
+    std::atomic_bool  closed_;
 
-    std::atomic_bool  m_closing;
+    std::atomic_bool  closing_;
 
-    const address     m_local_addr;
+    const address     local_addr_;
 
-    const address     m_peer_addr;
+    const address     peer_addr_;
 
-    const std::string m_name;
+    const std::string name_;
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
-    message_handler   m_message_handler;
+    message_handler   message_handler_;
 
-    sent_handler      m_sent_handler;
+    sent_handler      sent_handler_;
 #endif
 
-    in_ctxq           m_in_ctxq;
+    in_ctxq           in_ctxq_;
 
-    out_ctxq          m_out_ctxq;
+    out_ctxq          out_ctxq_;
 
-    out_context *     m_next_out_ctx;
+    out_context *     next_out_ctx_;
 
-    in_context *      m_next_in_ctx;
+    in_context *      next_in_ctx_;
 
 #if (ON == KNGIN_SESSION_ET_MODE)
-    std::atomic_bool  m_recv_complete;
+    std::atomic_bool  recv_complete_;
 
-    std::atomic_bool  m_send_complete;
+    std::atomic_bool  send_complete_;
 #endif
 
-    oob_handler       m_oob_handler;
+    oob_handler       oob_handler_;
 
-    error_handler     m_error_handler;
+    error_handler     error_handler_;
 
 #if (ON != KNGIN_SESSION_NO_MUTEX)
-    mutex             m_out_bufq_mutex;
+    mutex             out_bufq_mutex_;
 
-    mutex             m_in_bufq_mutex;
+    mutex             in_bufq_mutex_;
 #endif
 
-    error_code        m_last_error;
+    error_code        last_error_;
 
-    const std::string m_key;
+    const std::string key_;
 };
 
 KNGIN_NAMESPACE_TCP_END

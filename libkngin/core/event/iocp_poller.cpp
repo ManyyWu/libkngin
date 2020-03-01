@@ -17,11 +17,11 @@ KNGIN_NAMESPACE_K_BEGIN
 
 iocp_poller::iocp_poller ()
     try
-    : m_events(),
-      m_mutex(),
-      m_iocp_handle(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 1))
+    : events_(),
+      mutex_(),
+      iocp_handle_(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 1))
 {
-    if (INVALID_HANDLE_VALUE == m_iocp_handle)
+    if (INVALID_HANDLE_VALUE == iocp_handle_)
         throw k::system_error("::CreateIoCompletionPort() error");
 } catch (...) {
     log_fatal("iocp_poller::iocp_poller() error");
@@ -30,7 +30,7 @@ iocp_poller::iocp_poller ()
 
 iocp_poller::~iocp_poller () noexcept
 {
-    if (INVALID_HANDLE_VALUE != m_iocp_handle)
+    if (INVALID_HANDLE_VALUE != iocp_handle_)
         ignore_excp(this->close());
 }
 
@@ -43,9 +43,9 @@ iocp_poller::wait (iocp_event_set &events, timestamp ms)
 void
 iocp_poller::wakeup ()
 {
-    if (m_iocp_handle) {
+    if (iocp_handle_) {
         cond_sys_err(
-            FALSE == ::PostQueuedCompletionStatus(m_iocp_handle, -1, 0, nullptr),
+            FALSE == ::PostQueuedCompletionStatus(iocp_handle_, -1, 0, nullptr),
             "::PostQueuedCompletionStatus() error"
         );
     }
@@ -59,7 +59,7 @@ iocp_poller::poll (iocp_event_set &events, timestamp ms)
     ULONG_PTR        key = 0;
     OVERLAPPED_ENTRY overlappeds[KNGIN_RESERVED_POLLELR_EVENT];
 
-    ::GetQueuedCompletionStatusEx(m_iocp_handle,
+    ::GetQueuedCompletionStatusEx(iocp_handle_,
                                   overlappeds,
                                   KNGIN_RESERVED_POLLELR_EVENT,
                                   &size,
@@ -94,7 +94,7 @@ iocp_poller::poll_wine (iocp_event_set &events, timestamp ms)
         ULONG_PTR   key = 0;
         OVERLAPPED *overlapped = nullptr;
 
-        bool ok = ::GetQueuedCompletionStatus(m_iocp_handle,
+        bool ok = ::GetQueuedCompletionStatus(iocp_handle_,
                                     &bytes,
                                     &key,
                                     &overlapped,
@@ -118,54 +118,54 @@ iocp_poller::poll_wine (iocp_event_set &events, timestamp ms)
 void
 iocp_poller::close ()
 {
-    assert(INVALID_HANDLE_VALUE != m_iocp_handle);
+    assert(INVALID_HANDLE_VALUE != iocp_handle_);
     cond_sys_err(
-        FALSE == ::CloseHandle(m_iocp_handle),
+        FALSE == ::CloseHandle(iocp_handle_),
         "::CloseHandle() error"
     );
-    m_events.clear();
-    if (m_events.size())
+    events_.clear();
+    if (events_.size())
         log_warning("there are still have %" PRIu64
-                    " undeleted iocp event in epoller", m_events.size());
+                    " undeleted iocp event in epoller", events_.size());
 }
 
 void
 iocp_poller::register_event (iocp_event_ptr e)
 {
     assert(e);
-    assert(INVALID_HANDLE_VALUE == m_iocp_handle);
+    assert(INVALID_HANDLE_VALUE == iocp_handle_);
     {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         assert(!e->registed());
-        m_events.push_back(e);
+        events_.push_back(e);
         e->set_registed(true);
-        e->set_index(m_events.back());
+        e->set_index(events_.back());
     }
 }
 
 void
 iocp_poller::remove_event (iocp_event &e)
 {
-    assert(INVALID_HANDLE_VALUE == m_iocp_handle);
+    assert(INVALID_HANDLE_VALUE == iocp_handle_);
     {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         assert(e.registed());
         e.set_registed(false);
         if (auto index = e.index().lock())
-            m_events.remove(index);
+            events_.remove(index);
     }
 }
 
 void
 iocp_poller::modify_event (iocp_event &e)
 {
-    assert(INVALID_HANDLE_VALUE == m_iocp_handle);
+    assert(INVALID_HANDLE_VALUE == iocp_handle_);
 }
 
 bool
 iocp_poller::registed (iocp_event &e) noexcept
 {
-    assert(INVALID_HANDLE_VALUE == m_iocp_handle);
+    assert(INVALID_HANDLE_VALUE == iocp_handle_);
     return (!e.registed());
 }
 

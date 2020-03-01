@@ -17,11 +17,11 @@ filefd::close ()
 {
     if (invalid())
         return;
-    if (::closesocket(m_fd) < 0) {
-        m_fd = filefd::invalid_fd;
+    if (::closesocket(fd_) < 0) {
+        fd_ = filefd::invalid_fd;
         throw k::system_error("::close() error");
     }
-    m_fd = filefd::invalid_fd;
+    fd_ = filefd::invalid_fd;
 }
 
 void
@@ -29,15 +29,15 @@ filefd::close (error_code &ec) noexcept
 {
     if (invalid())
         return;
-    ec = (::closesocket(m_fd) < 0) ? last_error() : error_code();
-    m_fd = filefd::invalid_fd;
+    ec = (::closesocket(fd_) < 0) ? last_error() : error_code();
+    fd_ = filefd::invalid_fd;
 }
 #endif
 
 socket::socket (socket_type fd)
     : filefd(fd),
-      m_rd_closed(invalid()),
-      m_wr_closed(invalid())
+      rd_closed_(invalid()),
+      wr_closed_(invalid())
 {
     if (invalid())
         throw k::exception("socket::socket() error, invalid file descriptor");
@@ -47,8 +47,8 @@ socket::socket (INET_PROTOCOL proto)
     try
     : filefd(::socket(is_bits_set(proto, 1) ? AF_INET6 : AF_INET,
                       is_bits_set(proto, 0) ? SOCK_DGRAM : SOCK_STREAM, 0)),
-      m_rd_closed(invalid()),
-      m_wr_closed(invalid())
+      rd_closed_(invalid()),
+      wr_closed_(invalid())
 {
     arg_check(valid());
 } catch (...) {
@@ -57,35 +57,35 @@ socket::socket (INET_PROTOCOL proto)
 }
 
 socket::socket (socket &&s) noexcept
-    : filefd(s.m_fd),
-      m_rd_closed(s.m_rd_closed),
-      m_wr_closed(s.m_wr_closed)
+    : filefd(s.fd_),
+      rd_closed_(s.rd_closed_),
+      wr_closed_(s.wr_closed_)
 {
-    s.m_fd = filefd::invalid_fd;
-    s.m_rd_closed = true;
-    s.m_wr_closed = true;
+    s.fd_ = filefd::invalid_fd;
+    s.rd_closed_ = true;
+    s.wr_closed_ = true;
 }
 
 socket::~socket () noexcept
 {
-    m_fd = (m_rd_closed and m_wr_closed) ? filefd::invalid_fd : m_fd;
+    fd_ = (rd_closed_ and wr_closed_) ? filefd::invalid_fd : fd_;
 }
 
 void
 socket::bind (const address &addr)
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    if (::bind(m_fd, (const struct ::sockaddr *)&addr.sa(), addr.size()) < 0)
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    if (::bind(fd_, (const struct ::sockaddr *)&addr.sa(), addr.size()) < 0)
         throw k::system_error("::bind() error");
 }
 
 void
 socket::bind (const address &addr, error_code &ec) noexcept
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    ec = (::bind(m_fd, (const struct ::sockaddr *)&addr.m_sa, addr.size()) < 0)
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    ec = (::bind(fd_, (const struct ::sockaddr *)&addr.sa_, addr.size()) < 0)
           ? last_error()
           : error_code();
 }
@@ -93,27 +93,27 @@ socket::bind (const address &addr, error_code &ec) noexcept
 void
 socket::listen (int backlog)
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    if (::listen(m_fd, backlog) < 0)
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    if (::listen(fd_, backlog) < 0)
         throw k::system_error("::listen() error");
 }
 
 void
 socket::listen (int backlog, error_code &ec) noexcept
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    ec = (::listen(m_fd, backlog) < 0) ? last_error() : error_code();
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    ec = (::listen(fd_, backlog) < 0) ? last_error() : error_code();
 }
 
 socket_type
 socket::accept (address &addr)
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    socklen_t len = sizeof(addr.m_sa);
-    socket_type fd = ::accept(m_fd, (struct ::sockaddr *)&addr.m_sa, &len);
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    socklen_t len = sizeof(addr.sa_);
+    socket_type fd = ::accept(fd_, (struct ::sockaddr *)&addr.sa_, &len);
     if (fd < 0)
         throw k::system_error("::accept() error");
     return fd;
@@ -122,10 +122,10 @@ socket::accept (address &addr)
 socket_type
 socket::accept (address &addr, error_code &ec) noexcept
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    socklen_t len = sizeof(addr.m_sa);
-    socket_type fd = ::accept(m_fd, (struct ::sockaddr *)&addr.m_sa, &len);
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    socklen_t len = sizeof(addr.sa_);
+    socket_type fd = ::accept(fd_, (struct ::sockaddr *)&addr.sa_, &len);
     ec = (fd < 0) ? last_error() : error_code();
     return fd;
 }
@@ -133,18 +133,18 @@ socket::accept (address &addr, error_code &ec) noexcept
 void
 socket::connect (const address &addr)
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    if (::connect(m_fd, (const struct ::sockaddr *)&addr.m_sa, addr.size()) < 0)
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    if (::connect(fd_, (const struct ::sockaddr *)&addr.sa_, addr.size()) < 0)
         throw k::system_error("::connect() error");
 }
 
 void
 socket::connect (const address &addr, error_code &ec) noexcept
 {
-    assert(!m_wr_closed);
-    assert(!m_rd_closed);
-    ec = (::connect(m_fd, (const struct ::sockaddr *)&addr.m_sa, addr.size()) < 0)
+    assert(!wr_closed_);
+    assert(!rd_closed_);
+    ec = (::connect(fd_, (const struct ::sockaddr *)&addr.sa_, addr.size()) < 0)
           ? last_error()
           : error_code();
 }
@@ -153,58 +153,58 @@ void
 socket::close ()
 {
     filefd::close();
-    m_rd_closed = true;
-    m_wr_closed = true;
+    rd_closed_ = true;
+    wr_closed_ = true;
 }
 
 void
 socket::close (error_code &ec) noexcept
 {
     filefd::close(ec);
-    m_rd_closed = true;
-    m_wr_closed = true;
+    rd_closed_ = true;
+    wr_closed_ = true;
 }
 
 void
 socket::rd_shutdown ()
 {
-    assert(!m_rd_closed);
-    if (::shutdown(m_fd, SHUT_RD) < 0)
+    assert(!rd_closed_);
+    if (::shutdown(fd_, SHUT_RD) < 0)
         throw k::system_error("::shutdown(SHUT_RD) error");
-    m_fd = ((m_rd_closed = true) and m_wr_closed) ? filefd::invalid_fd : m_fd;
+    fd_ = ((rd_closed_ = true) and wr_closed_) ? filefd::invalid_fd : fd_;
 }
 
 void
 socket::rd_shutdown (error_code &ec) noexcept
 {
-    assert(!m_rd_closed);
-    ec = (::shutdown(m_fd, SHUT_RD) < 0 ? last_error() : error_code());
-    m_fd = (m_rd_closed and (m_wr_closed = true)) ? filefd::invalid_fd : m_fd;
+    assert(!rd_closed_);
+    ec = (::shutdown(fd_, SHUT_RD) < 0 ? last_error() : error_code());
+    fd_ = (rd_closed_ and (wr_closed_ = true)) ? filefd::invalid_fd : fd_;
 }
 
 void
 socket::wr_shutdown ()
 { 
-    assert(!m_wr_closed);
-    if (::shutdown(m_fd, SHUT_WR) < 0)
+    assert(!wr_closed_);
+    if (::shutdown(fd_, SHUT_WR) < 0)
         throw k::system_error("::shutdown(SHUT_WR) error");
-    m_fd = ((m_rd_closed = true) and m_wr_closed) ? filefd::invalid_fd : m_fd;
+    fd_ = ((rd_closed_ = true) and wr_closed_) ? filefd::invalid_fd : fd_;
 }
 
 void
 socket::wr_shutdown (error_code &ec) noexcept
 {
-    assert(!m_wr_closed);
-    ec = (::shutdown(m_fd, SHUT_WR) < 0 ? last_error() : error_code());
-    m_fd = (m_rd_closed and (m_wr_closed = true)) ? filefd::invalid_fd : m_fd;
+    assert(!wr_closed_);
+    ec = (::shutdown(fd_, SHUT_WR) < 0 ? last_error() : error_code());
+    fd_ = (rd_closed_ and (wr_closed_ = true)) ? filefd::invalid_fd : fd_;
 }
 
 size_t
 socket::send (out_buffer &buf, int flags)
 {
     assert(buf.size());
-    assert(!m_wr_closed);
-    auto size = ::send(m_fd, (char *)buf.begin(), len_type(buf.size()), flags);
+    assert(!wr_closed_);
+    auto size = ::send(fd_, (char *)buf.begin(), len_type(buf.size()), flags);
     if (size < 0)
         throw k::system_error("::send() error");
     buf -= size;
@@ -215,8 +215,8 @@ size_t
 socket::send (out_buffer &buf, int flags, error_code &ec) noexcept
 {
     assert(buf.size());
-    assert(!m_wr_closed);
-    auto size = ::send(m_fd, (char *)buf.begin(), len_type(buf.size()), flags);
+    assert(!wr_closed_);
+    auto size = ::send(fd_, (char *)buf.begin(), len_type(buf.size()), flags);
     if (size < 0) {
         ec = last_error();
         return 0;
@@ -231,8 +231,8 @@ size_t
 socket::recv (in_buffer &buf, int flags)
 {
     assert(buf.writeable());
-    assert(!m_rd_closed);
-    auto size = ::recv(m_fd, (char *)buf.begin(), len_type(buf.writeable()), flags);
+    assert(!rd_closed_);
+    auto size = ::recv(fd_, (char *)buf.begin(), len_type(buf.writeable()), flags);
     if (size < 0)
         throw k::system_error("::recv() error");
     buf += size;
@@ -243,8 +243,8 @@ size_t
 socket::recv (in_buffer &buf, int flags, error_code &ec) noexcept
 {
     assert(buf.writeable());
-    assert(!m_rd_closed);
-    auto size = ::recv(m_fd, (char *)buf.begin(), len_type(buf.writeable()), flags);
+    assert(!rd_closed_);
+    auto size = ::recv(fd_, (char *)buf.begin(), len_type(buf.writeable()), flags);
     if (size < 0) {
         ec = last_error();
         return 0;
@@ -259,8 +259,8 @@ size_t
 socket::sendto (const address &addr, out_buffer &buf, int flags)
 {
     assert(buf.size());
-    assert(!m_wr_closed);
-    auto size = ::sendto(m_fd, (const char *)buf.begin(), len_type(buf.size()), flags,
+    assert(!wr_closed_);
+    auto size = ::sendto(fd_, (const char *)buf.begin(), len_type(buf.size()), flags,
                              (const struct ::sockaddr *)&addr.sa(),
                              addr.inet6() ? sizeof(addr.sa().v6) : sizeof(addr.sa().v4));
     if (size < 0)
@@ -274,8 +274,8 @@ socket::sendto (const address &addr, out_buffer &buf, int flags,
                 error_code &ec) noexcept
 {
     assert(buf.size());
-    assert(!m_wr_closed);
-    auto size = ::sendto(m_fd, (const char *)buf.begin(), len_type(buf.size()), flags,
+    assert(!wr_closed_);
+    auto size = ::sendto(fd_, (const char *)buf.begin(), len_type(buf.size()), flags,
                              (const struct ::sockaddr *)&addr.sa(),
                              addr.inet6() ? sizeof(addr.sa().v6) : sizeof(addr.sa().v4));
     if (size < 0) {
@@ -292,9 +292,9 @@ size_t
 socket::recvfrom (address &addr, in_buffer &buf, int flags)
 {
     assert(buf.writeable());
-    assert(!m_rd_closed);
+    assert(!rd_closed_);
     socklen_t addr_len = (addr.inet6() ? sizeof(addr.sa().v6) : sizeof(addr.sa().v4));
-    auto size = ::recvfrom(m_fd, (char *)buf.begin(), len_type(buf.writeable()), flags,
+    auto size = ::recvfrom(fd_, (char *)buf.begin(), len_type(buf.writeable()), flags,
                                (struct ::sockaddr *)&addr.sa(),
                                &addr_len);
     if (size < 0)
@@ -308,9 +308,9 @@ socket::recvfrom (address &addr, in_buffer &buf, int flags,
                   error_code &ec) noexcept
 {
     assert(buf.writeable());
-    assert(!m_rd_closed);
+    assert(!rd_closed_);
     socklen_t addr_len = (addr.inet6() ? sizeof(addr.sa().v6) : sizeof(addr.sa().v4));
-    auto size = ::recvfrom(m_fd, (char *)buf.begin(), len_type(buf.writeable()), flags,
+    auto size = ::recvfrom(fd_, (char *)buf.begin(), len_type(buf.writeable()), flags,
                                (struct ::sockaddr *)&addr.sa(),
                                &addr_len);
     if (size < 0) {
@@ -326,10 +326,10 @@ socket::recvfrom (address &addr, in_buffer &buf, int flags,
 address
 socket::localaddr () const
 {
-    assert(!m_wr_closed or !m_rd_closed);
+    assert(!wr_closed_ or !rd_closed_);
     k::address addr;
-    socklen_t len = sizeof(addr.m_sa);
-    if (::getsockname(m_fd, (struct ::sockaddr *)&addr.m_sa, &len) < 0)
+    socklen_t len = sizeof(addr.sa_);
+    if (::getsockname(fd_, (struct ::sockaddr *)&addr.sa_, &len) < 0)
         throw k::system_error("::getsockname() error");
     return addr;
 }
@@ -337,10 +337,10 @@ socket::localaddr () const
 address
 socket::localaddr (error_code &ec) const noexcept
 {
-    assert(!m_wr_closed or !m_rd_closed);
+    assert(!wr_closed_ or !rd_closed_);
     k::address addr;
-    socklen_t len = sizeof(addr.m_sa);
-    ec = (::getsockname(m_fd, (struct ::sockaddr *)&addr.m_sa, &len) < 0)
+    socklen_t len = sizeof(addr.sa_);
+    ec = (::getsockname(fd_, (struct ::sockaddr *)&addr.sa_, &len) < 0)
           ? last_error()
           : error_code();
     return addr;
@@ -349,10 +349,10 @@ socket::localaddr (error_code &ec) const noexcept
 address
 socket::peeraddr () const
 {
-    assert(!m_wr_closed or !m_rd_closed);
+    assert(!wr_closed_ or !rd_closed_);
     k::address addr;
-    socklen_t len = sizeof(addr.m_sa);
-    if (::getpeername(m_fd, (struct ::sockaddr *)&addr.m_sa, &len) < 0)
+    socklen_t len = sizeof(addr.sa_);
+    if (::getpeername(fd_, (struct ::sockaddr *)&addr.sa_, &len) < 0)
         throw k::system_error("::getpeername() error");
     return addr;
 }
@@ -360,10 +360,10 @@ socket::peeraddr () const
 address
 socket::peeraddr (error_code &ec) const noexcept
 {
-    assert(!m_wr_closed or !m_rd_closed);
+    assert(!wr_closed_ or !rd_closed_);
     k::address addr;
-    socklen_t len = sizeof(addr.m_sa);
-    ec = (::getpeername(m_fd, (struct ::sockaddr *)&addr.m_sa, &len) < 0)
+    socklen_t len = sizeof(addr.sa_);
+    ec = (::getpeername(fd_, (struct ::sockaddr *)&addr.sa_, &len) < 0)
           ? last_error()
           : error_code();
     return addr;

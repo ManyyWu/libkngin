@@ -34,9 +34,9 @@ public:
     broadcast      ();
 
 private:
-    pthread_cond_t m_cond;
+    pthread_cond_t cond_;
 
-    mutex *        m_mutex;
+    mutex *        mutex_;
 };
 
 KNGIN_NAMESPACE_K_END

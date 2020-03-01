@@ -33,15 +33,15 @@ public:
 public:
     bool
     valid         () const noexcept
-    { return FD_VALID(m_fd); }
+    { return FD_VALID(fd_); }
 
     bool
     invalid       () const noexcept
-    { return FD_INVALID(m_fd); }
+    { return FD_INVALID(fd_); }
 
     filefd_type
     fd            () const noexcept
-    { return m_fd; }
+    { return fd_; }
 
     size_t
     write         (out_buffer &buf);
@@ -127,7 +127,7 @@ public:
     static filefd_type invalid_fd;
 
 protected:
-    filefd_type m_fd;
+    filefd_type fd_;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -18,9 +18,9 @@ event::event (event_handler &&event_handler)
     try
     : epoller_event(::eventfd(0, EFD_CLOEXEC), 
                     epoller_event::EVENT_TYPE_EVENT),
-      m_event_handler(std::move(event_handler))
+      event_handler_(std::move(event_handler))
 {
-    arg_check(m_event_handler);
+    arg_check(event_handler_);
     if (invalid())
         throw k::system_error("::eventfd() erorr");
     enable_read();
@@ -83,10 +83,10 @@ event::on_read ()
     );
     //log_debug("event read %" PRIu64, out_buffer(arr, 8).peek_uint64());
 
-    if (m_event_handler) {
+    if (event_handler_) {
         log_excp_error(
-            m_event_handler(),
-            "event::m_event_handler() error"
+            event_handler_(),
+            "event::event_handler_() error"
         );
     }
 }

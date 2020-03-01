@@ -22,40 +22,40 @@ listener::listener (event_loop &loop, k::socket &&socket,
                     error_handler &&error_handler)
     try
     : epoller_event(socket.fd(), epoller_event::EVENT_TYPE_FILE),
-      m_loop(&loop),
-      m_socket(std::move(socket)),
-      m_closed(true),
-      m_listen_addr(),
-      m_accept_handler(std::move(new_ssesion_handler)),
-      m_error_handler(std::move(error_handler)),
-      m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
+      loop_(&loop),
+      socket_(std::move(socket)),
+      closed_(true),
+      listen_addr_(),
+      accept_handler_(std::move(new_ssesion_handler)),
+      error_handler_(std::move(error_handler)),
+      idle_file_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
-    arg_check(m_socket.valid());
-    if (!m_idle_file.valid())
+    arg_check(socket_.valid());
+    if (!idle_file_.valid())
         throw k::system_error("::open(\"/dev/null\") error");
 
     // parse address
     parse_addr(name, port);
 
     // set socket options
-    sockopts::set_reuseaddr(m_socket, true);
+    sockopts::set_reuseaddr(socket_, true);
 #ifndef _WIN32
-    sockopts::set_reuseport(m_socket, true);
+    sockopts::set_reuseport(socket_, true);
 #endif
 
     // bind
-    m_socket.bind(m_listen_addr);
+    socket_.bind(listen_addr_);
 
     // listen
-    m_socket.listen(backlog);
+    socket_.listen(backlog);
 
     // set file flags
-    m_socket.set_closeexec(true);
-    m_socket.set_nonblock(true);
+    socket_.set_closeexec(true);
+    socket_.set_nonblock(true);
 
     // set event falgs
     enable_read();
-    m_closed = false;
+    closed_ = false;
 } catch (...) {
     log_fatal("listener::listener() error");
     throw;
@@ -63,10 +63,10 @@ listener::listener (event_loop &loop, k::socket &&socket,
 
 listener::~listener () noexcept
 {
-    if (!m_closed and registed())
+    if (!closed_ and registed())
         ignore_excp(this->close(true));
 
-    // FIXME; wait for m_closed to be true
+    // FIXME; wait for closed_ to be true
 }
 
 void
@@ -93,9 +93,9 @@ listener::parse_addr (const std::string &name, uint16_t port)
         throw k::exception("invalid name or port");
     }
     if (AF_INET == ai_list->ai_addr->sa_family)
-        m_listen_addr = *(sockaddr_in *)ai_list->ai_addr;
+        listen_addr_ = *(sockaddr_in *)ai_list->ai_addr;
     else if (AF_INET6 == ai_list->ai_addr->sa_family)
-        m_listen_addr = *(sockaddr_in6 *)ai_list->ai_addr;
+        listen_addr_ = *(sockaddr_in6 *)ai_list->ai_addr;
     else
         throw k::exception("unsupported address family");
 
@@ -111,18 +111,18 @@ listener::parse_addr (const std::string &name, uint16_t port)
 void
 listener::close (bool sync /* = true */)
 {
-    if (m_closed)
+    if (closed_)
         return;
 
-    if (registed() and m_loop and m_loop->looping()) {
-        if (m_loop->in_loop_thread()) {
+    if (registed() and loop_ and loop_->looping()) {
+        if (loop_->in_loop_thread()) {
             on_close();
         } else {
-            m_loop->remove_event(*this);
+            loop_->remove_event(*this);
             auto self_weak_ptr = weak_ptr();
             if (sync) {
                 auto barrier_ptr = std::make_shared<barrier>(2);
-                m_loop->run_in_loop([self_weak_ptr, barrier_ptr] () {
+                loop_->run_in_loop([self_weak_ptr, barrier_ptr] () {
                     auto s = self_weak_ptr.lock();
                     if (s)
                         s->on_close();
@@ -132,7 +132,7 @@ listener::close (bool sync /* = true */)
                 if (barrier_ptr->wait())
                     barrier_ptr->destroy();
             } else {
-                m_loop->run_in_loop([self_weak_ptr] () {
+                loop_->run_in_loop([self_weak_ptr] () {
                     auto s = self_weak_ptr.lock();
                     if (s)
                         s->on_close();
@@ -140,15 +140,15 @@ listener::close (bool sync /* = true */)
             }
         }
     } else {
-        m_socket.close();
-        m_closed = true;
+        socket_.close();
+        closed_ = true;
     }
 }
 
 void
 listener::on_events (event_loop &loop, uint32_t flags)
 {
-    assert(m_loop == &loop);
+    assert(loop_ == &loop);
     try {
         if ((EPOLLHUP | EPOLLERR) & flags) {
             this->on_read();
@@ -168,19 +168,19 @@ listener::on_events (event_loop &loop, uint32_t flags)
 void
 listener::on_read ()
 {
-    if (m_closed)
+    if (closed_)
         return;
     auto s = self();
 
     address peer_addr;
     error_code ec;
-    int sockfd = m_socket.accept(peer_addr, ec); // nonblocking
+    int sockfd = socket_.accept(peer_addr, ec); // nonblocking
     if (ec) {
         if (EMFILE == ec) {
-            m_idle_file.close();
-            m_idle_file = m_socket.accept(peer_addr);
-            m_idle_file.close();
-            m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            idle_file_.close();
+            idle_file_ = socket_.accept(peer_addr);
+            idle_file_.close();
+            idle_file_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
         } else if (EAGAIN == ec or
@@ -193,18 +193,18 @@ listener::on_read ()
             return;
         } else {
             log_excp_error(
-                m_error_handler(ec),
-                "listener::m_accept_handler() error"
+                error_handler_(ec),
+                "listener::accept_handler_() error"
             );
         }
         return;
     }
 
     socket sock(sockfd);
-    if (m_accept_handler) {
+    if (accept_handler_) {
         log_excp_error(
-            m_accept_handler(std::move(sock)),
-            "listener::m_accept_handler() error"
+            accept_handler_(std::move(sock)),
+            "listener::accept_handler_() error"
         );
     } else {
         log_warning("unaccepted session, fd = %d", sock.fd());
@@ -215,14 +215,14 @@ listener::on_read ()
 void
 listener::on_close ()
 {
-    if (m_closed)
+    if (closed_)
         return;
 
     auto s = self();
-    if (m_loop and m_loop->looping() and registed())
-        m_loop->remove_event(*this);
-    m_socket.close();
-    m_closed = true;
+    if (loop_ and loop_->looping() and registed())
+        loop_->remove_event(*this);
+    socket_.close();
+    closed_ = true;
 }
 
 KNGIN_NAMESPACE_K_END

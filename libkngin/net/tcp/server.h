@@ -58,54 +58,54 @@ public:
 public:
     void
     set_session_handler (session_handler &&handler) noexcept
-    { assert(m_stopped); m_session_handler = std::move(handler); }
+    { assert(stopped_); session_handler_ = std::move(handler); }
     void
     set_message_handler (message_handler &&handler) noexcept
-    { assert(m_stopped); m_message_handler = std::move(handler); }
+    { assert(stopped_); message_handler_ = std::move(handler); }
     void
     set_sent_handler    (sent_handler &&handler) noexcept
-    { assert(m_stopped); m_sent_handler = std::move(handler); }
+    { assert(stopped_); sent_handler_ = std::move(handler); }
     void
     set_error_handler   (error_handler &&handler) noexcept
-    { assert(m_stopped); m_error_handler = std::move(handler); }
+    { assert(stopped_); error_handler_ = std::move(handler); }
     void
     set_oob_handler     (oob_handler &&handler) noexcept
-    { assert(m_stopped); m_oob_handler = std::move(handler); }
+    { assert(stopped_); oob_handler_ = std::move(handler); }
     void
     set_crash_handler   (crash_handler &&handler) noexcept
-    { assert(m_stopped); m_crash_handler = std::move(handler); }
+    { assert(stopped_); crash_handler_ = std::move(handler); }
 
 protected:
     event_loop &
     assign_thread       ()
-    { return m_threadpool.next_loop(); }
+    { return threadpool_.next_loop(); }
 
 private:
-    event_loop *      m_loop;
+    event_loop *      loop_;
 
-    const server_opts m_opts;
+    const server_opts opts_;
 
-    io_threadpool     m_threadpool;
+    io_threadpool     threadpool_;
 
-    listener_ptr      m_listener;
+    listener_ptr      listener_;
 
-    session_handler   m_session_handler;
+    session_handler   session_handler_;
 
-    sent_handler      m_sent_handler;
+    sent_handler      sent_handler_;
 
-    message_handler   m_message_handler;
+    message_handler   message_handler_;
 
-    oob_handler       m_oob_handler;
+    oob_handler       oob_handler_;
 
-    error_handler     m_error_handler;
+    error_handler     error_handler_;
 
-    crash_handler     m_crash_handler;
+    crash_handler     crash_handler_;
 
-    std::atomic_bool  m_stopped;
+    std::atomic_bool  stopped_;
 
-    std::atomic_bool  m_stopping;
+    std::atomic_bool  stopping_;
 
-    mutex             m_mutex;
+    mutex             mutex_;
 };
 
 KNGIN_NAMESPACE_TCP_END

@@ -33,12 +33,12 @@ public:
 
     bool
     destroyed      () const noexcept
-    { return !m_inited; }
+    { return !inited_; }
 
 private:
-    pthread_barrier_t m_barrier;
+    pthread_barrier_t barrier_;
 
-    std::atomic_bool  m_inited;
+    std::atomic_bool  inited_;
 };
 
 KNGIN_NAMESPACE_K_END

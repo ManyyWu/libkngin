@@ -24,12 +24,12 @@ log::log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1] = {
 log::log (KNGIN_LOG_FILE filetype, KNGIN_LOG_MODE mode /* = KNGIN_LOG_MODE_FILE */)
     :
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
-      m_mutex(),
+      mutex_(),
 #endif
-      m_mode(mode),
-      m_filetype(filetype),
-      m_disable_info(false),
-      m_disable_debug(false)
+      mode_(mode),
+      filetype_(filetype),
+      disable_info_(false),
+      disable_debug_(false)
 {
 }
 
@@ -69,7 +69,7 @@ void
 log::info (const char *fmt, ...)
 {
     assert(fmt);
-    if (m_disable_info)
+    if (disable_info_)
         return;
 
     va_list vl;
@@ -82,7 +82,7 @@ void
 log::debug (const char *fmt, ...)
 {
     assert(fmt);
-    if (m_disable_debug)
+    if (disable_debug_)
         return;
 
     va_list vl;
@@ -99,9 +99,9 @@ log::log_data (const std::string &str)
 
 #if (ON == KNGIN_ASYNC_LOGGER)
     logger().async_log(
-        [filetype = m_filetype, mode = m_mode, str] ()
+        [filetype = filetype_, mode = mode_, str] ()
 #else
-        [filetype = m_filetype, mode = m_mode, &str] ()
+        [filetype = filetype_, mode = mode_, &str] ()
 #endif
     {
         if (KNGIN_LOG_MODE_BOTH == mode or KNGIN_LOG_MODE_FILE == mode)
@@ -157,9 +157,9 @@ log::write_log (KNGIN_LOG_LEVEL level, const char *fmt, va_list vl)
 
 #if (ON == KNGIN_ASYNC_LOGGER)
         logger().async_log(
-            [filetype = m_filetype, level, mode = m_mode, data_ptr, buf, len] ()
+            [filetype = filetype_, level, mode = mode_, data_ptr, buf, len] ()
 #else
-        [filetype = m_filetype, level, mode = m_mode, buf, len] ()
+        [filetype = filetype_, level, mode = mode_, buf, len] ()
 #endif
         {
             if (KNGIN_LOG_MODE_BOTH == mode or KNGIN_LOG_MODE_FILE == mode)
@@ -178,7 +178,7 @@ log::write_log (KNGIN_LOG_LEVEL level, const char *fmt, va_list vl)
 
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
     if (logger().inited()) {
-        local_lock lock(m_mutex);
+        local_lock lock(mutex_);
         func();
     } else
 #endif

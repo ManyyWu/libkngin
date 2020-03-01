@@ -30,19 +30,19 @@ public:
 public:
     const uint8_t &
     operator []  (size_t idx) const noexcept
-    { return m_arr[idx]; }
+    { return arr_[idx]; }
     const uint8_t &
     at           (size_t idx) const
-    { check_readable(idx + 1); return m_arr[idx]; }
+    { check_readable(idx + 1); return arr_[idx]; }
     const unsigned char *
     get          (size_t idx) const
-    { check_readable(idx + 1); return &m_arr[idx]; }
+    { check_readable(idx + 1); return &arr_[idx]; }
     const unsigned char *
     begin        () const noexcept
-    { return m_arr; }
+    { return arr_; }
     size_t
     size         () const noexcept
-    { return m_size; }
+    { return size_; }
 
 public:
     out_buffer &
@@ -130,17 +130,17 @@ public:
 public:
     out_buffer &
     operator -=    (size_t size)
-    { check_readable(size); m_size -= size; return *this; }
+    { check_readable(size); size_ -= size; return *this; }
 
 public:
     out_buffer &
     operator =     (const out_buffer &buf) noexcept
-    { m_arr = buf.m_arr; m_size = buf.m_size; return *this; }
+    { arr_ = buf.arr_; size_ = buf.size_; return *this; }
 
 public:
     void
     check_readable (size_t n) const
-    { if (m_size < n) throw k::exception("in_buffer::check_readable() - out of range"); }
+    { if (size_ < n) throw k::exception("in_buffer::check_readable() - out of range"); }
 
 protected:
     template <typename Type>
@@ -148,61 +148,61 @@ protected:
     read           (bool forward = true)
     {
         check_readable(sizeof(Type));
-        Type val = *static_cast<const Type *>(static_cast<const void *>(m_arr));
-        m_size -= forward ? sizeof(Type) : 0;
-        m_arr += forward ? sizeof(Type) : 0;
+        Type val = *static_cast<const Type *>(static_cast<const void *>(arr_));
+        size_ -= forward ? sizeof(Type) : 0;
+        arr_ += forward ? sizeof(Type) : 0;
         return val;
     }
 
 private:
-    const unsigned char * m_arr;
+    const unsigned char * arr_;
 
-    size_t                m_size;
+    size_t                size_;
 };
 
 class msg_buffer {
 public:
     msg_buffer  () noexcept
-        : m_arr(nullptr), m_buf() {}
+        : arr_(nullptr), buf_() {}
 
     msg_buffer  (uint8_arr_ptr &arr, size_t offset, size_t size)
-        : m_arr(arr), m_buf(arr.get() + offset, size) {}
+        : arr_(arr), buf_(arr.get() + offset, size) {}
         
     msg_buffer  (const void *arr, size_t size)
-        : m_arr(nullptr), m_buf(arr, size) {}
+        : arr_(nullptr), buf_(arr, size) {}
     // arr must be constant string or stack space that life cycle is longer than this
 
     msg_buffer  (const msg_buffer &buf)
-        : m_arr(buf.m_arr), m_buf(buf.m_buf) {}
+        : arr_(buf.arr_), buf_(buf.buf_) {}
 
     msg_buffer  (msg_buffer &&buf) noexcept
-        : m_arr(std::move(buf.m_arr)), m_buf(std::move(buf.m_buf)) {  }
+        : arr_(std::move(buf.arr_)), buf_(std::move(buf.buf_)) {  }
 
     ~msg_buffer () = default;
 
 public:
     uint8_arr_ptr &
     get         () noexcept
-    { return m_arr; }
+    { return arr_; }
     const uint8_arr_ptr &
     get         () const noexcept
-    { return m_arr; }
+    { return arr_; }
     out_buffer &
     buffer      ()
-    { return m_buf; }
+    { return buf_; }
     const out_buffer &
     buffer      () const noexcept
-    { return m_buf; }
+    { return buf_; }
 
 public:
     msg_buffer &
     operator =  (const msg_buffer &buf)
-    { m_arr = buf.m_arr; m_buf = buf.m_buf; return *this; }
+    { arr_ = buf.arr_; buf_ = buf.buf_; return *this; }
 
 private:
-    uint8_arr_ptr m_arr;
+    uint8_arr_ptr arr_;
 
-    out_buffer    m_buf;
+    out_buffer    buf_;
 };
 
 class in_buffer {
@@ -220,25 +220,25 @@ public:
 public:
     uint8_t &
     operator []  (size_t idx) noexcept
-    { return m_arr[idx]; }
+    { return arr_[idx]; }
     uint8_t &
     at           (size_t idx)
-    { check_readable(idx + 1); return m_arr[idx]; }
+    { check_readable(idx + 1); return arr_[idx]; }
     unsigned char *
     get          (size_t idx)
-    { check_readable(idx + 1); return &m_arr[idx]; }
+    { check_readable(idx + 1); return &arr_[idx]; }
     unsigned char *
     begin        () const noexcept
-    { return m_arr; }
+    { return arr_; }
     size_t
     size         () const noexcept
-    { return m_size; }
+    { return size_; }
     size_t
     valid        () const noexcept
-    { return m_valid; }
+    { return valid_; }
     size_t
     writeable    () const noexcept
-    { return m_size - m_valid; }
+    { return size_ - valid_; }
 
 public:
     in_buffer &
@@ -275,39 +275,39 @@ public:
 public:
     in_buffer &
     operator +=  (size_t size)
-    { check_writeable(size); m_valid += size; return *this; }
+    { check_writeable(size); valid_ += size; return *this; }
 
 public:
 
     in_buffer &
     operator =   (const in_buffer &buf) noexcept
-    { m_arr = buf.m_arr; m_size = buf.m_size; m_valid = buf.m_valid; return *this; }
+    { arr_ = buf.arr_; size_ = buf.size_; valid_ = buf.valid_; return *this; }
 
 protected:
     void
     check_readable  (size_t n) const
-    { if (m_valid < n) throw k::exception("in_buffer::check_readable() - out of range"); }
+    { if (valid_ < n) throw k::exception("in_buffer::check_readable() - out of range"); }
 
     void
     check_writeable (size_t n) const
-    { if (m_size - m_valid < n) throw k::exception("in_buffer::check_writeable() - out of range"); }
+    { if (size_ - valid_ < n) throw k::exception("in_buffer::check_writeable() - out of range"); }
 
     template <typename Type>
     in_buffer &
     write           (Type val)
     {
         check_writeable(sizeof(Type));
-        *static_cast<Type *>(static_cast<void *>(m_arr + m_valid)) = val;
-        m_valid += sizeof(Type);
+        *static_cast<Type *>(static_cast<void *>(arr_ + valid_)) = val;
+        valid_ += sizeof(Type);
         return *this;
     }
 
 private:
-    unsigned char * m_arr;
+    unsigned char * arr_;
 
-    size_t          m_size;
+    size_t          size_;
 
-    size_t          m_valid;
+    size_t          valid_;
 };
 
 /*
@@ -318,13 +318,13 @@ public:
 public:
     in_vector      () = delete;
 
-    in_vector      () : m_list(), m_rindex(0), m_windex(0), m_iovec() {}
+    in_vector      () : list_(), rindex_(0), windex_(0), iovec_() {}
 
     ~in_vector     () = default;
 
 public:
     buffer_vector &
-    vector          () { return m_list; }
+    vector          () { return list_; }
 
     void
     receive         (size_t n);
@@ -355,13 +355,13 @@ protected:
     check_writeable (size_t n);
 
 protected:
-    buffer_list                 m_list;
+    buffer_list                 list_;
 
-    size_t                      m_rindex;
+    size_t                      rindex_;
 
-    size_t                      m_windex;
+    size_t                      windex_;
 
-    std::vector<struct ::iovec> m_iovec;
+    std::vector<struct ::iovec> iovec_;
 };
 */
 KNGIN_NAMESPACE_K_END

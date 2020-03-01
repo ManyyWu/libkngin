@@ -5,37 +5,37 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 timeout::timeout ()
-    : m_update_time(0),
-      m_interval(0),
-      m_persist(false)
+    : update_time_(0),
+      interval_(0),
+      persist_(false)
 {
 }
 timeout::timeout (timestamp  interval, bool persist)
-    : m_interval(interval),
-      m_persist(persist)
+    : interval_(interval),
+      persist_(persist)
 {
     update();
 }
 
 timeout::timeout (timestamp now_time, timestamp  interval, bool persist)
-    : m_update_time(now_time),
-      m_interval(interval),
-      m_persist(persist)
+    : update_time_(now_time),
+      interval_(interval),
+      persist_(persist)
 {
 }
 
 timestamp
 timeout::remaining () const noexcept
 {
-    time_t diff = timestamp::diff(timestamp::monotonic(), m_update_time);
-    return (diff > m_interval.value() ? 0 : m_interval.value() - diff);
+    time_t diff = timestamp::diff(timestamp::monotonic(), update_time_);
+    return (diff > interval_.value() ? 0 : interval_.value() - diff);
 }
 
 timestamp
 timeout::remaining (timestamp now_time) const noexcept
 {
-    time_t diff = timestamp::diff(now_time, m_update_time);
-    return (diff > m_interval.value() ? 0 : m_interval.value() - diff);
+    time_t diff = timestamp::diff(now_time, update_time_);
+    return (diff > interval_.value() ? 0 : interval_.value() - diff);
 }
 
 KNGIN_NAMESPACE_K_END

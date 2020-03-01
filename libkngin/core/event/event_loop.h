@@ -77,7 +77,7 @@ public:
 
     bool
     looping        () noexcept
-    { return m_looping; }
+    { return looping_; }
 
 // event
 public:
@@ -115,7 +115,7 @@ public:
 public:
     bool
     in_loop_thread () const noexcept
-    { return (m_tid == thread::tid()); }
+    { return (tid_ == thread::tid()); }
 
 protected:
     void
@@ -146,33 +146,33 @@ void
     add_timer      (timer_ptr &timer);
 
 private:
-    uint64_t         m_tid;
+    uint64_t         tid_;
 
 #ifdef KNGIN_FLAG_HAVE_EPOLLER
-    epoller          m_poller;
+    epoller          poller_;
 
-    event_ptr        m_waker;
+    event_ptr        waker_;
 #else
-    iocp_poller      m_poller;
+    iocp_poller      poller_;
 #endif
 
-    std::atomic_bool m_looping;
+    std::atomic_bool looping_;
 
-    std::atomic_bool m_stop;
+    std::atomic_bool stop_;
 
-    taskq            m_taskq;
+    taskq            taskq_;
 
-    mutex            m_taskq_mutex;
+    mutex            taskq_mutex_;
 
-    barrier_ptr      m_stop_barrier;
+    barrier_ptr      stop_barrier_;
 
 #if (OFF == KNGIN_USE_TIMERFD)
-    timers           m_timers;
+    timers           timers_;
 
-    mutex            m_timers_mutex;
+    mutex            timers_mutex_;
 #endif
 
-    std::atomic_bool m_timer_processing;
+    std::atomic_bool timer_processing_;
 };
 
 KNGIN_NAMESPACE_K_END

@@ -41,11 +41,11 @@ public:
 public:
     event_loop *
     loop           () noexcept
-    { return m_loop; }
+    { return loop_; }
 
     const event_loop *
     loop           () const noexcept
-    { return m_loop; }
+    { return loop_; }
 
     listener_ptr
     self           ()
@@ -57,7 +57,7 @@ public:
 
     const address &
     listen_addr    () const
-    { return m_listen_addr; }
+    { return listen_addr_; }
 
 private:
     void
@@ -74,19 +74,19 @@ private:
     on_close       ();
 
 private:
-    event_loop *     m_loop;
+    event_loop *     loop_;
 
-    k::socket        m_socket;
+    k::socket        socket_;
 
-    std::atomic_bool m_closed;
+    std::atomic_bool closed_;
 
-    address          m_listen_addr;
+    address          listen_addr_;
 
-    accept_handler   m_accept_handler;
+    accept_handler   accept_handler_;
 
-    error_handler    m_error_handler;
+    error_handler    error_handler_;
 
-    filefd           m_idle_file;
+    filefd           idle_file_;
 };
 
 KNGIN_NAMESPACE_K_END

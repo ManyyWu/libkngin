@@ -58,38 +58,38 @@ public:
 public:
     bool
     inited           () const noexcept
-    { return log_mgr::m_inited; }
+    { return log_mgr::inited_; }
 
     // no thread-safe
     void
     set_log_callback (log_callback cb) noexcept
-    { m_log_cb = cb; }
+    { log_cb_ = cb; }
 
     // no thread-safe
     log_callback
     get_log_callback () noexcept
-    { return m_log_cb; }
+    { return log_cb_; }
 
 private:
 #if (ON == KNGIN_ASYNC_LOGGER)
-    static thread            m_thr;
+    static thread            thr_;
 
-    static async_log_dataq   m_log_dataq;
+    static async_log_dataq   log_dataq_;
 
-    static mutex             m_mutex;
+    static mutex             mutex_;
 
-    static cond              m_cond;
+    static cond              cond_;
 
-    static std::atomic_bool  m_stop;
+    static std::atomic_bool  stop_;
 #endif
 
-    static kngin_log_set     m_log_set;
+    static kngin_log_set     log_set_;
 
-    static kngin_logfile_set m_logfile_set;
+    static kngin_logfile_set logfile_set_;
 
-    static std::atomic_bool  m_inited;
+    static std::atomic_bool  inited_;
 
-    static log_callback      m_log_cb;
+    static log_callback      log_cb_;
 
 private:
     friend log_mgr &

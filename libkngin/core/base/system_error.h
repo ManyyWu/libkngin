@@ -23,21 +23,21 @@ public:
 
     explicit
     system_error  (const char *what, error_code ec = k::last_error())
-        : m_what(std::string("[k::system_error] ")
-                 + system_error_str(what, ec)), m_ec(ec) {}
+        : what_(std::string("[k::system_error] ")
+                 + system_error_str(what, ec)), ec_(ec) {}
 
     explicit
     system_error  (const std::string &what, error_code ec = k::last_error())
-        : m_what(std::string("[k::system_error] ")
-                 + system_error_str(what.c_str(), ec)), m_ec(ec) {}
+        : what_(std::string("[k::system_error] ")
+                 + system_error_str(what.c_str(), ec)), ec_(ec) {}
 
     explicit
     system_error  (std::string &&what, error_code ec = k::last_error())
-        : m_what(std::string("[k::system_error] ")
-                 + system_error_str(what.c_str(), ec)), m_ec(ec) {}
+        : what_(std::string("[k::system_error] ")
+                 + system_error_str(what.c_str(), ec)), ec_(ec) {}
 
     system_error  (const k::system_error &e)
-        : m_what(e.m_what), m_ec(e.m_ec) {}
+        : what_(e.what_), ec_(e.ec_) {}
 
     virtual
     ~system_error () = default;
@@ -49,16 +49,16 @@ public:
 public:
     virtual const char *
     what          () const noexcept
-    { return m_what.c_str(); }
+    { return what_.c_str(); }
 
     virtual const error_code
     code          () const noexcept
-    { return m_ec; }
+    { return ec_; }
 
 private:
-    const std::string m_what;
+    const std::string what_;
 
-    const error_code  m_ec;
+    const error_code  ec_;
 };
 
 inline
