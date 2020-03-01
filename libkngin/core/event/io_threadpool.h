@@ -39,19 +39,19 @@ public:
     io_threadpool  () = delete;
 
     explicit
-    io_threadpool  (uint16_t _num);
+    io_threadpool  (uint16_t num);
 
     ~io_threadpool ();
 
 public:
     void
-    start          (crash_handler _handler);
+    start          (crash_handler handler);
 
     void
     stop           ();
 
     void
-    add_task       (task &&_task);
+    add_task       (task &&task);
 
     bool
     stopped        ()
@@ -61,7 +61,7 @@ public:
     next_loop      ();
 
     event_loop &
-    get_loop       (size_t _idx);
+    get_loop       (size_t idx);
 
 private:
     const uint16_t    m_num;

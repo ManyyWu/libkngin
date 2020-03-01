@@ -9,9 +9,9 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-io_thread::io_thread (const char *_name)
+io_thread::io_thread (const char *name)
     try
-    : thread(_name),
+    : thread(name),
       m_loop(nullptr),
       m_mutex(),
       m_cond(&m_mutex)
@@ -28,14 +28,14 @@ io_thread::~io_thread ()
 }
 
 void
-io_thread::run (crash_handler &&_crash_handler /* = nullptr */)
+io_thread::run (crash_handler &&crash_handler /* = nullptr */)
 {
     {
-        local_lock _lock(m_mutex);
+        local_lock lock(m_mutex);
         m_loop = std::make_shared<event_loop>();
         thread::run([this] () -> int {
             return process();
-        }, std::move(_crash_handler));
+        }, std::move(crash_handler));
         while (!m_loop->looping())
             m_cond.wait();
     }
@@ -46,7 +46,7 @@ io_thread::stop ()
 {
     if (!equal_to(thread::ptid()))
     {
-        local_lock _lock(m_mutex);
+        local_lock lock(m_mutex);
         m_loop->stop();
         join();
     }
@@ -58,16 +58,16 @@ io_thread::process ()
     // shielding SIGPIPE signal
 /*
 #ifndef _WIN32
-    sigset_t _signal_mask;
-    ::sigemptyset(&_signal_mask);
-    ::sigaddset(&_signal_mask, SIGPIPE);
-    ::pthread_sigmask(SIG_BLOCK, &_signal_mask, NULL);
+    sigset_t signal_mask;
+    ::sigemptyset(&signal_mask);
+    ::sigaddset(&signal_mask, SIGPIPE);
+    ::pthread_sigmask(SIG_BLOCK, &signal_mask, NULL);
 #endif
 */
 
     m_loop->run([this] () {
         {
-            local_lock _lock(m_mutex);
+            local_lock lock(m_mutex);
             m_cond.signal();
         }
     }, nullptr);

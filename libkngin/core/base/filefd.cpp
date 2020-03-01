@@ -17,15 +17,15 @@ KNGIN_NAMESPACE_K_BEGIN
 
 filefd_type filefd::invalid_fd = INVALID_FD;
 
-filefd::filefd (filefd_type _fd) noexcept
-    : m_fd(_fd)
+filefd::filefd (filefd_type fd) noexcept
+    : m_fd(fd)
 {
 }
 
-filefd::filefd (filefd &&_fd) noexcept
-    : m_fd(_fd.m_fd)
+filefd::filefd (filefd &&fd) noexcept
+    : m_fd(fd.m_fd)
 {
-    _fd.m_fd = filefd::invalid_fd;
+    fd.m_fd = filefd::invalid_fd;
 }
 
 filefd::~filefd() noexcept
@@ -33,198 +33,198 @@ filefd::~filefd() noexcept
 }
 
 size_t
-filefd::write (out_buffer &_buf)
+filefd::write (out_buffer &buf)
 {
-    assert(_buf.size());
+    assert(buf.size());
     assert(valid());
-    auto _size = ::write(m_fd, _buf.begin(), _buf.size());
-    if (_size < 0)
+    auto size = ::write(m_fd, buf.begin(), buf.size());
+    if (size < 0)
         throw k::system_error("::write() error");
-    _buf -= _size;
-    return _size;
+    buf -= size;
+    return size;
 }
 
 size_t
-filefd::write (out_buffer &_buf, error_code &_ec) noexcept
+filefd::write (out_buffer &buf, error_code &ec) noexcept
 {
-    assert(_buf.size());
+    assert(buf.size());
     assert(valid());
-    auto _size = ::write(m_fd, _buf.begin(), _buf.size());
-    if (_size < 0) {
-        _ec = last_error();
+    auto size = ::write(m_fd, buf.begin(), buf.size());
+    if (size < 0) {
+        ec = last_error();
         return 0;
     } else {
-        _ec = error_code();
+        ec = error_code();
     }
-    _buf -= _size;
-    return _size;
+    buf -= size;
+    return size;
 }
 
 size_t
-filefd::read (in_buffer &_buf)
+filefd::read (in_buffer &buf)
 {
-    assert(_buf.writeable());
+    assert(buf.writeable());
     assert(valid());
-    auto _size = ::read(m_fd, _buf.begin(), _buf.writeable());
-    if (_size < 0)
+    auto size = ::read(m_fd, buf.begin(), buf.writeable());
+    if (size < 0)
         throw k::system_error("::read() error");
-    _buf += _size;
-    return _size;
+    buf += size;
+    return size;
 }
 
 size_t
-filefd::read (in_buffer &_buf, error_code &_ec) noexcept
+filefd::read (in_buffer &buf, error_code &ec) noexcept
 {
-    assert(_buf.writeable());
+    assert(buf.writeable());
     assert(valid());
-    auto _size = ::read(m_fd, _buf.begin(), _buf.writeable());
-    if (_size < 0) {
-        _ec = last_error();
+    auto size = ::read(m_fd, buf.begin(), buf.writeable());
+    if (size < 0) {
+        ec = last_error();
         return 0;
     } else {
-        _ec = error_code();
+        ec = error_code();
     }
-    _buf += _size;
-    return _size;
+    buf += size;
+    return size;
 }
 
 size_t
-filefd::writen (out_buffer &&_buf)
+filefd::writen (out_buffer &&buf)
 {
-    assert(_buf.size());
+    assert(buf.size());
     assert(valid());
     assert(!nonblock());
-    out_buffer _buffer = std::move(_buf);
-    auto _ret = _buffer.size();
-    while (_buffer.size()) {
-        auto _size = ::write(m_fd, _buffer.begin(), _buffer.size());
-        if (_size < 0) {
-            auto _ec = last_error();
-            if (EINTR == _ec)
+    out_buffer buffer = std::move(buf);
+    auto ret = buffer.size();
+    while (buffer.size()) {
+        auto size = ::write(m_fd, buffer.begin(), buffer.size());
+        if (size < 0) {
+            auto ec = last_error();
+            if (EINTR == ec)
                 continue;
-            throw k::system_error("::writen() error", _ec);
+            throw k::system_error("::writen() error", ec);
         }
-        _buffer -= _size;
+        buffer -= size;
     }
-    return _ret;
+    return ret;
 }
 
 size_t
-filefd::writen (out_buffer &&_buf, error_code &_ec) noexcept
+filefd::writen (out_buffer &&buf, error_code &ec) noexcept
 {
-    assert(_buf.size());
+    assert(buf.size());
     assert(valid());
     assert(!nonblock());
-    out_buffer _buffer = std::move(_buf);
-    auto _ret = _buffer.size();
-    while (_buffer.size()) {
-        auto _size = ::write(m_fd, _buffer.begin(), _buffer.size());
-        if (_size < 0) {
-            if (EINTR == (_ec = last_error()))
+    out_buffer buffer = std::move(buf);
+    auto ret = buffer.size();
+    while (buffer.size()) {
+        auto size = ::write(m_fd, buffer.begin(), buffer.size());
+        if (size < 0) {
+            if (EINTR == (ec = last_error()))
                 continue;
-            return (_ret - _buffer.size());
+            return (ret - buffer.size());
         }
-        _buffer -= _size;
+        buffer -= size;
     }
-    _ec = error_code();
-    return _ret;
+    ec = error_code();
+    return ret;
 }
 
 size_t
-filefd::readn (in_buffer &_buf)
+filefd::readn (in_buffer &buf)
 {
-    assert(_buf.writeable());
+    assert(buf.writeable());
     assert(valid());
     assert(!nonblock());
-    while (_buf.writeable()) {
-        auto _size = ::read(m_fd, _buf.begin(), _buf.writeable());
-        if (_size < 0) {
-            auto _ec = last_error();
-            if (EINTR == _ec)
+    while (buf.writeable()) {
+        auto size = ::read(m_fd, buf.begin(), buf.writeable());
+        if (size < 0) {
+            auto ec = last_error();
+            if (EINTR == ec)
                 continue;
-            throw k::system_error("::readn() error", _ec);
+            throw k::system_error("::readn() error", ec);
         }
-        _buf += _size;
+        buf += size;
     }
-    return _buf.size();
+    return buf.size();
 }
 
 size_t
-filefd::readn (in_buffer &_buf, error_code &_ec) noexcept
+filefd::readn (in_buffer &buf, error_code &ec) noexcept
 {
-    assert(_buf.writeable());
+    assert(buf.writeable());
     assert(valid());
     assert(!nonblock());
-    while (_buf.writeable()) {
-        auto _size = ::read(m_fd, _buf.begin(), _buf.writeable());
-        if (_size < 0) {
-            if (EINTR == (_ec = last_error()))
+    while (buf.writeable()) {
+        auto size = ::read(m_fd, buf.begin(), buf.writeable());
+        if (size < 0) {
+            if (EINTR == (ec = last_error()))
                 continue;
-            return _buf.valid();
+            return buf.valid();
         }
-        _buf += _size;
+        buf += size;
     }
-    _ec = error_code();
-    return _buf.size();
+    ec = error_code();
+    return buf.size();
 }
 
 //size_t
-//filefd::writev (net_buffer &_buf, size_t _nbytes)
+//filefd::writev (net_buffer &buf, size_t nbytes)
 //{
 //    assert(valid());
-//    assert(_buf.readable() >= _nbytes);
-//    auto _size = ::writev(m_fd, _buf.to_iovec().data(), _nbytes);
-//    if (_size < 0)
+//    assert(buf.readable() >= nbytes);
+//    auto size = ::writev(m_fd, buf.to_iovec().data(), nbytes);
+//    if (size < 0)
 //        throw k::system_error("::writev() error");
-//    _buf.send(_size);
-//    return _size;
+//    buf.send(size);
+//    return size;
 //}
 //
 //size_t
-//filefd::writev (net_buffer &_buf, size_t _nbytes, error_code &_ec) noexcept
+//filefd::writev (net_buffer &buf, size_t nbytes, error_code &ec) noexcept
 //{
 //    assert(valid());
-//    assert(_buf.readable() >= _nbytes);
-//    auto _size = ::writev(m_fd, _buf.to_iovec().data(), _nbytes);
-//    if (_size < 0) {
-//        _ec = last_error();
+//    assert(buf.readable() >= nbytes);
+//    auto size = ::writev(m_fd, buf.to_iovec().data(), nbytes);
+//    if (size < 0) {
+//        ec = last_error();
 //        return 0;
 //    } else {
-//        _ec = error_code();
+//        ec = error_code();
 //    }
-//    _buf.send(_size);
-//    return _size;
+//    buf.send(size);
+//    return size;
 //}
 //
 //size_t
-//filefd::readv (net_buffer &_buf, size_t _nbytes)
+//filefd::readv (net_buffer &buf, size_t nbytes)
 //{
 //    assert(valid());
-//    assert(_buf.writeable() >= _nbytes);
-//    auto _size = ::readv(m_fd, _buf.to_iovec().data(), _nbytes);
-//    if (_size < 0)
+//    assert(buf.writeable() >= nbytes);
+//    auto size = ::readv(m_fd, buf.to_iovec().data(), nbytes);
+//    if (size < 0)
 //        throw k::system_error("::readv() error");
-//    _buf.receive(_size);
-//    return _size;
+//    buf.receive(size);
+//    return size;
 //}
 
 size_t
 filefd::readable ()
 {
     assert(valid());
-    size_t _bytes = 0;
-    if (::ioctl(m_fd, FIONREAD, &_bytes) < 0)
+    size_t bytes = 0;
+    if (::ioctl(m_fd, FIONREAD, &bytes) < 0)
         throw k::system_error("::ioctl(FIONREAD) failed");
-    return _bytes;
+    return bytes;
 }
 
 size_t
-filefd::readable (error_code &_ec) noexcept
+filefd::readable (error_code &ec) noexcept
 {
     assert(valid());
-    size_t _bytes;
-    _ec = (::ioctl(m_fd, FIONREAD, &_bytes) < 0) ? last_error() : error_code();
-    return _bytes;
+    size_t bytes;
+    ec = (::ioctl(m_fd, FIONREAD, &bytes) < 0) ? last_error() : error_code();
+    return bytes;
 }
 
 void
@@ -240,107 +240,107 @@ filefd::close ()
 }
 
 void
-filefd::close (error_code &_ec) noexcept
+filefd::close (error_code &ec) noexcept
 {
     if (invalid())
         return;
-    _ec = (::close(m_fd) < 0) ? last_error() : error_code();
+    ec = (::close(m_fd) < 0) ? last_error() : error_code();
     m_fd = filefd::invalid_fd;
 }
 
 filefd_type
 filefd::dup ()
 {
-    filefd_type _new_fd = ::dup(m_fd);
-    if (_new_fd < 0)
+    filefd_type new_fd = ::dup(m_fd);
+    if (new_fd < 0)
         throw k::system_error("::dup() error");
-    return _new_fd;
+    return new_fd;
 }
 
 filefd_type
-filefd::dup (error_code &_ec)
+filefd::dup (error_code &ec)
 {
-    filefd_type _new_fd = ::dup(m_fd);
-    if (_new_fd < 0) {
-        _ec = last_error();
+    filefd_type new_fd = ::dup(m_fd);
+    if (new_fd < 0) {
+        ec = last_error();
         return filefd::invalid_fd;
     }
-    _ec = error_code();
-    return _new_fd;
+    ec = error_code();
+    return new_fd;
 }
 
 error_code
 filefd::read_error () noexcept
 {
     assert(valid());
-    auto _size = ::read(m_fd, nullptr, 0);
-    if (_size < 0)
+    auto size = ::read(m_fd, nullptr, 0);
+    if (size < 0)
         return last_error();
     return error_code();
 }
 
 void
-filefd::set_nonblock (bool _on)
+filefd::set_nonblock (bool on)
 {
     assert(valid());
-    filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
-    _flags = _on ? _flags | O_NONBLOCK : _flags & ~O_NONBLOCK;
-    if (::fcntl(m_fd, F_SETFL, _flags) < 0)
+    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
+    if (::fcntl(m_fd, F_SETFL, flags) < 0)
         throw k::system_error("::fcntl() set O_NONBLOCK flag failed");
 }
 
 void
-filefd::set_nonblock (bool _on, error_code &_ec) noexcept
+filefd::set_nonblock (bool on, error_code &ec) noexcept
 {
     assert(valid());
-    filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
-    _flags = _on ? _flags | O_NONBLOCK : _flags & ~O_NONBLOCK;
-    _ec = (::fcntl(m_fd, F_SETFL, _flags) < 0) ? last_error() : error_code();
+    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
+    ec = (::fcntl(m_fd, F_SETFL, flags) < 0) ? last_error() : error_code();
 }
 
 void
-filefd::set_closeexec (bool _on)
+filefd::set_closeexec (bool on)
 {
     assert(valid());
-    filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
-    _flags = _on ? _flags | O_CLOEXEC : _flags & ~O_CLOEXEC;
-    if (::fcntl(m_fd, F_SETFL, _flags) < 0)
+    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
+    if (::fcntl(m_fd, F_SETFL, flags) < 0)
         throw k::system_error("::fcntl() set O_CLOEXEC flag failed");
 }
 
 void
-filefd::set_closeexec (bool _on, error_code &_ec) noexcept
+filefd::set_closeexec (bool on, error_code &ec) noexcept
 {
     assert(valid());
-    filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
-    _flags = _on ? _flags | O_CLOEXEC : _flags & ~O_CLOEXEC;
-    _ec = (::fcntl(m_fd, F_SETFL, _flags) < 0) ? last_error() : error_code();
+    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
+    ec = (::fcntl(m_fd, F_SETFL, flags) < 0) ? last_error() : error_code();
 }
 
 bool
 filefd::nonblock () const
 {
     assert(valid());
-    filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
-    if (_flags < 0)
+    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    if (flags < 0)
         throw k::system_error("::fcntl() get O_CLOEXEC flag failed");
-    return (_flags & O_NONBLOCK);
+    return (flags & O_NONBLOCK);
 }
 
 bool
-filefd::nonblock (error_code &_ec) const noexcept
+filefd::nonblock (error_code &ec) const noexcept
 {
     assert(valid());
-    filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
-    _ec = (_flags < 0) ? last_error() : error_code();
-    return (_flags & O_NONBLOCK);
+    filefd_type flags = ::fcntl(m_fd, F_GETFL, 0);
+    ec = (flags < 0) ? last_error() : error_code();
+    return (flags & O_NONBLOCK);
 }
 
 filefd &
-filefd::operator = (filefd_type _fd) noexcept
+filefd::operator = (filefd_type fd) noexcept
 {
-    assert(FD_VALID(_fd));
-    m_fd = _fd;
+    assert(FD_VALID(fd));
+    m_fd = fd;
     return *this;
 }
 

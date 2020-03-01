@@ -15,17 +15,17 @@ public:
     { dump_stack(); }
 
     explicit
-    exception (const char *_what)
-        : m_what(std::string("[k::exception] ") + _what), m_dump_str()
+    exception (const char *what)
+        : m_what(std::string("[k::exception] ") + what), m_dump_str()
     { dump_stack(); }
 
     explicit
-    exception (const std::string &_what)
-        : m_what(std::string("[k::exception] ") + _what), m_dump_str()
+    exception (const std::string &what)
+        : m_what(std::string("[k::exception] ") + what), m_dump_str()
     { dump_stack(); }
 
-    exception (const k::exception &_e)
-        : m_what(_e.m_what), m_dump_str(_e.m_dump_str) {}
+    exception (const k::exception &e)
+        : m_what(e.m_what), m_dump_str(e.m_dump_str) {}
 
 
     virtual

@@ -28,8 +28,8 @@
 //public:
 //
 //public:
-//    netmsg_test (task_base *_task)
-//    : msg(_task), m_info(nullptr)
+//    netmsg_test (task_base *task)
+//    : msg(task), m_info(nullptr)
 //    {
 //    }
 //
@@ -42,10 +42,10 @@
 //
 //public:
 //    virtual bool
-//    create (ACTION _action, int _param)
+//    create (ACTION action, int param)
 //    {
-//        //knew(m_info, test_info, ({_action, _param}));
-//        knew(m_info, test_info, ({_action, _param}));
+//        //knew(m_info, test_info, ({action, param}));
+//        knew(m_info, test_info, ({action, param}));
 //        assert(m_info);
 //        if (!m_info)
 //            return false;
@@ -59,58 +59,58 @@
 //        return [this] () mutable -> bool {
 //            switch (this->m_info->action) {
 //            case ACTION_0:
-//                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = nullptr;
-//                    knew(_msg, netmsg_test, (this->task()));
-//                    if (!_msg)
+//                return [this] (int param) -> bool {
+//                    netmsg_test *msg = nullptr;
+//                    knew(msg, netmsg_test, (this->task()));
+//                    if (!msg)
 //                        return false;
-//                    if_not (_msg->create(ACTION_0, _param * 1)) {
-//                        kdelete(_msg);
+//                    if_not (msg->create(ACTION_0, param * 1)) {
+//                        kdelete(msg);
 //                        return false;
 //                    }
-//                    this->task()->recv_reply_msg((msg **)&_msg);
+//                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
 //                }(this->m_info->param);
 //                break;
 //            case ACTION_1:
-//                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = nullptr;
-//                    knew(_msg, netmsg_test, (this->task()));
-//                    if (!_msg)
+//                return [this] (int param) -> bool {
+//                    netmsg_test *msg = nullptr;
+//                    knew(msg, netmsg_test, (this->task()));
+//                    if (!msg)
 //                        return false;
-//                    if_not (_msg->create(ACTION_1, _param * 2)) {
-//                        kdelete(_msg);
+//                    if_not (msg->create(ACTION_1, param * 2)) {
+//                        kdelete(msg);
 //                        return false;
 //                    }
-//                    this->task()->recv_reply_msg((msg **)&_msg);
+//                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
 //                }(this->m_info->param);
 //                break;
 //            case ACTION_2:
-//                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = nullptr;
-//                    knew(_msg, netmsg_test, (this->task()));
-//                    if (!_msg)
+//                return [this] (int param) -> bool {
+//                    netmsg_test *msg = nullptr;
+//                    knew(msg, netmsg_test, (this->task()));
+//                    if (!msg)
 //                        return false;
-//                    if_not (_msg->create(ACTION_2, _param * 3)) {
-//                        kdelete(_msg);
+//                    if_not (msg->create(ACTION_2, param * 3)) {
+//                        kdelete(msg);
 //                        return false;
 //                    }
-//                    this->task()->recv_reply_msg((msg **)&_msg);
+//                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
 //                }(this->m_info->param);
 //                break;
 //            case ACTION_3:
-//                return [this] (int _param) -> bool {
-//                    netmsg_test *_msg = nullptr;
-//                    knew(_msg, netmsg_test, (this->task()));
-//                    if (!_msg)
+//                return [this] (int param) -> bool {
+//                    netmsg_test *msg = nullptr;
+//                    knew(msg, netmsg_test, (this->task()));
+//                    if (!msg)
 //                        return false;
-//                    if_not (_msg->create(ACTION_3, _param * 3)) {
-//                        kdelete(_msg);
+//                    if_not (msg->create(ACTION_3, param * 3)) {
+//                        kdelete(msg);
 //                        return false;
 //                    }
-//                    this->task()->recv_reply_msg((msg **)&_msg);
+//                    this->task()->recv_reply_msg((msg **)&msg);
 //                    return true;
 //                }(this->m_info->param);
 //                break;

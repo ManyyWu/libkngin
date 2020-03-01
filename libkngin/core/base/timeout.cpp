@@ -10,32 +10,32 @@ timeout::timeout ()
       m_persist(false)
 {
 }
-timeout::timeout (timestamp  _interval, bool _persist)
-    : m_interval(_interval),
-      m_persist(_persist)
+timeout::timeout (timestamp  interval, bool persist)
+    : m_interval(interval),
+      m_persist(persist)
 {
     update();
 }
 
-timeout::timeout (timestamp _now_time, timestamp  _interval, bool _persist)
-    : m_update_time(_now_time),
-      m_interval(_interval),
-      m_persist(_persist)
+timeout::timeout (timestamp now_time, timestamp  interval, bool persist)
+    : m_update_time(now_time),
+      m_interval(interval),
+      m_persist(persist)
 {
 }
 
 timestamp
 timeout::remaining () const noexcept
 {
-    time_t _diff = timestamp::diff(timestamp::monotonic(), m_update_time);
-    return (_diff > m_interval.value() ? 0 : m_interval.value() - _diff);
+    time_t diff = timestamp::diff(timestamp::monotonic(), m_update_time);
+    return (diff > m_interval.value() ? 0 : m_interval.value() - diff);
 }
 
 timestamp
-timeout::remaining (timestamp _now_time) const noexcept
+timeout::remaining (timestamp now_time) const noexcept
 {
-    time_t _diff = timestamp::diff(_now_time, m_update_time);
-    return (_diff > m_interval.value() ? 0 : m_interval.value() - _diff);
+    time_t diff = timestamp::diff(now_time, m_update_time);
+    return (diff > m_interval.value() ? 0 : m_interval.value() - diff);
 }
 
 KNGIN_NAMESPACE_K_END

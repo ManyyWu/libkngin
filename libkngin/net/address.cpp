@@ -14,29 +14,29 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-address::address (const std::string &_addrstr, uint16_t _port, bool _v6)
+address::address (const std::string &addrstr, uint16_t port, bool v6)
 {
-    if (_v6) {
-        m_sa.v6.sin6_port = ::htons(_port);
+    if (v6) {
+        m_sa.v6.sin6_port = ::htons(port);
         m_sa.v6.sin6_family = AF_INET6;
     } else {
-        m_sa.v4.sin_port = ::htons(_port);
+        m_sa.v4.sin_port = ::htons(port);
         m_sa.v4.sin_family = AF_INET;
     }
-    int _ret = ::inet_pton(_v6 ? AF_INET6 : AF_INET,
-                           _addrstr.c_str(),
-                           _v6 ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr);
-    if (_ret < 0)
+    int ret = ::inet_pton(v6 ? AF_INET6 : AF_INET,
+                           addrstr.c_str(),
+                           v6 ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr);
+    if (ret < 0)
         throw k::system_error("::inet_pton() error");
 }
 
 bool
 address::inet6 () const
 {
-    struct ::sockaddr *_addr = (struct ::sockaddr *)&m_sa.v6;
-    if (AF_INET == _addr->sa_family)
+    struct ::sockaddr *addr = (struct ::sockaddr *)&m_sa.v6;
+    if (AF_INET == addr->sa_family)
         return false;
-    else if (AF_INET6 == _addr->sa_family)
+    else if (AF_INET6 == addr->sa_family)
         return true;
     else
         throw k::exception("unsupported address family");
@@ -51,15 +51,15 @@ address::size () const noexcept
 std::string
 address::addrstr () const
 {
-    char _buf[INET6_ADDRSTRLEN];
-    const char *_ret =
+    char buf[INET6_ADDRSTRLEN];
+    const char *ret =
         ::inet_ntop(inet6() ? AF_INET6 : AF_INET,
                     inet6() ? (void *)&m_sa.v6.sin6_addr : (void *)&m_sa.v4.sin_addr,
-                    _buf, sizeof(_buf)
+                    buf, sizeof(buf)
                     );
-    if (!_ret)
+    if (!ret)
         throw k::system_error("::inet_ntop() error");
-    return std::string(_buf);
+    return std::string(buf);
 }
 
 uint16_t
@@ -76,23 +76,23 @@ address::is_ipv4_mapped () const noexcept
 }
 
 bool
-address::is_valid_inet_addrstr (const std::string &_addrstr)
+address::is_valid_inet_addrstr (const std::string &addrstr)
 {
-    struct ::sockaddr_in _sa;
-    int _ret = ::inet_pton(AF_INET, _addrstr.data(), &_sa);
-    if (_ret < 0)
+    struct ::sockaddr_in sa;
+    int ret = ::inet_pton(AF_INET, addrstr.data(), &sa);
+    if (ret < 0)
         throw k::system_error("::inet_pton() error");
-    return _ret;
+    return ret;
 }
 
 bool
-address::is_valid_inet6_addrstr (const std::string &_addrstr)
+address::is_valid_inet6_addrstr (const std::string &addrstr)
 {
-    struct ::sockaddr_in _sa;
-    int _ret = ::inet_pton(AF_INET6, _addrstr.data(), &_sa);
-    if (_ret < 0)
+    struct ::sockaddr_in sa;
+    int ret = ::inet_pton(AF_INET6, addrstr.data(), &sa);
+    if (ret < 0)
         throw k::system_error("::inet_pton() error");
-    return _ret;
+    return ret;
 }
 
 std::string

@@ -15,19 +15,19 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-listener::listener (event_loop &_loop, k::socket &&_socket,
-                    const std::string &_name, uint16_t _port,
-                    int _backlog,
-                    accept_handler &&_new_ssesion_handler,
-                    error_handler &&_error_handler)
+listener::listener (event_loop &loop, k::socket &&socket,
+                    const std::string &name, uint16_t port,
+                    int backlog,
+                    accept_handler &&new_ssesion_handler,
+                    error_handler &&error_handler)
     try
-    : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
-      m_loop(&_loop),
-      m_socket(std::move(_socket)),
+    : epoller_event(socket.fd(), epoller_event::EVENT_TYPE_FILE),
+      m_loop(&loop),
+      m_socket(std::move(socket)),
       m_closed(true),
       m_listen_addr(),
-      m_accept_handler(std::move(_new_ssesion_handler)),
-      m_error_handler(std::move(_error_handler)),
+      m_accept_handler(std::move(new_ssesion_handler)),
+      m_error_handler(std::move(error_handler)),
       m_idle_file(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     arg_check(m_socket.valid());
@@ -35,7 +35,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
         throw k::system_error("::open(\"/dev/null\") error");
 
     // parse address
-    parse_addr(_name, _port);
+    parse_addr(name, port);
 
     // set socket options
     sockopts::set_reuseaddr(m_socket, true);
@@ -47,7 +47,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
     m_socket.bind(m_listen_addr);
 
     // listen
-    m_socket.listen(_backlog);
+    m_socket.listen(backlog);
 
     // set file flags
     m_socket.set_closeexec(true);
@@ -70,46 +70,46 @@ listener::~listener () noexcept
 }
 
 void
-listener::parse_addr (const std::string &_name, uint16_t _port)
+listener::parse_addr (const std::string &name, uint16_t port)
 {
-    addrinfo   _ai;
-    addrinfo * _ai_list;
-    ::bzero(&_ai, sizeof(addrinfo));
-    _ai.ai_flags = AI_PASSIVE;
-    _ai.ai_family = AF_UNSPEC;
-    _ai.ai_protocol = 0;
-    int _ret = ::getaddrinfo(_name.c_str(),
-                             std::to_string(_port).c_str(),
-                             &_ai, &_ai_list);
-    if (_ret) {
-        if (EAI_SYSTEM == _ret)
+    addrinfo   ai;
+    addrinfo * ai_list;
+    ::bzero(&ai, sizeof(addrinfo));
+    ai.ai_flags = AI_PASSIVE;
+    ai.ai_family = AF_UNSPEC;
+    ai.ai_protocol = 0;
+    int ret = ::getaddrinfo(name.c_str(),
+                             std::to_string(port).c_str(),
+                             &ai, &ai_list);
+    if (ret) {
+        if (EAI_SYSTEM == ret)
             throw k::system_error("::getaddrinfo() error");
         else
             throw k::exception((std::string("::getaddrinfo() error, %s")
-                                + gai_strerror(_ret) ).c_str());
+                                + gai_strerror(ret) ).c_str());
     }
-    if_not (_ai_list) {
-        ::freeaddrinfo(_ai_list);
+    if_not (ai_list) {
+        ::freeaddrinfo(ai_list);
         throw k::exception("invalid name or port");
     }
-    if (AF_INET == _ai_list->ai_addr->sa_family)
-        m_listen_addr = *(sockaddr_in *)_ai_list->ai_addr;
-    else if (AF_INET6 == _ai_list->ai_addr->sa_family)
-        m_listen_addr = *(sockaddr_in6 *)_ai_list->ai_addr;
+    if (AF_INET == ai_list->ai_addr->sa_family)
+        m_listen_addr = *(sockaddr_in *)ai_list->ai_addr;
+    else if (AF_INET6 == ai_list->ai_addr->sa_family)
+        m_listen_addr = *(sockaddr_in6 *)ai_list->ai_addr;
     else
         throw k::exception("unsupported address family");
 
-    //addrinfo *_res = _ai_list;
-    //while (_res) {
-    //    ::getnameinfo(_res->ai_addr, _res->ai_addrlen, nullptr, 0, nullptr, 0, 0);
-    //    _res = _res->ai_next;
+    //addrinfo *res = ai_list;
+    //while (res) {
+    //    ::getnameinfo(res->ai_addr, res->ai_addrlen, nullptr, 0, nullptr, 0, 0);
+    //    res = res->ai_next;
     //}
 
-    ::freeaddrinfo(_ai_list);
+    ::freeaddrinfo(ai_list);
 }
 
 void
-listener::close (bool _sync /* = true */)
+listener::close (bool sync /* = true */)
 {
     if (m_closed)
         return;
@@ -119,23 +119,23 @@ listener::close (bool _sync /* = true */)
             on_close();
         } else {
             m_loop->remove_event(*this);
-            auto _self_weak_ptr = weak_ptr();
-            if (_sync) {
-                auto _barrier_ptr = std::make_shared<barrier>(2);
-                m_loop->run_in_loop([_self_weak_ptr, _barrier_ptr] () {
-                    auto _self = _self_weak_ptr.lock();
-                    if (_self)
-                        _self->on_close();
-                    if (_barrier_ptr->wait())
-                        _barrier_ptr->destroy();
+            auto self_weak_ptr = weak_ptr();
+            if (sync) {
+                auto barrier_ptr = std::make_shared<barrier>(2);
+                m_loop->run_in_loop([self_weak_ptr, barrier_ptr] () {
+                    auto s = self_weak_ptr.lock();
+                    if (s)
+                        s->on_close();
+                    if (barrier_ptr->wait())
+                        barrier_ptr->destroy();
                 });
-                if (_barrier_ptr->wait())
-                    _barrier_ptr->destroy();
+                if (barrier_ptr->wait())
+                    barrier_ptr->destroy();
             } else {
-                m_loop->run_in_loop([_self_weak_ptr] () {
-                    auto _self = _self_weak_ptr.lock();
-                    if (_self)
-                        _self->on_close();
+                m_loop->run_in_loop([self_weak_ptr] () {
+                    auto s = self_weak_ptr.lock();
+                    if (s)
+                        s->on_close();
                 });
             }
         }
@@ -146,18 +146,18 @@ listener::close (bool _sync /* = true */)
 }
 
 void
-listener::on_events (event_loop &_loop, uint32_t _flags)
+listener::on_events (event_loop &loop, uint32_t flags)
 {
-    assert(m_loop == &_loop);
+    assert(m_loop == &loop);
     try {
-        if ((EPOLLHUP | EPOLLERR) & _flags) {
+        if ((EPOLLHUP | EPOLLERR) & flags) {
             this->on_read();
             return;
         }
-        if (EPOLLIN & _flags)
+        if (EPOLLIN & flags)
             this->on_read();
-    } catch (std::exception &_e) {
-        log_fatal("caught an exception in listener::on_event(), %s", _e.what());
+    } catch (std::exception &e) {
+        log_fatal("caught an exception in listener::on_event(), %s", e.what());
         throw;
     } catch (...) {
         log_fatal("caught an undefined exception in listener::on_event()");
@@ -170,45 +170,45 @@ listener::on_read ()
 {
     if (m_closed)
         return;
-    auto _self = self();
+    auto s = self();
 
-    address _peer_addr;
-    error_code _ec;
-    int _sockfd = m_socket.accept(_peer_addr, _ec); // nonblocking
-    if (_ec) {
-        if (EMFILE == _ec) {
+    address peer_addr;
+    error_code ec;
+    int sockfd = m_socket.accept(peer_addr, ec); // nonblocking
+    if (ec) {
+        if (EMFILE == ec) {
             m_idle_file.close();
-            m_idle_file = m_socket.accept(_peer_addr);
+            m_idle_file = m_socket.accept(peer_addr);
             m_idle_file.close();
             m_idle_file = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             log_warning("the process already has the maximum number of files open, "
                         "a new session has been rejected");
-        } else if (EAGAIN == _ec or
-                   EWOULDBLOCK == _ec or
-                   EPROTO == _ec or
-                   ECONNABORTED == _ec or
-                   EINTR == _ec) {
+        } else if (EAGAIN == ec or
+                   EWOULDBLOCK == ec or
+                   EPROTO == ec or
+                   ECONNABORTED == ec or
+                   EINTR == ec) {
             log_debug("listener::on_accept() ignore error, %s",
-                      system_error_str(_ec).c_str());
+                      system_error_str(ec).c_str());
             return;
         } else {
             log_excp_error(
-                m_error_handler(_ec),
+                m_error_handler(ec),
                 "listener::m_accept_handler() error"
             );
         }
         return;
     }
 
-    socket _sock(_sockfd);
+    socket sock(sockfd);
     if (m_accept_handler) {
         log_excp_error(
-            m_accept_handler(std::move(_sock)),
+            m_accept_handler(std::move(sock)),
             "listener::m_accept_handler() error"
         );
     } else {
-        log_warning("unaccepted session, fd = %d", _sock.fd());
-        _sock.close();
+        log_warning("unaccepted session, fd = %d", sock.fd());
+        sock.close();
     }
 }
 
@@ -218,7 +218,7 @@ listener::on_close ()
     if (m_closed)
         return;
 
-    auto _self = self();
+    auto s = self();
     if (m_loop and m_loop->looping() and registed())
         m_loop->remove_event(*this);
     m_socket.close();

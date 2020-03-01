@@ -31,7 +31,7 @@ public:
     trylock       ();
 
     bool
-    timedlock     (timestamp _ms);
+    timedlock     (timestamp ms);
 
 private:
     pthread_mutex_t m_mutex;

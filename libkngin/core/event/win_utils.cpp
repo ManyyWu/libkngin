@@ -14,9 +14,9 @@ void
 wsa_init ()
 {
     if (!g_win_inited) {
-        WSADATA _data;
+        WSADATA data;
         cond_sys_err(
-            0 != ::WSAStartup(MAKEWORD(2, 2), &_data),
+            0 != ::WSAStartup(MAKEWORD(2, 2), &data),
             "::WSAStartup() error"
         );
     }

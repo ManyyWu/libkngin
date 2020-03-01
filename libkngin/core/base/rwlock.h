@@ -32,10 +32,10 @@ public:
     trywrlock     ();
 
     bool
-    timedrdlock   (timestamp _ms);
+    timedrdlock   (timestamp ms);
 
     bool
-    timedwrlock   (timestamp _ms);
+    timedwrlock   (timestamp ms);
 
     void
     unlock        ();

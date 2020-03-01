@@ -35,9 +35,9 @@ iocp_poller::~iocp_poller () noexcept
 }
 
 size_t
-iocp_poller::wait (iocp_event_set &_events, timestamp _ms)
+iocp_poller::wait (iocp_event_set &events, timestamp ms)
 {
-    return (g_have_get_iocp_status_ex ? poll(_events, _ms) : poll_wine(_events, _ms));
+    return (g_have_get_iocp_status_ex ? poll(events, ms) : poll_wine(events, ms));
 }
 
 void
@@ -52,28 +52,28 @@ iocp_poller::wakeup ()
 }
 
 size_t
-iocp_poller::poll (iocp_event_set &_events, timestamp _ms)
+iocp_poller::poll (iocp_event_set &events, timestamp ms)
 {
-    ULONG            _size = 0;
-    ULONG            _count = 0;
-    ULONG_PTR        _key = 0;
-    OVERLAPPED_ENTRY _overlappeds[KNGIN_RESERVED_POLLELR_EVENT];
+    ULONG            size = 0;
+    ULONG            count = 0;
+    ULONG_PTR        key = 0;
+    OVERLAPPED_ENTRY overlappeds[KNGIN_RESERVED_POLLELR_EVENT];
 
     ::GetQueuedCompletionStatusEx(m_iocp_handle,
-                                  _overlappeds,
+                                  overlappeds,
                                   KNGIN_RESERVED_POLLELR_EVENT,
-                                  &_size,
-                                  _ms.value_uint(),
+                                  &size,
+                                  ms.value_uint(),
                                   FALSE);
-    if (_size > 0) {
-        _count = _size;
-        for (size_t _i = 0; _i < _size; ++_i) {
-            auto _overlapped = _overlappeds[_i].lpOverlapped;
-            if (_overlapped) {
-                assert(_events[_i] = (per_io_data *)CONTAINING_RECORD(
-                                         &_overlappeds[_i], per_io_data, overlapped));
+    if (size > 0) {
+        count = size;
+        for (size_t i = 0; i < size; ++i) {
+            auto overlapped = overlappeds[i].lpOverlapped;
+            if (overlapped) {
+                assert(events[i] = (per_io_data *)CONTAINING_RECORD(
+                                         &overlappeds[i], per_io_data, overlapped));
             } else {
-                --_count; // wakeup;
+                --count; // wakeup;
             }
         }
     } else if (WAIT_TIMEOUT == last_error()) {
@@ -81,38 +81,38 @@ iocp_poller::poll (iocp_event_set &_events, timestamp _ms)
     } else {
         throw k::system_error("::GetQueuedCompletionStatusEx() error");
     }
-    return _count;
+    return count;
 }
 
 size_t
-iocp_poller::poll_wine (iocp_event_set &_events, timestamp _ms)
+iocp_poller::poll_wine (iocp_event_set &events, timestamp ms)
 {
-    auto   _size = _events.size();
-    size_t _count = 0;
-    while (_count < _size) {
-        DWORD       _bytes = 0;
-        ULONG_PTR   _key = 0;
-        OVERLAPPED *_overlapped = nullptr;
+    auto   size = events.size();
+    size_t count = 0;
+    while (count < size) {
+        DWORD       bytes = 0;
+        ULONG_PTR   key = 0;
+        OVERLAPPED *overlapped = nullptr;
 
-        bool _ok = ::GetQueuedCompletionStatus(m_iocp_handle,
-                                    &_bytes,
-                                    &_key,
-                                    &_overlapped,
-                                    _ms.value_uint());
-        auto _err = last_error();
-        if (_ok) {
-            if (_overlapped)
-                assert(_events[_count++] = (per_io_data *)CONTAINING_RECORD(
-                                               _overlapped, per_io_data, overlapped));
+        bool ok = ::GetQueuedCompletionStatus(m_iocp_handle,
+                                    &bytes,
+                                    &key,
+                                    &overlapped,
+                                    ms.value_uint());
+        auto err = last_error();
+        if (ok) {
+            if (overlapped)
+                assert(events[count++] = (per_io_data *)CONTAINING_RECORD(
+                                               overlapped, per_io_data, overlapped));
             else
                 break; // wakeup
-        } else if (WAIT_TIMEOUT == _err) {
+        } else if (WAIT_TIMEOUT == err) {
             return 0;
         } else {
             throw k::system_error("::GetQueuedCompletionStatus() error");
         }
     }
-    return _count;
+    return count;
 }
 
 void
@@ -130,43 +130,43 @@ iocp_poller::close ()
 }
 
 void
-iocp_poller::register_event (iocp_event_ptr _e)
+iocp_poller::register_event (iocp_event_ptr e)
 {
-    assert(_e);
+    assert(e);
     assert(INVALID_HANDLE_VALUE == m_iocp_handle);
     {
-        local_lock _lock(m_mutex);
-        assert(!_e->registed());
-        m_events.push_back(_e);
-        _e->set_registed(true);
-        _e->set_index(m_events.back());
+        local_lock lock(m_mutex);
+        assert(!e->registed());
+        m_events.push_back(e);
+        e->set_registed(true);
+        e->set_index(m_events.back());
     }
 }
 
 void
-iocp_poller::remove_event (iocp_event &_e)
+iocp_poller::remove_event (iocp_event &e)
 {
     assert(INVALID_HANDLE_VALUE == m_iocp_handle);
     {
-        local_lock _lock(m_mutex);
-        assert(_e.registed());
-        _e.set_registed(false);
-        if (auto _index = _e.index().lock())
-            m_events.remove(_index);
+        local_lock lock(m_mutex);
+        assert(e.registed());
+        e.set_registed(false);
+        if (auto index = e.index().lock())
+            m_events.remove(index);
     }
 }
 
 void
-iocp_poller::modify_event (iocp_event &_e)
+iocp_poller::modify_event (iocp_event &e)
 {
     assert(INVALID_HANDLE_VALUE == m_iocp_handle);
 }
 
 bool
-iocp_poller::registed (iocp_event &_e) noexcept
+iocp_poller::registed (iocp_event &e) noexcept
 {
     assert(INVALID_HANDLE_VALUE == m_iocp_handle);
-    return (!_e.registed());
+    return (!e.registed());
 }
 
 KNGIN_NAMESPACE_K_END

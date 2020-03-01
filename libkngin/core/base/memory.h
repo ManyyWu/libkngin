@@ -10,14 +10,14 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-#if (__cplusplus <= 202000)
+#if (cplusplus <= 202000)
 
 template<typename _Tp>
 inline
 std::shared_ptr<_Tp>
-make_shared_array (size_t _num)
+make_shared_array (size_t num)
 {
-    return std::shared_ptr<_Tp>(new _Tp[_num], std::default_delete<_Tp[]>());
+    return std::shared_ptr<_Tp>(new _Tp[num], std::default_delete<_Tp[]>());
 }
 
 #endif

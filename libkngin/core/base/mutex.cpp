@@ -21,20 +21,20 @@ mutex::mutex ()
 mutex::~mutex ()
 {
     ignore_excp(
-        auto _ec = ::pthread_mutex_destroy(&m_mutex);
-        if (_ec)
+        auto ec = ::pthread_mutex_destroy(&m_mutex);
+        if (ec)
             log_fatal("::pthread_mutex_destroy() error, %s",
-                      system_error_str(CERR(_ec)).c_str());
+                      system_error_str(CERR(ec)).c_str());
     );
 }
 
 void
 mutex::lock ()
 {
-    auto _ec = ::pthread_mutex_lock(&m_mutex);
-    if (_ec) {
+    auto ec = ::pthread_mutex_lock(&m_mutex);
+    if (ec) {
         log_fatal("::pthread_mutex_lock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_mutex_lock() error");
     }
 }
@@ -42,30 +42,30 @@ mutex::lock ()
 bool
 mutex::trylock ()
 {
-    auto _ec = ::pthread_mutex_trylock(&m_mutex);
-    if (EBUSY == _ec)
+    auto ec = ::pthread_mutex_trylock(&m_mutex);
+    if (EBUSY == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_mutex_trylock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_mutex_trylock() error");
     }
     return true;
 }
 
 bool
-mutex::timedlock (timestamp _ms)
+mutex::timedlock (timestamp ms)
 {
-    timespec _ts;
-    ::timespec_get(&_ts, TIME_UTC);
-    timestamp _time = _ts;
-    (_time += _ms).to_timespec(_ts);
-    auto _ec = ::pthread_mutex_timedlock(&m_mutex, &_ts);
-    if (ETIMEDOUT == _ec)
+    timespec ts;
+    ::timespec_get(&ts, TIME_UTC);
+    timestamp time = ts;
+    (time += ms).to_timespec(ts);
+    auto ec = ::pthread_mutex_timedlock(&m_mutex, &ts);
+    if (ETIMEDOUT == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_mutex_timedlock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_mutex_timedlock() error");
     }
     return true;
@@ -74,10 +74,10 @@ mutex::timedlock (timestamp _ms)
 void
 mutex::unlock ()
 {
-    auto _ec = ::pthread_mutex_unlock(&m_mutex);
-    if (_ec) {
+    auto ec = ::pthread_mutex_unlock(&m_mutex);
+    if (ec) {
         log_fatal("::pthread_mutex_unlock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_mutex_unlock() error");
     }
 }

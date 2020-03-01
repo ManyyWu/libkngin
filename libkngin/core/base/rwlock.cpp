@@ -21,20 +21,20 @@ rwlock::rwlock ()
 rwlock::~rwlock () noexcept
 {
     ignore_excp(
-        auto _ec = ::pthread_rwlock_destroy(&m_rwlock);
-        if (_ec)
+        auto ec = ::pthread_rwlock_destroy(&m_rwlock);
+        if (ec)
             log_fatal("::pthread_rwlock_destroy() error %s",
-                      system_error_str(CERR(_ec)).c_str());
+                      system_error_str(CERR(ec)).c_str());
     );
 }
 
 void
 rwlock::rdlock ()
 {
-    auto _ec = ::pthread_rwlock_rdlock(&m_rwlock);
-    if (_ec) {
+    auto ec = ::pthread_rwlock_rdlock(&m_rwlock);
+    if (ec) {
         log_fatal("::pthread_rwlock_rdlock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_rdlock() error");
     }
 }
@@ -42,10 +42,10 @@ rwlock::rdlock ()
 void
 rwlock::wrlock ()
 {
-    auto _ec = ::pthread_rwlock_wrlock(&m_rwlock);
-    if (_ec) {
+    auto ec = ::pthread_rwlock_wrlock(&m_rwlock);
+    if (ec) {
         log_fatal("::pthread_rwlock_wrlock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_wrlock() error");
     }
 }
@@ -53,12 +53,12 @@ rwlock::wrlock ()
 bool
 rwlock::tryrdlock ()
 {
-    auto _ec = ::pthread_rwlock_tryrdlock(&m_rwlock);
-    if (EBUSY == _ec)
+    auto ec = ::pthread_rwlock_tryrdlock(&m_rwlock);
+    if (EBUSY == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_rwlock_tryrdlock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_tryrdlock() error");
     }
     return true;
@@ -67,48 +67,48 @@ rwlock::tryrdlock ()
 bool
 rwlock::trywrlock ()
 {
-    auto _ec = ::pthread_rwlock_trywrlock(&m_rwlock);
-    if (EBUSY == _ec)
+    auto ec = ::pthread_rwlock_trywrlock(&m_rwlock);
+    if (EBUSY == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_rwlock_trywrlock() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_trywrlock() error");
     }
     return true;
 }
 
 bool
-rwlock::timedrdlock (timestamp _ms)
+rwlock::timedrdlock (timestamp ms)
 {
-    timespec _ts;
-    ::timespec_get(&_ts, TIME_UTC);
-    timestamp _time = _ts;
-    (_time += _ms).to_timespec(_ts);
-    auto _ec = ::pthread_rwlock_timedrdlock(&m_rwlock, &_ts);
-    if (ETIMEDOUT == _ec)
+    timespec ts;
+    ::timespec_get(&ts, TIME_UTC);
+    timestamp time = ts;
+    (time += ms).to_timespec(ts);
+    auto ec = ::pthread_rwlock_timedrdlock(&m_rwlock, &ts);
+    if (ETIMEDOUT == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_rwlock_timedrdlock(), error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_timedrdlock() error");
     }
     return true;
 }
 
 bool
-rwlock::timedwrlock (timestamp _ms)
+rwlock::timedwrlock (timestamp ms)
 {
-    timespec _ts;
-    ::timespec_get(&_ts, TIME_UTC);
-    timestamp _time = _ts;
-    (_time += _ms).to_timespec(_ts);
-    auto _ec = ::pthread_rwlock_timedwrlock(&m_rwlock, &_ts);
-    if (ETIMEDOUT == _ec)
+    timespec ts;
+    ::timespec_get(&ts, TIME_UTC);
+    timestamp time = ts;
+    (time += ms).to_timespec(ts);
+    auto ec = ::pthread_rwlock_timedwrlock(&m_rwlock, &ts);
+    if (ETIMEDOUT == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_rwlock_timedwrlock() error, %d",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_timedwrlock() error");
     }
     return true;
@@ -117,10 +117,10 @@ rwlock::timedwrlock (timestamp _ms)
 void
 rwlock::unlock ()
 {
-    auto _ec = ::pthread_rwlock_unlock(&m_rwlock);
-    if (_ec) {
+    auto ec = ::pthread_rwlock_unlock(&m_rwlock);
+    if (ec) {
         log_fatal("::pthread_rwlock_unlock() return %d",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_rwlock_unlock() error");
     }
 }

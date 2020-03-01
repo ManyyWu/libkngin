@@ -16,7 +16,7 @@ KNGIN_NAMESPACE_K_BEGIN
 class cond : public noncopyable {
 public:
     explicit
-    cond           (mutex *_mutex);
+    cond           (mutex *mutex);
 
     ~cond          () noexcept;
 
@@ -25,7 +25,7 @@ public:
     wait           ();
 
     bool
-    timedwait      (timestamp _ms);
+    timedwait      (timestamp ms);
 
     void
     signal         ();

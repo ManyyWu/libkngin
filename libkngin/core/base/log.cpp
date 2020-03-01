@@ -21,97 +21,97 @@ log::log_color_begin_tbl[KNGIN_LOG_LEVEL_MAX + 1] = {
 };
 #endif
 
-log::log (KNGIN_LOG_FILE _filetype, KNGIN_LOG_MODE _mode /* = KNGIN_LOG_MODE_FILE */)
+log::log (KNGIN_LOG_FILE filetype, KNGIN_LOG_MODE mode /* = KNGIN_LOG_MODE_FILE */)
     :
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
       m_mutex(),
 #endif
-      m_mode(_mode),
-      m_filetype(_filetype),
+      m_mode(mode),
+      m_filetype(filetype),
       m_disable_info(false),
       m_disable_debug(false)
 {
 }
 
 void
-log::fatal (const char *_fmt, ...)
+log::fatal (const char *fmt, ...)
 {
-    assert(_fmt);
-    va_list _vl;
-    va_start(_vl, _fmt);
-    write_log(KNGIN_LOG_LEVEL_FATAL, _fmt, _vl);
-    va_end(_vl);
+    assert(fmt);
+    va_list vl;
+    va_start(vl, fmt);
+    write_log(KNGIN_LOG_LEVEL_FATAL, fmt, vl);
+    va_end(vl);
     //assert(!"log fatal");
 }
 
 void
-log::error (const char *_fmt, ...)
+log::error (const char *fmt, ...)
 {
-    assert(_fmt);
-    va_list _vl;
-    va_start(_vl, _fmt);
-    write_log(KNGIN_LOG_LEVEL_ERROR, _fmt, _vl);
-    va_end(_vl);
+    assert(fmt);
+    va_list vl;
+    va_start(vl, fmt);
+    write_log(KNGIN_LOG_LEVEL_ERROR, fmt, vl);
+    va_end(vl);
     //assert(!"log error");
 }
 
 void
-log::warning (const char *_fmt, ...)
+log::warning (const char *fmt, ...)
 {
-    assert(_fmt);
-    va_list _vl;
-    va_start(_vl, _fmt);
-    write_log(KNGIN_LOG_LEVEL_WARNING, _fmt, _vl);
-    va_end(_vl);
+    assert(fmt);
+    va_list vl;
+    va_start(vl, fmt);
+    write_log(KNGIN_LOG_LEVEL_WARNING, fmt, vl);
+    va_end(vl);
 }
 
 void
-log::info (const char *_fmt, ...)
+log::info (const char *fmt, ...)
 {
-    assert(_fmt);
+    assert(fmt);
     if (m_disable_info)
         return;
 
-    va_list _vl;
-    va_start(_vl, _fmt);
-    write_log(KNGIN_LOG_LEVEL_INFO, _fmt, _vl);
-    va_end(_vl);
+    va_list vl;
+    va_start(vl, fmt);
+    write_log(KNGIN_LOG_LEVEL_INFO, fmt, vl);
+    va_end(vl);
 }
 
 void
-log::debug (const char *_fmt, ...)
+log::debug (const char *fmt, ...)
 {
-    assert(_fmt);
+    assert(fmt);
     if (m_disable_debug)
         return;
 
-    va_list _vl;
-    va_start(_vl, _fmt);
-    write_log(KNGIN_LOG_LEVEL_DEBUG, _fmt, _vl);
-    va_end(_vl);
+    va_list vl;
+    va_start(vl, fmt);
+    write_log(KNGIN_LOG_LEVEL_DEBUG, fmt, vl);
+    va_end(vl);
 }
 
 void
-log::log_data (const std::string &_str)
+log::log_data (const std::string &str)
 {
-    if (_str.empty())
+    if (str.empty())
         return;
 
 #if (ON == KNGIN_ASYNC_LOGGER)
     logger().async_log(
-        [_filetype = m_filetype, _mode = m_mode, _str] ()
+        [filetype = m_filetype, mode = m_mode, str] ()
 #else
-        [_filetype = m_filetype, _mode = m_mode, &_str] ()
+        [filetype = m_filetype, mode = m_mode, &str] ()
 #endif
     {
-        if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
-            write_logfile(logger().filename_at(_filetype).c_str(),
-                          _str.c_str(), _str.size());
-        if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
-            write_stderr(KNGIN_LOG_LEVEL_INFO, _str.c_str(), _str.size());
-        if (auto _log_cb = logger().get_log_callback())
-            _log_cb(logger().filename_at(_filetype).c_str(), KNGIN_LOG_LEVEL_INFO,
-                    _str.c_str(), _str.size());
+        if (KNGIN_LOG_MODE_BOTH == mode or KNGIN_LOG_MODE_FILE == mode)
+            write_logfile(logger().filename_at(filetype).c_str(),
+                          str.c_str(), str.size());
+        if (KNGIN_LOG_MODE_BOTH == mode or KNGIN_LOG_MODE_STDERR == mode)
+            write_stderr(KNGIN_LOG_LEVEL_INFO, str.c_str(), str.size());
+        if (auto log_cb = logger().get_log_callback())
+            log_cb(logger().filename_at(filetype).c_str(), KNGIN_LOG_LEVEL_INFO,
+                    str.c_str(), str.size());
 #if (ON == KNGIN_ASYNC_LOGGER)
     });
 #else
@@ -120,55 +120,55 @@ log::log_data (const std::string &_str)
 }
 
 bool
-log::log_assert (const char *_func, const char *_file,
-                 size_t _line, const char *_exp)
+log::log_assert (const char *func, const char *file,
+                 size_t line, const char *exp)
 {
-    assert(_func);
-    assert(_file);
-    assert(_exp);
-    fatal(KNGIN_LOG_ASSERT_FORMAT, _func, _file, _line, _exp);
+    assert(func);
+    assert(file);
+    assert(exp);
+    fatal(KNGIN_LOG_ASSERT_FORMAT, func, file, line, exp);
     return true;
 }
 
 void
-log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
+log::write_log (KNGIN_LOG_LEVEL level, const char *fmt, va_list vl)
 {
-    assert(_fmt);
+    assert(fmt);
 
-    auto _func = [&] () {
+    auto func = [&] () {
 #if (ON == KNGIN_ASYNC_LOGGER)
-        log_data_ptr _data_ptr = k::make_shared_array<char>(KNGIN_LOG_BUF_SIZE);
-        char *_buf = _data_ptr.get();
+        log_data_ptr data_ptr = k::make_shared_array<char>(KNGIN_LOG_BUF_SIZE);
+        char *buf = data_ptr.get();
 #else
-        char  _buf[KNGIN_LOG_BUF_SIZE];
+        char  buf[KNGIN_LOG_BUF_SIZE];
 #endif
 
 #ifdef NDEBUG
-        char _datetime[KNGIN_LOG_DATETIME_LEN];
-        ::strncpy(_buf, get_datetime(_datetime, sizeof(_datetime)), sizeof(_datetime));
-        ::vsnprintf(_buf + KNGIN_LOG_DATETIME_LEN - 1,
+        char datetime[KNGIN_LOG_DATETIME_LEN];
+        ::strncpy(buf, get_datetime(datetime, sizeof(datetime)), sizeof(datetime));
+        ::vsnprintf(buf + KNGIN_LOG_DATETIME_LEN - 1,
                     KNGIN_LOG_BUF_SIZE - KNGIN_LOG_DATETIME_LEN,
-                    _fmt, _vl);
+                    fmt, vl);
 #else
-        ::vsnprintf(_buf, KNGIN_LOG_BUF_SIZE, _fmt, _vl);
+        ::vsnprintf(buf, KNGIN_LOG_BUF_SIZE, fmt, vl);
 #endif
-        _buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
-        auto _len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
+        buf[KNGIN_LOG_BUF_SIZE - 1] = '\0';
+        auto len = ::strnlen(buf, KNGIN_LOG_BUF_SIZE);
 
 #if (ON == KNGIN_ASYNC_LOGGER)
         logger().async_log(
-            [_filetype = m_filetype, _level, _mode = m_mode, _data_ptr, _buf, _len] ()
+            [filetype = m_filetype, level, mode = m_mode, data_ptr, buf, len] ()
 #else
-        [_filetype = m_filetype, _level, _mode = m_mode, _buf, _len] ()
+        [filetype = m_filetype, level, mode = m_mode, buf, len] ()
 #endif
         {
-            if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_FILE == _mode)
-                write_logfile(logger().filename_at(_filetype).c_str(), _buf, _len);
-            if (KNGIN_LOG_MODE_BOTH == _mode or KNGIN_LOG_MODE_STDERR == _mode)
-                write_stderr(_level, _buf, _len);
-            if (auto _log_cb = logger().get_log_callback())
-                _log_cb(logger().filename_at(_filetype).c_str(), _level,
-                        _buf, _len);
+            if (KNGIN_LOG_MODE_BOTH == mode or KNGIN_LOG_MODE_FILE == mode)
+                write_logfile(logger().filename_at(filetype).c_str(), buf, len);
+            if (KNGIN_LOG_MODE_BOTH == mode or KNGIN_LOG_MODE_STDERR == mode)
+                write_stderr(level, buf, len);
+            if (auto log_cb = logger().get_log_callback())
+                log_cb(logger().filename_at(filetype).c_str(), level,
+                        buf, len);
 #if (ON == KNGIN_ASYNC_LOGGER)
         });
 #else
@@ -178,101 +178,101 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)
     if (logger().inited()) {
-        local_lock _lock(m_mutex);
-        _func();
+        local_lock lock(m_mutex);
+        func();
     } else
 #endif
-        _func();
+        func();
 }
 
 bool
-log::write_logfile (const char *_file, const char *_str, size_t _len) noexcept
+log::write_logfile (const char *file, const char *str, size_t len) noexcept
 {
-    assert(_file);
-    assert(_str);
+    assert(file);
+    assert(str);
 
-    bool         _fail = false;
-    size_t       _ret = 0;
-    static char  _buf[KNGIN_LOG_BUF_SIZE];
-    static char  _filename[FILENAME_MAX];
-    tm           _tm;
-    time_t       _t = ::time(nullptr);
-    FILE *       _fplog = nullptr;
+    bool         fail = false;
+    size_t       ret = 0;
+    static char  buf[KNGIN_LOG_BUF_SIZE];
+    static char  filename[FILENAME_MAX];
+    tm           tm;
+    time_t       t = ::time(nullptr);
+    FILE *       fplog = nullptr;
 
-    get_localtime(&_tm, &_t);
-    ::snprintf(_filename, FILENAME_MAX, KNGIN_LOG_FILENAME_FORMT, _file,
-               _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday);
-    _fplog = ::fopen(_filename, "a");
-    if (!_fplog) {
+    get_localtime(&tm, &t);
+    ::snprintf(filename, FILENAME_MAX, KNGIN_LOG_FILENAME_FORMT, file,
+               tm.tm_year + 1900, tm.tm_mon, tm.tm_mday);
+    fplog = ::fopen(filename, "a");
+    if (!fplog) {
         write_stderr2(KNGIN_LOG_LEVEL_FATAL,
                       "failed to open \"%s\", %s[%#x]",
-                      _filename, ::strerror(errno), errno);
+                      filename, ::strerror(errno), errno);
         return false;
     }
 
-    ::fseek(_fplog, 0, SEEK_END);
-    if (0 == ftell(_fplog)) {
+    ::fseek(fplog, 0, SEEK_END);
+    if (0 == ftell(fplog)) {
         // write head info
-        char _datetime[KNGIN_LOG_DATETIME_LEN];
-        ::snprintf(_buf, KNGIN_LOG_BUF_SIZE,
+        char datetime[KNGIN_LOG_DATETIME_LEN];
+        ::snprintf(buf, KNGIN_LOG_BUF_SIZE,
                    "=========================================================\n"
                    "= %19s                                   =\n"
                    "=========================================================\n",
-                   get_datetime(_datetime, sizeof(_datetime)));
-        auto _str_len = ::strnlen(_buf, KNGIN_LOG_BUF_SIZE);
-        _ret = ::fwrite(_buf, 1, _str_len , _fplog);
-        if (_ret < 0) {
+                   get_datetime(datetime, sizeof(datetime)));
+        auto str_len = ::strnlen(buf, KNGIN_LOG_BUF_SIZE);
+        ret = ::fwrite(buf, 1, str_len , fplog);
+        if (ret < 0) {
             write_stderr2(KNGIN_LOG_LEVEL_FATAL,
                           "failed to write log to \"%s\", %s[%#x]",
-                          _filename, ::strerror(errno), errno);
+                          filename, ::strerror(errno), errno);
             goto fail;
-        } else if (static_cast<size_t>(_ret) != _str_len) {
+        } else if (static_cast<size_t>(ret) != str_len) {
              write_stderr2(KNGIN_LOG_LEVEL_FATAL,
                            "the content been written to \"%s\" are too short, "
                            "and the disk space may be insufficient",
-                           _filename);
+                           filename);
             goto fail;
         }
     }
 
-    _ret = ::fwrite(_str, 1, _len, _fplog);
-    if (_ret < 0) {
+    ret = ::fwrite(str, 1, len, fplog);
+    if (ret < 0) {
         write_stderr2(KNGIN_LOG_LEVEL_FATAL,
                       "failed to write log to \"%s\", %s[%#x]",
-                      _filename, ::strerror(errno), errno);
+                      filename, ::strerror(errno), errno);
         goto fail;
     }
-    ::fputc('\n', _fplog);
-    ::fflush(_fplog);
+    ::fputc('\n', fplog);
+    ::fflush(fplog);
 
-    _fail = true;
+    fail = true;
 fail:
-    ::fclose(_fplog);
-    return _fail;
+    ::fclose(fplog);
+    return fail;
 }
 
 const char *
-log::get_datetime (char _datetime[], size_t _size) noexcept
+log::get_datetime (char datetime[], size_t size) noexcept
 {
-    assert(_size >= KNGIN_LOG_DATETIME_LEN);
-    time_t _t = ::time(nullptr);
-    struct ::tm _tm;
-    get_localtime(&_tm, &_t);
-    ::snprintf(_datetime, KNGIN_LOG_DATETIME_LEN,
+    assert(size >= KNGIN_LOG_DATETIME_LEN);
+    time_t t = ::time(nullptr);
+    struct ::tm tm;
+    get_localtime(&tm, &t);
+    ::snprintf(datetime, KNGIN_LOG_DATETIME_LEN,
                KNGIN_LOG_DATETIME_FORMT,
-               _tm.tm_year + 1900, _tm.tm_mon, _tm.tm_mday,
-               _tm.tm_hour, _tm.tm_min, _tm.tm_sec);
-    _datetime[KNGIN_LOG_DATETIME_LEN - 1] = '\0';
-    return _datetime;
+               tm.tm_year + 1900, tm.tm_mon, tm.tm_mday,
+               tm.tm_hour, tm.tm_min, tm.tm_sec);
+    datetime[KNGIN_LOG_DATETIME_LEN - 1] = '\0';
+    return datetime;
 }
 
 const char *
-log::color_begin (KNGIN_LOG_LEVEL _level) noexcept
+log::color_begin (KNGIN_LOG_LEVEL level) noexcept
 {
 #ifdef _WIN32
     return "";
 #else
-    return log::log_color_begin_tbl[_level];
+    return log::log_color_begin_tbl[level];
 #endif
 }
 
@@ -287,33 +287,33 @@ log::color_end () noexcept
 }
 
 void
-log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) noexcept
+log::write_stderr (KNGIN_LOG_LEVEL level, const char *str, size_t len) noexcept
 {
-    assert(_str);
+    assert(str);
 
-    ::fputs(color_begin(_level), stderr);
-    ::fwrite(_str, 1, _len, stderr);
+    ::fputs(color_begin(level), stderr);
+    ::fwrite(str, 1, len, stderr);
     ::fputs(color_end(), stderr);
     ::fputc('\n', stderr);
 }
 
 void
-log::write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...) noexcept
+log::write_stderr2 (KNGIN_LOG_LEVEL level, const char *fmt, ...) noexcept
 {
-    assert(_fmt);
+    assert(fmt);
 
-    va_list _vl;
-    char _buf[KNGIN_LOG_BUF_SIZE];
+    va_list vl;
+    char buf[KNGIN_LOG_BUF_SIZE];
 
-    va_start(_vl, _fmt);
-    ::vsnprintf(_buf, KNGIN_LOG_BUF_SIZE, _fmt, _vl);
-    va_end(_vl);
+    va_start(vl, fmt);
+    ::vsnprintf(buf, KNGIN_LOG_BUF_SIZE, fmt, vl);
+    va_end(vl);
 
 #ifdef _WIN32
 #else
-    ::fputs(color_begin(_level), stderr);
+    ::fputs(color_begin(level), stderr);
 #endif
-    ::fwrite(_buf, 1, ::strnlen(_buf, KNGIN_LOG_BUF_SIZE), stderr);
+    ::fwrite(buf, 1, ::strnlen(buf, KNGIN_LOG_BUF_SIZE), stderr);
 #ifdef _WIN32
 #else
     ::fputs(KNGIN_LOG_COLOR_NONE, stderr);

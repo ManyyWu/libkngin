@@ -44,8 +44,8 @@ log_mgr::log_mgr ()
         // reserved type
         m_log_set.push_back(
             std::make_unique<log>(KNGIN_LOG_FILE_SERVER, KNGIN_LOG_MODE_BOTH));
-    } catch (std::exception &_e) {
-        std::cerr << "logger init failed: " << _e.what() << std::endl;
+    } catch (std::exception &e) {
+        std::cerr << "logger init failed: " << e.what() << std::endl;
         throw;
     } catch (...) {
         std::cerr << "logger init failed" << std::endl;
@@ -63,7 +63,7 @@ log_mgr::~log_mgr ()
 #if (ON == KNGIN_ASYNC_LOGGER)
     log_mgr::m_stop = true;
     {
-        local_lock _lock(log_mgr::m_mutex);
+        local_lock lock(log_mgr::m_mutex);
     }
     log_mgr::m_cond.signal();
     if (!log_mgr::m_thr.joined())
@@ -76,13 +76,13 @@ log_mgr::~log_mgr ()
 #if (ON == KNGIN_ASYNC_LOGGER)
 
 void
-log_mgr::async_log (log::async_log_data &&_data)
+log_mgr::async_log (log::async_log_data &&data)
 {
     if (!log_mgr::m_inited)
         return;
     {
-        local_lock _lock(log_mgr::m_mutex);
-        log_mgr::m_log_dataq.push_front(std::move(_data));
+        local_lock lock(log_mgr::m_mutex);
+        log_mgr::m_log_dataq.push_front(std::move(data));
     }
     log_mgr::m_cond.signal();
 }
@@ -90,13 +90,13 @@ log_mgr::async_log (log::async_log_data &&_data)
 int
 log_mgr::log_thread ()
 {
-    log::async_log_data _fn = nullptr;
+    log::async_log_data fn = nullptr;
 
     try {
         while (true) {
             {
                 // wait
-                local_lock _lock(log_mgr::m_mutex);
+                local_lock lock(log_mgr::m_mutex);
                 while (log_mgr::m_log_dataq.empty() and !log_mgr::m_stop) {
                     log_mgr::m_cond.timedwait(KNGIN_ASYNC_LOGGER_TIMEOUT);
                 }
@@ -104,17 +104,17 @@ log_mgr::log_thread ()
                     break;
 
                 // get next
-                _fn = log_mgr::m_log_dataq.back();
+                fn = log_mgr::m_log_dataq.back();
                 log_mgr::m_log_dataq.pop_back();
             }
             // write
-            if (_fn) 
-                _fn();
-            _fn = nullptr;
+            if (fn)
+                fn();
+            fn = nullptr;
         }
     }
-    catch (std::exception &_e) {
-        std::cerr << "catch an exception in log_thread: " << _e.what() << std::endl;
+    catch (std::exception &e) {
+        std::cerr << "catch an exception in log_thread: " << e.what() << std::endl;
     } catch (...) {
         std::cerr << "catch an exception in log_thread" << std::endl;
     }
@@ -126,27 +126,27 @@ log_mgr::log_thread ()
 #endif
 
 log &
-log_mgr::operator [] (size_t _index) noexcept
+log_mgr::operator [] (size_t index) noexcept
 {
     assert(log_mgr::m_inited);
     assert(log_mgr::m_log_set.size() == log_mgr::m_logfile_set.size());
-    return *log_mgr::m_log_set[_index];
+    return *log_mgr::m_log_set[index];
 }
 
 const std::string &
-log_mgr::filename_at (size_t _index) noexcept
+log_mgr::filename_at (size_t index) noexcept
 {
     assert(log_mgr::m_inited);
-    assert(_index < log_mgr::m_log_set.size());
-    return log_mgr::m_logfile_set[_index];
+    assert(index < log_mgr::m_log_set.size());
+    return log_mgr::m_logfile_set[index];
 }
 
 log_mgr &
 logger ()
 {
-    static log_mgr _logger;
+    static log_mgr logger;
 
-    return _logger;
+    return logger;
 }
 
 KNGIN_NAMESPACE_K_END

@@ -23,9 +23,9 @@ public:
     filefd        () = delete;
 
     explicit
-    filefd        (filefd_type _fd) noexcept;
+    filefd        (filefd_type fd) noexcept;
 
-    filefd        (filefd &&_fd) noexcept;
+    filefd        (filefd &&fd) noexcept;
 
     virtual
     ~filefd       () noexcept;
@@ -44,84 +44,84 @@ public:
     { return m_fd; }
 
     size_t
-    write         (out_buffer &_buf);
+    write         (out_buffer &buf);
 
     size_t
-    write         (out_buffer &_buf, error_code &_ec) noexcept;
+    write         (out_buffer &buf, error_code &ec) noexcept;
 
     size_t
-    read          (in_buffer &_buf);
+    read          (in_buffer &buf);
 
     size_t
-    read          (in_buffer &_buf, error_code &_ec) noexcept;
+    read          (in_buffer &buf, error_code &ec) noexcept;
 
     size_t
-    writen        (out_buffer &&_buf);
+    writen        (out_buffer &&buf);
 
     size_t
-    writen        (out_buffer &&_buf, error_code &_ec) noexcept;
+    writen        (out_buffer &&buf, error_code &ec) noexcept;
 
     size_t
-    readn         (in_buffer &_buf);
+    readn         (in_buffer &buf);
 
     size_t
-    readn         (in_buffer &_buf, error_code &_ec) noexcept;
+    readn         (in_buffer &buf, error_code &ec) noexcept;
 
 //    size_t
-//    writev        (out_vector &_buf);
+//    writev        (out_vector &buf);
 //
 //    size_t
-//    writev        (out_vector &_buf, error_code &_ec) noexcept;
+//    writev        (out_vector &buf, error_code &ec) noexcept;
 //
 //    size_t
-//    readv         (in_vector &_buf);
+//    readv         (in_vector &buf);
 //
 //    size_t
-//    readv         (in_vector &_buf, error_code &_ec);
+//    readv         (in_vector &buf, error_code &ec);
 
     size_t
     readable      ();
 
     size_t
-    readable      (error_code &_ec) noexcept;
+    readable      (error_code &ec) noexcept;
 
     virtual void
     close         ();
 
     virtual void
-    close         (error_code &_ec) noexcept;
+    close         (error_code &ec) noexcept;
 
     filefd_type
     dup           ();
 
     filefd_type
-    dup           (error_code &_ec);
+    dup           (error_code &ec);
 
     error_code
     read_error    () noexcept;
 
 public:
     void
-    set_nonblock  (bool _on);
+    set_nonblock  (bool on);
 
     void
-    set_nonblock  (bool _on, error_code &_ec) noexcept;
+    set_nonblock  (bool on, error_code &ec) noexcept;
 
     void
-    set_closeexec (bool _on);
+    set_closeexec (bool on);
 
     void
-    set_closeexec (bool _on, error_code &_ec) noexcept;
+    set_closeexec (bool on, error_code &ec) noexcept;
 
     bool
     nonblock      () const;
 
     bool
-    nonblock      (error_code &_ec) const noexcept;
+    nonblock      (error_code &ec) const noexcept;
 
 public:
     filefd &
-    operator =    (filefd_type _fd) noexcept;
+    operator =    (filefd_type fd) noexcept;
 
 public:
     static filefd_type invalid_fd;

@@ -31,19 +31,19 @@ public:
 
 public:
     address    () = default;
-    address    (const struct ::sockaddr_in &_sa) noexcept
-    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; }
-    address    (const struct ::sockaddr_in &&_sa) noexcept
-    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; }
-    address    (const struct ::sockaddr_in6 &_sa) noexcept
-    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; }
-    address    (const struct ::sockaddr_in6 &&_sa) noexcept
-    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; }
-    address    (const address &_sa) noexcept
-    { m_sa = _sa.m_sa; }
-    address    (const address &&_sa) noexcept
-    { m_sa = _sa.m_sa; }
-    address    (const std::string &_addrstr, uint16_t _port, bool _v6);
+    address    (const struct ::sockaddr_in &sa) noexcept
+    { assert(AF_INET == sa.sin_family); m_sa.v4 = sa; }
+    address    (const struct ::sockaddr_in &&sa) noexcept
+    { assert(AF_INET == sa.sin_family); m_sa.v4 = sa; }
+    address    (const struct ::sockaddr_in6 &sa) noexcept
+    { assert(AF_INET6 == sa.sin6_family); m_sa.v6 = sa; }
+    address    (const struct ::sockaddr_in6 &&sa) noexcept
+    { assert(AF_INET6 == sa.sin6_family); m_sa.v6 = sa; }
+    address    (const address &sa) noexcept
+    { m_sa = sa.m_sa; }
+    address    (const address &&sa) noexcept
+    { m_sa = sa.m_sa; }
+    address    (const std::string &addrstr, uint16_t port, bool v6);
     ~address   () = default;
 
 public:
@@ -65,31 +65,31 @@ public:
 
 public:
     address &
-    operator = (const struct ::sockaddr_in &_sa) noexcept
-    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; return *this; }
+    operator = (const struct ::sockaddr_in &sa) noexcept
+    { assert(AF_INET == sa.sin_family); m_sa.v4 = sa; return *this; }
     address &
-    operator = (const struct ::sockaddr_in &&_sa) noexcept
-    { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; return *this; }
+    operator = (const struct ::sockaddr_in &&sa) noexcept
+    { assert(AF_INET == sa.sin_family); m_sa.v4 = sa; return *this; }
     address &
-    operator = (const struct ::sockaddr_in6 &_sa) noexcept
-    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; return *this; }
+    operator = (const struct ::sockaddr_in6 &sa) noexcept
+    { assert(AF_INET6 == sa.sin6_family); m_sa.v6 = sa; return *this; }
     address &
-    operator = (const struct ::sockaddr_in6 &&_sa) noexcept
-    { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; return *this; }
+    operator = (const struct ::sockaddr_in6 &&sa) noexcept
+    { assert(AF_INET6 == sa.sin6_family); m_sa.v6 = sa; return *this; }
     address &
-    operator = (const address &_sa) noexcept
-    { m_sa = _sa.m_sa; return *this; }
+    operator = (const address &sa) noexcept
+    { m_sa = sa.m_sa; return *this; }
     address &
-    operator = (const address &&_sa) noexcept
-    { m_sa = _sa.m_sa; return *this; }
+    operator = (const address &&sa) noexcept
+    { m_sa = sa.m_sa; return *this; }
 
 public:
     bool
-    operator == (const address &_sa) noexcept
-    { return !::memcmp(&m_sa, &_sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
+    operator == (const address &sa) noexcept
+    { return !::memcmp(&m_sa, &sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
     bool
-    operator != (const address &_sa) noexcept
-    { return ::memcmp(&m_sa, &_sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
+    operator != (const address &sa) noexcept
+    { return ::memcmp(&m_sa, &sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
 
 public:
     const address::sockaddr &
@@ -106,10 +106,10 @@ public:
 
 public:
     static bool
-    is_valid_inet_addrstr  (const std::string &_addrstr);
+    is_valid_inet_addrstr  (const std::string &addrstr);
 
     static bool
-    is_valid_inet6_addrstr (const std::string &_addrstr);
+    is_valid_inet6_addrstr (const std::string &addrstr);
 
 public:
     std::string

@@ -10,9 +10,9 @@ class timeout {
 public:
     timeout      ();
 
-    timeout      (timestamp  _interval, bool _persist);
+    timeout      (timestamp  interval, bool persist);
 
-    timeout      (timestamp _now_time, timestamp  _interval, bool _persist);
+    timeout      (timestamp now_time, timestamp  interval, bool persist);
 
     ~timeout     () = default;
 
@@ -22,8 +22,8 @@ public:
     { m_update_time = timestamp::monotonic(); }
 
     void
-    update       (timestamp _timeval) noexcept
-    { m_update_time = _timeval; }
+    update       (timestamp timeval) noexcept
+    { m_update_time = timeval; }
 
     void
     clear        () noexcept
@@ -34,23 +34,23 @@ public:
     { return (timestamp::monotonic() - m_update_time) >= m_interval; }
 
     bool
-    timed_out    (timestamp _now_time) const noexcept
-    { return (_now_time - m_update_time) >= m_interval; }
+    timed_out    (timestamp now_time) const noexcept
+    { return (now_time - m_update_time) >= m_interval; }
 
     timestamp
     remaining    () const noexcept;
 
     timestamp
-    remaining    (timestamp _now_time) const noexcept;
+    remaining    (timestamp now_time) const noexcept;
 
 public:
     void
-    set_interval (timestamp _interval) noexcept
-    { m_interval = _interval; }
+    set_interval (timestamp interval) noexcept
+    { m_interval = interval; }
 
     void
-    set_persist  (bool _on) noexcept
-    { m_persist = _on; }
+    set_persist  (bool on) noexcept
+    { m_persist = on; }
 
     timestamp
     update_time  () const noexcept

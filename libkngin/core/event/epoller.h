@@ -34,7 +34,7 @@ public:
 
 public:
     size_t
-    wait           (epoll_event_set &_list, timestamp _ms);
+    wait           (epoll_event_set &list, timestamp ms);
 
 public:
     void
@@ -46,20 +46,20 @@ public:
 
 public:
     void
-    register_event (epoller_event_ptr _e);
+    register_event (epoller_event_ptr e);
 
     void
-    remove_event   (epoller_event &_e);
+    remove_event   (epoller_event &e);
 
     void
-    modify_event   (epoller_event &_e);
+    modify_event   (epoller_event &e);
 
     bool
-    registed       (epoller_event &_e) noexcept;
+    registed       (epoller_event &e) noexcept;
 
 private:
     void
-    update_event   (int _opt, int _fd, epoller_event *_e);
+    update_event   (int opt, int fd, epoller_event *e);
 
 private:
     epoller_event_list m_events;

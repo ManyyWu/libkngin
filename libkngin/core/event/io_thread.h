@@ -15,14 +15,14 @@ public:
 
 public:
     explicit
-    io_thread  (const char *_name);
+    io_thread  (const char *name);
 
     virtual
     ~io_thread ();
 
 public:
     void
-    run        (crash_handler &&_handler = nullptr);
+    run        (crash_handler &&handler = nullptr);
 
     void
     stop       ();

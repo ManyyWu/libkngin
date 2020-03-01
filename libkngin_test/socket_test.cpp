@@ -18,89 +18,89 @@ using namespace k;
 static int 
 client ()
 {
-    k::socket _sock(k::socket::IPV4_TCP);
+    k::socket sock(k::socket::IPV4_TCP);
     log_info("connecting...");
-    _sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
+    sock.connect(address(SERVER_ADDR, SERVER_PORT, false));
 
-    int _reply = 0;
+    int reply = 0;
     {
-        char _arr[4];
-        in_buffer _buf(_arr, 4);
-        _sock.read(_buf);
-        log_info("read integer %d", out_buffer(_arr, 4).peek_int32());
+        char arr[4];
+        in_buffer buf(arr, 4);
+        sock.read(buf);
+        log_info("read integer %d", out_buffer(arr, 4).peek_int32());
     }
 
     std::cerr << "> ";
-    std::cin >> _reply;
+    std::cin >> reply;
     // write
     {
-        char _arr[4];
-        in_buffer(_arr, 4).write_int32(_reply);
-        out_buffer _buf(_arr, 4);
-        _sock.write(_buf);
+        char arr[4];
+        in_buffer(arr, 4).write_int32(reply);
+        out_buffer buf(arr, 4);
+        sock.write(buf);
     }
 
-    _sock.close();
+    sock.close();
     return 0;
 }
 
 static int
 server ()
 {
-    bool _ok = true;
-    std::string _addr_str = SERVER_ADDR;
-    uint16_t    _port = SERVER_PORT;
-    address     _server_addr(_addr_str, _port, false);
+    bool ok = true;
+    std::string addr_str = SERVER_ADDR;
+    uint16_t    port = SERVER_PORT;
+    address     server_addr(addr_str, port, false);
 
-    k::socket _server_sock(socket::IPV4_TCP);
-    sockopts::set_reuseaddr(_server_sock, true);
+    k::socket server_sock(socket::IPV4_TCP);
+    sockopts::set_reuseaddr(server_sock, true);
 #ifndef _WIN32
-    sockopts::set_reuseport(_server_sock, true);
+    sockopts::set_reuseport(server_sock, true);
 #endif
-    _server_sock.bind(_server_addr);
-    _server_sock.listen(5);
+    server_sock.bind(server_addr);
+    server_sock.listen(5);
     log_info("listening...");
-    while (_ok) {
-        address _client_addr;
-        k::socket _client_sock(_server_sock.accept(_client_addr));
+    while (ok) {
+        address client_addr;
+        k::socket client_sock(server_sock.accept(client_addr));
         // write
         {
-            char _arr[4];
-            in_buffer(_arr, 4).write_int32(_client_addr.port());
-            out_buffer _buf(_arr, 4);
-            _client_sock.write(_buf);
+            char arr[4];
+            in_buffer(arr, 4).write_int32(client_addr.port());
+            out_buffer buf(arr, 4);
+            client_sock.write(buf);
         }
         // read
         {
-            char _arr[4];
-            in_buffer _buf(_arr, 4);
-            _client_sock.read(_buf);
-            if (out_buffer(_arr, 4).peek_int32() == 0)
-                _ok = false;
+            char arr[4];
+            in_buffer buf(arr, 4);
+            client_sock.read(buf);
+            if (out_buffer(arr, 4).peek_int32() == 0)
+                ok = false;
             log_info("read integer %d from client %s",
-                     out_buffer(_arr, 4).peek_int32(),
-                     _client_sock.name().c_str());
+                     out_buffer(arr, 4).peek_int32(),
+                     client_sock.name().c_str());
         }
-        _client_sock.close();
+        client_sock.close();
     }
-    _server_sock.close();
+    server_sock.close();
     return 0;
 }
 
 void
 socket_test ()
 {
-    k::thread _server_thr("server");
-    _server_thr.run(server);
+    k::thread server_thr("server");
+    server_thr.run(server);
     k::thread::sleep(1000);
 
-    for (int _i = 0; _i< 100; ++_i) {
-        k::thread _client_thr("client");
-        _client_thr.run(client);
-        if (_client_thr.join())
+    for (int i = 0; i< 100; ++i) {
+        k::thread client_thr("client");
+        client_thr.run(client);
+        if (client_thr.join())
             break;
     }
 
-    _server_thr.join();
+    server_thr.join();
 }
 

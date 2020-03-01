@@ -66,162 +66,162 @@ private:
 
 public:
     static bool
-    broadcast      (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_BROADCAST]); }
+    broadcast      (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_BROADCAST]); }
     static void
-    set_broadcast  (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_BROADCAST]); }
+    set_broadcast  (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_BROADCAST]); }
     static bool
-    debug          (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_DEBUG]); }
+    debug          (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_DEBUG]); }
     static void
-    set_debug      (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DEBUG]); }
+    set_debug      (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_DEBUG]); }
     static bool
-    nonroute       (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
+    nonroute       (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
     static void
-    set_nonroute   (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
+    set_nonroute   (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_DONTROUTE]); }
     static error_code
-    error          (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR]); }
+    error          (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_ERROR]); }
     static bool
-    keepalive      (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]); }
+    keepalive      (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]); }
     static void
-    set_keepalive  (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]); }
+    set_keepalive  (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_KEEPALIVE]); }
     static struct ::linger
-    linger         (const socket &_s)
-    { return sockopts::get_linger(_s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
+    linger         (const socket &s)
+    { return sockopts::get_linger(s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static void
 #ifdef _WIN32
-    set_linger     (const socket &_s, bool _on, u_short _t /* = 0 */)
+    set_linger     (const socket &s, bool on, u_short t /* = 0 */)
 #else
-    set_linger     (const socket &_s, bool _on, int _t /* = 0 */)
+    set_linger     (const socket &s, bool on, int t /* = 0 */)
 #endif
-    { sockopt_val _val; _val.linger_val = {_on, _t}; sockopts::set_linger(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
+    { sockopt_val val; val.linger_val = {on, t}; sockopts::set_linger(val, s.fd(), opts_entry[SOCKOPTS_TYPE_LINGER]); }
     static bool
-    oobinline      (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]); }
+    oobinline      (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]); }
     static void
-    set_ooblinline (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]); }
+    set_ooblinline (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_OOBINLINE]); }
     static int
-    rcvbuf         (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_RCVBUF]); }
+    rcvbuf         (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_RCVBUF]); }
     static void
-    set_rcvbuf     (const socket &_s, int _size)
-    { sockopt_val _val{_size}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVBUF]); }
+    set_rcvbuf     (const socket &s, int size)
+    { sockopt_val val{size}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_RCVBUF]); }
     static int
-    sndbuf         (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_SNDBUF]); }
+    sndbuf         (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_SNDBUF]); }
     static void
-    set_sndbuf     (const socket &_s, int _size)
-    { sockopt_val _val{_size}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDBUF]); }
+    set_sndbuf     (const socket &s, int size)
+    { sockopt_val val{size}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_SNDBUF]); }
     static int
-    rcvlowat       (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_RCVLOWAT]); }
+    rcvlowat       (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_RCVLOWAT]); }
     static void
-    set_rcvlowat   (const socket &_s, int _size)
-    { sockopt_val _val{_size}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVLOWAT]); }
+    set_rcvlowat   (const socket &s, int size)
+    { sockopt_val val{size}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_RCVLOWAT]); }
     static int
-    sndlowat       (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]); }
+    sndlowat       (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]); }
     static void
-    set_sndlowat   (const socket &_s, int _size)
-    { sockopt_val _val{_size}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]); }
+    set_sndlowat   (const socket &s, int size)
+    { sockopt_val val{size}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_SNDLOWAT]); }
     static struct ::timeval
-    rcvtimeo       (const socket &_s)
-    { return sockopts::get_timeval(_s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]); }
+    rcvtimeo       (const socket &s)
+    { return sockopts::get_timeval(s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]); }
     static void
-    set_rcvtimeo   (const socket &_s, struct ::timeval _t)
-    { sockopt_val _val; _val.timeval_val = _t; sockopts::set_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]); }
+    set_rcvtimeo   (const socket &s, struct ::timeval t)
+    { sockopt_val val; val.timeval_val = t; sockopts::set_timeval(val, s.fd(), opts_entry[SOCKOPTS_TYPE_RCVTIMEO]); }
     static struct ::timeval
-    sndtimeo       (const socket &_s)
-    { return sockopts::get_timeval(_s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]); }
+    sndtimeo       (const socket &s)
+    { return sockopts::get_timeval(s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]); }
     static void
-    set_sndtimeo   (const socket &_s, struct ::timeval _t)
-    { sockopt_val _val; _val.timeval_val = _t; sockopts::set_timeval(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]); }
+    set_sndtimeo   (const socket &s, struct ::timeval t)
+    { sockopt_val val; val.timeval_val = t; sockopts::set_timeval(val, s.fd(), opts_entry[SOCKOPTS_TYPE_SNDTIMEO]); }
     static bool
-    reuseaddr      (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEADDR]); }
+    reuseaddr      (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEADDR]); }
     static void
-    set_reuseaddr  (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEADDR]); }
+    set_reuseaddr  (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEADDR]); }
     static bool
-    reuseport      (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEPORT]); }
+    reuseport      (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEPORT]); }
     static void
-    set_reuseport  (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEPORT]); }
+    set_reuseport  (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_REUSEPORT]); }
     static int
-    type           (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_TYPE]); }
+    type           (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_TYPE]); }
     static int
-    ip_tos         (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]); }
+    ip_tos         (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]); }
     static void
-    set_ip_tos     (const socket &_s, int _t)
-    { sockopt_val _val{_t}; sockopts::set_flag(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]); }
+    set_ip_tos     (const socket &s, int t)
+    { sockopt_val val{t}; sockopts::set_flag(val, s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TOS]); }
     static int
-    ip_ttl         (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]); }
+    ip_ttl         (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]); }
     static void
-    set_ip_ttl     (const socket &_s, int _t)
-    { sockopt_val _val{_t}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]); }
+    set_ip_ttl     (const socket &s, int t)
+    { sockopt_val val{t}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_IP_TTL]); }
     static bool
-    ipv4_disabled  (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]); }
+    ipv4_disabled  (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]); }
     static void
-    set_ipv6_only  (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]); }
+    set_ipv6_only  (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_IPV6_V6ONLY]); }
     static int
-    maxseg         (const socket &_s)
-    { return sockopts::get_int(_s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]); }
+    maxseg         (const socket &s)
+    { return sockopts::get_int(s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]); }
     static void
-    set_maxseg     (const socket &_s, int _size)
-    { sockopt_val _val{_size}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]); }
+    set_maxseg     (const socket &s, int size)
+    { sockopt_val val{size}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_MAXSEG]); }
     static bool
-    nodelay        (const socket &_s)
-    { return sockopts::get_flag(_s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]); }
+    nodelay        (const socket &s)
+    { return sockopts::get_flag(s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]); }
     static void
-    set_nodelay    (const socket &_s, bool _on)
-    { sockopt_val _val{_on}; sockopts::set_int(_val, _s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]); }
+    set_nodelay    (const socket &s, bool on)
+    { sockopt_val val{on}; sockopts::set_int(val, s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_NODELAY]); }
 //    static struct ::tcp_info
-//    tcp_info       (const socket &_s)
-//    { return sockopts::get_tcp_info(_s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_INFO]); }
+//    tcp_info       (const socket &s)
+//    { return sockopts::get_tcp_info(s.fd(), opts_entry[SOCKOPTS_TYPE_TCP_INFO]); }
 
 protected:
     static bool
-    get_flag       (socket_type _fd, const sockopts_info &_opt_info);
+    get_flag       (socket_type fd, const sockopts_info &opt_info);
 
     static int
-    get_int        (socket_type _fd, const sockopts_info &_opt_info);
+    get_int        (socket_type fd, const sockopts_info &opt_info);
 
     static struct ::linger
-    get_linger     (socket_type _fd, const sockopts_info &_opt_info);
+    get_linger     (socket_type fd, const sockopts_info &opt_info);
 
     static struct ::timeval
-    get_timeval    (socket_type _fd, const sockopts_info &_opt_info);
+    get_timeval    (socket_type fd, const sockopts_info &opt_info);
 
 #ifndef _WIN32
     static struct ::tcp_info
-    get_tcp_info   (int _fd, const sockopts_info &_opt_info);
+    get_tcp_info   (int fd, const sockopts_info &opt_info);
 #endif
 
     static void
-    set_flag       (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
+    set_flag       (const sockopt_val &val, socket_type fd, const sockopts_info &opt_info);
 
     static void
-    set_int        (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
+    set_int        (const sockopt_val &val, socket_type fd, const sockopts_info &opt_info);
 
     static void
-    set_linger     (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
+    set_linger     (const sockopt_val &val, socket_type fd, const sockopts_info &opt_info);
 
     static void
-    set_timeval    (const sockopt_val &_val, socket_type _fd, const sockopts_info &_opt_info);
+    set_timeval    (const sockopt_val &val, socket_type fd, const sockopts_info &opt_info);
 
 protected:
     static const sockopts_info opts_entry[SOCKOPTS_TYPE_MAX];

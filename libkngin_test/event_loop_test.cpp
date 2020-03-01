@@ -10,51 +10,51 @@ using namespace k;
 void
 event_loop_test ()
 {
-    event_loop _loop;
+    event_loop loop;
 
-    thread _thr("event_loop_test");
-    _thr.run([&_loop] () -> int {
+    thread thr("event_loop_test");
+    thr.run([&loop] () -> int {
         // task
-        for (int _i = 0; _i < 10; _i++) {
-            _loop.run_in_loop([_i] () {
-                log_info("task %d", _i);
+        for (int i = 0; i < 10; i++) {
+            loop.run_in_loop([i] () {
+                log_info("task %d", i);
             });
         }
 
         // timer
-        _loop.run_every(100,
-        [&] (const timer::timer_ptr _timer)
+        loop.run_every(100,
+        [&] (const timer::timer_ptr timer)
         {
-            static int _i = 0;
-            if (_i > 10) {
-                _loop.cancel(_timer);
+            static int i = 0;
+            if (i > 10) {
+                loop.cancel(timer);
                 return;
             }
-            log_info("every 100ms - %d", ++_i);
+            log_info("every 100ms - %d", ++i);
         });
-        _loop.run_after(100,
-        [&] (const timer::timer_ptr _timer)
+        loop.run_after(100,
+        [&] (const timer::timer_ptr timer)
         {
             log_warning("timer after 100ms");
-            timestamp _current_time = timestamp::realtime();
-            _loop.run_at(_current_time + timestamp(1000),
-                         [&] (const timer::timer_ptr &_timer) {
+            timestamp current_time = timestamp::realtime();
+            loop.run_at(current_time + timestamp(1000),
+                         [&] (const timer::timer_ptr &timer) {
                 log_warning("timer after current time + 1s");
             });
-            _loop.run_at(_current_time + timestamp(2000),
-                         [&] (const timer::timer_ptr &_timer) {
+            loop.run_at(current_time + timestamp(2000),
+                         [&] (const timer::timer_ptr &timer) {
                 log_warning("timer after current time + 2s");
             });
-            _loop.run_at(_current_time + timestamp(3000),
-                         [&] (const timer::timer_ptr &_timer) {
+            loop.run_at(current_time + timestamp(3000),
+                         [&] (const timer::timer_ptr &timer) {
                 log_warning("timer after current time + 3s");
-                _loop.stop();
+                loop.stop();
             });
         });
         return 0;
     });
 
-    _loop.run(
+    loop.run(
         [] () {
             log_info("event_loop started");
         },
@@ -62,5 +62,5 @@ event_loop_test ()
             log_info("event_loop stopped");
         }
     );
-    _thr.join();
+    thr.join();
 }

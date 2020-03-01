@@ -10,8 +10,8 @@ KNGIN_NAMESPACE_K_BEGIN
 class local_lock : public noncopyable {
 public:
     explicit
-    local_lock  (mutex &_m)
-        : m_mutex(_m) { m_mutex.lock(); }
+    local_lock  (mutex &m)
+        : m_mutex(m) { m_mutex.lock(); }
 
     ~local_lock ()
     { m_mutex.unlock(); }

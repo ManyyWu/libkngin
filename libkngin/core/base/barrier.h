@@ -17,13 +17,13 @@ KNGIN_NAMESPACE_K_BEGIN
 class barrier : public noncopyable {
 public:
     explicit
-    barrier        (int _count);
+    barrier        (int count);
 
     ~barrier       () noexcept;
 
 public:
     void
-    reinit         (int _count);
+    reinit         (int count);
 
     bool
     wait           ();

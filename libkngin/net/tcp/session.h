@@ -65,8 +65,8 @@ public:
 public:
     session             () = delete;
 
-    session             (event_loop &_loop, k::socket &&_socket,
-                         const address &_local_addr, const address &_peer_addr);
+    session             (event_loop &loop, k::socket &&socket,
+                         const address &local_addr, const address &peer_addr);
 
     virtual
     ~session            () noexcept;
@@ -74,23 +74,23 @@ public:
 public:
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     bool
-    send                (msg_buffer _buf);
+    send                (msg_buffer buf);
 #else
     bool
-    send                (msg_buffer _buf, sent_handler &&_handler);
+    send                (msg_buffer buf, sent_handler &&handler);
 #endif
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     bool
-    recv                (in_buffer _buf, size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+    recv                (in_buffer buf, size_t lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 #else
     bool
-    recv                (in_buffer _buf, message_handler &&_handler,
-                         size_t _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
+    recv                (in_buffer buf, message_handler &&handler,
+                         size_t lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT);
 #endif
 
     virtual void
-    close               (bool _sync = false);
+    close               (bool sync = false);
 
     void
     rd_shutdown         ();
@@ -116,20 +116,20 @@ public:
 
 public:
     void
-    set_read_lowat      (int _size)
-    { sockopts::set_rcvlowat(m_socket, _size); }
+    set_read_lowat      (int size)
+    { sockopts::set_rcvlowat(m_socket, size); }
     int
     read_lowat          ()
     { return sockopts::rcvlowat(m_socket); }
     void
-    set_write_lowat     (int _size)
-    { sockopts::set_sndlowat(m_socket, _size); }
+    set_write_lowat     (int size)
+    { sockopts::set_sndlowat(m_socket, size); }
     int
     write_lowat         ()
     { return sockopts::sndlowat(m_socket); }
     void
-    set_keepalive       (bool _on)
-    { sockopts::set_keepalive(m_socket, _on); }
+    set_keepalive       (bool on)
+    { sockopts::set_keepalive(m_socket, on); }
     bool
     keepalive           ()
     { return sockopts::keepalive(m_socket); }
@@ -137,18 +137,18 @@ public:
 public:
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
     void
-    set_message_handler (const message_handler &_handler)
-    { assert(!registed()); m_message_handler = _handler; }
+    set_message_handler (const message_handler &handler)
+    { assert(!registed()); m_message_handler = handler; }
     void
-    set_sent_handler    (const sent_handler &_handler)
-    { assert(!registed()); m_sent_handler = _handler; }
+    set_sent_handler    (const sent_handler &handler)
+    { assert(!registed()); m_sent_handler = handler; }
 #endif
     void
-    set_oob_handler     (const oob_handler &_handler)
-    { assert(!registed()); m_oob_handler = _handler; enable_oob(); }
+    set_oob_handler     (const oob_handler &handler)
+    { assert(!registed()); m_oob_handler = handler; enable_oob(); }
     void
-    set_error_handler   (const error_handler &_handler)
-    { assert(!registed()); m_error_handler = _handler; }
+    set_error_handler   (const error_handler &handler)
+    { assert(!registed()); m_error_handler = handler; }
 
     // TODO: Optimize for callback storage
 
@@ -193,7 +193,7 @@ private:
 
 private:
     virtual void
-    on_events           (event_loop &_loop, uint32_t _flags);
+    on_events           (event_loop &loop, uint32_t flags);
 
     void
     on_write            ();

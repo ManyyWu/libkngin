@@ -38,61 +38,61 @@ class timestamp {
 public:
     timestamp   ()
         : m_ms(0) {}
-    timestamp   (time_t _ms) noexcept
-        : m_ms(_ms) {}
-    timestamp   (const timestamp &_t) noexcept
-        : m_ms(_t.m_ms) {}
-    timestamp   (const timeval &_tv) noexcept
-        : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
-    timestamp   (const timespec &_ts) noexcept
-        : m_ms(_ts.tv_sec * 1000 + _ts.tv_nsec / 1000000) {}
+    timestamp   (time_t ms) noexcept
+        : m_ms(ms) {}
+    timestamp   (const timestamp &t) noexcept
+        : m_ms(t.m_ms) {}
+    timestamp   (const timeval &tv) noexcept
+        : m_ms(tv.tv_sec * 1000 + tv.tv_usec / 1000) {}
+    timestamp   (const timespec &ts) noexcept
+        : m_ms(ts.tv_sec * 1000 + ts.tv_nsec / 1000000) {}
     ~timestamp  () = default;
 
 public:
     timestamp &
-    operator =  (const timestamp &_t) noexcept
-    { m_ms = _t.m_ms; return *this; }
+    operator =  (const timestamp &t) noexcept
+    { m_ms = t.m_ms; return *this; }
     timestamp &
-    operator =  (time_t _t) noexcept
-    { m_ms = _t; return *this; }
+    operator =  (time_t t) noexcept
+    { m_ms = t; return *this; }
     timestamp &
-    operator =  (const timeval &_tv) noexcept
-    { m_ms = _tv.tv_sec * 1000 + _tv.tv_usec / 1000; return *this; }
+    operator =  (const timeval &tv) noexcept
+    { m_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000; return *this; }
     timestamp &
-    operator =  (const timespec &_ts) noexcept
-    { m_ms = _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000; return *this; }
+    operator =  (const timespec &ts) noexcept
+    { m_ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000; return *this; }
     timestamp &
-    operator += (timestamp _t) noexcept
-    { m_ms += _t.m_ms; return *this; }
+    operator += (timestamp t) noexcept
+    { m_ms += t.m_ms; return *this; }
     timestamp &
-    operator -= (timestamp _t) noexcept
-    { m_ms -= _t.m_ms; return *this; }
+    operator -= (timestamp t) noexcept
+    { m_ms -= t.m_ms; return *this; }
     timestamp
-    operator +  (timestamp _t) noexcept
-    { return m_ms + _t.m_ms; }
+    operator +  (timestamp t) noexcept
+    { return m_ms + t.m_ms; }
     timestamp
-    operator -  (timestamp _t) noexcept
-    { return m_ms - _t.m_ms; }
+    operator -  (timestamp t) noexcept
+    { return m_ms - t.m_ms; }
 
 public:
     bool
-    operator == (timestamp _t) const noexcept
-    {return _t.m_ms == m_ms; }
+    operator == (timestamp t) const noexcept
+    {return t.m_ms == m_ms; }
     bool
-    operator != (timestamp _t) const noexcept
-    {return _t.m_ms != m_ms; }
+    operator != (timestamp t) const noexcept
+    {return t.m_ms != m_ms; }
     bool
-    operator >  (timestamp _t) const noexcept
-    {return m_ms > _t.m_ms; }
+    operator >  (timestamp t) const noexcept
+    {return m_ms > t.m_ms; }
     bool
-    operator <  (timestamp _t) const noexcept
-    {return m_ms < _t.m_ms; }
+    operator <  (timestamp t) const noexcept
+    {return m_ms < t.m_ms; }
     bool
-    operator >= (timestamp _t) const noexcept
-    {return m_ms >= _t.m_ms; }
+    operator >= (timestamp t) const noexcept
+    {return m_ms >= t.m_ms; }
     bool
-    operator <= (timestamp _t) const noexcept
-    {return m_ms <= _t.m_ms; }
+    operator <= (timestamp t) const noexcept
+    {return m_ms <= t.m_ms; }
 
 public:
     operator
@@ -114,11 +114,11 @@ public:
     value_uint  () const noexcept
     { return static_cast<uint32_t>(std::min<time_t>(m_ms, UINT32_MAX)); }
     void
-    to_timeval  (timeval &_tv) const noexcept
-    { _tv.tv_sec = long(m_ms / 1000); _tv.tv_usec = long(1000 * (m_ms % 1000)); }
+    to_timeval  (timeval &tv) const noexcept
+    { tv.tv_sec = long(m_ms / 1000); tv.tv_usec = long(1000 * (m_ms % 1000)); }
     void
-    to_timespec (timespec &_ts) const noexcept
-    { _ts.tv_sec = long(m_ms / 1000); _ts.tv_nsec = long(1000000 * (m_ms % 1000)); }
+    to_timespec (timespec &ts) const noexcept
+    { ts.tv_sec = long(m_ms / 1000); ts.tv_nsec = long(1000000 * (m_ms % 1000)); }
 
 public:
     static timestamp
@@ -128,21 +128,21 @@ public:
 public:
     static timestamp
     time_of_day () noexcept
-    { timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
+    { timeval tv; ::gettimeofday(&tv, nullptr); return tv; }
 #ifndef _WIN32
     static timestamp
     realtime    () noexcept
-    { timespec _ts; ::clock_gettime(CLOCK_REALTIME, &_ts); return _ts; }
+    { timespec ts; ::clock_gettime(CLOCK_REALTIME, &ts); return ts; }
     static timestamp
     monotonic   () noexcept
-    { timespec _ts; ::clock_gettime(CLOCK_MONOTONIC, &_ts); return _ts; }
+    { timespec ts; ::clock_gettime(CLOCK_MONOTONIC, &ts); return ts; }
     static timestamp
     boot_time   () noexcept
-    { timespec _ts; ::clock_gettime(CLOCK_BOOTTIME, &_ts); return _ts; }
+    { timespec ts; ::clock_gettime(CLOCK_BOOTTIME, &ts); return ts; }
 #else
     static timestamp
     realtime    () noexcept
-    { timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
+    { timeval tv; ::gettimeofday(&tv, nullptr); return tv; }
     static timestamp
     monotonic   () noexcept
 #ifdef _WIN64
@@ -152,11 +152,11 @@ public:
 #endif
 #endif
     static timestamp
-    diff        (timestamp _t1, timestamp _t2)
-    { if (_t1 < _t2) throw k::exception("t1 < t2"); return (_t1 - _t2); }
+    diff        (timestamp t1, timestamp t2)
+    { if (t1 < t2) throw k::exception("t1 < t2"); return (t1 - t2); }
     static timestamp
-    abs_diff    (timestamp _t1, timestamp _t2) noexcept
-    { return (abs)(_t1.m_ms - _t2.m_ms); }
+    abs_diff    (timestamp t1, timestamp t2) noexcept
+    { return (abs)(t1.m_ms - t2.m_ms); }
 
 private:
     time_t m_ms;
@@ -164,16 +164,16 @@ private:
 
 inline
 timestamp
-timediff (const timeval &_tvl, const timeval &_tvr) noexcept
+timediff (const timeval &tvl, const timeval &tvr) noexcept
 {
-    return (timestamp(_tvl).value() - timestamp(_tvr).value());
+    return (timestamp(tvl).value() - timestamp(tvr).value());
 }
 
 inline
 timestamp
-timediff (const timespec &_tsl, const timespec &_tsr) noexcept
+timediff (const timespec &tsl, const timespec &tsr) noexcept
 {
-    return (timestamp(_tsl).value() - timestamp(_tsr).value());
+    return (timestamp(tsl).value() - timestamp(tsr).value());
 }
 
 KNGIN_NAMESPACE_K_END

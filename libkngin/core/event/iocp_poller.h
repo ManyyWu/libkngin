@@ -36,7 +36,7 @@ public:
 
 public:
     size_t
-    wait           (iocp_event_set &_events, timestamp _ms);
+    wait           (iocp_event_set &events, timestamp ms);
 
     void
     wakeup         ();
@@ -51,23 +51,23 @@ public:
 
 public:
     void
-    register_event (iocp_event_ptr _e);
+    register_event (iocp_event_ptr e);
 
     void
-    remove_event   (iocp_event &_e);
+    remove_event   (iocp_event &e);
 
     void
-    modify_event   (iocp_event &_e);
+    modify_event   (iocp_event &e);
 
     bool
-    registed       (iocp_event &_e) noexcept;
+    registed       (iocp_event &e) noexcept;
 
 private:
     size_t
-    poll           (iocp_event_set &_events, timestamp _ms);
+    poll           (iocp_event_set &events, timestamp ms);
 
     size_t
-    poll_wine      (iocp_event_set &_events, timestamp _ms);
+    poll_wine      (iocp_event_set &events, timestamp ms);
 
 private:
     event_list m_events;

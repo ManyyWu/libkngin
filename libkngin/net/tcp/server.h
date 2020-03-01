@@ -40,7 +40,7 @@ public:
 public:
     server              () = delete;
 
-    server              (event_loop &_loop, const server_opts &_opts);
+    server              (event_loop &loop, const server_opts &opts);
 
     ~server             () noexcept;
 
@@ -53,27 +53,27 @@ public:
 
 public:
     void
-    broadcast           (session_list &_list, msg_buffer _buf);
+    broadcast           (session_list &list, msg_buffer buf);
 
 public:
     void
-    set_session_handler (session_handler &&_handler) noexcept
-    { assert(m_stopped); m_session_handler = std::move(_handler); }
+    set_session_handler (session_handler &&handler) noexcept
+    { assert(m_stopped); m_session_handler = std::move(handler); }
     void
-    set_message_handler (message_handler &&_handler) noexcept
-    { assert(m_stopped); m_message_handler = std::move(_handler); }
+    set_message_handler (message_handler &&handler) noexcept
+    { assert(m_stopped); m_message_handler = std::move(handler); }
     void
-    set_sent_handler    (sent_handler &&_handler) noexcept
-    { assert(m_stopped); m_sent_handler = std::move(_handler); }
+    set_sent_handler    (sent_handler &&handler) noexcept
+    { assert(m_stopped); m_sent_handler = std::move(handler); }
     void
-    set_error_handler   (error_handler &&_handler) noexcept
-    { assert(m_stopped); m_error_handler = std::move(_handler); }
+    set_error_handler   (error_handler &&handler) noexcept
+    { assert(m_stopped); m_error_handler = std::move(handler); }
     void
-    set_oob_handler     (oob_handler &&_handler) noexcept
-    { assert(m_stopped); m_oob_handler = std::move(_handler); }
+    set_oob_handler     (oob_handler &&handler) noexcept
+    { assert(m_stopped); m_oob_handler = std::move(handler); }
     void
-    set_crash_handler   (crash_handler &&_handler) noexcept
-    { assert(m_stopped); m_crash_handler = std::move(_handler); }
+    set_crash_handler   (crash_handler &&handler) noexcept
+    { assert(m_stopped); m_crash_handler = std::move(handler); }
 
 protected:
     event_loop &

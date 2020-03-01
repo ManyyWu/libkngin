@@ -11,40 +11,40 @@ class system_error;
 
 inline
 std::string
-system_error_str (const char *_what, const error_code &_ec);
+system_error_str (const char *what, const error_code &ec);
 
 inline
 std::string
-system_error_str (const error_code &_ec);
+system_error_str (const error_code &ec);
 
 class system_error : public std::exception {
 public:
     system_error  () = delete;
 
     explicit
-    system_error  (const char *_what, error_code _ec = k::last_error())
+    system_error  (const char *what, error_code ec = k::last_error())
         : m_what(std::string("[k::system_error] ")
-                 + system_error_str(_what, _ec)), m_ec(_ec) {}
+                 + system_error_str(what, ec)), m_ec(ec) {}
 
     explicit
-    system_error  (const std::string &_what, error_code _ec = k::last_error())
+    system_error  (const std::string &what, error_code ec = k::last_error())
         : m_what(std::string("[k::system_error] ")
-                 + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
+                 + system_error_str(what.c_str(), ec)), m_ec(ec) {}
 
     explicit
-    system_error  (std::string &&_what, error_code _ec = k::last_error())
+    system_error  (std::string &&what, error_code ec = k::last_error())
         : m_what(std::string("[k::system_error] ")
-                 + system_error_str(_what.c_str(), _ec)), m_ec(_ec) {}
+                 + system_error_str(what.c_str(), ec)), m_ec(ec) {}
 
-    system_error  (const k::system_error &_e)
-        : m_what(_e.m_what), m_ec(_e.m_ec) {}
+    system_error  (const k::system_error &e)
+        : m_what(e.m_what), m_ec(e.m_ec) {}
 
     virtual
     ~system_error () = default;
 
 public:
     k::system_error &
-    operator =    (const k::system_error &_e) = delete;
+    operator =    (const k::system_error &e) = delete;
 
 public:
     virtual const char *
@@ -63,20 +63,20 @@ private:
 
 inline
 std::string
-system_error_str (const char *_what, const error_code &_ec)
+system_error_str (const char *what, const error_code &ec)
 {
-    return std::string(_what ? _what : "")
+    return std::string(what ? what : "")
                        + " - "
-                       + _ec.message()
+                       + ec.message()
                        + ":"
-                       + std::to_string(_ec.value());
+                       + std::to_string(ec.value());
 }
 
 inline
 std::string
-system_error_str (const error_code &_ec)
+system_error_str (const error_code &ec)
 {
-    return _ec.message() + ":" + std::to_string(_ec.value());
+    return ec.message() + ":" + std::to_string(ec.value());
 }
 
 KNGIN_NAMESPACE_K_END

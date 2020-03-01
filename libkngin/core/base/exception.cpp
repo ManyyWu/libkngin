@@ -14,15 +14,15 @@ exception::dump_stack ()
 {
 #ifdef _WIN32
 #else
-    void * _array[100];
-    int    _size = ::backtrace(_array, 100);
-    char **_stacks = ::backtrace_symbols(_array, _size);
+    void * array[100];
+    int    size = ::backtrace(array, 100);
+    char **stacks = ::backtrace_symbols(array, size);
 
     m_dump_str += "invocation stack: ";
-    if (_size and _stacks)
-        for (int _i = 0; _i < _size; ++_i)
-            if (_stacks[_i])
-                m_dump_str += std::string("\n") + _stacks[_i];
+    if (size and stacks)
+        for (int i = 0; i < size; ++i)
+            if (stacks[i])
+                m_dump_str += std::string("\n") + stacks[i];
 #endif
 }
 

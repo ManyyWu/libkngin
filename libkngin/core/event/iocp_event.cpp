@@ -9,27 +9,27 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-iocp_event::iocp_event (HANDLE _handle, EVENT_TYPE _type,
-                        uint8_t _priority /* = UINT8_MAX*/) noexcept
+iocp_event::iocp_event (HANDLE handle, EVENT_TYPE type,
+                        uint8_t priority /* = UINT8_MAX*/) noexcept
     : m_flags(IOCP_EVENT_HUP | IOCP_EVENT_ERR),
-      m_handle(_handle),
+      m_handle(handle),
       m_registed(false),
-      m_type(_type),
-      m_priority(_priority),
+      m_type(type),
+      m_priority(priority),
       m_index()
 {
 }
 
-iocp_event::iocp_event (iocp_event &&_e) noexcept
-    : m_flags(_e.m_flags),
-      m_handle(_e.m_handle),
+iocp_event::iocp_event (iocp_event &&e) noexcept
+    : m_flags(e.m_flags),
+      m_handle(e.m_handle),
       m_registed(false),
-      m_type(_e.m_type),
-      m_priority(_e.m_priority),
+      m_type(e.m_type),
+      m_priority(e.m_priority),
       m_index()
 {
-    assert(!_e.m_registed);
-    _e.m_handle = INVALID_HANDLE_VALUE;
+    assert(!e.m_registed);
+    e.m_handle = INVALID_HANDLE_VALUE;
 }
 
 KNGIN_NAMESPACE_K_END

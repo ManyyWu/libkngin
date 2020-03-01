@@ -44,10 +44,10 @@ public:
     iocp_event     () = delete;
 
     explicit
-    iocp_event     (HANDLE _handle, EVENT_TYPE _type, 
-                    uint8_t _priority = UINT8_MAX) noexcept;
+    iocp_event     (HANDLE handle, EVENT_TYPE type,
+                    uint8_t priority = UINT8_MAX) noexcept;
 
-    iocp_event     (iocp_event &&_e) noexcept;
+    iocp_event     (iocp_event &&e) noexcept;
 
     virtual
     ~iocp_event    () noexcept {};
@@ -71,8 +71,8 @@ public:
 
 protected:
     void
-    set_registed   (bool _on) noexcept
-    { m_registed = _on; }
+    set_registed   (bool on) noexcept
+    { m_registed = on; }
 
     void
     set_index      (iocp_event_ptr &_e)

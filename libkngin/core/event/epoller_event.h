@@ -36,10 +36,10 @@ public:
     epoller_event  () = delete;
 
     explicit
-    epoller_event  (epollfd _fd, EVENT_TYPE _type, 
-                    uint8_t _priority = UINT8_MAX) noexcept;
+    epoller_event  (epollfd fd, EVENT_TYPE type,
+                    uint8_t priority = UINT8_MAX) noexcept;
 
-    epoller_event  (epoller_event &&_e) noexcept;
+    epoller_event  (epoller_event &&e) noexcept;
 
     virtual
     ~epoller_event () noexcept {};
@@ -59,12 +59,12 @@ public:
 
 protected:
     void
-    set_registed   (bool _on) noexcept
-    { m_registed = _on; }
+    set_registed   (bool on) noexcept
+    { m_registed = on; }
 
     void
-    set_index      (epoller_event_ptr &_e)
-    { m_index = _e; }
+    set_index      (epoller_event_ptr &e)
+    { m_index = e; }
 
     epoller_event_weak_ptr &
     index          () noexcept
@@ -72,7 +72,7 @@ protected:
 
 protected:
     void
-    set_flags      (uint32_t _flags) noexcept { m_flags = _flags; }
+    set_flags      (uint32_t flags) noexcept { m_flags = flags; }
     uint32_t
     flags          () const          noexcept { return m_flags; }
     void
@@ -110,7 +110,7 @@ protected:
 
 protected:
     virtual void
-    on_events      (event_loop &_loop, uint32_t _flags) = 0;
+    on_events      (event_loop &loop, uint32_t flags) = 0;
 
 private:
     uint32_t               m_flags;

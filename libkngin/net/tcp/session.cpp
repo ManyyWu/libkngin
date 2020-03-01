@@ -12,7 +12,7 @@ KNGIN_NAMESPACE_TCP_BEGIN
 #if (ON == KNGIN_SESSION_NO_MUTEX)
 #define SESSION_LOCAL_LOCK(m) static_cast<void>(0)
 #else
-#define SESSION_LOCAL_LOCK(m) local_lock _lock((m))
+#define SESSION_LOCAL_LOCK(m) local_lock lock((m))
 #endif
 
 // for ET mode
@@ -26,16 +26,16 @@ KNGIN_NAMESPACE_TCP_BEGIN
 #define ET_MODE_ON_OOB()   static_cast<void>(0)
 #endif
 
-session::session (event_loop &_loop, k::socket &&_socket,
-                  const address &_local_addr, const address &_peer_addr)
+session::session (event_loop &loop, k::socket &&socket,
+                  const address &local_addr, const address &peer_addr)
     try
-    : epoller_event(_socket.fd(), epoller_event::EVENT_TYPE_FILE),
-      m_loop(&_loop),
-      m_socket(std::move(_socket)), 
+    : epoller_event(socket.fd(), epoller_event::EVENT_TYPE_FILE),
+      m_loop(&loop),
+      m_socket(std::move(socket)),
       m_closed(false),
       m_closing(false),
-      m_local_addr(_local_addr),
-      m_peer_addr(_peer_addr),
+      m_local_addr(local_addr),
+      m_peer_addr(peer_addr),
       m_name(m_socket.name()),
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
       m_message_handler(nullptr),
@@ -93,10 +93,10 @@ session::~session () noexcept
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
 bool
-session::send (msg_buffer _buf)
+session::send (msg_buffer buf)
 #else
 bool
-session::send (msg_buffer _buf, sent_handler &&_handler)
+session::send (msg_buffer buf, sent_handler &&handler)
 #endif
 {
     if (m_closed or m_socket.wr_closed())
@@ -105,14 +105,14 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
     assert(m_loop->in_loop_thread());
 #endif
     assert(!m_socket.wr_closed());
-    assert(_buf.buffer().begin() and _buf.buffer().size());
+    assert(buf.buffer().begin() and buf.buffer().size());
 
     {
         SESSION_LOCAL_LOCK(m_out_bufq_mutex);
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        m_out_ctxq.push_front({_buf, std::move(_handler)});
+        m_out_ctxq.push_front({buf, std::move(handler)});
 #else
-        m_out_ctxq.push_front({_buf});
+        m_out_ctxq.push_front({buf});
 #endif
         if (!m_next_out_ctx)
             m_next_out_ctx = &m_out_ctxq.back();
@@ -127,11 +127,11 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
     if (m_loop->in_loop_thread()) {
         on_write();
     } else {
-        auto _self_weak_ptr = weak_ptr();
-        m_loop->run_in_loop([_self_weak_ptr] () {
-            auto _self = _self_weak_ptr.lock();
-            if (_self)
-                _self->on_write();
+        auto self_weak_ptr = weak_ptr();
+        m_loop->run_in_loop([self_weak_ptr] () {
+            auto s = self_weak_ptr.lock();
+            if (s)
+                s->on_write();
         });
     }
     return true;
@@ -139,11 +139,11 @@ session::send (msg_buffer _buf, sent_handler &&_handler)
 
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
 bool
-session::recv (in_buffer _buf, size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
+session::recv (in_buffer buf, size_t lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
 #else
 bool
-session::recv (in_buffer _buf, message_handler &&_handler,
-               size_t _lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
+session::recv (in_buffer buf, message_handler &&handler,
+               size_t lowat /* = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT */)
 #endif
 {
     if (m_closed or m_socket.rd_closed())
@@ -152,16 +152,16 @@ session::recv (in_buffer _buf, message_handler &&_handler,
     assert(m_loop->in_loop_thread());
 #endif
     assert(!m_socket.rd_closed());
-    assert(_buf.begin() and _buf.size());
-    assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
-           ? _buf.size() >= _lowat : true);
+    assert(buf.begin() and buf.size());
+    assert(lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
+           ? buf.size() >= lowat : true);
 
     {
         SESSION_LOCAL_LOCK(m_in_bufq_mutex);
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        m_in_ctxq.push_front({_buf, std::move(_handler), _lowat});
+        m_in_ctxq.push_front({buf, std::move(handler), lowat});
 #else
-        m_in_ctxq.push_front({_buf, _lowat});
+        m_in_ctxq.push_front({buf, lowat});
 #endif
         if (!m_next_in_ctx)
             m_next_in_ctx = &m_in_ctxq.back();
@@ -170,18 +170,18 @@ session::recv (in_buffer _buf, message_handler &&_handler,
     if (m_loop->in_loop_thread()) {
         on_read();
     } else {
-        auto _self_weak_ptr = weak_ptr();
-        m_loop->run_in_loop([_self_weak_ptr] () {
-            auto _self = _self_weak_ptr.lock();
-            if (_self)
-                _self->on_read();
+        auto self_weak_ptr = weak_ptr();
+        m_loop->run_in_loop([self_weak_ptr] () {
+            auto s = self_weak_ptr.lock();
+            if (s)
+                s->on_read();
         });
     }
     return true;
 }
 
 void
-session::close (bool _sync /* = false */)
+session::close (bool sync /* = false */)
 {
     if (m_closed)
         return;
@@ -191,23 +191,23 @@ session::close (bool _sync /* = false */)
         if (m_loop->in_loop_thread()) {
             on_close();
         } else {
-            auto _self_weak_ptr = weak_ptr();
-            if (_sync) {
-                auto _barrier_ptr = std::make_shared<barrier>(2);
-                m_loop->run_in_loop([_self_weak_ptr, _barrier_ptr] () {
-                    auto _self = _self_weak_ptr.lock();
-                    if (_self)
-                        _self->on_close();
-                    if (_barrier_ptr->wait())
-                        _barrier_ptr->destroy();
+            auto self_weak_ptr = weak_ptr();
+            if (sync) {
+                auto barrier_ptr = std::make_shared<barrier>(2);
+                m_loop->run_in_loop([self_weak_ptr, barrier_ptr] () {
+                    auto s = self_weak_ptr.lock();
+                    if (s)
+                        s->on_close();
+                    if (barrier_ptr->wait())
+                        barrier_ptr->destroy();
                 });
-                if (_barrier_ptr->wait())
-                    _barrier_ptr->destroy();
+                if (barrier_ptr->wait())
+                    barrier_ptr->destroy();
             } else {
-                m_loop->run_in_loop([_self_weak_ptr] () {
-                    auto _self = _self_weak_ptr.lock();
-                    if (_self)
-                        _self->on_close();
+                m_loop->run_in_loop([self_weak_ptr] () {
+                    auto s = self_weak_ptr.lock();
+                    if (s)
+                        s->on_close();
                 });
             }
         }
@@ -231,11 +231,11 @@ session::rd_shutdown ()
     if (m_loop->in_loop_thread()) {
         m_socket.rd_shutdown();
     } else {
-        auto _self_weak_ptr = weak_ptr();
-        m_loop->run_in_loop([_self_weak_ptr] () {
-            auto _self = _self_weak_ptr.lock();
-            if (_self)
-                _self->m_socket.rd_shutdown();
+        auto self_weak_ptr = weak_ptr();
+        m_loop->run_in_loop([self_weak_ptr] () {
+            auto s = self_weak_ptr.lock();
+            if (s)
+                s->m_socket.rd_shutdown();
         });
     }
 }
@@ -255,32 +255,32 @@ session::wr_shutdown ()
     if (m_loop->in_loop_thread()) {
         m_socket.wr_shutdown();
     } else {
-        auto _self_weak_ptr = weak_ptr();
-        m_loop->run_in_loop([_self_weak_ptr] () {
-            auto _self = _self_weak_ptr.lock();
-            if (_self)
-                _self->m_socket.wr_shutdown();
+        auto self_weak_ptr = weak_ptr();
+        m_loop->run_in_loop([self_weak_ptr] () {
+            auto s = self_weak_ptr.lock();
+            if (s)
+                s->m_socket.wr_shutdown();
         });
     }
 }
 
 void
-session::on_events (event_loop &_loop, uint32_t _flags)
+session::on_events (event_loop &loop, uint32_t flags)
 {
-    assert(m_loop == &_loop);
+    assert(m_loop == &loop);
     try {
-        if ((EPOLLHUP | EPOLLERR) & _flags) {
+        if ((EPOLLHUP | EPOLLERR) & flags) {
             this->on_error();
             return;
         }
-        if (EPOLLIN & _flags)
+        if (EPOLLIN & flags)
             this->on_read();
-        if (EPOLLOUT & _flags)
+        if (EPOLLOUT & flags)
             this->on_write();
-        if (EPOLLPRI & _flags)
+        if (EPOLLPRI & flags)
             this->on_oob();
-    } catch (std::exception &_e) {
-        log_fatal("caught an exception in session::on_event(), %s", _e.what());
+    } catch (std::exception &e) {
+        log_fatal("caught an exception in session::on_event(), %s", e.what());
         throw;
     } catch (...) {
         log_fatal("caught an undefined exception in session::on_event()");
@@ -295,42 +295,42 @@ session::on_write ()
         return;
     if (!m_next_out_ctx)
         return;
-    auto _self = self();
+    auto s = self();
 
-    auto &_out_ctx = *m_next_out_ctx;
-    auto &_buf = _out_ctx.buffer;
-    assert(_buf.buffer().size());
+    auto &out_ctx = *m_next_out_ctx;
+    auto &buf = out_ctx.buffer;
+    assert(buf.buffer().size());
 
-    error_code _ec;
-    auto _size = m_socket.write(_buf.buffer(), _ec);
-    if (_ec) {
-        if (EWOULDBLOCK == _ec or
-            EAGAIN == _ec or
-            EINTR == _ec
+    error_code ec;
+    auto size = m_socket.write(buf.buffer(), ec);
+    if (ec) {
+        if (EWOULDBLOCK == ec or
+            EAGAIN == ec or
+            EINTR == ec
             )
             return;
-        log_error("socket::write() error, %s", system_error_str(_ec).c_str());
-        m_last_error = _ec;
+        log_error("socket::write() error, %s", system_error_str(ec).c_str());
+        m_last_error = ec;
         on_error();
         return;
     }
-    if (!_size) {
+    if (!size) {
         on_error();
         return;
     } else {
-        if (_buf.buffer().size()) {
+        if (buf.buffer().size()) {
             ET_MODE_ON_WRITE();
             return;
         }
 
         // write done
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-    auto _handler = std::move(_out_ctx.handler);
+    auto handler = std::move(out_ctx.handler);
 #else
-    auto &_handler = m_sent_handler;
+    auto &handler = m_sent_handler;
 #endif
-        shield_var(_buf);
-        shield_var(_out_ctx);
+        shield_var(buf);
+        shield_var(out_ctx);
         {
             SESSION_LOCAL_LOCK(m_out_bufq_mutex);
             m_out_ctxq.pop_back();
@@ -338,13 +338,13 @@ session::on_write ()
 #if (OFF == KNGIN_SESSION_ET_MODE)
             if (!m_next_out_ctx) {
                 disable_write();
-                _loop->update_event(*this);
+                loop->update_event(*this);
             }
 #endif
         }
-        if (_handler) {
+        if (handler) {
             log_excp_error(
-                _handler(std::ref(*this)),
+                handler(std::ref(*this)),
                 "session::m_sent_handler() error"
             );
         }
@@ -362,81 +362,81 @@ session::on_read ()
         on_error();
         return;
     }
-    auto _self = self();
+    auto s = self();
 
-    auto &_in_ctx = *m_next_in_ctx;
-    auto &_buf = _in_ctx.buffer;
-    auto &_lowat = _in_ctx.lowat;
-    assert(_buf.size() > _buf.valid());
+    auto &in_ctx = *m_next_in_ctx;
+    auto &buf = in_ctx.buffer;
+    auto &lowat = in_ctx.lowat;
+    assert(buf.size() > buf.valid());
 
-    error_code _ec;
-    auto _size = m_socket.read(_buf, _ec);
-    if (_ec) {
-        if (EWOULDBLOCK == _ec or
-            EAGAIN == _ec or
-            EINTR == _ec
+    error_code ec;
+    auto size = m_socket.read(buf, ec);
+    if (ec) {
+        if (EWOULDBLOCK == ec or
+            EAGAIN == ec or
+            EINTR == ec
             )
             return;
-        log_error("socket::write() error, %s", system_error_str(_ec).c_str());
-        m_last_error = _ec;
+        log_error("socket::write() error, %s", system_error_str(ec).c_str());
+        m_last_error = ec;
         on_error();
         return;
     }
-    if (!_size) {
+    if (!size) {
         on_error();
         return;
     } else {
-        assert(_lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
-               ? _buf.size() >= _lowat : true);
-        bool _writeable = false;
-        if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT == _lowat) {
-            if (_buf.writeable()) {
+        assert(lowat != KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT
+               ? buf.size() >= lowat : true);
+        bool writeable = false;
+        if (KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT == lowat) {
+            if (buf.writeable()) {
                 ET_MODE_ON_READ();
                 return;
             }
         } else {
-            if (_buf.valid() < _lowat) {
+            if (buf.valid() < lowat) {
                 ET_MODE_ON_READ();
                 return;
             }
-            if (_buf.writeable()) {
-                _lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT;
-                _writeable = true;
+            if (buf.writeable()) {
+                lowat = KNGIN_DEFAULT_MESSAGE_CALLBACK_LOWAT;
+                writeable = true;
             }
         }
 
         // read done
-        if (_writeable) {
+        if (writeable) {
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-            auto &_handler = _in_ctx.handler;
+            auto &handler = in_ctx.handler;
 #else
-            auto &_handler = m_message_handler;
+            auto &handler = m_message_handler;
 #endif
-            if (_handler) {
+            if (handler) {
                 log_excp_error(
-                    _handler(std::ref(*this), _buf, _buf.valid()),
+                    handler(std::ref(*this), buf, buf.valid()),
                     "session::m_message_handler() error"
                 );
             }
             return;
         }
-        shield_var(_buf);
-        shield_var(_in_ctx);
-        in_context _back;
+        shield_var(buf);
+        shield_var(in_ctx);
+        in_context back;
         {
             SESSION_LOCAL_LOCK(m_in_bufq_mutex);
-            _back = m_in_ctxq.back();
+            back = m_in_ctxq.back();
             m_in_ctxq.pop_back();
             m_next_in_ctx = m_in_ctxq.empty() ? nullptr : &m_in_ctxq.back();
         }
 #if (ON == KNGIN_SESSION_TEMP_CALLBACK)
-        auto &_handler = _back.handler;
+        auto &handler = back.handler;
 #else
-        auto &_handler = m_message_handler;
+        auto &handler = m_message_handler;
 #endif
-        if (_handler) {
+        if (handler) {
             log_excp_error(
-                _handler(std::ref(*this), _back.buffer, _back.buffer.valid()),
+                handler(std::ref(*this), back.buffer, back.buffer.valid()),
                 "session::m_message_handler() error"
             );
         }
@@ -449,27 +449,27 @@ session::on_oob ()
 {
     if (m_closing or m_closed or m_last_error or m_socket.rd_closed())
         return;
-    auto _self = self();
+    auto s = self();
 
     //recv
-    char _data;
-    in_buffer _buf(&_data, 1);
-    error_code _ec;
-    auto _size = m_socket.recv(_buf, MSG_OOB, _ec);
-    if (_ec) {
+    char data;
+    in_buffer buf(&data, 1);
+    error_code ec;
+    auto size = m_socket.recv(buf, MSG_OOB, ec);
+    if (ec) {
         log_error("socket::recv(MSG_OOB) error, %s",
-                  system_error_str(_ec).c_str());
-        m_last_error = _ec;
+                  system_error_str(ec).c_str());
+        m_last_error = ec;
         on_error();
         return;
     }
-    if (!_size) {
+    if (!size) {
         on_error();
         return;
     } else {
         if (m_oob_handler) {
             log_excp_error(
-                m_oob_handler(std::ref(*this), _data),
+                m_oob_handler(std::ref(*this), data),
                 "session::m_oob_handler() error"
             );
         } else {
@@ -484,10 +484,10 @@ session::on_error ()
 {
     if (m_closing or m_closed)
         return;
-    auto _self = self();
+    auto s = self();
 
     if (m_last_error) {
-_error:
+error:
         if (m_error_handler) {
             log_excp_error(
                 m_error_handler(std::ref(*this), m_last_error),
@@ -495,22 +495,22 @@ _error:
             );
         }
     } else {
-        static char _arr[1];
-        in_buffer _buf(_arr, 1);
-        error_code _ec;
-        auto _size = m_socket.recv(_buf, MSG_PEEK, _ec);
-        if (_ec) {
-            if (EWOULDBLOCK == _ec or
-                EAGAIN == _ec or
-                EINTR == _ec
+        static char arr[1];
+        in_buffer buf(arr, 1);
+        error_code ec;
+        auto size = m_socket.recv(buf, MSG_PEEK, ec);
+        if (ec) {
+            if (EWOULDBLOCK == ec or
+                EAGAIN == ec or
+                EINTR == ec
                 )
                 return;
-            log_error("socket::recv(MSG_PEEK) error, %s", system_error_str(_ec).c_str());
-            m_last_error = _ec;
-            goto _error;
+            log_error("socket::recv(MSG_PEEK) error, %s", system_error_str(ec).c_str());
+            m_last_error = ec;
+            goto error;
         }
-        if (!_size)
-            goto _error;
+        if (!size)
+            goto error;
         //log_debug("session::on_error(), no any error was readed");
         return;
     }

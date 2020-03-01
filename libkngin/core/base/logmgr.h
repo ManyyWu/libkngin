@@ -27,8 +27,8 @@ public:
 
     typedef std::vector<std::string>        kngin_logfile_set;
 
-    typedef void (*log_callback) (const char *_file, KNGIN_LOG_LEVEL _level,
-                                  const char *_str, size_t _len);
+    typedef void (*log_callback) (const char *file, KNGIN_LOG_LEVEL level,
+                                  const char *str, size_t len);
 
 private:
     log_mgr          ();
@@ -38,7 +38,7 @@ private:
 #if (ON == KNGIN_ASYNC_LOGGER)
 public:
     void
-    async_log        (log::async_log_data &&_data);
+    async_log        (log::async_log_data &&data);
 
 private:
     static int
@@ -47,13 +47,13 @@ private:
 
 public:
     log &
-    operator []      (size_t _index) noexcept;
+    operator []      (size_t index) noexcept;
 
     int
-    add              (const std::string &_filename, KNGIN_LOG_MODE _mode) = delete;
+    add              (const std::string &filename, KNGIN_LOG_MODE mode) = delete;
 
     const std::string &
-    filename_at      (size_t _index) noexcept;
+    filename_at      (size_t index) noexcept;
 
 public:
     bool
@@ -62,8 +62,8 @@ public:
 
     // no thread-safe
     void
-    set_log_callback (log_callback _cb) noexcept
-    { m_log_cb = _cb; }
+    set_log_callback (log_callback cb) noexcept
+    { m_log_cb = cb; }
 
     // no thread-safe
     log_callback

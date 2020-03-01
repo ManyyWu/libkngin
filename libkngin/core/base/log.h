@@ -86,8 +86,8 @@ public:
 public:
     log           () = delete;
 
-    log           (KNGIN_LOG_FILE _filetype,
-                   KNGIN_LOG_MODE _mode = KNGIN_LOG_MODE_FILE);
+    log           (KNGIN_LOG_FILE filetype,
+                   KNGIN_LOG_MODE mode = KNGIN_LOG_MODE_FILE);
 
     ~log          () = default;
 
@@ -106,49 +106,49 @@ public:
 
 public:
     void
-    fatal         (const char *_fmt, ...);
+    fatal         (const char *fmt, ...);
 
     void
-    error         (const char *_fmt, ...);
+    error         (const char *fmt, ...);
 
     void
-    warning       (const char *_fmt, ...);
+    warning       (const char *fmt, ...);
 
     void
-    info          (const char *_fmt, ...);
+    info          (const char *fmt, ...);
 
     void
-    debug         (const char *_fmt, ...);
+    debug         (const char *fmt, ...);
 
     void
-    log_data      (const std::string &_str);
+    log_data      (const std::string &str);
 
     bool
-    log_assert    (const char *_func, const char *_file,
-                   size_t _line, const char *_exp);
+    log_assert    (const char *func, const char *file,
+                   size_t line, const char *exp);
 
     void
-    write_log     (KNGIN_LOG_LEVEL _level,
-                   const char *_fmt, va_list _vl);
+    write_log     (KNGIN_LOG_LEVEL level,
+                   const char *fmt, va_list vl);
 
 private:
     static bool
-    write_logfile (const char *_file, const char *_fmt, size_t _len) noexcept;
+    write_logfile (const char *file, const char *fmt, size_t len) noexcept;
 
     static void
-    write_stderr  (KNGIN_LOG_LEVEL _level,
-                   const char *_str, size_t _len) noexcept;
+    write_stderr  (KNGIN_LOG_LEVEL level,
+                   const char *str, size_t len) noexcept;
 
     static void
-    write_stderr2 (KNGIN_LOG_LEVEL _level,
-                   const char *_fmt, ...) noexcept;
+    write_stderr2 (KNGIN_LOG_LEVEL level,
+                   const char *fmt, ...) noexcept;
 
 private:
     static const char *
-    get_datetime  (char _datetime[], size_t _size) noexcept;
+    get_datetime  (char datetime[], size_t size) noexcept;
 
     static const char *
-    color_begin   (KNGIN_LOG_LEVEL _level) noexcept;
+    color_begin   (KNGIN_LOG_LEVEL level) noexcept;
 
     static const char *
     color_end     () noexcept;

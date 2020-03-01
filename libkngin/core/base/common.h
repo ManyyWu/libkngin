@@ -20,11 +20,11 @@ KNGIN_NAMESPACE_K_BEGIN
 // for arguments
 inline
 void
-arg_check_func(bool _exp, const char *_what = nullptr)
+arg_check_func(bool exp, const char *what = nullptr)
 {
-    if (!(_exp) ? assert((_exp)), true : false)
-        throw k::exception(((_what ? "invalid argument - " : "invalid argument")
-                             + std::string(_what ? _what : "")).c_str());
+    if (!(exp) ? assert((exp)), true : false)
+        throw k::exception(((what ? "invalid argument - " : "invalid argument")
+                             + std::string(what ? what : "")).c_str());
 }
 #define arg_check(exp)             arg_check_func(static_cast<bool>((exp)))
 #define arg_check2(exp, what)      arg_check_func(static_cast<bool>((exp)), (what))
@@ -40,46 +40,46 @@ arg_check_func(bool _exp, const char *_what = nullptr)
 #define ignore_excp(exp)             do {                                                            \
                                          try {                                                       \
                                              {exp;}                                                  \
-                                         } catch (const std::exception &_e) {                        \
+                                         } catch (const std::exception &e) {                        \
                                              log_debug("caught an exception be ignored - %s",        \
-                                                       _e.what());                                   \
+                                                       e.what());                                   \
                                          } catch (...) {                                             \
                                              log_warning("caught an undefined exception be ignored");\
                                          }                                                           \
                                      } while (false)
-#define cond_excp(exp, _what)        do {                              \
+#define cond_excp(exp, what)        do {                              \
                                          if ((exp)) {                  \
-                                             log_fatal("%s", (_what)); \
-                                             throw exception(_what);   \
+                                             log_fatal("%s", (what)); \
+                                             throw exception(what);   \
                                          }                             \
                                      } while (false)
-#define cond_sys_err(exp, _what)     do {                              \
+#define cond_sys_err(exp, what)     do {                              \
                                          if ((exp)) {                  \
-                                             log_fatal("%s", (_what)); \
-                                             throw system_error(_what);\
+                                             log_fatal("%s", (what)); \
+                                             throw system_error(what);\
                                          }                             \
                                      } while (false)
-#define log_excp_fatal(exp, _what)   do {                              \
+#define log_excp_fatal(exp, what)   do {                              \
                                          try {                         \
                                              {exp;}                    \
                                          } catch (...) {               \
-                                             log_fatal("%s", _what);   \
+                                             log_fatal("%s", what);   \
                                              throw;                    \
                                          }                             \
                                      } while (false)
-#define log_excp_error(exp, _what)   do {                              \
+#define log_excp_error(exp, what)   do {                              \
                                          try {                         \
                                              {exp;}                    \
                                          } catch (...) {               \
-                                             log_error("%s", _what);   \
+                                             log_error("%s", what);   \
                                              throw;                    \
                                          }                             \
                                      } while (false)
-#define log_excp_warning(exp, _what) do {                              \
+#define log_excp_warning(exp, what) do {                              \
                                          try {                         \
                                              {exp;}                    \
                                          } catch (...) {               \
-                                             log_warning("%", _what);  \
+                                             log_warning("%", what);  \
                                              throw;                    \
                                          }                             \
                                      } while (false)
@@ -94,18 +94,18 @@ nullptr_ref () noexcept
 
 template <typename Type>
 bool
-is_nullptr_ref (Type &_ref) noexcept
+is_nullptr_ref (Type &ref) noexcept
 {
-    return (!_ref);
+    return (!ref);
 }
 
 // for std::shared_ptr
 template <typename Type>
 inline
 bool
-is_single_ref_ptr (std::shared_ptr<Type> &_ptr)
+is_single_ref_ptr (std::shared_ptr<Type> &ptr)
 {
-    return (1 == _ptr.use_count());
+    return (1 == ptr.use_count());
 }
 
 // version

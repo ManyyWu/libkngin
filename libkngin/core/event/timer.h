@@ -27,15 +27,15 @@ public:
 public:
     class timerid {
     public:
-        timerid    (timer_ptr _timer);
+        timerid    (timer_ptr timer);
 
-        timerid    (const timerid &_timer);
+        timerid    (const timerid &timer);
 
         ~timerid   () = default;
 
     public:
         timerid &
-        operator = (const timerid &_timer);
+        operator = (const timerid &timer);
 
     public:
         timestamp
@@ -63,15 +63,15 @@ public:
 public:
     timer     () = delete;
 
-    timer     (timeout_handler &&_handler);
+    timer     (timeout_handler &&handler);
 
     virtual
     ~timer    () noexcept;
 
 public:
     void
-    set_time  (timestamp _val, timestamp _interval,
-               bool _abs = false);
+    set_time  (timestamp val, timestamp interval,
+               bool abs = false);
 
     void
     close     ();
@@ -87,10 +87,10 @@ public:
 
 private:
     virtual void
-    on_events (event_loop &_loop, uint32_t _flags);
+    on_events (event_loop &loop, uint32_t flags);
 
     void
-    on_read   (event_loop &_loop);
+    on_read   (event_loop &loop);
 
 private:
     timeout_handler m_timeout_handler;
@@ -119,27 +119,27 @@ public:
 public:
     class timerid {
     public:
-        timerid    (timer_ptr _timer)
-            : m_timer(_timer) {}
+        timerid    (timer_ptr timer)
+            : m_timer(timer) {}
 
-        timerid    (const timerid &_timer)
-            : m_timer(_timer.m_timer) {}
+        timerid    (const timerid &timer)
+            : m_timer(timer.m_timer) {}
 
         ~timerid   () = default;
 
     public:
         timerid &
-        operator = (const timerid &_timer)
-        { m_timer = _timer.m_timer; return *this; }
+        operator = (const timerid &timer)
+        { m_timer = timer.m_timer; return *this; }
 
     public:
         timestamp
         interval   () const noexcept
-        { if (auto _timer = m_timer.lock()) return assert(_timer), _timer->m_timeout.interval(); return 0ULL; }
+        { if (auto timer = m_timer.lock()) return assert(timer), timer->m_timeout.interval(); return 0ULL; }
 
         bool
         persist    () const noexcept
-        { if (auto _timer = m_timer.lock()) return assert(_timer), _timer->m_timeout.persist(); return false; }
+        { if (auto timer = m_timer.lock()) return assert(timer), timer->m_timeout.persist(); return false; }
 
         bool
         cancelled  ()
@@ -157,14 +157,14 @@ public:
 public:
     timer     () = delete;
 
-    timer     (timeout_handler &&_handler);
+    timer     (timeout_handler &&handler);
 
     virtual
     ~timer    () = default;
 
 public:
     void
-    set_time  (timestamp _cur_time, timestamp _delay, bool _persist);
+    set_time  (timestamp cur_time, timestamp delay, bool persist);
 
     void
     close     ()
@@ -181,7 +181,7 @@ private:
 
 private:
     void
-    on_events (event_loop &_loop);
+    on_events (event_loop &loop);
 
 private:
     timeout_handler  m_timeout_handler;

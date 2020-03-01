@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#ifdef WIN32
 #include "pthread.h"
 #else
 #include <pthread.h>
@@ -14,46 +14,46 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-cond::cond (mutex *_mutex)
+cond::cond (mutex *mutex)
     : m_cond(PTHREAD_COND_INITIALIZER),
-      m_mutex(_mutex)
+      m_mutex(mutex)
 {
 }
 
 cond::~cond () noexcept
 {
     ignore_excp(
-        auto _ec = ::pthread_cond_destroy(&m_cond);
-        if (_ec)
+        auto ec = ::pthread_cond_destroy(&m_cond);
+        if (ec)
             log_fatal("::pthread_cond_destroy() error, %s",
-                      system_error_str(CERR(_ec)).c_str());
+                      system_error_str(CERR(ec)).c_str());
     );
 }
 
 void
 cond::wait ()
 {
-    auto _ec = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
-    if (_ec) {
+    auto ec = ::pthread_cond_wait(&m_cond, &m_mutex->m_mutex);
+    if (ec) {
         log_fatal("::pthread_cond_wait() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_cond_wait() error");
     }
 }
 
 bool
-cond::timedwait (timestamp _ms)
+cond::timedwait (timestamp ms)
 {
-    timespec _ts;
-    ::timespec_get(&_ts, TIME_UTC);
-    timestamp _time = _ts;
-    (_time += _ms).to_timespec(_ts);
-    auto _ec = ::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &_ts);
-    if (ETIMEDOUT == _ec)
+    timespec ts;
+    ::timespec_get(&ts, TIME_UTC);
+    timestamp time = ts;
+    (time += ms).to_timespec(ts);
+    auto ec = ::pthread_cond_timedwait(&m_cond, &m_mutex->m_mutex, &ts);
+    if (ETIMEDOUT == ec)
         return false;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_cond_timedwait() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_cond_timedwait() error");
     }
     return true;
@@ -62,10 +62,10 @@ cond::timedwait (timestamp _ms)
 void
 cond::signal ()
 {
-    auto _ec = ::pthread_cond_signal(&m_cond);
-    if (_ec) {
+    auto ec = ::pthread_cond_signal(&m_cond);
+    if (ec) {
         log_fatal("::pthread_cond_signal() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_cond_signal() error");
     }
 }
@@ -73,10 +73,10 @@ cond::signal ()
 void
 cond::broadcast ()
 {
-    auto _ec = ::pthread_cond_broadcast(&m_cond);
-    if (_ec) {
+    auto ec = ::pthread_cond_broadcast(&m_cond);
+    if (ec) {
         log_fatal("::pthread_cond_broadcast() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_cond_broadcast() error");
     }
 }

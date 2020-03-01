@@ -25,18 +25,18 @@ public:
 public:
     listener       () = delete;
 
-    listener       (event_loop &_loop, k::socket &&_socket,
-                    const std::string &_name, uint16_t _port,
-                    int _backlog,
-                    accept_handler &&_new_ssesion_handler,
-                    error_handler &&_error_handler);
+    listener       (event_loop &loop, k::socket &&socket,
+                    const std::string &name, uint16_t port,
+                    int backlog,
+                    accept_handler &&new_ssesion_handler,
+                    error_handler &&error_handler);
 
     virtual
     ~listener      () noexcept;
 
 public:
     virtual void
-    close          (bool _sync = true);
+    close          (bool sync = true);
 
 public:
     event_loop *
@@ -61,11 +61,11 @@ public:
 
 private:
     void
-    parse_addr     (const std::string &_name, uint16_t _port);
+    parse_addr     (const std::string &name, uint16_t port);
 
 private:
     virtual void
-    on_events      (event_loop &_loop, uint32_t _flags);
+    on_events      (event_loop &loop, uint32_t flags);
 
     void
     on_read        ();

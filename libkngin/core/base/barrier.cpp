@@ -13,14 +13,14 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-barrier::barrier (int _count)
+barrier::barrier (int count)
     try
     : m_inited(true)
 {
-    auto _ec = ::pthread_barrier_init(&m_barrier, nullptr, _count);
-    if (_ec) {
+    auto ec = ::pthread_barrier_init(&m_barrier, nullptr, count);
+    if (ec) {
         log_fatal("::pthread_barrier_init() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_barrier_init() error");
     }
 } catch (...) {
@@ -37,13 +37,13 @@ barrier::~barrier ()
 }
 
 void
-barrier::reinit (int _count)
+barrier::reinit (int count)
 {
     assert(!m_inited);
-    auto _ec = ::pthread_barrier_init(&m_barrier, nullptr, _count);
-    if (_ec) {
+    auto ec = ::pthread_barrier_init(&m_barrier, nullptr, count);
+    if (ec) {
         log_fatal("::pthread_barrier_init() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_barrier_init() error");
     }
     m_inited = true;
@@ -53,14 +53,14 @@ bool
 barrier::wait ()
 {
     assert(m_inited);
-    auto _ret = ::pthread_barrier_wait(&m_barrier);
-    if (0 == _ret)
+    auto ret = ::pthread_barrier_wait(&m_barrier);
+    if (0 == ret)
         return false;
-    if (PTHREAD_BARRIER_SERIAL_THREAD == _ret)
+    if (PTHREAD_BARRIER_SERIAL_THREAD == ret)
         return true;
-    if (_ret) {
+    if (ret) {
         log_fatal("::pthread_barrier_wait() error, %s",
-                  system_error_str(CERR(_ret)).c_str());
+                  system_error_str(CERR(ret)).c_str());
         throw k::exception("::pthread_barrier_wait() error");
     }
     return true;
@@ -71,10 +71,10 @@ barrier::destroy ()
 {
     assert(m_inited);
     m_inited = false;
-    auto _ec = ::pthread_barrier_destroy(&m_barrier);
-    if (_ec) {
+    auto ec = ::pthread_barrier_destroy(&m_barrier);
+    if (ec) {
         log_fatal("::pthread_barrier_destroy() error, %s",
-                  system_error_str(CERR(_ec)).c_str());
+                  system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_barrier_destroy() error");
     }
 }

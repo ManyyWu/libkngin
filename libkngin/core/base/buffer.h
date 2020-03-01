@@ -19,24 +19,24 @@ class out_buffer {
 public:
     out_buffer   () noexcept;
 
-    out_buffer   (const void *_arr, size_t _size);
+    out_buffer   (const void *arr, size_t size);
 
-    out_buffer   (const out_buffer &_buf) noexcept;
+    out_buffer   (const out_buffer &buf) noexcept;
 
-    out_buffer   (out_buffer &&_buf) noexcept;
+    out_buffer   (out_buffer &&buf) noexcept;
 
     ~out_buffer  () = default;
 
 public:
     const uint8_t &
-    operator []  (size_t _idx) const noexcept
-    { return m_arr[_idx]; }
+    operator []  (size_t idx) const noexcept
+    { return m_arr[idx]; }
     const uint8_t &
-    at           (size_t _idx) const
-    { check_readable(_idx + 1); return m_arr[_idx]; }
+    at           (size_t idx) const
+    { check_readable(idx + 1); return m_arr[idx]; }
     const unsigned char *
-    get          (size_t _idx) const
-    { check_readable(_idx + 1); return &m_arr[_idx]; }
+    get          (size_t idx) const
+    { check_readable(idx + 1); return &m_arr[idx]; }
     const unsigned char *
     begin        () const noexcept
     { return m_arr; }
@@ -46,37 +46,37 @@ public:
 
 public:
     out_buffer &
-    peek_uint8   (uint8_t &_val)  { _val = read<uint8_t>(false); return *this; }
+    peek_uint8   (uint8_t &val)  { val = read<uint8_t>(false); return *this; }
     out_buffer &
-    peek_int8    (int8_t &_val)   { _val = read<int8_t>(false); return *this; }
+    peek_int8    (int8_t &val)   { val = read<int8_t>(false); return *this; }
     out_buffer &
-    peek_uint16  (uint16_t &_val) { _val = read<uint16_t>(false); return *this; }
+    peek_uint16  (uint16_t &val) { val = read<uint16_t>(false); return *this; }
     out_buffer &
-    peek_int16   (int16_t &_val)  { _val = read<int16_t>(false); return *this; }
+    peek_int16   (int16_t &val)  { val = read<int16_t>(false); return *this; }
     out_buffer &
-    peek_uint32  (uint32_t &_val) { _val = read<uint32_t>(false); return *this; }
+    peek_uint32  (uint32_t &val) { val = read<uint32_t>(false); return *this; }
     out_buffer &
-    peek_int32   (int32_t &_val)  { _val = read<int32_t>(false); return *this; }
+    peek_int32   (int32_t &val)  { val = read<int32_t>(false); return *this; }
     out_buffer &
-    peek_uint64  (uint64_t &_val) { _val = read<uint64_t>(false); return *this; }
+    peek_uint64  (uint64_t &val) { val = read<uint64_t>(false); return *this; }
     out_buffer &
-    peek_int64   (int64_t &_val)  { _val = read<int64_t>(false); return *this; }
+    peek_int64   (int64_t &val)  { val = read<int64_t>(false); return *this; }
     out_buffer &
-    read_uint8   (uint8_t &_val)  { _val = read<uint8_t>(); return *this; }
+    read_uint8   (uint8_t &val)  { val = read<uint8_t>(); return *this; }
     out_buffer &
-    read_int8    (int8_t &_val)   { _val = read<int8_t>(); return *this; }
+    read_int8    (int8_t &val)   { val = read<int8_t>(); return *this; }
     out_buffer &
-    read_uint16  (uint16_t &_val) { _val = read<uint16_t>(); return *this; }
+    read_uint16  (uint16_t &val) { val = read<uint16_t>(); return *this; }
     out_buffer &
-    read_int16   (int16_t &_val)  { _val = read<int16_t>(); return *this; }
+    read_int16   (int16_t &val)  { val = read<int16_t>(); return *this; }
     out_buffer &
-    read_uint32  (uint32_t &_val) { _val = read<uint32_t>(); return *this; }
+    read_uint32  (uint32_t &val) { val = read<uint32_t>(); return *this; }
     out_buffer &
-    read_int32   (int32_t &_val)  { _val = read<int32_t>(); return *this; }
+    read_int32   (int32_t &val)  { val = read<int32_t>(); return *this; }
     out_buffer &
-    read_uint64  (uint64_t &_val) { _val = read<uint64_t>(); return *this; }
+    read_uint64  (uint64_t &val) { val = read<uint64_t>(); return *this; }
     out_buffer &
-    read_int64   (int64_t &_val)  { _val = read<int64_t>(); return *this; }
+    read_int64   (int64_t &val)  { val = read<int64_t>(); return *this; }
     uint8_t
     peek_uint8   () { return read<uint8_t>(false); }
     int8_t
@@ -112,13 +112,13 @@ public:
 
 public:
     size_t
-    read_bytes   (void * _p, size_t _n);
+    read_bytes   (void * p, size_t n);
 
     void
-    reset        (const void * _buf, size_t _size);
+    reset        (const void * buf, size_t size);
 
     void
-    swap         (out_buffer &_buf) noexcept;
+    swap         (out_buffer &buf) noexcept;
 
     std::shared_ptr<out_buffer>
     clone        ();
@@ -129,29 +129,29 @@ public:
 
 public:
     out_buffer &
-    operator -=    (size_t _size)
-    { check_readable(_size); m_size -= _size; return *this; }
+    operator -=    (size_t size)
+    { check_readable(size); m_size -= size; return *this; }
 
 public:
     out_buffer &
-    operator =     (const out_buffer &_buf) noexcept
-    { m_arr = _buf.m_arr; m_size = _buf.m_size; return *this; }
+    operator =     (const out_buffer &buf) noexcept
+    { m_arr = buf.m_arr; m_size = buf.m_size; return *this; }
 
 public:
     void
-    check_readable (size_t _n) const
-    { if (m_size < _n) throw k::exception("in_buffer::check_readable() - out of range"); }
+    check_readable (size_t n) const
+    { if (m_size < n) throw k::exception("in_buffer::check_readable() - out of range"); }
 
 protected:
     template <typename Type>
     Type
-    read           (bool _forward = true)
+    read           (bool forward = true)
     {
         check_readable(sizeof(Type));
-        Type _val = *static_cast<const Type *>(static_cast<const void *>(m_arr));
-        m_size -= _forward ? sizeof(Type) : 0;
-        m_arr += _forward ? sizeof(Type) : 0;
-        return _val;
+        Type val = *static_cast<const Type *>(static_cast<const void *>(m_arr));
+        m_size -= forward ? sizeof(Type) : 0;
+        m_arr += forward ? sizeof(Type) : 0;
+        return val;
     }
 
 private:
@@ -165,18 +165,18 @@ public:
     msg_buffer  () noexcept
         : m_arr(nullptr), m_buf() {}
 
-    msg_buffer  (uint8_arr_ptr &_arr, size_t _offset, size_t _size)
-        : m_arr(_arr), m_buf(_arr.get() + _offset, _size) {}
+    msg_buffer  (uint8_arr_ptr &arr, size_t offset, size_t size)
+        : m_arr(arr), m_buf(arr.get() + offset, size) {}
         
-    msg_buffer  (const void *_arr, size_t _size)
-        : m_arr(nullptr), m_buf(_arr, _size) {}
-    // _arr must be constant string or stack space that life cycle is longer than this
+    msg_buffer  (const void *arr, size_t size)
+        : m_arr(nullptr), m_buf(arr, size) {}
+    // arr must be constant string or stack space that life cycle is longer than this
 
-    msg_buffer  (const msg_buffer &_buf)
-        : m_arr(_buf.m_arr), m_buf(_buf.m_buf) {}
+    msg_buffer  (const msg_buffer &buf)
+        : m_arr(buf.m_arr), m_buf(buf.m_buf) {}
 
-    msg_buffer  (msg_buffer &&_buf) noexcept
-        : m_arr(std::move(_buf.m_arr)), m_buf(std::move(_buf.m_buf)) {  }
+    msg_buffer  (msg_buffer &&buf) noexcept
+        : m_arr(std::move(buf.m_arr)), m_buf(std::move(buf.m_buf)) {  }
 
     ~msg_buffer () = default;
 
@@ -196,8 +196,8 @@ public:
 
 public:
     msg_buffer &
-    operator =  (const msg_buffer &_buf)
-    { m_arr = _buf.m_arr; m_buf = _buf.m_buf; return *this; }
+    operator =  (const msg_buffer &buf)
+    { m_arr = buf.m_arr; m_buf = buf.m_buf; return *this; }
 
 private:
     uint8_arr_ptr m_arr;
@@ -209,24 +209,24 @@ class in_buffer {
 public:
     in_buffer    () noexcept;
 
-    in_buffer    (void * _arr, size_t _size);
+    in_buffer    (void * arr, size_t size);
 
-    in_buffer    (const in_buffer &_buf) noexcept;
+    in_buffer    (const in_buffer &buf) noexcept;
 
-    in_buffer    (in_buffer &&_buf) noexcept;
+    in_buffer    (in_buffer &&buf) noexcept;
 
     ~in_buffer   () = default;
 
 public:
     uint8_t &
-    operator []  (size_t _idx) noexcept
-    { return m_arr[_idx]; }
+    operator []  (size_t idx) noexcept
+    { return m_arr[idx]; }
     uint8_t &
-    at           (size_t _idx)
-    { check_readable(_idx + 1); return m_arr[_idx]; }
+    at           (size_t idx)
+    { check_readable(idx + 1); return m_arr[idx]; }
     unsigned char *
-    get          (size_t _idx)
-    { check_readable(_idx + 1); return &m_arr[_idx]; }
+    get          (size_t idx)
+    { check_readable(idx + 1); return &m_arr[idx]; }
     unsigned char *
     begin        () const noexcept
     { return m_arr; }
@@ -242,31 +242,31 @@ public:
 
 public:
     in_buffer &
-    write_uint8  (uint8_t  _val) { return write<uint8_t>(_val); }
+    write_uint8  (uint8_t  val) { return write<uint8_t>(val); }
     in_buffer &
-    write_int8   (int8_t   _val) { return write<int8_t>(_val); }
+    write_int8   (int8_t   val) { return write<int8_t>(val); }
     in_buffer &
-    write_uint16 (uint16_t _val) { return write<uint16_t>(_val); }
+    write_uint16 (uint16_t val) { return write<uint16_t>(val); }
     in_buffer &
-    write_int16  (int16_t  _val) { return write<int16_t>(_val); }
+    write_int16  (int16_t  val) { return write<int16_t>(val); }
     in_buffer &
-    write_uint32 (uint32_t _val) { return write<uint32_t>(_val); }
+    write_uint32 (uint32_t val) { return write<uint32_t>(val); }
     in_buffer &
-    write_int32  (int32_t  _val) { return write<int32_t>(_val); }
+    write_int32  (int32_t  val) { return write<int32_t>(val); }
     in_buffer &
-    write_uint64 (uint64_t _val) { return write<uint64_t>(_val); }
+    write_uint64 (uint64_t val) { return write<uint64_t>(val); }
     in_buffer &
-    write_int64  (int64_t  _val) { return write<int64_t>(_val); }
+    write_int64  (int64_t  val) { return write<int64_t>(val); }
 
 public:
     in_buffer &
-    write_bytes  (const void * _p, size_t _n);
+    write_bytes  (const void * p, size_t n);
 
     void
-    reset        (void * _buf, size_t _size);
+    reset        (void * buf, size_t size);
 
     void
-    swap         (in_buffer &_buf) noexcept;
+    swap         (in_buffer &buf) noexcept;
 
 public:
     std::string
@@ -274,30 +274,30 @@ public:
 
 public:
     in_buffer &
-    operator +=  (size_t _size)
-    { check_writeable(_size); m_valid += _size; return *this; }
+    operator +=  (size_t size)
+    { check_writeable(size); m_valid += size; return *this; }
 
 public:
 
     in_buffer &
-    operator =   (const in_buffer &_buf) noexcept
-    { m_arr = _buf.m_arr; m_size = _buf.m_size; m_valid = _buf.m_valid; return *this; }
+    operator =   (const in_buffer &buf) noexcept
+    { m_arr = buf.m_arr; m_size = buf.m_size; m_valid = buf.m_valid; return *this; }
 
 protected:
     void
-    check_readable  (size_t _n) const
-    { if (m_valid < _n) throw k::exception("in_buffer::check_readable() - out of range"); }
+    check_readable  (size_t n) const
+    { if (m_valid < n) throw k::exception("in_buffer::check_readable() - out of range"); }
 
     void
-    check_writeable (size_t _n) const
-    { if (m_size - m_valid < _n) throw k::exception("in_buffer::check_writeable() - out of range"); }
+    check_writeable (size_t n) const
+    { if (m_size - m_valid < n) throw k::exception("in_buffer::check_writeable() - out of range"); }
 
     template <typename Type>
     in_buffer &
-    write           (Type _val)
+    write           (Type val)
     {
         check_writeable(sizeof(Type));
-        *static_cast<Type *>(static_cast<void *>(m_arr + m_valid)) = _val;
+        *static_cast<Type *>(static_cast<void *>(m_arr + m_valid)) = val;
         m_valid += sizeof(Type);
         return *this;
     }
@@ -327,10 +327,10 @@ public:
     vector          () { return m_list; }
 
     void
-    receive         (size_t _n);
+    receive         (size_t n);
 
     void
-    send            (size_t _n);
+    send            (size_t n);
 
     size_t
     readable        ();
@@ -345,14 +345,14 @@ public:
     to_iovec        ();
 
     void
-    swap            (net_buffer &_buf);
+    swap            (net_buffer &buf);
 
 protected:
     void
-    check_readable  (size_t _n);
+    check_readable  (size_t n);
 
     void
-    check_writeable (size_t _n);
+    check_writeable (size_t n);
 
 protected:
     buffer_list                 m_list;

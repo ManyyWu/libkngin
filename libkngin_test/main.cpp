@@ -123,11 +123,11 @@ int main()
 //        cerr << "********************* tcp_server_test ******************\n";
         tcp_server_test ();
 //        cerr << "********************************************************\n";
-    } catch (const k::exception &_e) {
-        log_fatal("caught an exception %s", _e.what());
-        log_dump(_e.dump().c_str());
-    } catch (const std::exception &_e) {
-        log_fatal("caught an exception %s", _e.what());
+    } catch (const k::exception &e) {
+        log_fatal("caught an exception %s", e.what());
+        log_dump(e.dump().c_str());
+    } catch (const std::exception &e) {
+        log_fatal("caught an exception %s", e.what());
     } catch (...) {
         log_fatal("caught an undefined exception");
     }

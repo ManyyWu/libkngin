@@ -9,7 +9,7 @@ using namespace k;
 void
 buffer_test ()
 {
-    char _arr[10];
-    cerr << in_buffer(_arr, 10).write_bytes("0123456789", 10).dump() << endl;
-    cerr << out_buffer(_arr, 10).dump() << endl;
+    char arr[10];
+    cerr << in_buffer(arr, 10).write_bytes("0123456789", 10).dump() << endl;
+    cerr << out_buffer(arr, 10).dump() << endl;
 }

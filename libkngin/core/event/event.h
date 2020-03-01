@@ -26,7 +26,7 @@ public:
 public:
     event     () = delete;
 
-    event     (event_handler &&_event_handler);
+    event     (event_handler &&event_handler);
 
     virtual
     ~event    () noexcept;
@@ -45,7 +45,7 @@ public:
 
 private:
     virtual void
-    on_events (event_loop &_loop, uint32_t _flags);
+    on_events (event_loop &loop, uint32_t flags);
 
     void
     on_read   ();

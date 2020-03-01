@@ -69,8 +69,8 @@ public:
 
 public:
     void
-    run            (started_handler &&_start_handler = nullptr,
-                    stopped_handler &&_stop_handler = nullptr);
+    run            (started_handler &&start_handler = nullptr,
+                    stopped_handler &&stop_handler = nullptr);
 
     void
     stop           ();
@@ -82,35 +82,35 @@ public:
 // event
 public:
     void
-    register_event (poller_event_ptr _e);
+    register_event (poller_event_ptr e);
     void
-    remove_event   (poller_event &_e);
+    remove_event   (poller_event &e);
     void
-    update_event   (poller_event &_e);
+    update_event   (poller_event &e);
     bool
-    registed       (poller_event &_e);
+    registed       (poller_event &e);
 
 // task
 public:
     void
-    run_in_loop    (task &&_fn);
+    run_in_loop    (task &&fn);
 
 // timer
 public:
     void
-    cancel         (const timer_ptr &_timer);
+    cancel         (const timer_ptr &timer);
 
     void
-    cancel         (timerid &_id);
+    cancel         (timerid &id);
 
     timerid
-    run_after      (timestamp _delay, timeout_handler &&_handler);
+    run_after      (timestamp delay, timeout_handler &&handler);
 
     timerid
-    run_every      (timestamp _interval, timeout_handler &&_handler);
+    run_every      (timestamp interval, timeout_handler &&handler);
 
     timerid
-    run_at         (timestamp _absval, timeout_handler &&_handler);
+    run_at         (timestamp absval, timeout_handler &&handler);
 
 public:
     bool
@@ -123,7 +123,7 @@ protected:
 
 private:
     size_t
-    io_pool        (poller_event_set &_events);
+    io_pool        (poller_event_set &events);
 
     void
     process_tasks  ();
@@ -137,13 +137,13 @@ private:
 #endif
 
 void
-    sort_events    (poller_event_set &_events, size_t _size);
+    sort_events    (poller_event_set &events, size_t size);
 
     void
-    process_events (poller_event_set &_events, size_t _size);
+    process_events (poller_event_set &events, size_t size);
 
     void
-    add_timer      (timer_ptr &_timer);
+    add_timer      (timer_ptr &timer);
 
 private:
     uint64_t         m_tid;

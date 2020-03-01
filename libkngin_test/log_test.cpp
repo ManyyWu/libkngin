@@ -8,10 +8,10 @@ using namespace k;
 extern void
 log_test ()
 {
-    logger().set_log_callback([] (const char *_file, KNGIN_LOG_LEVEL _level,
-                                  const char *_str, size_t _len) {
+    logger().set_log_callback([] (const char *file, KNGIN_LOG_LEVEL level,
+                                  const char *str, size_t len) {
          // can't call log_xxx
-         std::cout << _str << std::endl;
+         std::cout << str << std::endl;
     });
     log_fatal("server_fatal: %d", 10);
     log_error("server_errror: %d", 10);

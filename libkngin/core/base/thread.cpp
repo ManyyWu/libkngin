@@ -29,9 +29,9 @@ try
     throw;
 }
 
-thread::thread (const char *_name)
+thread::thread (const char *name)
     try
-    : m_name(_name ? _name : ""),
+    : m_name(name ? name : ""),
 #ifdef _WIN32
       m_thr({nullptr, 0}),
 #else
@@ -52,31 +52,31 @@ thread::~thread () noexcept
     if (m_joined or !m_thr)
 #endif
         return;
-    auto _ec = ::pthread_detach(m_thr);
-    if (_ec)
+    auto ec = ::pthread_detach(m_thr);
+    if (ec)
         log_fatal("::pthread_detach() error, name = \"%s\", %s",
-                   m_name.c_str(), system_error_str(CERR(_ec)).c_str());
+                   m_name.c_str(), system_error_str(CERR(ec)).c_str());
     else
         log_info("thread \"%s\" has detached", m_name.c_str());
 }
 
 void
-thread::run (thr_fn &&_fn, crash_handler &&_crash_handler /* = nullptr */)
+thread::run (thr_fn &&fn, crash_handler &&crash_handler /* = nullptr */)
 {
-    assert(_fn);
+    assert(fn);
 
-    auto _ec = ::pthread_create(
+    auto ec = ::pthread_create(
                    &m_thr, nullptr,
                    thread::start,
                    new thread::thread_data(
                        m_name,
-                       std::move(_fn),
-                       std::move(_crash_handler)
+                       std::move(fn),
+                       std::move(crash_handler)
                    )
                );
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_create() error, name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(CERR(_ec)).c_str());
+                  m_name.c_str(), system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_create() error");
     }
 }
@@ -86,16 +86,16 @@ thread::join ()
 {
     assert(!equal_to(ptid()));
 
-    thread_err_code _code;
-    auto _ec = ::pthread_join(m_thr, &_code.ptr);
+    thread_err_code code;
+    auto ec = ::pthread_join(m_thr, &code.ptr);
     m_joined = true;
-    if (_ec) {
+    if (ec) {
         log_fatal("::pthread_join(), name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(CERR(_ec)).c_str());
+                  m_name.c_str(), system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_join() error");
     }
-    log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), _code.code);
-    return _code.code;
+    log_info("thread \"%s\" has joined with code: %d", m_name.c_str(), code.code);
+    return code.code;
 }
 
 void
@@ -103,56 +103,56 @@ thread::cancel ()
 {
     assert(!equal_to(ptid()));
 
-    auto _ec = ::pthread_cancel(m_thr);
-    if (_ec) {
+    auto ec = ::pthread_cancel(m_thr);
+    if (ec) {
         log_fatal("::pthread_cancel(), name = \"%s\", %s",
-                  m_name.c_str(), system_error_str(CERR(_ec)).c_str());
+                  m_name.c_str(), system_error_str(CERR(ec)).c_str());
         throw k::exception("::pthread_cancel() error");
     }
     log_info("thread \"%s\" cancelled", m_name.c_str());
 }
 
 void *
-thread::start (void *_args) noexcept
+thread::start (void *args) noexcept
 {
-    assert(_args);
-    thread_err_code _code;
-    bool _crash = true;
+    assert(args);
+    thread_err_code code;
+    bool crash = true;
 
-    auto _data = static_cast<thread_data *>(_args);
-    assert(_data);
-    pthread_cleanup_push(thread::cleanup, _args);
+    auto data = static_cast<thread_data *>(args);
+    assert(data);
+    pthread_cleanup_push(thread::cleanup, args);
     try {
-        log_info("thread \"%s\" is running, tid = %" PRIu64, _data->name.c_str(), thread::tid());
-        if (_data->fn)
-            _code.code = _data->fn();
-        _crash = false;
-    } catch (const k::exception &_e) {
+        log_info("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
+        if (data->fn)
+            code.code = data->fn();
+        crash = false;
+    } catch (const k::exception &e) {
         log_fatal("caught an exception in thread \"%s\", %s",
-                  _data->name.c_str(), _e.what());
-        log_dump(_e.dump().c_str());
-    } catch (const std::exception &_e) {
+                  data->name.c_str(), e.what());
+        log_dump(e.dump().c_str());
+    } catch (const std::exception &e) {
         log_fatal("caught an exception in thread \"%s\", %s",
-                  _data->name.c_str(), _e.what());
+                  data->name.c_str(), e.what());
     } catch (...) {
         log_fatal("caught an undefined exception in thread \"%s\"",
-                  _data->name.c_str());
+                  data->name.c_str());
     }
-    if (_crash) {
+    if (crash) {
         //assert(0);
-        if (_data->handler)
-            _data->handler(thread::ptid());
+        if (data->handler)
+            data->handler(thread::ptid());
     }
     pthread_cleanup_pop(1);
-    return _code.ptr;
+    return code.ptr;
 }
 
 void
-thread::cleanup (void *_args) noexcept
+thread::cleanup (void *args) noexcept
 {
-    assert(_args);
-    auto _data = static_cast<thread_data *>(_args);
-    safe_release(_data);
+    assert(args);
+    auto data = static_cast<thread_data *>(args);
+    safe_release(data);
 }
 
 uint64_t
@@ -172,31 +172,31 @@ thread::ptid () noexcept
 }
 
 void
-thread::sleep (timestamp _ms) noexcept
+thread::sleep (timestamp ms) noexcept
 {
 #ifdef _WIN32
-    ::Sleep(static_cast<DWORD>(_ms.value_uint()));
+    ::Sleep(static_cast<DWORD>(ms.value_uint()));
 #else
-    ::usleep(_ms.value_uint() * 1000);
+    ::usleep(ms.value_uint() * 1000);
 #endif
 }
 
 bool
-thread::equal_to (pthread_t _t) noexcept
+thread::equal_to (pthread_t t) noexcept
 {
-    return ::pthread_equal(_t, m_thr);
+    return ::pthread_equal(t, m_thr);
 }
 
 bool
-thread::equal (pthread_t _thr1, pthread_t _thr2) noexcept
+thread::equal (pthread_t thr1, pthread_t thr2) noexcept
 {
-    return ::pthread_equal(_thr1, _thr2);
+    return ::pthread_equal(thr1, thr2);
 }
 
 void
-thread::exit (int _err_code) noexcept
+thread::exit (int err_code) noexcept
 {
-    ::pthread_exit(thread::thread_err_code(_err_code).ptr);
+    ::pthread_exit(thread::thread_err_code(err_code).ptr);
 }
 
 KNGIN_NAMESPACE_K_END

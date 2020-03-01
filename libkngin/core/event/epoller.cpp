@@ -34,14 +34,14 @@ epoller::~epoller () noexcept
 }
 
 size_t
-epoller::wait (epoll_event_set &_list, timestamp _ms)
+epoller::wait (epoll_event_set &list, timestamp ms)
 {
-    assert(_list.size());
+    assert(list.size());
     assert(m_epollfd.valid());
-    int _num = ::epoll_wait(m_epollfd.fd(), _list.data(),
-                            static_cast<int>(_list.size()),
-                            static_cast<int>(_ms.value_int()));
-    if (_num < 0) {
+    int num = ::epoll_wait(m_epollfd.fd(), list.data(),
+                            static_cast<int>(list.size()),
+                            static_cast<int>(ms.value_int()));
+    if (num < 0) {
         if (EINTR == errno)
             return 0;
         throw k::system_error("::epoll_wait() error");
@@ -49,15 +49,15 @@ epoller::wait (epoll_event_set &_list, timestamp _ms)
 
 #ifndef NDEBUG
     {
-        local_lock _lock(m_mutex);
-        for (auto &_iter : m_events)
-            if (epoller_event::EVENT_TYPE_TIMER != _iter->type() and
-                is_single_ref_ptr(_iter))
+        local_lock lock(m_mutex);
+        for (auto &iter : m_events)
+            if (epoller_event::EVENT_TYPE_TIMER != iter->type() and
+                is_single_ref_ptr(iter))
                 log_warning("an event that does not be cancelled listening, "
                             "and is only managed by epoller");
     }
 #endif
-    return std::max(_num, 0);
+    return std::max(num, 0);
 }
 
 void
@@ -72,58 +72,58 @@ epoller::close ()
 }
 
 void
-epoller::register_event (epoller_event_ptr _e)
+epoller::register_event (epoller_event_ptr e)
 {
-    assert(_e);
+    assert(e);
     assert(m_epollfd.valid());
     {
-        local_lock _lock(m_mutex);
-        assert(!_e->registed());
-        m_events.push_back(_e);
-        _e->set_registed(true);
-        _e->set_index(m_events.back());
-        update_event(EPOLL_CTL_ADD, _e->fd(), _e.get());
+        local_lock lock(m_mutex);
+        assert(!e->registed());
+        m_events.push_back(e);
+        e->set_registed(true);
+        e->set_index(m_events.back());
+        update_event(EPOLL_CTL_ADD, e->fd(), e.get());
     }
 }
 
 void
-epoller::remove_event (epoller_event &_e)
+epoller::remove_event (epoller_event &e)
 {
     assert(m_epollfd.valid());
     {
-        local_lock _lock(m_mutex);
-        assert(_e.registed());
-        _e.set_registed(false);
-        update_event(EPOLL_CTL_DEL, _e.fd(), &_e);
-        if (auto _index = _e.index().lock())
-            m_events.remove(_index);
+        local_lock lock(m_mutex);
+        assert(e.registed());
+        e.set_registed(false);
+        update_event(EPOLL_CTL_DEL, e.fd(), &e);
+        if (auto index = e.index().lock())
+            m_events.remove(index);
     }
 }
 
 void
-epoller::modify_event (epoller_event &_e)
+epoller::modify_event (epoller_event &e)
 {
     assert(m_epollfd.valid());
     {
-        local_lock _lock(m_mutex);
-        assert(_e.registed());
-        update_event(EPOLL_CTL_MOD, _e.fd(), &_e);
+        local_lock lock(m_mutex);
+        assert(e.registed());
+        update_event(EPOLL_CTL_MOD, e.fd(), &e);
     }
 }
 
 bool
-epoller::registed (epoller_event &_e) noexcept
+epoller::registed (epoller_event &e) noexcept
 {
     assert(m_epollfd.valid());
     {
-        //local_lock _lock(m_mutex);
-        return _e.registed();
-        //return (m_events.find(_e.fd()) != m_events.end());
+        //local_lock lock(m_mutex);
+        return e.registed();
+        //return (m_events.find(e.fd()) != m_events.end());
     }
 }
 
 void
-epoller::update_event (int _opt, int _fd, epoller_event *_e)
+epoller::update_event (int opt, int fd, epoller_event *e)
 {
     /*
      * NOTES:
@@ -139,11 +139,11 @@ epoller::update_event (int _opt, int _fd, epoller_event *_e)
      * in another thread has no effect on select().  In summary, any application that relies on a
      * particular behavior in this scenario must be considered buggy.
      * */
-    assert(_e);
+    assert(e);
     assert(m_epollfd.valid());
 
-    _e->m_event = (epoll_event){_e->m_flags, static_cast<void *>(_e)};
-    if (::epoll_ctl(m_epollfd.fd(), _opt, _fd, &_e->m_event) < 0)
+    e->m_event = (epoll_event){e->m_flags, static_cast<void *>(e)};
+    if (::epoll_ctl(m_epollfd.fd(), opt, fd, &e->m_event) < 0)
         throw k::system_error("::epoll_ctl() error");
 }
 

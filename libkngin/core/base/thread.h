@@ -31,8 +31,8 @@ public:
         { ptr = nullptr; code = 0; }
 
         explicit
-        thread_err_code (int _code) noexcept
-        { ptr = nullptr; code = _code; }
+        thread_err_code (int code) noexcept
+        { ptr = nullptr; code = code; }
     };
 
     struct thread_data {
@@ -42,24 +42,24 @@ public:
 
         crash_handler handler;
 
-        thread_data (const std::string &_name,
-                     thr_fn &&_fn,
-                     crash_handler &&_handler)
-            : name(_name), fn(std::move(_fn)), handler(std::move(_handler)) {}
+        thread_data (const std::string &name,
+                     thr_fn &&fn,
+                     crash_handler &&handler)
+            : name(name), fn(std::move(fn)), handler(std::move(handler)) {}
     };
 
 public:
     thread        ();
 
     explicit
-    thread        (const char *_name);
+    thread        (const char *name);
 
     virtual
     ~thread       () noexcept;
 
 public:
     void
-    run           (thr_fn &&_fn, crash_handler &&_crash_handler = nullptr);
+    run           (thr_fn &&fn, crash_handler &&crash_handler = nullptr);
 
     int
     join          ();
@@ -87,23 +87,23 @@ public:
     ptid          () noexcept;
 
     static void
-    sleep         (timestamp _ms) noexcept;
+    sleep         (timestamp ms) noexcept;
 
     static bool
-    equal         (pthread_t _thr1, pthread_t _thr2) noexcept;
+    equal         (pthread_t thr1, pthread_t thr2) noexcept;
 
     bool
-    equal_to      (pthread_t _t) noexcept;
+    equal_to      (pthread_t t) noexcept;
 
     static void
-    exit          (int _err_code) noexcept;
+    exit          (int err_code) noexcept;
 
 protected:
     static void *
-    start         (void *_args) noexcept;
+    start         (void *args) noexcept;
 
     static void
-    cleanup       (void *_args) noexcept;
+    cleanup       (void *args) noexcept;
 
 protected:
     const std::string m_name;

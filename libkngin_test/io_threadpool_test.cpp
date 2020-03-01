@@ -17,11 +17,11 @@ func ()
 extern void
 io_threadpool_test ()
 {
-    io_threadpool _pool(10);
-    _pool.start(nullptr);
+    io_threadpool pool(10);
+    pool.start(nullptr);
 
-    for (int _i = 0; _i < 100; ++_i)
-        _pool.add_task(func);
+    for (int i = 0; i < 100; ++i)
+        pool.add_task(func);
 
     thread::sleep(5000);
 }

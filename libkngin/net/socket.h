@@ -39,15 +39,15 @@ typedef int    len_type;
 class filefd
 {
 public:
-    filefd  (socket_type _fd) noexcept
-        : m_fd(_fd) {}
+    filefd  (socket_type fd) noexcept
+        : m_fd(fd) {}
 
 public:
     void
     close ();
 
     void
-    close (error_code &_ec) noexcept;
+    close (error_code &ec) noexcept;
 
 public:
     bool
@@ -86,58 +86,58 @@ public:
     socket      () = delete;
 
     explicit
-    socket      (socket_type _fd);
+    socket      (socket_type fd);
 
     explicit
-    socket      (INET_PROTOCOL _proto);
+    socket      (INET_PROTOCOL proto);
 
-    socket      (socket &&_s) noexcept;
+    socket      (socket &&s) noexcept;
 
     virtual
     ~socket     () noexcept;
 
 public:
     void
-    bind        (const address &_addr);
+    bind        (const address &addr);
 
     void
-    bind        (const address &_addr, error_code &_ec) noexcept;
+    bind        (const address &addr, error_code &ec) noexcept;
 
     void
-    listen      (int _backlog);
+    listen      (int backlog);
 
     void
-    listen      (int _backlog, error_code &_ec) noexcept;
+    listen      (int backlog, error_code &ec) noexcept;
 
     socket_type
-    accept      (address &_addr);
+    accept      (address &addr);
 
     socket_type
-    accept      (address &_addr, error_code &_ec) noexcept;
+    accept      (address &addr, error_code &ec) noexcept;
 
     void
-    connect     (const address &_addr);
+    connect     (const address &addr);
 
     void
-    connect     (const address &_addr, error_code &_ec) noexcept;
+    connect     (const address &addr, error_code &ec) noexcept;
 
     virtual void
     close       ();
 
     virtual void
-    close       (error_code &_ec) noexcept;
+    close       (error_code &ec) noexcept;
 
     void
     rd_shutdown ();
 
     void
-    rd_shutdown (error_code &_ec) noexcept;
+    rd_shutdown (error_code &ec) noexcept;
 
     void
     wr_shutdown ();
 
     void
-    wr_shutdown (error_code &_ec) noexcept;
+    wr_shutdown (error_code &ec) noexcept;
 
     bool
     rd_closed   () const noexcept
@@ -150,65 +150,65 @@ public:
 #ifdef _WIN32
 public:
     size_t
-    write       (out_buffer &_buf)
-    { return this->send(_buf, 0); }
+    write       (out_buffer &buf)
+    { return this->send(buf, 0); }
 
     size_t
-    write       (out_buffer &_buf, error_code &_ec) noexcept
-    { return this->send(_buf, 0, _ec); }
+    write       (out_buffer &buf, error_code &ec) noexcept
+    { return this->send(buf, 0, ec); }
 
     size_t
-    read        (in_buffer &_buf)
-    { return this->recv(_buf, 0); }
+    read        (in_buffer &buf)
+    { return this->recv(buf, 0); }
 
     size_t
-    read        (in_buffer &_buf, error_code &_ec) noexcept
-    { return this->recv(_buf, 0, _ec); }
+    read        (in_buffer &buf, error_code &ec) noexcept
+    { return this->recv(buf, 0, ec); }
 #endif
 
 public:
     size_t
-    send        (out_buffer &_buf, int _flags);
+    send        (out_buffer &buf, int flags);
 
     size_t
-    send        (out_buffer &_buf, int _flags,
-                 error_code &_ec) noexcept;
+    send        (out_buffer &buf, int flags,
+                 error_code &ec) noexcept;
 
     size_t
-    recv        (in_buffer &_buf, int _flags);
+    recv        (in_buffer &buf, int flags);
 
     size_t
-    recv        (in_buffer &_buf, int _flags,
-                 error_code &_ec) noexcept;
+    recv        (in_buffer &buf, int flags,
+                 error_code &ec) noexcept;
 
     size_t
-    sendto      (const address &_addr, out_buffer &_buf,
-                 int _flags);
+    sendto      (const address &addr, out_buffer &buf,
+                 int flags);
 
     size_t
-    sendto      (const address &_addr, out_buffer &_buf,
-                 int _flags, error_code &_ec) noexcept;
+    sendto      (const address &addr, out_buffer &buf,
+                 int flags, error_code &ec) noexcept;
 
     size_t
-    recvfrom    (address &_addr, in_buffer &_buf,
-                 int _flags);
+    recvfrom    (address &addr, in_buffer &buf,
+                 int flags);
 
     size_t
-    recvfrom    (address &_addr, in_buffer &_buf,
-                 int _flags, error_code &_ec) noexcept;
+    recvfrom    (address &addr, in_buffer &buf,
+                 int flags, error_code &ec) noexcept;
 
 public:
     address
     localaddr   () const;
 
     address
-    localaddr   (error_code &_ec) const noexcept;
+    localaddr   (error_code &ec) const noexcept;
 
     address
     peeraddr    () const;
 
     address
-    peeraddr    (error_code &_ec) const noexcept;
+    peeraddr    (error_code &ec) const noexcept;
 
     std::string
     name        () const;
