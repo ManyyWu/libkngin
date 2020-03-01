@@ -1,8 +1,12 @@
 #ifndef KNGIN_DEFINE_H
 #define KNGIN_DEFINE_H
 
+// includes
+#include <ciso646>
 #include <cstdint>
 #include <climits>
+#include <cstddef>
+#include "kngin/config.h"
 
 // version
 #define KNGIN_VERSION 0.10lf
@@ -15,10 +19,6 @@
 #  pragma comment(lib,"ws2_32.lib")
 #  pragma warning(disable: 4996)
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
-
-// includes
-#include <ciso646>
-#include "core/base/config.h"
 
 // types
 #if defined(KNGIN_SYSTEM_WIN32)
@@ -36,6 +36,12 @@
 #define KNGIN_NAMESPACE_TCP_END   };
 #define KNGIN_NAMESPACE_UDP_BEGIN namespace udp {
 #define KNGIN_NAMESPACE_UDP_END   };
+
+// log
+#if defined(KNGIN_LOG_RELATIVE_PATH)
+#  undef FILENAME
+#  define FILENAME (__FILE__ + g_path_prefix_size)
+#endif /* (ON == KNGIN_LOG_RELATIVE_PATH) */
 
 #endif /* KNGIN_DEFINE_H */
 

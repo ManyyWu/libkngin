@@ -11,7 +11,7 @@ set(SOVERSION "0.1")
 set(CMAKE_BUILD_TYPE        "Debug")
 set(CMAKE_CXX_FLAGS_DEBUG   "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb3 -pg -rdynamic")
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O0 -Wall -rdynamic")
-set(LIBRARY_OUTPUT_PATH     ${PROJECT_SOURCE_DIR}/build/test/)
+set(LIBRARY_OUTPUT_PATH     ${PROJECT_SOURCE_DIR}/build/lib/)
 set(CMAKE_INSTALL_PREFIX    ${PROJECT_SOURCE_DIR}/build)
 
 # include
@@ -61,3 +61,5 @@ install(TARGETS kngin kngin-static
         PUBLIC_HEADER DESTINATION include
         )
 install(FILES libkngin/include/libkngin.h DESTINATION include)
+
+add_subdirectory(test)
