@@ -7,8 +7,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 void
-exception::dump_stack ()
-{
+exception::dump_stack () {
 #if defined(KNGIN_SYSTEM_WIN32)
 #else
   void * array[100];

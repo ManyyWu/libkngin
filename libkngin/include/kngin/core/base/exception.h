@@ -35,12 +35,12 @@ public:
   ~exception () = default;
 
   virtual const char *
-  what       () const noexcept {
+  what () const noexcept {
     return what_.c_str();
   }
 
   const char *
-  dump       () const noexcept {
+  dump () const noexcept {
     return dump_str_.c_str();
   }
 

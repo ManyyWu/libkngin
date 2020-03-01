@@ -3,7 +3,7 @@
 
 // includes
 #include <ciso646>
-#include <cstdint>
+#include <cinttypes>
 #include <climits>
 #include <cstddef>
 #include "kngin/config.h"
