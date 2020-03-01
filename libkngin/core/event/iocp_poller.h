@@ -32,7 +32,7 @@ public:
 public:
     iocp_poller    ();
 
-    ~iocp_poller   () KNGIN_NOEXCP;
+    ~iocp_poller   () noexcept;
 
 public:
     size_t
@@ -46,7 +46,7 @@ public:
     close          ();
 
     bool
-    closed         () KNGIN_NOEXCP
+    closed         () noexcept
     { return (INVALID_HANDLE_VALUE == m_iocp_handle); }
 
 public:
@@ -60,7 +60,7 @@ public:
     modify_event   (iocp_event &_e);
 
     bool
-    registed       (iocp_event &_e) KNGIN_NOEXCP;
+    registed       (iocp_event &_e) noexcept;
 
 private:
     size_t

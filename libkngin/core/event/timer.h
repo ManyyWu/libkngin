@@ -39,10 +39,10 @@ public:
 
     public:
         timestamp
-        interval   () const KNGIN_NOEXCP;
+        interval   () const noexcept;
 
         bool
-        abs        () const KNGIN_NOEXCP;
+        abs        () const noexcept;
 
         bool
         cancelled  ()
@@ -50,7 +50,7 @@ public:
 
     public:
         int
-        key        () const KNGIN_NOEXCP;
+        key        () const noexcept;
 
         timer_weak_ptr
         weak_ptr   ()
@@ -66,7 +66,7 @@ public:
     timer     (timeout_handler &&_handler);
 
     virtual
-    ~timer    () KNGIN_NOEXCP;
+    ~timer    () noexcept;
 
 public:
     void
@@ -82,7 +82,7 @@ public:
     { return shared_from_this(); }
 
     int
-    key       () const KNGIN_NOEXCP
+    key       () const noexcept
     { return fd(); }
 
 private:
@@ -134,11 +134,11 @@ public:
 
     public:
         timestamp
-        interval   () const KNGIN_NOEXCP
+        interval   () const noexcept
         { if (auto _timer = m_timer.lock()) return assert(_timer), _timer->m_timeout.interval(); return 0ULL; }
 
         bool
-        persist    () const KNGIN_NOEXCP
+        persist    () const noexcept
         { if (auto _timer = m_timer.lock()) return assert(_timer), _timer->m_timeout.persist(); return false; }
 
         bool
@@ -171,7 +171,7 @@ public:
     { m_timeout.clear(); m_closed = true; }
 
     bool
-    closed    () const KNGIN_NOEXCP
+    closed    () const noexcept
     { return m_closed; }
 
 private:

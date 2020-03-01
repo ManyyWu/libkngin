@@ -25,14 +25,14 @@ timeout::timeout (timestamp _now_time, timestamp  _interval, bool _persist)
 }
 
 timestamp
-timeout::remaining () const KNGIN_NOEXCP
+timeout::remaining () const noexcept
 {
     time_t _diff = timestamp::diff(timestamp::monotonic(), m_update_time);
     return (_diff > m_interval.value() ? 0 : m_interval.value() - _diff);
 }
 
 timestamp
-timeout::remaining (timestamp _now_time) const KNGIN_NOEXCP
+timeout::remaining (timestamp _now_time) const noexcept
 {
     time_t _diff = timestamp::diff(_now_time, m_update_time);
     return (_diff > m_interval.value() ? 0 : m_interval.value() - _diff);

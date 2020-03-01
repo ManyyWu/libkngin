@@ -33,10 +33,6 @@ typedef _W64 unsigned int ssize_t;
 #endif
 #endif
 
-// for exception
-//#define KNGIN_EXCP noexcept(false)
-#define KNGIN_NOEXCP noexcept(true)
-
 // namespace
 #define KNGIN_NAMESPACE_K_BEGIN   namespace k {
 #define KNGIN_NAMESPACE_K_END     };

@@ -27,7 +27,7 @@ epoller::epoller ()
     throw;
 }
 
-epoller::~epoller () KNGIN_NOEXCP
+epoller::~epoller () noexcept
 {
     if (m_epollfd.valid())
         ignore_excp(this->close());
@@ -112,7 +112,7 @@ epoller::modify_event (epoller_event &_e)
 }
 
 bool
-epoller::registed (epoller_event &_e) KNGIN_NOEXCP
+epoller::registed (epoller_event &_e) noexcept
 {
     assert(m_epollfd.valid());
     {

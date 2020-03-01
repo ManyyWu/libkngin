@@ -39,7 +39,7 @@ typedef int    len_type;
 class filefd
 {
 public:
-    filefd  (socket_type _fd) KNGIN_NOEXCP
+    filefd  (socket_type _fd) noexcept
         : m_fd(_fd) {}
 
 public:
@@ -47,19 +47,19 @@ public:
     close ();
 
     void
-    close (error_code &_ec) KNGIN_NOEXCP;
+    close (error_code &_ec) noexcept;
 
 public:
     bool
-    invalid () const KNGIN_NOEXCP
+    invalid () const noexcept
     { return FD_INVALID(m_fd); }
 
     bool
-    valid   () const KNGIN_NOEXCP
+    valid   () const noexcept
     { return FD_VALID(m_fd); }
 
     socket_type
-    fd      () const KNGIN_NOEXCP
+    fd      () const noexcept
     { return m_fd; } 
 
 protected:
@@ -91,60 +91,60 @@ public:
     explicit
     socket      (INET_PROTOCOL _proto);
 
-    socket      (socket &&_s) KNGIN_NOEXCP;
+    socket      (socket &&_s) noexcept;
 
     virtual
-    ~socket     () KNGIN_NOEXCP;
+    ~socket     () noexcept;
 
 public:
     void
     bind        (const address &_addr);
 
     void
-    bind        (const address &_addr, error_code &_ec) KNGIN_NOEXCP;
+    bind        (const address &_addr, error_code &_ec) noexcept;
 
     void
     listen      (int _backlog);
 
     void
-    listen      (int _backlog, error_code &_ec) KNGIN_NOEXCP;
+    listen      (int _backlog, error_code &_ec) noexcept;
 
     socket_type
     accept      (address &_addr);
 
     socket_type
-    accept      (address &_addr, error_code &_ec) KNGIN_NOEXCP;
+    accept      (address &_addr, error_code &_ec) noexcept;
 
     void
     connect     (const address &_addr);
 
     void
-    connect     (const address &_addr, error_code &_ec) KNGIN_NOEXCP;
+    connect     (const address &_addr, error_code &_ec) noexcept;
 
     virtual void
     close       ();
 
     virtual void
-    close       (error_code &_ec) KNGIN_NOEXCP;
+    close       (error_code &_ec) noexcept;
 
     void
     rd_shutdown ();
 
     void
-    rd_shutdown (error_code &_ec) KNGIN_NOEXCP;
+    rd_shutdown (error_code &_ec) noexcept;
 
     void
     wr_shutdown ();
 
     void
-    wr_shutdown (error_code &_ec) KNGIN_NOEXCP;
+    wr_shutdown (error_code &_ec) noexcept;
 
     bool
-    rd_closed   () const KNGIN_NOEXCP
+    rd_closed   () const noexcept
     { return m_rd_closed; }
 
     bool
-    wr_closed   () const KNGIN_NOEXCP
+    wr_closed   () const noexcept
     { return m_wr_closed; }
 
 #ifdef _WIN32
@@ -154,7 +154,7 @@ public:
     { return this->send(_buf, 0); }
 
     size_t
-    write       (out_buffer &_buf, error_code &_ec) KNGIN_NOEXCP
+    write       (out_buffer &_buf, error_code &_ec) noexcept
     { return this->send(_buf, 0, _ec); }
 
     size_t
@@ -162,7 +162,7 @@ public:
     { return this->recv(_buf, 0); }
 
     size_t
-    read        (in_buffer &_buf, error_code &_ec) KNGIN_NOEXCP
+    read        (in_buffer &_buf, error_code &_ec) noexcept
     { return this->recv(_buf, 0, _ec); }
 #endif
 
@@ -172,14 +172,14 @@ public:
 
     size_t
     send        (out_buffer &_buf, int _flags,
-                 error_code &_ec) KNGIN_NOEXCP;
+                 error_code &_ec) noexcept;
 
     size_t
     recv        (in_buffer &_buf, int _flags);
 
     size_t
     recv        (in_buffer &_buf, int _flags,
-                 error_code &_ec) KNGIN_NOEXCP;
+                 error_code &_ec) noexcept;
 
     size_t
     sendto      (const address &_addr, out_buffer &_buf,
@@ -187,7 +187,7 @@ public:
 
     size_t
     sendto      (const address &_addr, out_buffer &_buf,
-                 int _flags, error_code &_ec) KNGIN_NOEXCP;
+                 int _flags, error_code &_ec) noexcept;
 
     size_t
     recvfrom    (address &_addr, in_buffer &_buf,
@@ -195,20 +195,20 @@ public:
 
     size_t
     recvfrom    (address &_addr, in_buffer &_buf,
-                 int _flags, error_code &_ec) KNGIN_NOEXCP;
+                 int _flags, error_code &_ec) noexcept;
 
 public:
     address
     localaddr   () const;
 
     address
-    localaddr   (error_code &_ec) const KNGIN_NOEXCP;
+    localaddr   (error_code &_ec) const noexcept;
 
     address
     peeraddr    () const;
 
     address
-    peeraddr    (error_code &_ec) const KNGIN_NOEXCP;
+    peeraddr    (error_code &_ec) const noexcept;
 
     std::string
     name        () const;

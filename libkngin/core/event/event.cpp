@@ -29,7 +29,7 @@ event::event (event_handler &&_event_handler)
     throw;
 }
 
-event::~event() KNGIN_NOEXCP
+event::~event() noexcept
 {
     if (registed())
         log_warning("the timer must be closed"

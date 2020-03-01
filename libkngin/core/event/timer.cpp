@@ -31,7 +31,7 @@ timer::timerid::operator = (const timerid &_timer)
 }
 
 timestamp
-timer::timerid::interval () const KNGIN_NOEXCP
+timer::timerid::interval () const noexcept
 {
     if (auto _timer = m_timer.lock())
         return assert(_timer), _timer->m_interval;
@@ -39,7 +39,7 @@ timer::timerid::interval () const KNGIN_NOEXCP
 }
 
 bool
-timer::timerid::abs () const KNGIN_NOEXCP
+timer::timerid::abs () const noexcept
 {
     if (auto _timer = m_timer.lock())
         return assert(_timer), _timer->m_abs;
@@ -47,7 +47,7 @@ timer::timerid::abs () const KNGIN_NOEXCP
 }
 
 int
-timer::timerid::key () const KNGIN_NOEXCP
+timer::timerid::key () const noexcept
 {
     if (auto _timer = m_timer.lock())
         return assert(_timer), _timer->key();
@@ -71,7 +71,7 @@ try
     throw;
 }
 
-timer::~timer () KNGIN_NOEXCP
+timer::~timer () noexcept
 {
     if (registed())
         log_warning("the timer must be closed"

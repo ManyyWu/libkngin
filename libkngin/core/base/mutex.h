@@ -18,7 +18,7 @@ class mutex : public noncopyable {
 public:
     mutex         ();
 
-    ~mutex        () KNGIN_NOEXCP;
+    ~mutex        () noexcept;
 
 public:
     void

@@ -30,7 +30,7 @@ public:
 public:
     epoller        ();
 
-    ~epoller       () KNGIN_NOEXCP;
+    ~epoller       () noexcept;
 
 public:
     size_t
@@ -41,7 +41,7 @@ public:
     close          ();
 
     bool
-    closed         () KNGIN_NOEXCP
+    closed         () noexcept
     { return m_epollfd.invalid(); }
 
 public:
@@ -55,7 +55,7 @@ public:
     modify_event   (epoller_event &_e);
 
     bool
-    registed       (epoller_event &_e) KNGIN_NOEXCP;
+    registed       (epoller_event &_e) noexcept;
 
 private:
     void

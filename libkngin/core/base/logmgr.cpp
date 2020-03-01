@@ -126,7 +126,7 @@ log_mgr::log_thread ()
 #endif
 
 log &
-log_mgr::operator [] (size_t _index) KNGIN_NOEXCP
+log_mgr::operator [] (size_t _index) noexcept
 {
     assert(log_mgr::m_inited);
     assert(log_mgr::m_log_set.size() == log_mgr::m_logfile_set.size());
@@ -134,7 +134,7 @@ log_mgr::operator [] (size_t _index) KNGIN_NOEXCP
 }
 
 const std::string &
-log_mgr::filename_at (size_t _index) KNGIN_NOEXCP
+log_mgr::filename_at (size_t _index) noexcept
 {
     assert(log_mgr::m_inited);
     assert(_index < log_mgr::m_log_set.size());

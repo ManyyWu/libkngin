@@ -43,7 +43,7 @@ address::inet6 () const
 }
 
 int
-address::size () const KNGIN_NOEXCP
+address::size () const noexcept
 {
     return (inet6() ? sizeof(struct ::sockaddr_in6) : sizeof(struct ::sockaddr_in));
 }
@@ -63,13 +63,13 @@ address::addrstr () const
 }
 
 uint16_t
-address::port () const KNGIN_NOEXCP
+address::port () const noexcept
 {
     return ::ntohs(inet6() ? m_sa.v4.sin_port : m_sa.v6.sin6_port);
 }
 
 bool
-address::is_ipv4_mapped () const KNGIN_NOEXCP
+address::is_ipv4_mapped () const noexcept
 {
     assert(inet6());
     return IN6_IS_ADDR_V4MAPPED(&m_sa.v6.sin6_addr);

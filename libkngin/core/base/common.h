@@ -87,14 +87,14 @@ arg_check_func(bool _exp, const char *_what = nullptr)
 // nullptr reference
 template <typename Type>
 Type &
-nullptr_ref () KNGIN_NOEXCP
+nullptr_ref () noexcept
 {
     return *static_cast<Type *>(nullptr);
 }
 
 template <typename Type>
 bool
-is_nullptr_ref (Type &_ref) KNGIN_NOEXCP
+is_nullptr_ref (Type &_ref) noexcept
 {
     return (!_ref);
 }

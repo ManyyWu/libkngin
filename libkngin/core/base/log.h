@@ -93,16 +93,16 @@ public:
 
 public:
     void
-    disable_info  () KNGIN_NOEXCP { m_disable_info = true; }
+    disable_info  () noexcept { m_disable_info = true; }
 
     void
-    disable_debug () KNGIN_NOEXCP { m_disable_debug = true; }
+    disable_debug () noexcept { m_disable_debug = true; }
 
     void
-    enable_info   () KNGIN_NOEXCP { m_disable_info = false; }
+    enable_info   () noexcept { m_disable_info = false; }
 
     void
-    enable_debug  () KNGIN_NOEXCP { m_disable_debug = false; }
+    enable_debug  () noexcept { m_disable_debug = false; }
 
 public:
     void
@@ -133,25 +133,25 @@ public:
 
 private:
     static bool
-    write_logfile (const char *_file, const char *_fmt, size_t _len) KNGIN_NOEXCP;
+    write_logfile (const char *_file, const char *_fmt, size_t _len) noexcept;
 
     static void
     write_stderr  (KNGIN_LOG_LEVEL _level,
-                   const char *_str, size_t _len) KNGIN_NOEXCP;
+                   const char *_str, size_t _len) noexcept;
 
     static void
     write_stderr2 (KNGIN_LOG_LEVEL _level,
-                   const char *_fmt, ...) KNGIN_NOEXCP;
+                   const char *_fmt, ...) noexcept;
 
 private:
     static const char *
-    get_datetime  (char _datetime[], size_t _size) KNGIN_NOEXCP;
+    get_datetime  (char _datetime[], size_t _size) noexcept;
 
     static const char *
-    color_begin   (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP;
+    color_begin   (KNGIN_LOG_LEVEL _level) noexcept;
 
     static const char *
-    color_end     () KNGIN_NOEXCP;
+    color_end     () noexcept;
 
 private:
 #if (ON == KNGIN_ENABLE_LOG_MUTEX)

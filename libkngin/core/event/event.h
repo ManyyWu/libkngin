@@ -29,7 +29,7 @@ public:
     event     (event_handler &&_event_handler);
 
     virtual
-    ~event    () KNGIN_NOEXCP;
+    ~event    () noexcept;
 
 public:
     void

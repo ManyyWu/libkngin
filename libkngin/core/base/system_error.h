@@ -48,11 +48,11 @@ public:
 
 public:
     virtual const char *
-    what          () const KNGIN_NOEXCP
+    what          () const noexcept
     { return m_what.c_str(); }
 
     virtual const error_code
-    code          () const KNGIN_NOEXCP
+    code          () const noexcept
     { return m_ec; }
 
 private:

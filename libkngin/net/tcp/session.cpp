@@ -82,7 +82,7 @@ session::session (event_loop &_loop, k::socket &&_socket,
     throw;
 }
 
-session::~session () KNGIN_NOEXCP
+session::~session () noexcept
 {
     if (!m_closed or registed()) {
         log_warning("the TCP session must be closed before object disconstructing");

@@ -23,55 +23,55 @@ public:
     filefd        () = delete;
 
     explicit
-    filefd        (filefd_type _fd) KNGIN_NOEXCP;
+    filefd        (filefd_type _fd) noexcept;
 
-    filefd        (filefd &&_fd) KNGIN_NOEXCP;
+    filefd        (filefd &&_fd) noexcept;
 
     virtual
-    ~filefd       () KNGIN_NOEXCP;
+    ~filefd       () noexcept;
 
 public:
     bool
-    valid         () const KNGIN_NOEXCP
+    valid         () const noexcept
     { return FD_VALID(m_fd); }
 
     bool
-    invalid       () const KNGIN_NOEXCP
+    invalid       () const noexcept
     { return FD_INVALID(m_fd); }
 
     filefd_type
-    fd            () const KNGIN_NOEXCP
+    fd            () const noexcept
     { return m_fd; }
 
     size_t
     write         (out_buffer &_buf);
 
     size_t
-    write         (out_buffer &_buf, error_code &_ec) KNGIN_NOEXCP;
+    write         (out_buffer &_buf, error_code &_ec) noexcept;
 
     size_t
     read          (in_buffer &_buf);
 
     size_t
-    read          (in_buffer &_buf, error_code &_ec) KNGIN_NOEXCP;
+    read          (in_buffer &_buf, error_code &_ec) noexcept;
 
     size_t
     writen        (out_buffer &&_buf);
 
     size_t
-    writen        (out_buffer &&_buf, error_code &_ec) KNGIN_NOEXCP;
+    writen        (out_buffer &&_buf, error_code &_ec) noexcept;
 
     size_t
     readn         (in_buffer &_buf);
 
     size_t
-    readn         (in_buffer &_buf, error_code &_ec) KNGIN_NOEXCP;
+    readn         (in_buffer &_buf, error_code &_ec) noexcept;
 
 //    size_t
 //    writev        (out_vector &_buf);
 //
 //    size_t
-//    writev        (out_vector &_buf, error_code &_ec) KNGIN_NOEXCP;
+//    writev        (out_vector &_buf, error_code &_ec) noexcept;
 //
 //    size_t
 //    readv         (in_vector &_buf);
@@ -83,13 +83,13 @@ public:
     readable      ();
 
     size_t
-    readable      (error_code &_ec) KNGIN_NOEXCP;
+    readable      (error_code &_ec) noexcept;
 
     virtual void
     close         ();
 
     virtual void
-    close         (error_code &_ec) KNGIN_NOEXCP;
+    close         (error_code &_ec) noexcept;
 
     filefd_type
     dup           ();
@@ -98,30 +98,30 @@ public:
     dup           (error_code &_ec);
 
     error_code
-    read_error    () KNGIN_NOEXCP;
+    read_error    () noexcept;
 
 public:
     void
     set_nonblock  (bool _on);
 
     void
-    set_nonblock  (bool _on, error_code &_ec) KNGIN_NOEXCP;
+    set_nonblock  (bool _on, error_code &_ec) noexcept;
 
     void
     set_closeexec (bool _on);
 
     void
-    set_closeexec (bool _on, error_code &_ec) KNGIN_NOEXCP;
+    set_closeexec (bool _on, error_code &_ec) noexcept;
 
     bool
     nonblock      () const;
 
     bool
-    nonblock      (error_code &_ec) const KNGIN_NOEXCP;
+    nonblock      (error_code &_ec) const noexcept;
 
 public:
     filefd &
-    operator =    (filefd_type _fd) KNGIN_NOEXCP;
+    operator =    (filefd_type _fd) noexcept;
 
 public:
     static filefd_type invalid_fd;

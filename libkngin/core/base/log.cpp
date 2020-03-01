@@ -186,7 +186,7 @@ log::write_log (KNGIN_LOG_LEVEL _level, const char *_fmt, va_list _vl)
 }
 
 bool
-log::write_logfile (const char *_file, const char *_str, size_t _len) KNGIN_NOEXCP
+log::write_logfile (const char *_file, const char *_str, size_t _len) noexcept
 {
     assert(_file);
     assert(_str);
@@ -252,7 +252,7 @@ fail:
 }
 
 const char *
-log::get_datetime (char _datetime[], size_t _size) KNGIN_NOEXCP
+log::get_datetime (char _datetime[], size_t _size) noexcept
 {
     assert(_size >= KNGIN_LOG_DATETIME_LEN);
     time_t _t = ::time(nullptr);
@@ -267,7 +267,7 @@ log::get_datetime (char _datetime[], size_t _size) KNGIN_NOEXCP
 }
 
 const char *
-log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP
+log::color_begin (KNGIN_LOG_LEVEL _level) noexcept
 {
 #ifdef _WIN32
     return "";
@@ -277,7 +277,7 @@ log::color_begin (KNGIN_LOG_LEVEL _level) KNGIN_NOEXCP
 }
 
 const char *
-log::color_end () KNGIN_NOEXCP
+log::color_end () noexcept
 {
 #ifdef _WIN32
     return "";
@@ -287,7 +287,7 @@ log::color_end () KNGIN_NOEXCP
 }
 
 void
-log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) KNGIN_NOEXCP
+log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) noexcept
 {
     assert(_str);
 
@@ -298,7 +298,7 @@ log::write_stderr (KNGIN_LOG_LEVEL _level, const char *_str, size_t _len) KNGIN_
 }
 
 void
-log::write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...) KNGIN_NOEXCP
+log::write_stderr2 (KNGIN_LOG_LEVEL _level, const char *_fmt, ...) noexcept
 {
     assert(_fmt);
 

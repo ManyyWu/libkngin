@@ -10,7 +10,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 iocp_event::iocp_event (HANDLE _handle, EVENT_TYPE _type,
-                        uint8_t _priority /* = UINT8_MAX*/) KNGIN_NOEXCP
+                        uint8_t _priority /* = UINT8_MAX*/) noexcept
     : m_flags(IOCP_EVENT_HUP | IOCP_EVENT_ERR),
       m_handle(_handle),
       m_registed(false),
@@ -20,7 +20,7 @@ iocp_event::iocp_event (HANDLE _handle, EVENT_TYPE _type,
 {
 }
 
-iocp_event::iocp_event (iocp_event &&_e) KNGIN_NOEXCP
+iocp_event::iocp_event (iocp_event &&_e) noexcept
     : m_flags(_e.m_flags),
       m_handle(_e.m_handle),
       m_registed(false),

@@ -61,7 +61,7 @@ listener::listener (event_loop &_loop, k::socket &&_socket,
     throw;
 }
 
-listener::~listener () KNGIN_NOEXCP
+listener::~listener () noexcept
 {
     if (!m_closed and registed())
         ignore_excp(this->close(true));

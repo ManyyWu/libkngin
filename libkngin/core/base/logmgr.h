@@ -47,27 +47,27 @@ private:
 
 public:
     log &
-    operator []      (size_t _index) KNGIN_NOEXCP;
+    operator []      (size_t _index) noexcept;
 
     int
     add              (const std::string &_filename, KNGIN_LOG_MODE _mode) = delete;
 
     const std::string &
-    filename_at      (size_t _index) KNGIN_NOEXCP;
+    filename_at      (size_t _index) noexcept;
 
 public:
     bool
-    inited           () const KNGIN_NOEXCP
+    inited           () const noexcept
     { return log_mgr::m_inited; }
 
     // no thread-safe
     void
-    set_log_callback (log_callback _cb) KNGIN_NOEXCP
+    set_log_callback (log_callback _cb) noexcept
     { m_log_cb = _cb; }
 
     // no thread-safe
     log_callback
-    get_log_callback () KNGIN_NOEXCP
+    get_log_callback () noexcept
     { return m_log_cb; }
 
 private:

@@ -19,7 +19,7 @@ public:
     explicit
     barrier        (int _count);
 
-    ~barrier       () KNGIN_NOEXCP;
+    ~barrier       () noexcept;
 
 public:
     void
@@ -32,7 +32,7 @@ public:
     destroy        ();
 
     bool
-    destroyed      () const KNGIN_NOEXCP
+    destroyed      () const noexcept
     { return !m_inited; }
 
 private:

@@ -18,7 +18,7 @@ rwlock::rwlock ()
 {
 }
 
-rwlock::~rwlock () KNGIN_NOEXCP
+rwlock::~rwlock () noexcept
 {
     ignore_excp(
         auto _ec = ::pthread_rwlock_destroy(&m_rwlock);

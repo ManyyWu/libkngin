@@ -37,29 +37,29 @@ public:
 
     explicit
     epoller_event  (epollfd _fd, EVENT_TYPE _type, 
-                    uint8_t _priority = UINT8_MAX) KNGIN_NOEXCP;
+                    uint8_t _priority = UINT8_MAX) noexcept;
 
-    epoller_event  (epoller_event &&_e) KNGIN_NOEXCP;
+    epoller_event  (epoller_event &&_e) noexcept;
 
     virtual
-    ~epoller_event () KNGIN_NOEXCP {};
+    ~epoller_event () noexcept {};
 
 public:
     bool
-    registed       () const KNGIN_NOEXCP
+    registed       () const noexcept
     { return m_registed; }
 
     EVENT_TYPE
-    type           () const KNGIN_NOEXCP
+    type           () const noexcept
     { return m_type; }
 
     uint8_t
-    priority       () const KNGIN_NOEXCP
+    priority       () const noexcept
     { return m_priority; }
 
 protected:
     void
-    set_registed   (bool _on) KNGIN_NOEXCP
+    set_registed   (bool _on) noexcept
     { m_registed = _on; }
 
     void
@@ -67,46 +67,46 @@ protected:
     { m_index = _e; }
 
     epoller_event_weak_ptr &
-    index          () KNGIN_NOEXCP
+    index          () noexcept
     { return m_index; }
 
 protected:
     void
-    set_flags      (uint32_t _flags) KNGIN_NOEXCP { m_flags = _flags; }
+    set_flags      (uint32_t _flags) noexcept { m_flags = _flags; }
     uint32_t
-    flags          () const          KNGIN_NOEXCP { return m_flags; }
+    flags          () const          noexcept { return m_flags; }
     void
-    enable_read    ()                KNGIN_NOEXCP { m_flags |= EPOLLIN; }
+    enable_read    ()                noexcept { m_flags |= EPOLLIN; }
     void
-    enable_write   ()                KNGIN_NOEXCP { m_flags |= EPOLLOUT; }
+    enable_write   ()                noexcept { m_flags |= EPOLLOUT; }
     void
-    enable_oob     ()                KNGIN_NOEXCP { m_flags |= EPOLLPRI; }
+    enable_oob     ()                noexcept { m_flags |= EPOLLPRI; }
     void
-    enable_once    ()                KNGIN_NOEXCP { m_flags |= EPOLLONESHOT; }
+    enable_once    ()                noexcept { m_flags |= EPOLLONESHOT; }
     void
-    enable_et      ()                KNGIN_NOEXCP { m_flags |= EPOLLET; }
+    enable_et      ()                noexcept { m_flags |= EPOLLET; }
     void
-    disable_read   ()                KNGIN_NOEXCP { m_flags &= ~EPOLLIN; }
+    disable_read   ()                noexcept { m_flags &= ~EPOLLIN; }
     void
-    disable_write  ()                KNGIN_NOEXCP { m_flags &= ~EPOLLOUT; }
+    disable_write  ()                noexcept { m_flags &= ~EPOLLOUT; }
     void
-    disable_oob    ()                KNGIN_NOEXCP { m_flags &= ~EPOLLPRI; }
+    disable_oob    ()                noexcept { m_flags &= ~EPOLLPRI; }
     void
-    disable_once   ()                KNGIN_NOEXCP { m_flags &= ~EPOLLONESHOT; }
+    disable_once   ()                noexcept { m_flags &= ~EPOLLONESHOT; }
     void
-    disable_et     ()                KNGIN_NOEXCP { m_flags &= ~EPOLLET; }
+    disable_et     ()                noexcept { m_flags &= ~EPOLLET; }
     void
-    disable_all    ()                KNGIN_NOEXCP { m_flags = EPOLLHUP | EPOLLERR; }
+    disable_all    ()                noexcept { m_flags = EPOLLHUP | EPOLLERR; }
     bool
-    pollin         () const          KNGIN_NOEXCP { return (m_flags & EPOLLIN); }
+    pollin         () const          noexcept { return (m_flags & EPOLLIN); }
     bool
-    pollout        () const          KNGIN_NOEXCP { return (m_flags & EPOLLOUT); }
+    pollout        () const          noexcept { return (m_flags & EPOLLOUT); }
     bool
-    pollpri        () const          KNGIN_NOEXCP { return (m_flags & EPOLLPRI); }
+    pollpri        () const          noexcept { return (m_flags & EPOLLPRI); }
     bool
-    pollonce       () const          KNGIN_NOEXCP { return (m_flags & EPOLLONESHOT); }
+    pollonce       () const          noexcept { return (m_flags & EPOLLONESHOT); }
     bool
-    et             () const          KNGIN_NOEXCP { return (m_flags & EPOLLET); }
+    et             () const          noexcept { return (m_flags & EPOLLET); }
 
 protected:
     virtual void

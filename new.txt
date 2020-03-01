@@ -5,7 +5,7 @@
  * 三段public protected private 只出现一次
  * friend类放最前面 typedef放三段最前面
  * 类成员_结尾，静态成员、局部变量不加修饰，局部变量g_开头, 函数式宏小写，常量、表达式宏大写
- * 不再使用KNGIN_NOEXCP，使用noexcept
+ * 不再使用noexcept，使用noexcept
  * 防止泄漏内部实现，尽量多使用前置声明+impl，少引用头文件
  * 选项全部使用#if defined(KNGIN_XXX)
  * epoll iocp socket 等先封装exception和ec再使用，api.h,inline, namespace

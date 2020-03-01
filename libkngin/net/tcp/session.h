@@ -69,7 +69,7 @@ public:
                          const address &_local_addr, const address &_peer_addr);
 
     virtual
-    ~session            () KNGIN_NOEXCP;
+    ~session            () noexcept;
 
 public:
 #if (OFF == KNGIN_SESSION_TEMP_CALLBACK)
@@ -99,7 +99,7 @@ public:
     wr_shutdown         ();
 
     bool
-    closed              () KNGIN_NOEXCP
+    closed              () noexcept
     { return m_closed; }
 
     //bool
@@ -111,7 +111,7 @@ public:
     //{ return sockopts::tcp_info(m_socket).tcpi_state; }
 
     const error_code &
-    last_error          () const KNGIN_NOEXCP
+    last_error          () const noexcept
     { return m_last_error; }
 
 public:
@@ -154,28 +154,28 @@ public:
 
 public:
     const address &
-    local_addr          () const KNGIN_NOEXCP
+    local_addr          () const noexcept
     { return m_local_addr; }
 
     const address &
-    peer_addr           () const KNGIN_NOEXCP
+    peer_addr           () const noexcept
     { return m_peer_addr; }
 
     const std::string
-    name                () const KNGIN_NOEXCP
+    name                () const noexcept
     { return m_name; }
 
     const std::string &
-    key                 () const KNGIN_NOEXCP
+    key                 () const noexcept
     { return m_key; }
 
 public:
     event_loop *
-    loop                () KNGIN_NOEXCP
+    loop                () noexcept
     { return m_loop; }
 
     const event_loop *
-    loop                () const KNGIN_NOEXCP
+    loop                () const noexcept
     { return m_loop; }
 
     session_ptr
@@ -188,7 +188,7 @@ public:
 
 private:
     k::socket &
-    socket              () KNGIN_NOEXCP
+    socket              () noexcept
     { return m_socket; }
 
 private:

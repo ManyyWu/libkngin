@@ -18,50 +18,50 @@ public:
 
 public:
     void
-    update       () KNGIN_NOEXCP
+    update       () noexcept
     { m_update_time = timestamp::monotonic(); }
 
     void
-    update       (timestamp _timeval) KNGIN_NOEXCP
+    update       (timestamp _timeval) noexcept
     { m_update_time = _timeval; }
 
     void
-    clear        () KNGIN_NOEXCP
+    clear        () noexcept
     { m_update_time = 0; m_interval = 0; m_persist = false; }
 
     bool
-    timed_out    () const KNGIN_NOEXCP
+    timed_out    () const noexcept
     { return (timestamp::monotonic() - m_update_time) >= m_interval; }
 
     bool
-    timed_out    (timestamp _now_time) const KNGIN_NOEXCP
+    timed_out    (timestamp _now_time) const noexcept
     { return (_now_time - m_update_time) >= m_interval; }
 
     timestamp
-    remaining    () const KNGIN_NOEXCP;
+    remaining    () const noexcept;
 
     timestamp
-    remaining    (timestamp _now_time) const KNGIN_NOEXCP;
+    remaining    (timestamp _now_time) const noexcept;
 
 public:
     void
-    set_interval (timestamp _interval) KNGIN_NOEXCP
+    set_interval (timestamp _interval) noexcept
     { m_interval = _interval; }
 
     void
-    set_persist  (bool _on) KNGIN_NOEXCP
+    set_persist  (bool _on) noexcept
     { m_persist = _on; }
 
     timestamp
-    update_time  () const KNGIN_NOEXCP
+    update_time  () const noexcept
     { return m_update_time; }
 
     timestamp
-    interval     () const KNGIN_NOEXCP
+    interval     () const noexcept
     { return m_interval; }
 
     bool
-    persist      () const KNGIN_NOEXCP
+    persist      () const noexcept
     { return m_persist; }
 
 private:

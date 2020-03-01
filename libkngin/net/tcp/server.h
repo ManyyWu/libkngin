@@ -42,7 +42,7 @@ public:
 
     server              (event_loop &_loop, const server_opts &_opts);
 
-    ~server             () KNGIN_NOEXCP;
+    ~server             () noexcept;
 
 public:
     bool
@@ -57,22 +57,22 @@ public:
 
 public:
     void
-    set_session_handler (session_handler &&_handler) KNGIN_NOEXCP
+    set_session_handler (session_handler &&_handler) noexcept
     { assert(m_stopped); m_session_handler = std::move(_handler); }
     void
-    set_message_handler (message_handler &&_handler) KNGIN_NOEXCP
+    set_message_handler (message_handler &&_handler) noexcept
     { assert(m_stopped); m_message_handler = std::move(_handler); }
     void
-    set_sent_handler    (sent_handler &&_handler) KNGIN_NOEXCP
+    set_sent_handler    (sent_handler &&_handler) noexcept
     { assert(m_stopped); m_sent_handler = std::move(_handler); }
     void
-    set_error_handler   (error_handler &&_handler) KNGIN_NOEXCP
+    set_error_handler   (error_handler &&_handler) noexcept
     { assert(m_stopped); m_error_handler = std::move(_handler); }
     void
-    set_oob_handler     (oob_handler &&_handler) KNGIN_NOEXCP
+    set_oob_handler     (oob_handler &&_handler) noexcept
     { assert(m_stopped); m_oob_handler = std::move(_handler); }
     void
-    set_crash_handler   (crash_handler &&_handler) KNGIN_NOEXCP
+    set_crash_handler   (crash_handler &&_handler) noexcept
     { assert(m_stopped); m_crash_handler = std::move(_handler); }
 
 protected:

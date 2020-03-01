@@ -31,78 +31,78 @@ public:
 
 public:
     address    () = default;
-    address    (const struct ::sockaddr_in &_sa) KNGIN_NOEXCP
+    address    (const struct ::sockaddr_in &_sa) noexcept
     { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; }
-    address    (const struct ::sockaddr_in &&_sa) KNGIN_NOEXCP
+    address    (const struct ::sockaddr_in &&_sa) noexcept
     { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; }
-    address    (const struct ::sockaddr_in6 &_sa) KNGIN_NOEXCP
+    address    (const struct ::sockaddr_in6 &_sa) noexcept
     { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; }
-    address    (const struct ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
+    address    (const struct ::sockaddr_in6 &&_sa) noexcept
     { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; }
-    address    (const address &_sa) KNGIN_NOEXCP
+    address    (const address &_sa) noexcept
     { m_sa = _sa.m_sa; }
-    address    (const address &&_sa) KNGIN_NOEXCP
+    address    (const address &&_sa) noexcept
     { m_sa = _sa.m_sa; }
     address    (const std::string &_addrstr, uint16_t _port, bool _v6);
     ~address   () = default;
 
 public:
     int
-    family     () const KNGIN_NOEXCP
+    family     () const noexcept
     { return m_sa.v4.sin_family; }
 
     bool
     inet6      () const;
 
     int
-    size       () const KNGIN_NOEXCP;
+    size       () const noexcept;
 
     std::string
     addrstr    () const;
 
     uint16_t
-    port       () const KNGIN_NOEXCP;
+    port       () const noexcept;
 
 public:
     address &
-    operator = (const struct ::sockaddr_in &_sa) KNGIN_NOEXCP
+    operator = (const struct ::sockaddr_in &_sa) noexcept
     { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const struct ::sockaddr_in &&_sa) KNGIN_NOEXCP
+    operator = (const struct ::sockaddr_in &&_sa) noexcept
     { assert(AF_INET == _sa.sin_family); m_sa.v4 = _sa; return *this; }
     address &
-    operator = (const struct ::sockaddr_in6 &_sa) KNGIN_NOEXCP
+    operator = (const struct ::sockaddr_in6 &_sa) noexcept
     { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const struct ::sockaddr_in6 &&_sa) KNGIN_NOEXCP
+    operator = (const struct ::sockaddr_in6 &&_sa) noexcept
     { assert(AF_INET6 == _sa.sin6_family); m_sa.v6 = _sa; return *this; }
     address &
-    operator = (const address &_sa) KNGIN_NOEXCP
+    operator = (const address &_sa) noexcept
     { m_sa = _sa.m_sa; return *this; }
     address &
-    operator = (const address &&_sa) KNGIN_NOEXCP
+    operator = (const address &&_sa) noexcept
     { m_sa = _sa.m_sa; return *this; }
 
 public:
     bool
-    operator == (const address &_sa) KNGIN_NOEXCP
+    operator == (const address &_sa) noexcept
     { return !::memcmp(&m_sa, &_sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
     bool
-    operator != (const address &_sa) KNGIN_NOEXCP
+    operator != (const address &_sa) noexcept
     { return ::memcmp(&m_sa, &_sa, inet6() ? sizeof(sockaddr::v6) : sizeof(sockaddr::v4)); }
 
 public:
     const address::sockaddr &
-    sa         () const KNGIN_NOEXCP
+    sa         () const noexcept
     { return m_sa; }
 
     address::sockaddr &
-    sa         () KNGIN_NOEXCP
+    sa         () noexcept
     { return m_sa; }
 
 public:
     bool
-    is_ipv4_mapped         () const KNGIN_NOEXCP;
+    is_ipv4_mapped         () const noexcept;
 
 public:
     static bool

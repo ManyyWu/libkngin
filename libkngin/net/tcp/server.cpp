@@ -56,7 +56,7 @@ server::server (event_loop &_loop, const server_opts &_opts)
     throw;
 }
 
-server::~server () KNGIN_NOEXCP
+server::~server () noexcept
 {
     if (!m_stopped)
         ignore_excp(stop());

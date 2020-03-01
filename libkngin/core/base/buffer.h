@@ -17,19 +17,19 @@ typedef std::shared_ptr<char> uint8_arr_ptr;
 
 class out_buffer {
 public:
-    out_buffer   () KNGIN_NOEXCP;
+    out_buffer   () noexcept;
 
     out_buffer   (const void *_arr, size_t _size);
 
-    out_buffer   (const out_buffer &_buf) KNGIN_NOEXCP;
+    out_buffer   (const out_buffer &_buf) noexcept;
 
-    out_buffer   (out_buffer &&_buf) KNGIN_NOEXCP;
+    out_buffer   (out_buffer &&_buf) noexcept;
 
     ~out_buffer  () = default;
 
 public:
     const uint8_t &
-    operator []  (size_t _idx) const KNGIN_NOEXCP
+    operator []  (size_t _idx) const noexcept
     { return m_arr[_idx]; }
     const uint8_t &
     at           (size_t _idx) const
@@ -38,10 +38,10 @@ public:
     get          (size_t _idx) const
     { check_readable(_idx + 1); return &m_arr[_idx]; }
     const unsigned char *
-    begin        () const KNGIN_NOEXCP
+    begin        () const noexcept
     { return m_arr; }
     size_t
-    size         () const KNGIN_NOEXCP
+    size         () const noexcept
     { return m_size; }
 
 public:
@@ -118,7 +118,7 @@ public:
     reset        (const void * _buf, size_t _size);
 
     void
-    swap         (out_buffer &_buf) KNGIN_NOEXCP;
+    swap         (out_buffer &_buf) noexcept;
 
     std::shared_ptr<out_buffer>
     clone        ();
@@ -134,7 +134,7 @@ public:
 
 public:
     out_buffer &
-    operator =     (const out_buffer &_buf) KNGIN_NOEXCP
+    operator =     (const out_buffer &_buf) noexcept
     { m_arr = _buf.m_arr; m_size = _buf.m_size; return *this; }
 
 public:
@@ -162,7 +162,7 @@ private:
 
 class msg_buffer {
 public:
-    msg_buffer  () KNGIN_NOEXCP
+    msg_buffer  () noexcept
         : m_arr(nullptr), m_buf() {}
 
     msg_buffer  (uint8_arr_ptr &_arr, size_t _offset, size_t _size)
@@ -175,23 +175,23 @@ public:
     msg_buffer  (const msg_buffer &_buf)
         : m_arr(_buf.m_arr), m_buf(_buf.m_buf) {}
 
-    msg_buffer  (msg_buffer &&_buf) KNGIN_NOEXCP
+    msg_buffer  (msg_buffer &&_buf) noexcept
         : m_arr(std::move(_buf.m_arr)), m_buf(std::move(_buf.m_buf)) {  }
 
     ~msg_buffer () = default;
 
 public:
     uint8_arr_ptr &
-    get         () KNGIN_NOEXCP
+    get         () noexcept
     { return m_arr; }
     const uint8_arr_ptr &
-    get         () const KNGIN_NOEXCP
+    get         () const noexcept
     { return m_arr; }
     out_buffer &
     buffer      ()
     { return m_buf; }
     const out_buffer &
-    buffer      () const KNGIN_NOEXCP
+    buffer      () const noexcept
     { return m_buf; }
 
 public:
@@ -207,19 +207,19 @@ private:
 
 class in_buffer {
 public:
-    in_buffer    () KNGIN_NOEXCP;
+    in_buffer    () noexcept;
 
     in_buffer    (void * _arr, size_t _size);
 
-    in_buffer    (const in_buffer &_buf) KNGIN_NOEXCP;
+    in_buffer    (const in_buffer &_buf) noexcept;
 
-    in_buffer    (in_buffer &&_buf) KNGIN_NOEXCP;
+    in_buffer    (in_buffer &&_buf) noexcept;
 
     ~in_buffer   () = default;
 
 public:
     uint8_t &
-    operator []  (size_t _idx) KNGIN_NOEXCP
+    operator []  (size_t _idx) noexcept
     { return m_arr[_idx]; }
     uint8_t &
     at           (size_t _idx)
@@ -228,16 +228,16 @@ public:
     get          (size_t _idx)
     { check_readable(_idx + 1); return &m_arr[_idx]; }
     unsigned char *
-    begin        () const KNGIN_NOEXCP
+    begin        () const noexcept
     { return m_arr; }
     size_t
-    size         () const KNGIN_NOEXCP
+    size         () const noexcept
     { return m_size; }
     size_t
-    valid        () const KNGIN_NOEXCP
+    valid        () const noexcept
     { return m_valid; }
     size_t
-    writeable    () const KNGIN_NOEXCP
+    writeable    () const noexcept
     { return m_size - m_valid; }
 
 public:
@@ -266,7 +266,7 @@ public:
     reset        (void * _buf, size_t _size);
 
     void
-    swap         (in_buffer &_buf) KNGIN_NOEXCP;
+    swap         (in_buffer &_buf) noexcept;
 
 public:
     std::string
@@ -280,7 +280,7 @@ public:
 public:
 
     in_buffer &
-    operator =   (const in_buffer &_buf) KNGIN_NOEXCP
+    operator =   (const in_buffer &_buf) noexcept
     { m_arr = _buf.m_arr; m_size = _buf.m_size; m_valid = _buf.m_valid; return *this; }
 
 protected:

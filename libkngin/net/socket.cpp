@@ -25,7 +25,7 @@ filefd::close ()
 }
 
 void
-filefd::close (error_code &_ec) KNGIN_NOEXCP
+filefd::close (error_code &_ec) noexcept
 {
     if (invalid())
         return;
@@ -56,7 +56,7 @@ socket::socket (INET_PROTOCOL _proto)
     throw;
 }
 
-socket::socket (socket &&_s) KNGIN_NOEXCP
+socket::socket (socket &&_s) noexcept
     : filefd(_s.m_fd),
       m_rd_closed(_s.m_rd_closed),
       m_wr_closed(_s.m_wr_closed)
@@ -66,7 +66,7 @@ socket::socket (socket &&_s) KNGIN_NOEXCP
     _s.m_wr_closed = true;
 }
 
-socket::~socket () KNGIN_NOEXCP
+socket::~socket () noexcept
 {
     m_fd = (m_rd_closed and m_wr_closed) ? filefd::invalid_fd : m_fd;
 }
@@ -81,7 +81,7 @@ socket::bind (const address &_addr)
 }
 
 void
-socket::bind (const address &_addr, error_code &_ec) KNGIN_NOEXCP
+socket::bind (const address &_addr, error_code &_ec) noexcept
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
@@ -100,7 +100,7 @@ socket::listen (int _backlog)
 }
 
 void
-socket::listen (int _backlog, error_code &_ec) KNGIN_NOEXCP
+socket::listen (int _backlog, error_code &_ec) noexcept
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
@@ -120,7 +120,7 @@ socket::accept (address &_addr)
 }
 
 socket_type
-socket::accept (address &_addr, error_code &_ec) KNGIN_NOEXCP
+socket::accept (address &_addr, error_code &_ec) noexcept
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
@@ -140,7 +140,7 @@ socket::connect (const address &_addr)
 }
 
 void
-socket::connect (const address &_addr, error_code &_ec) KNGIN_NOEXCP
+socket::connect (const address &_addr, error_code &_ec) noexcept
 {
     assert(!m_wr_closed);
     assert(!m_rd_closed);
@@ -158,7 +158,7 @@ socket::close ()
 }
 
 void
-socket::close (error_code &_ec) KNGIN_NOEXCP
+socket::close (error_code &_ec) noexcept
 {
     filefd::close(_ec);
     m_rd_closed = true;
@@ -175,7 +175,7 @@ socket::rd_shutdown ()
 }
 
 void
-socket::rd_shutdown (error_code &_ec) KNGIN_NOEXCP
+socket::rd_shutdown (error_code &_ec) noexcept
 {
     assert(!m_rd_closed);
     _ec = (::shutdown(m_fd, SHUT_RD) < 0 ? last_error() : error_code());
@@ -192,7 +192,7 @@ socket::wr_shutdown ()
 }
 
 void
-socket::wr_shutdown (error_code &_ec) KNGIN_NOEXCP
+socket::wr_shutdown (error_code &_ec) noexcept
 {
     assert(!m_wr_closed);
     _ec = (::shutdown(m_fd, SHUT_WR) < 0 ? last_error() : error_code());
@@ -212,7 +212,7 @@ socket::send (out_buffer &_buf, int _flags)
 }
 
 size_t
-socket::send (out_buffer &_buf, int _flags, error_code &_ec) KNGIN_NOEXCP
+socket::send (out_buffer &_buf, int _flags, error_code &_ec) noexcept
 {
     assert(_buf.size());
     assert(!m_wr_closed);
@@ -240,7 +240,7 @@ socket::recv (in_buffer &_buf, int _flags)
 }
 
 size_t
-socket::recv (in_buffer &_buf, int _flags, error_code &_ec) KNGIN_NOEXCP
+socket::recv (in_buffer &_buf, int _flags, error_code &_ec) noexcept
 {
     assert(_buf.writeable());
     assert(!m_rd_closed);
@@ -271,7 +271,7 @@ socket::sendto (const address &_addr, out_buffer &_buf, int _flags)
 
 size_t
 socket::sendto (const address &_addr, out_buffer &_buf, int _flags,
-                error_code &_ec) KNGIN_NOEXCP
+                error_code &_ec) noexcept
 {
     assert(_buf.size());
     assert(!m_wr_closed);
@@ -305,7 +305,7 @@ socket::recvfrom (address &_addr, in_buffer &_buf, int _flags)
 
 size_t
 socket::recvfrom (address &_addr, in_buffer &_buf, int _flags,
-                  error_code &_ec) KNGIN_NOEXCP
+                  error_code &_ec) noexcept
 {
     assert(_buf.writeable());
     assert(!m_rd_closed);
@@ -335,7 +335,7 @@ socket::localaddr () const
 }
 
 address
-socket::localaddr (error_code &_ec) const KNGIN_NOEXCP
+socket::localaddr (error_code &_ec) const noexcept
 {
     assert(!m_wr_closed or !m_rd_closed);
     k::address _addr;
@@ -358,7 +358,7 @@ socket::peeraddr () const
 }
 
 address
-socket::peeraddr (error_code &_ec) const KNGIN_NOEXCP
+socket::peeraddr (error_code &_ec) const noexcept
 {
     assert(!m_wr_closed or !m_rd_closed);
     k::address _addr;

@@ -28,7 +28,7 @@ iocp_poller::iocp_poller ()
     throw;
 }
 
-iocp_poller::~iocp_poller () KNGIN_NOEXCP
+iocp_poller::~iocp_poller () noexcept
 {
     if (INVALID_HANDLE_VALUE != m_iocp_handle)
         ignore_excp(this->close());
@@ -163,7 +163,7 @@ iocp_poller::modify_event (iocp_event &_e)
 }
 
 bool
-iocp_poller::registed (iocp_event &_e) KNGIN_NOEXCP
+iocp_poller::registed (iocp_event &_e) noexcept
 {
     assert(INVALID_HANDLE_VALUE == m_iocp_handle);
     return (!_e.registed());

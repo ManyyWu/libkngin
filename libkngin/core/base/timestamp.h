@@ -38,113 +38,113 @@ class timestamp {
 public:
     timestamp   ()
         : m_ms(0) {}
-    timestamp   (time_t _ms) KNGIN_NOEXCP
+    timestamp   (time_t _ms) noexcept
         : m_ms(_ms) {}
-    timestamp   (const timestamp &_t) KNGIN_NOEXCP
+    timestamp   (const timestamp &_t) noexcept
         : m_ms(_t.m_ms) {}
-    timestamp   (const timeval &_tv) KNGIN_NOEXCP
+    timestamp   (const timeval &_tv) noexcept
         : m_ms(_tv.tv_sec * 1000 + _tv.tv_usec / 1000) {}
-    timestamp   (const timespec &_ts) KNGIN_NOEXCP
+    timestamp   (const timespec &_ts) noexcept
         : m_ms(_ts.tv_sec * 1000 + _ts.tv_nsec / 1000000) {}
     ~timestamp  () = default;
 
 public:
     timestamp &
-    operator =  (const timestamp &_t) KNGIN_NOEXCP
+    operator =  (const timestamp &_t) noexcept
     { m_ms = _t.m_ms; return *this; }
     timestamp &
-    operator =  (time_t _t) KNGIN_NOEXCP
+    operator =  (time_t _t) noexcept
     { m_ms = _t; return *this; }
     timestamp &
-    operator =  (const timeval &_tv) KNGIN_NOEXCP
+    operator =  (const timeval &_tv) noexcept
     { m_ms = _tv.tv_sec * 1000 + _tv.tv_usec / 1000; return *this; }
     timestamp &
-    operator =  (const timespec &_ts) KNGIN_NOEXCP
+    operator =  (const timespec &_ts) noexcept
     { m_ms = _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000; return *this; }
     timestamp &
-    operator += (timestamp _t) KNGIN_NOEXCP
+    operator += (timestamp _t) noexcept
     { m_ms += _t.m_ms; return *this; }
     timestamp &
-    operator -= (timestamp _t) KNGIN_NOEXCP
+    operator -= (timestamp _t) noexcept
     { m_ms -= _t.m_ms; return *this; }
     timestamp
-    operator +  (timestamp _t) KNGIN_NOEXCP
+    operator +  (timestamp _t) noexcept
     { return m_ms + _t.m_ms; }
     timestamp
-    operator -  (timestamp _t) KNGIN_NOEXCP
+    operator -  (timestamp _t) noexcept
     { return m_ms - _t.m_ms; }
 
 public:
     bool
-    operator == (timestamp _t) const KNGIN_NOEXCP
+    operator == (timestamp _t) const noexcept
     {return _t.m_ms == m_ms; }
     bool
-    operator != (timestamp _t) const KNGIN_NOEXCP
+    operator != (timestamp _t) const noexcept
     {return _t.m_ms != m_ms; }
     bool
-    operator >  (timestamp _t) const KNGIN_NOEXCP
+    operator >  (timestamp _t) const noexcept
     {return m_ms > _t.m_ms; }
     bool
-    operator <  (timestamp _t) const KNGIN_NOEXCP
+    operator <  (timestamp _t) const noexcept
     {return m_ms < _t.m_ms; }
     bool
-    operator >= (timestamp _t) const KNGIN_NOEXCP
+    operator >= (timestamp _t) const noexcept
     {return m_ms >= _t.m_ms; }
     bool
-    operator <= (timestamp _t) const KNGIN_NOEXCP
+    operator <= (timestamp _t) const noexcept
     {return m_ms <= _t.m_ms; }
 
 public:
     operator
-    bool        () const KNGIN_NOEXCP
+    bool        () const noexcept
     { return m_ms; }
 
     operator
-    time_t      () const KNGIN_NOEXCP
+    time_t      () const noexcept
     { return m_ms; }
 
 public:
     time_t
-    value       () const KNGIN_NOEXCP
+    value       () const noexcept
     { return m_ms; }
     int32_t
-    value_int   () const KNGIN_NOEXCP
+    value_int   () const noexcept
     { return static_cast<int>(std::min<time_t>(m_ms, INT32_MAX)); }
     uint32_t
-    value_uint  () const KNGIN_NOEXCP
+    value_uint  () const noexcept
     { return static_cast<uint32_t>(std::min<time_t>(m_ms, UINT32_MAX)); }
     void
-    to_timeval  (timeval &_tv) const KNGIN_NOEXCP
+    to_timeval  (timeval &_tv) const noexcept
     { _tv.tv_sec = long(m_ms / 1000); _tv.tv_usec = long(1000 * (m_ms % 1000)); }
     void
-    to_timespec (timespec &_ts) const KNGIN_NOEXCP
+    to_timespec (timespec &_ts) const noexcept
     { _ts.tv_sec = long(m_ms / 1000); _ts.tv_nsec = long(1000000 * (m_ms % 1000)); }
 
 public:
     static timestamp
-    infinite    () KNGIN_NOEXCP
+    infinite    () noexcept
     { return UINT64_MAX; }
 
 public:
     static timestamp
-    time_of_day () KNGIN_NOEXCP
+    time_of_day () noexcept
     { timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
 #ifndef _WIN32
     static timestamp
-    realtime    () KNGIN_NOEXCP
+    realtime    () noexcept
     { timespec _ts; ::clock_gettime(CLOCK_REALTIME, &_ts); return _ts; }
     static timestamp
-    monotonic   () KNGIN_NOEXCP
+    monotonic   () noexcept
     { timespec _ts; ::clock_gettime(CLOCK_MONOTONIC, &_ts); return _ts; }
     static timestamp
-    boot_time   () KNGIN_NOEXCP
+    boot_time   () noexcept
     { timespec _ts; ::clock_gettime(CLOCK_BOOTTIME, &_ts); return _ts; }
 #else
     static timestamp
-    realtime    () KNGIN_NOEXCP
+    realtime    () noexcept
     { timeval _tv; ::gettimeofday(&_tv, nullptr); return _tv; }
     static timestamp
-    monotonic   () KNGIN_NOEXCP
+    monotonic   () noexcept
 #ifdef _WIN64
     { return ::GetTickCount64(); }
 #else
@@ -155,7 +155,7 @@ public:
     diff        (timestamp _t1, timestamp _t2)
     { if (_t1 < _t2) throw k::exception("t1 < t2"); return (_t1 - _t2); }
     static timestamp
-    abs_diff    (timestamp _t1, timestamp _t2) KNGIN_NOEXCP
+    abs_diff    (timestamp _t1, timestamp _t2) noexcept
     { return (abs)(_t1.m_ms - _t2.m_ms); }
 
 private:
@@ -164,14 +164,14 @@ private:
 
 inline
 timestamp
-timediff (const timeval &_tvl, const timeval &_tvr) KNGIN_NOEXCP
+timediff (const timeval &_tvl, const timeval &_tvr) noexcept
 {
     return (timestamp(_tvl).value() - timestamp(_tvr).value());
 }
 
 inline
 timestamp
-timediff (const timespec &_tsl, const timespec &_tsr) KNGIN_NOEXCP
+timediff (const timespec &_tsl, const timespec &_tsr) noexcept
 {
     return (timestamp(_tsl).value() - timestamp(_tsr).value());
 }

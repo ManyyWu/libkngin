@@ -17,18 +17,18 @@ KNGIN_NAMESPACE_K_BEGIN
 
 filefd_type filefd::invalid_fd = INVALID_FD;
 
-filefd::filefd (filefd_type _fd) KNGIN_NOEXCP
+filefd::filefd (filefd_type _fd) noexcept
     : m_fd(_fd)
 {
 }
 
-filefd::filefd (filefd &&_fd) KNGIN_NOEXCP
+filefd::filefd (filefd &&_fd) noexcept
     : m_fd(_fd.m_fd)
 {
     _fd.m_fd = filefd::invalid_fd;
 }
 
-filefd::~filefd() KNGIN_NOEXCP
+filefd::~filefd() noexcept
 {
 }
 
@@ -45,7 +45,7 @@ filefd::write (out_buffer &_buf)
 }
 
 size_t
-filefd::write (out_buffer &_buf, error_code &_ec) KNGIN_NOEXCP
+filefd::write (out_buffer &_buf, error_code &_ec) noexcept
 {
     assert(_buf.size());
     assert(valid());
@@ -73,7 +73,7 @@ filefd::read (in_buffer &_buf)
 }
 
 size_t
-filefd::read (in_buffer &_buf, error_code &_ec) KNGIN_NOEXCP
+filefd::read (in_buffer &_buf, error_code &_ec) noexcept
 {
     assert(_buf.writeable());
     assert(valid());
@@ -110,7 +110,7 @@ filefd::writen (out_buffer &&_buf)
 }
 
 size_t
-filefd::writen (out_buffer &&_buf, error_code &_ec) KNGIN_NOEXCP
+filefd::writen (out_buffer &&_buf, error_code &_ec) noexcept
 {
     assert(_buf.size());
     assert(valid());
@@ -150,7 +150,7 @@ filefd::readn (in_buffer &_buf)
 }
 
 size_t
-filefd::readn (in_buffer &_buf, error_code &_ec) KNGIN_NOEXCP
+filefd::readn (in_buffer &_buf, error_code &_ec) noexcept
 {
     assert(_buf.writeable());
     assert(valid());
@@ -181,7 +181,7 @@ filefd::readn (in_buffer &_buf, error_code &_ec) KNGIN_NOEXCP
 //}
 //
 //size_t
-//filefd::writev (net_buffer &_buf, size_t _nbytes, error_code &_ec) KNGIN_NOEXCP
+//filefd::writev (net_buffer &_buf, size_t _nbytes, error_code &_ec) noexcept
 //{
 //    assert(valid());
 //    assert(_buf.readable() >= _nbytes);
@@ -219,7 +219,7 @@ filefd::readable ()
 }
 
 size_t
-filefd::readable (error_code &_ec) KNGIN_NOEXCP
+filefd::readable (error_code &_ec) noexcept
 {
     assert(valid());
     size_t _bytes;
@@ -240,7 +240,7 @@ filefd::close ()
 }
 
 void
-filefd::close (error_code &_ec) KNGIN_NOEXCP
+filefd::close (error_code &_ec) noexcept
 {
     if (invalid())
         return;
@@ -270,7 +270,7 @@ filefd::dup (error_code &_ec)
 }
 
 error_code
-filefd::read_error () KNGIN_NOEXCP
+filefd::read_error () noexcept
 {
     assert(valid());
     auto _size = ::read(m_fd, nullptr, 0);
@@ -290,7 +290,7 @@ filefd::set_nonblock (bool _on)
 }
 
 void
-filefd::set_nonblock (bool _on, error_code &_ec) KNGIN_NOEXCP
+filefd::set_nonblock (bool _on, error_code &_ec) noexcept
 {
     assert(valid());
     filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
@@ -309,7 +309,7 @@ filefd::set_closeexec (bool _on)
 }
 
 void
-filefd::set_closeexec (bool _on, error_code &_ec) KNGIN_NOEXCP
+filefd::set_closeexec (bool _on, error_code &_ec) noexcept
 {
     assert(valid());
     filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
@@ -328,7 +328,7 @@ filefd::nonblock () const
 }
 
 bool
-filefd::nonblock (error_code &_ec) const KNGIN_NOEXCP
+filefd::nonblock (error_code &_ec) const noexcept
 {
     assert(valid());
     filefd_type _flags = ::fcntl(m_fd, F_GETFL, 0);
@@ -337,7 +337,7 @@ filefd::nonblock (error_code &_ec) const KNGIN_NOEXCP
 }
 
 filefd &
-filefd::operator = (filefd_type _fd) KNGIN_NOEXCP
+filefd::operator = (filefd_type _fd) noexcept
 {
     assert(FD_VALID(_fd));
     m_fd = _fd;

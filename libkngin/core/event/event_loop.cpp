@@ -37,7 +37,7 @@ event_loop::event_loop ()
     throw;
 }
 
-event_loop::~event_loop () KNGIN_NOEXCP
+event_loop::~event_loop () noexcept
 {
     if (m_looping)
         ignore_excp(stop());

@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-out_buffer::out_buffer() KNGIN_NOEXCP
+out_buffer::out_buffer() noexcept
     : m_arr(nullptr),
       m_size(0)
 {
@@ -26,12 +26,12 @@ out_buffer::out_buffer (const void * _arr, size_t _size)
     log_fatal("out_buffer::out_buffer() error");
 }
 
-out_buffer::out_buffer(const out_buffer &_buf) KNGIN_NOEXCP
+out_buffer::out_buffer(const out_buffer &_buf) noexcept
     : m_arr(_buf.m_arr), m_size(_buf.m_size)
 {
 }
 
-out_buffer::out_buffer(out_buffer &&_buf) KNGIN_NOEXCP
+out_buffer::out_buffer(out_buffer &&_buf) noexcept
     : m_arr(nullptr), m_size(0)
 {
     std::swap(m_arr, _buf.m_arr);
@@ -60,7 +60,7 @@ out_buffer::reset (const void * _arr, size_t _size)
 }
 
 void
-out_buffer::swap (out_buffer &_buf) KNGIN_NOEXCP
+out_buffer::swap (out_buffer &_buf) noexcept
 {
     std::swap(m_arr, _buf.m_arr);
     std::swap(m_size, _buf.m_size);
@@ -86,7 +86,7 @@ out_buffer::dump ()
     return _result;
 }
 
-in_buffer::in_buffer() KNGIN_NOEXCP
+in_buffer::in_buffer() noexcept
     : m_arr(nullptr),
       m_size(0),
       m_valid(0)
@@ -104,14 +104,14 @@ in_buffer::in_buffer (void * _arr, size_t _size)
     log_fatal("in_buffer::in_buffer() error");
 }
 
-in_buffer::in_buffer (const in_buffer &_buf) KNGIN_NOEXCP
+in_buffer::in_buffer (const in_buffer &_buf) noexcept
     : m_arr(_buf.m_arr),
       m_size(_buf.m_size),
       m_valid(_buf.m_valid)
 {
 }
 
-in_buffer::in_buffer (in_buffer &&_buf) KNGIN_NOEXCP
+in_buffer::in_buffer (in_buffer &&_buf) noexcept
     : m_arr(nullptr),
       m_size(0),
       m_valid(0)
@@ -143,7 +143,7 @@ in_buffer::reset (void * _arr, size_t _size)
 }
 
 void
-in_buffer::swap (in_buffer &_buf) KNGIN_NOEXCP
+in_buffer::swap (in_buffer &_buf) noexcept
 {
     std::swap(m_arr, _buf.m_arr);
     std::swap(m_size, _buf.m_size);

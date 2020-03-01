@@ -37,7 +37,7 @@ public:
 
 public:
     virtual const char *
-    what       () const KNGIN_NOEXCP
+    what       () const noexcept
     { return m_what.c_str(); }
 
     const std::string &

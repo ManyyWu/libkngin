@@ -18,7 +18,7 @@ public:
     explicit
     cond           (mutex *_mutex);
 
-    ~cond          () KNGIN_NOEXCP;
+    ~cond          () noexcept;
 
 public:
     void

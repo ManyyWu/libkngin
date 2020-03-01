@@ -20,7 +20,7 @@ cond::cond (mutex *_mutex)
 {
 }
 
-cond::~cond () KNGIN_NOEXCP
+cond::~cond () noexcept
 {
     ignore_excp(
         auto _ec = ::pthread_cond_destroy(&m_cond);

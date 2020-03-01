@@ -65,7 +65,7 @@ public:
 public:
     event_loop     ();
 
-    ~event_loop    () KNGIN_NOEXCP;
+    ~event_loop    () noexcept;
 
 public:
     void
@@ -76,7 +76,7 @@ public:
     stop           ();
 
     bool
-    looping        () KNGIN_NOEXCP
+    looping        () noexcept
     { return m_looping; }
 
 // event
@@ -114,7 +114,7 @@ public:
 
 public:
     bool
-    in_loop_thread () const KNGIN_NOEXCP
+    in_loop_thread () const noexcept
     { return (m_tid == thread::tid()); }
 
 protected:

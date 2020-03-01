@@ -16,7 +16,7 @@ class rwlock : public noncopyable {
 public:
     rwlock        ();
 
-    ~rwlock       () KNGIN_NOEXCP;
+    ~rwlock       () noexcept;
 
 public:
     void

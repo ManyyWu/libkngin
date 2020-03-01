@@ -10,7 +10,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 epoller_event::epoller_event (epollfd _fd, EVENT_TYPE _type,
-                              uint8_t _priority /* = UINT8_MAX*/) KNGIN_NOEXCP
+                              uint8_t _priority /* = UINT8_MAX*/) noexcept
     : filefd(_fd),
       m_flags(EPOLLHUP | EPOLLERR),
       m_event({0, nullptr}),
@@ -21,7 +21,7 @@ epoller_event::epoller_event (epollfd _fd, EVENT_TYPE _type,
 {
 }
 
-epoller_event::epoller_event (epoller_event &&_e) KNGIN_NOEXCP
+epoller_event::epoller_event (epoller_event &&_e) noexcept
     : filefd(std::move(_e)),
       m_flags(_e.m_flags),
       m_event({0, nullptr}),

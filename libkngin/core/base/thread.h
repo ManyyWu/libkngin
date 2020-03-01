@@ -27,11 +27,11 @@ public:
 
         int   code;
 
-        thread_err_code () KNGIN_NOEXCP
+        thread_err_code () noexcept
         { ptr = nullptr; code = 0; }
 
         explicit
-        thread_err_code (int _code) KNGIN_NOEXCP
+        thread_err_code (int _code) noexcept
         { ptr = nullptr; code = _code; }
     };
 
@@ -55,7 +55,7 @@ public:
     thread        (const char *_name);
 
     virtual
-    ~thread       () KNGIN_NOEXCP;
+    ~thread       () noexcept;
 
 public:
     void
@@ -68,42 +68,42 @@ public:
     cancel        ();
 
     bool
-    joined        () const KNGIN_NOEXCP
+    joined        () const noexcept
     { return m_joined; }
 
     pthread_t
-    get_interface () const KNGIN_NOEXCP
+    get_interface () const noexcept
     { return m_thr; }
 
     const char *
-    name          () const KNGIN_NOEXCP
+    name          () const noexcept
     { return m_name.c_str(); }
 
 public:
     static uint64_t
-    tid           () KNGIN_NOEXCP;
+    tid           () noexcept;
 
     static pthread_t
-    ptid          () KNGIN_NOEXCP;
+    ptid          () noexcept;
 
     static void
-    sleep         (timestamp _ms) KNGIN_NOEXCP;
+    sleep         (timestamp _ms) noexcept;
 
     static bool
-    equal         (pthread_t _thr1, pthread_t _thr2) KNGIN_NOEXCP;
+    equal         (pthread_t _thr1, pthread_t _thr2) noexcept;
 
     bool
-    equal_to      (pthread_t _t) KNGIN_NOEXCP;
+    equal_to      (pthread_t _t) noexcept;
 
     static void
-    exit          (int _err_code) KNGIN_NOEXCP;
+    exit          (int _err_code) noexcept;
 
 protected:
     static void *
-    start         (void *_args) KNGIN_NOEXCP;
+    start         (void *_args) noexcept;
 
     static void
-    cleanup       (void *_args) KNGIN_NOEXCP;
+    cleanup       (void *_args) noexcept;
 
 protected:
     const std::string m_name;

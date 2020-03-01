@@ -32,7 +32,7 @@ public:
                     error_handler &&_error_handler);
 
     virtual
-    ~listener      () KNGIN_NOEXCP;
+    ~listener      () noexcept;
 
 public:
     virtual void
@@ -40,11 +40,11 @@ public:
 
 public:
     event_loop *
-    loop           () KNGIN_NOEXCP
+    loop           () noexcept
     { return m_loop; }
 
     const event_loop *
-    loop           () const KNGIN_NOEXCP
+    loop           () const noexcept
     { return m_loop; }
 
     listener_ptr
