@@ -5,8 +5,6 @@
 #include "core/base/exception.h"
 #include "core/base/common.h"
 
-#define KNGIN_FILENAME "libkngin/core/base/bits.cpp"
-
 #define TYPE_BITS(type)              (sizeof(type) * 8)
 #define BIT_VALUE(type, pos)         ((type)1 << (type)(pos))
 #define IS_BIT_SET(type, value, pos) ((bool)(((type)1 << (type)(pos)) & (type)(value)))
@@ -72,7 +70,5 @@ is_bits_set (Type _val, Type1 _first, Args... _args)
 }
 
 KNGIN_NAMESPACE_K_END
-
-#undef KNGIN_FILENAME
 
 #endif /* KNGIN_BITS_H */
