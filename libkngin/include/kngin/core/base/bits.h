@@ -4,11 +4,11 @@
 #include "kngin/core/define.h"
 #include "kngin/core/base/exception.h"
 
-#define TYPE_BITS(type)              (size_t)(sizeof(type) * 8)
-#define BIT_VALUE(type, pos)         ((type)1 << (pos))
-#define IS_BIT_SET(type, value, pos) (((type)1 << (pos)) & (type)(value))
-#define SET_BIT(type, value, pos)    ((type)1 << (pos)) | (type)(value)))
-#define CLEAR_BIT(type, value, pos)  (~((type)1 << (pos)) & (type)(value))
+#define TYPE_BITS(type)              static_cast<size_t>(sizeof(type) * 8)
+#define BIT_VALUE(type, pos)         (static_cast<type>(1) << (pos))
+#define IS_BIT_SET(type, value, pos) ((static_cast<type>(1) << (pos)) & static_cast<type>(value))
+#define SET_BIT(type, value, pos)    ((static_cast<type>(1) << (pos)) | static_cast<type>(value)))
+#define CLEAR_BIT(type, value, pos)  (~(static_cast<type>(1) << (pos)) & static_cast<type>(value))
 
 KNGIN_NAMESPACE_K_BEGIN
 
