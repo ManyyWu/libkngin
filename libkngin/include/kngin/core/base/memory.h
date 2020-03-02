@@ -1,6 +1,9 @@
 #ifndef KNGIN_MEMORY_H
 #define KNGIN_MEMORY_H
 
+#include "kngin/core/define.h"
+#include <cassert>
+
 KNGIN_NAMESPACE_K_BEGIN
 
 template <typename Tp>

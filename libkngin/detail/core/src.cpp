@@ -15,7 +15,6 @@
 #include "detail/core/base/impl/win_thread.cpp"
 #include "detail/core/base/impl/pthread_barrier.cpp"
 #include "detail/core/base/impl/win_barrier.cpp"
-#include "detail/core/base/impl/pthread_cond.cpp"
 #include "detail/core/base/impl/win_cond.cpp"
 #include "detail/core/base/impl/win_mutex.cpp"
 #include "detail/core/base/impl/win_rwlock.cpp"

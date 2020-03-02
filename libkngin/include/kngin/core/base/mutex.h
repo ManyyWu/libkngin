@@ -6,16 +6,17 @@
 #include "kngin/core/base/memory.h"
 #include "kngin/core/base/scope_lock.h"
 #include "kngin/core/base/timestamp.h"
+#include "kngin/core/base/impl.h"
+
+TYPEDEF_MUTEX_IMPL(mutex_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
-
-class mutex_impl;
 
 class mutex : public noncopyable {
   friend class cond;
 
 public:
-  typedef scope_lock<mutex> scope_lock;
+  typedef scope_lock<mutex> scoped_lock;
 
   mutex ();
 
@@ -31,9 +32,7 @@ public:
   try_lock ();
 
 private:
-  typedef mutex_impl impl_type;
-
-  impl_type *impl_;
+  mutex_impl *impl_;
 };
 
 KNGIN_NAMESPACE_K_END

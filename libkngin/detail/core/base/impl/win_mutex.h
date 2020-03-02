@@ -6,8 +6,7 @@
 
 #include "kngin/core/base/timestamp.h"
 
-KNGIN_NAMESPACE_K_BEGIN
-KNGIN_NAMESPACE_DETAIL_BEGIN
+NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class win_mutex {
   friend class cond_impl;
@@ -29,8 +28,7 @@ public:
 private:
 };
 
-KNGIN_NAMESPACE_DETAIL_END
-KNGIN_NAMESPACE_K_END
+KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
 #endif /* defined(KNGIN_USE_WIN_MUTEX) */
 

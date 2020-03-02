@@ -4,7 +4,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 mutex::mutex ()
- : impl_(new impl_type()) {
+ : impl_(new mutex_impl()) {
 }
 
 mutex::~mutex () noexcept {
@@ -23,7 +23,7 @@ mutex::unlock () {
 
 bool
 mutex::try_lock () {
-  impl_->try_lock();
+  return impl_->try_lock();
 }
 
 KNGIN_NAMESPACE_K_END

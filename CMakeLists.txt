@@ -21,7 +21,6 @@ set(CMAKE_INSTALL_PREFIX            ${PROJECT_SOURCE_DIR}/build)
 
 # include
 include_directories("${PROJECT_SOURCE_DIR}/libkngin/include")
-include_directories("${PROJECT_SOURCE_DIR}/libs/pthreads_win32/include")
 include_directories("${PROJECT_SOURCE_DIR}/libkngin")
 
 # source

@@ -12,12 +12,10 @@
 #  include <pthread.h>
 #endif /* defined(KNGIN_SYTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
-KNGIN_NAMESPACE_DETAIL_BEGIN
-KNGIN_NAMESPACE_IMPL_BEGIN
+KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class pthread_mutex {
-  friend class cond_impl;
+  friend class pthread_cond;
 
 public:
   pthread_mutex ()
@@ -61,9 +59,7 @@ private:
   pthread_mutex_t mutex_;
 };
 
-KNGIN_NAMESPACE_IMPL_END
-KNGIN_NAMESPACE_DETAIL_END
-KNGIN_NAMESPACE_K_END
+KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
 #endif /* defined(KNGIN_USE_PTHREAD_MUTEX) */
 

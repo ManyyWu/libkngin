@@ -29,7 +29,8 @@ public:
   }
 
   mutex_test (const k::mutex_test &e)
-    : what_(e.what_), ec_(e.ec_) {
+    : what_(e.what_),
+      ec_(e.ec_) {
   }
 
   virtual
@@ -51,9 +52,9 @@ public:
   }
 
 private:
-  const error_code  ec_;
-
   const std::string what_;
+
+  const error_code  ec_;
 };
 
 KNGIN_NAMESPACE_K_END
