@@ -19,7 +19,7 @@ exception::dump_stack () {
   if (!size or !statcks)
     return;
 
-  dump_str_.reserve(size * 512);
+  dump_str_.reserve(size * KNGIN_DUMP_LINE_SIZE);
   dump_str_ += "invocation stack: ";
   if (size and statcks) {
     for (int i = 0; i < size; ++i) {
