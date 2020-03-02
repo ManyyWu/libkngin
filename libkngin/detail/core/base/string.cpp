@@ -11,6 +11,7 @@ static
 int
 vasprintf (char **ptr,
            const char *, va_list arg) {
+  return 0;
 }
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 

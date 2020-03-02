@@ -1,35 +1,10 @@
 #ifndef KNGIN_CONFIG_H
 #define KNGIN_CONFIG_H
 
-#define ON  true
-#define OFF false
-
 // compiler checking
 #if (__cplusplus < 201703L)
-#  error c++ version is too low, please build the project using c++17 standard.
+//#  error c++ version is too low, please build the project using c++17 standard.
 #endif /* (__cplusplus < 201703L) */
-
-/**** micro test ****/
-// for log
-#define ENABLE_LOG_RELATIVE_PATH
-//#define ENABLE_USE_ASYNC_LOGGER
-//#define ASYNC_LOGGER_TIMEOUT 3000ULL
-
-// for timer
-//#define ENABLE_USE_TIMERFD
-#define TIMER_REMAINING_PRESISION 0ULL
-
-// for session
-//#define ENABLE_SESSION_USE_C_HANDLER
-//#define ENABLE_SESSION_NO_MUTEX
-//#define ENABLE_SESSION_USE_ET_MODE
-
-// for epoll
-#define REACTOR_WAIT_SET_SIZE 64
-
-// reactor
-#define REACTOR_TIMEOUT 3000ULL
-/**** end of micro test ****/
 
 // platform checking
 #if defined(_WIN32)

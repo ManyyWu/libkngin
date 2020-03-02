@@ -8,10 +8,10 @@ error_code::get_error_str (error_type code) {
 #if defined(KNGIN_SYSTEM_WIN32)
   if (code > 0) {
     std::string result;
-    char* buf = NULL;
+    char* buf = nullptr;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-                   FORMAT_MESSAGE_IGNORE_INSERTS, NULL, DWORD(code),
-                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, NULL);
+                   FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, DWORD(code),
+                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, nullptr);
     result = buf ? buf : "Unknown error";
     if (buf)
         LocalFree(buf);
@@ -23,7 +23,6 @@ error_code::get_error_str (error_type code) {
     return str ? str : "Unknown error";
   }
 #else
-  assert(code > 0);
   const char *str = ::strerror(int(code));
   return str ? str : "Unknown error";
 #endif /* defined(KNGIN_SYSTEM_WIN32) */

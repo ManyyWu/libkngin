@@ -3,6 +3,7 @@
 
 #include <cerrno>
 #include <string>
+#include <cassert>
 #include "kngin/core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
