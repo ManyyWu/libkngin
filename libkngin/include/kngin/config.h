@@ -22,6 +22,66 @@
 #  error unsupported platform
 #endif /* defined(_WIN32) */
 
+// mutex
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_MUTEX
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_MUTEX)
+#  define KNGIN_USE_WIN_MUTEX
+#elif defined(ENABLE_USE_PTHREAD_MUTEX)
+#  define KNGIN_USE_PTHREAD_MUTEX
+#else
+#  define KNGIN_USE_PTHREAD_MUTEX
+#endif /* defined(ENABLE_USE_WIN_MUTEX) */
+
+// cond
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_COND
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_COND)
+#  define KNGIN_USE_WIN_COND
+#elif defined(ENABLE_USE_PTHREAD_COND)
+#  define KNGIN_USE_PTHREAD_COND
+#else
+#  define KNGIN_USE_PTHREAD_COND
+#endif /* defined(ENABLE_USE_WIN_COND) */
+
+// rwlock
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_RWLOCK
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_RWLOCK)
+#  define KNGIN_USE_WIN_RWLOCK
+#elif defined(ENABLE_USE_PTHREAD_RWLOCK)
+#  define KNGIN_USE_PTHREAD_RWLOCK
+#else
+#  define KNGIN_USE_PTHREAD_RWLOCK
+#endif /* defined(ENABLE_USE_WIN_RWLOCK) */
+
+// barrier
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_BARRIER
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_BARRIER)
+#  define KNGIN_USE_WIN_BARRIER
+#elif defined(ENABLE_USE_PTHREAD_BARRIER)
+#  define KNGIN_USE_PTHREAD_BARRIER
+#else
+#  define KNGIN_USE_PTHREAD_BARRIER
+#endif /* defined(ENABLE_USE_WIN_BARRIER) */
+
+// barrier
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_THREAD
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_THREAD)
+#  define KNGIN_USE_WIN_THREAD
+#elif defined(ENABLE_USE_PTHREAD_THREAD)
+#  define KNGIN_USE_PTHREAD_THREAD
+#else
+#  error no thread definition was be selected
+#endif /* defined(ENABLE_USE_WIN_THREAD)*/
+
 // log
 #define FILENAME __FILE__
 #if defined(NDEBUG)

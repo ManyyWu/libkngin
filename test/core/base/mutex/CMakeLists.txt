@@ -6,7 +6,7 @@ else()
     set(CMAKE_CXX_STANDARD 17)
 endif(MSVC)
 
-project(exception_test)
+project(mutex_test)
 
-add_executable(exception_test ./exception_test.cpp)
-target_link_libraries(exception_test kngin-static)
+add_executable(mutex_test mutex_test.cpp)
+target_link_libraries(mutex_test kngin-static)

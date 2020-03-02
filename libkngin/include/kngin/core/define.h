@@ -2,11 +2,11 @@
 #define KNGIN_DEFINE_H
 
 // includes
+#include "kngin/config.h"
 #include <ciso646>
 #include <cinttypes>
 #include <climits>
 #include <cstddef>
-#include "kngin/config.h"
 
 // version
 #define KNGIN_VERSION 0.10lf
@@ -31,12 +31,16 @@
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 // namespace
-#define KNGIN_NAMESPACE_K_BEGIN   namespace k {
-#define KNGIN_NAMESPACE_K_END     };
-#define KNGIN_NAMESPACE_TCP_BEGIN namespace tcp {
-#define KNGIN_NAMESPACE_TCP_END   };
-#define KNGIN_NAMESPACE_UDP_BEGIN namespace udp {
-#define KNGIN_NAMESPACE_UDP_END   };
+#define KNGIN_NAMESPACE_K_BEGIN      namespace k {
+#define KNGIN_NAMESPACE_K_END        };
+#define KNGIN_NAMESPACE_DETAIL_BEGIN namespace detail {
+#define KNGIN_NAMESPACE_DETAIL_END   };
+#define KNGIN_NAMESPACE_IMPL_BEGIN   namespace impl {
+#define KNGIN_NAMESPACE_IMPL_END     };
+#define KNGIN_NAMESPACE_TCP_BEGIN    namespace tcp {
+#define KNGIN_NAMESPACE_TCP_END      };
+#define KNGIN_NAMESPACE_UDP_BEGIN    namespace udp {
+#define KNGIN_NAMESPACE_UDP_END      };
 
 // log
 #if defined(KNGIN_LOG_RELATIVE_PATH)

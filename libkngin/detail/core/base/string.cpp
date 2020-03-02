@@ -1,8 +1,8 @@
+#include "kngin/core/define.h"
+#include "kngin/core/base/string.h"
 #include <cassert>
 #include <cstdio>
 #include <cstdarg>
-#include "kngin/core/define.h"
-#include "kngin/core/base/string.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

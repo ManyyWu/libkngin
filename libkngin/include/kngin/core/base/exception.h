@@ -1,10 +1,10 @@
 #ifndef KNGIN_EXCEPTION_H
 #define KNGIN_EXCEPTION_H
 
-#include <string>
-#include <exception>
 #include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
+#include <string>
+#include <exception>
 
 KNGIN_NAMESPACE_K_BEGIN
 

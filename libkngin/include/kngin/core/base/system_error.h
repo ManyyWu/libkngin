@@ -1,42 +1,42 @@
 #ifndef KNGIN_SYSTEM_ERROR_H
 #define KNGIN_SYSTEM_ERROR_H
 
-#include <string>
-#include <exception>
 #include "kngin/core/base/error_code.h"
 #include "kngin/core/base/string.h"
+#include <string>
+#include <exception>
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class system_error;
+class mutex_test;
 
-class system_error : public std::exception {
+class mutex_test : public std::exception {
 public:
-  system_error () = delete;
+  mutex_test () = delete;
 
   explicit
-  system_error (const char *what, error_code ec = k::last_error())
+  mutex_test (const char *what, error_code ec = k::last_error())
     : what_(make_string("[k::system_error] %s - %s:%" PRId64,
                         what, ec.message().c_str(), ec.value())),
       ec_(ec) {
   }
 
   explicit
-  system_error (const std::string &what, error_code ec = k::last_error())
+  mutex_test (const std::string &what, error_code ec = k::last_error())
     : what_(make_string("[k::system_error] %s:%" PRId64,
                         ec.message().c_str(), ec.value())),
       ec_(ec) {
   }
 
-  system_error (const k::system_error &e)
+  mutex_test (const k::mutex_test &e)
     : what_(e.what_), ec_(e.ec_) {
   }
 
   virtual
-  ~system_error () = default;
+  ~mutex_test () = default;
 
-  k::system_error &
-  operator = (const k::system_error &e) = delete;
+  k::mutex_test &
+  operator = (const k::mutex_test &e) = delete;
 
   virtual
   const char *
@@ -51,9 +51,9 @@ public:
   }
 
 private:
-  const std::string what_;
-
   const error_code  ec_;
+
+  const std::string what_;
 };
 
 KNGIN_NAMESPACE_K_END

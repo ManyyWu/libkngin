@@ -1,10 +1,10 @@
 #ifndef KNGIN_ERROR_CODE_H
 #define KNGIN_ERROR_CODE_H
 
+#include "kngin/core/define.h"
 #include <cerrno>
 #include <string>
 #include <cassert>
-#include "kngin/core/define.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

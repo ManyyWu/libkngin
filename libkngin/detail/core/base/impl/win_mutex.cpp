@@ -1,0 +1,13 @@
+#include "detail/core/base/impl/win_mutex.h"
+
+#if defined(KNGIN_USE_WIN_MUTEX)
+
+KNGIN_NAMESPACE_K_BEGIN
+KNGIN_NAMESPACE_DETAIL_BEGIN
+
+
+
+KNGIN_NAMESPACE_DETAIL_END
+KNGIN_NAMESPACE_K_END
+
+#endif /* defined(KNGIN_USE_WIN_MUTEX) */

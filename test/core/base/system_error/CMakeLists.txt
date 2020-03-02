@@ -8,5 +8,5 @@ endif(MSVC)
 
 project(system_error_test)
 
-add_executable(system_error_test system_error.cpp)
+add_executable(system_error_test system_error_test.cpp)
 target_link_libraries(system_error_test kngin-static)
