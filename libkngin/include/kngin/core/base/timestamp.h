@@ -151,12 +151,14 @@ public:
 
   void
   to_timeval (timeval &tv) const noexcept {
-    tv.tv_sec = long(ms_ / 1000); tv.tv_usec = long(1000 * (ms_ % 1000));
+    tv.tv_sec = long(ms_ / 1000);
+    tv.tv_usec = long(1000 * (ms_ % 1000));
   }
 
   void
   to_timespec (timespec &ts) const noexcept {
-    ts.tv_sec = long(ms_ / 1000); ts.tv_nsec = long(1000000 * (ms_ % 1000));
+    ts.tv_sec = long(ms_ / 1000);
+    ts.tv_nsec = long(1000000 * (ms_ % 1000));
   }
 
   static timestamp
@@ -174,7 +176,8 @@ public:
 #if defined(KNGIN_SYSTEM_WIN32)
   static timestamp
   realtime () noexcept {
-    timeval tv; ::gettimeofday(&tv, nullptr); return tv;
+    timeval tv;
+    ::gettimeofday(&tv, nullptr); return tv;
   }
 
   static timestamp

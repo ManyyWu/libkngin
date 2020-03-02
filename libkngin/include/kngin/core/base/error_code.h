@@ -73,17 +73,20 @@ public:
 
   error_code &
   operator = (error_type code) noexcept {
-    code_ = code; return *this;
+    code_ = code;
+    return *this;
   }
 
   error_code &
   operator = (const error_code &code) noexcept {
-    code_ = code.code_; return *this;
+    code_ = code.code_;
+    return *this;
   }
 
   error_code &
   operator = (const error_code &&code) noexcept {
-    code_ = code.code_; return *this;
+    code_ = code.code_;
+    return *this;
   }
 
   bool
