@@ -98,6 +98,5 @@ install(TARGETS kngin kngin-static
         )
 install(FILES ${PROJECT_SOURCE_DIR}/libkngin/include/libkngin.h DESTINATION include)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/libkngin/include/kngin DESTINATION include)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/libs/pthreads_win32/include/pthreads_win32 DESTINATION include)
 
 add_subdirectory(test)
