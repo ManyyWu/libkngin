@@ -1,4 +1,5 @@
 #include "kngin/core/base/mutex.h"
+#include "kngin/core/base/thread.h"
 #include <iostream>
 #include <thread>
 
@@ -9,20 +10,22 @@ main () {
   k::mutex m;
   int v = 0;
 
-  thread t([&] () {
+  k::thread t([&] () -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         ++v;
       }
     }
+    return 0;
   });
 
-  thread t1([&] () {
+  k::thread t1([&] () -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         ++v;
       }
     }
+    return 0;
   });
 
   t.join();
@@ -30,22 +33,24 @@ main () {
   cout << v << endl;
 
   v = 0;
-  thread t2([&] () {
+  k::thread t2([&] () -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         k::mutex::scoped_lock lock(m);
         ++v;
       }
     }
+    return 0;
   });
 
-  thread t3([&] () {
+  k::thread t3([&] () -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         k::mutex::scoped_lock lock(m);
         ++v;
       }
     }
+    return 0;
   });
 
   t2.join();

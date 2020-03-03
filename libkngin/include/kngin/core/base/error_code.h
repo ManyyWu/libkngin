@@ -29,19 +29,19 @@ last_error () {
 class error_code {
 public:
   error_code () noexcept
-    : code_(0) {
+   : code_(0) {
   }
 
   error_code (error_type code) noexcept
-    : code_(code) {
+   : code_(code) {
   }
 
   error_code (const error_code &code) noexcept
-    : code_(code.code_) {
+   : code_(code.code_) {
   }
 
   error_code (const error_code &&code) noexcept
-    : code_(code.code_) {
+   : code_(code.code_) {
   }
 
   ~error_code () = default;

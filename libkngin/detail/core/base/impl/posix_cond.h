@@ -12,9 +12,10 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class posix_cond {
 public:
-  posix_cond (mutex_impl &mutex)
-      : cond_(PTHREAD_COND_INITIALIZER),
-        mutex_(mutex.mutex_){
+  explicit
+  posix_cond (mutex_impl &mutex) noexcept
+   : cond_(PTHREAD_COND_INITIALIZER),
+     mutex_(mutex.mutex_){
   }
 
   ~posix_cond () noexcept {
@@ -22,28 +23,17 @@ public:
   }
 
   void
-  wait () {
+  wait () noexcept {
     assert(0 == ::pthread_cond_wait(&cond_, &mutex_));
   }
 
-  bool
-  timed_wait (timestamp ms) {
-    timespec ts;
-    ::timespec_get(&ts, TIME_UTC);
-    (ms += ts).to_timespec(ts);
-    auto ec = ::pthread_cond_timedwait(&cond_, &mutex_, &ts);
-    if (ETIMEDOUT == ec or (assert(0 == ec), true))
-      return false;
-    return true;
-  }
-
   void
-  signal () {
+  signal () noexcept {
     assert(0 == ::pthread_cond_signal(&cond_));
   }
 
   void
-  broadcast () {
+  broadcast () noexcept {
     assert(0 == ::pthread_cond_broadcast(&cond_));
   }
 

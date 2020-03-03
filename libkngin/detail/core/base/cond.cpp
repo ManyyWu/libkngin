@@ -1,10 +1,11 @@
+#include "kngin/core/base/memory.h"
 #include "kngin/core/base/cond.h"
 #include "detail/core/base/cond_impl.h"
 #include "kngin/core/base/mutex.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-cond::cond (mutex &mutex)
+cond::cond (mutex &mutex) noexcept
   : impl_(new cond_impl(*mutex.impl_)) {
 }
 
@@ -13,22 +14,17 @@ cond::~cond () noexcept {
 }
 
 void
-cond::wait () {
+cond::wait () noexcept {
   impl_->wait();
 }
 
-bool
-cond::timed_wait (timestamp ms) {
-  return impl_->timed_wait(ms);
-}
-
 void
-cond::signal () {
+cond::signal () noexcept {
   impl_->signal();
 }
 
 void
-cond::broadcast() {
+cond::broadcast() noexcept {
   impl_->broadcast();
 }
 

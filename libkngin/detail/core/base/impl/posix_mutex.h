@@ -7,7 +7,7 @@
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/system_error.h"
 #if defined(KNGIN_SYSTEM_WIN32)
-#  include "pthread.h"
+#  include "pthreads_win32/pthread.h"
 #else
 #  include <pthread.h>
 #endif /* defined(KNGIN_SYTEM_WIN32) */
@@ -18,7 +18,7 @@ class posix_mutex {
   friend class posix_cond;
 
 public:
-  posix_mutex ()
+  posix_mutex () noexcept
    : mutex_(PTHREAD_MUTEX_INITIALIZER) {
   }
 
@@ -27,30 +27,19 @@ public:
   }
 
   void
-  lock () {
+  lock () noexcept {
     assert(0 == ::pthread_mutex_lock(&mutex_));
   }
 
   void
-  unlock () {
+  unlock () noexcept {
     assert(0 == ::pthread_mutex_unlock(&mutex_));
   }
 
   bool
-  try_lock () {
+  try_lock () noexcept {
     auto ec = ::pthread_mutex_trylock(&mutex_);
     if (EBUSY == ec or (assert(0 == ec), true))
-      return false;
-    return true;
-  }
-
-  bool
-  timeed_lock (timestamp ms) {
-    timespec ts;
-    ::timespec_get(&ts, TIME_UTC);
-    (ms += ts).to_timespec(ts);
-    auto ec = ::pthread_mutex_timedlock(&mutex_, &ts);
-    if (ETIMEDOUT == ec or (assert(0 == ec), true))
       return false;
     return true;
   }

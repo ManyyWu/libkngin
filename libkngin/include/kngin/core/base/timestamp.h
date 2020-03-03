@@ -35,23 +35,23 @@ KNGIN_NAMESPACE_K_BEGIN
 class timestamp {
 public:
   timestamp ()
-    : ms_(0) {
+   : ms_(0) {
   }
 
   timestamp (time_t ms) noexcept
-    : ms_(ms) {
+   : ms_(ms) {
   }
 
   timestamp (const timestamp &t) noexcept
-    : ms_(t.ms_) {
+   : ms_(t.ms_) {
   }
 
   timestamp (const timeval &tv) noexcept
-    : ms_(tv.tv_sec * 1000 + tv.tv_usec / 1000) {
+   : ms_(tv.tv_sec * 1000 + tv.tv_usec / 1000) {
   }
 
   timestamp (const timespec &ts) noexcept
-    : ms_(ts.tv_sec * 1000 + ts.tv_nsec / 1000000) {
+   : ms_(ts.tv_sec * 1000 + ts.tv_nsec / 1000000) {
   }
 
   ~timestamp () = default;
@@ -161,12 +161,14 @@ public:
     ts.tv_nsec = long(1000000 * (ms_ % 1000));
   }
 
-  static timestamp
+  static
+  timestamp
   infinite () noexcept {
     return UINT64_MAX;
   }
 
-  static timestamp
+  static
+  timestamp
   time_of_day () noexcept {
     timeval tv;
     ::gettimeofday(&tv, nullptr);
@@ -174,13 +176,15 @@ public:
   }
 
 #if defined(KNGIN_SYSTEM_WIN32)
-  static timestamp
+  static
+  timestamp
   realtime () noexcept {
     timeval tv;
     ::gettimeofday(&tv, nullptr); return tv;
   }
 
-  static timestamp
+  static
+  timestamp
   monotonic () noexcept {
 #ifdef KNGIN_SYSTEM_WIN64
     return ::GetTickCount64();

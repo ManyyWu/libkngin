@@ -3,7 +3,6 @@
 
 #include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
-#include "kngin/core/base/memory.h"
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/impl.h"
 
@@ -15,21 +14,18 @@ class mutex;
 class cond : public noncopyable {
 public:
   explicit
-  cond (mutex &mutex);
+  cond (mutex &mutex) noexcept;
 
   ~cond () noexcept;
 
   void
-  wait ();
-
-  bool
-  timed_wait (timestamp ms);
+  wait () noexcept;
 
   void
-  signal ();
+  signal () noexcept;
 
   void
-  broadcast ();
+  broadcast () noexcept;
 
 private:
   cond_impl *impl_;

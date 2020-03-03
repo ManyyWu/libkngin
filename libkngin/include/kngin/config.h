@@ -81,6 +81,9 @@
 #else
 #  error no thread definition was be selected
 #endif /* defined(ENABLE_USE_WIN_THREAD)*/
+#if defined(ENABLE_THREAD_USE_STD_FUNCTION)
+#  define KNGIN_THREAD_USE_STD_FUNCTION
+#endif /* defined(ENABLE_THREAD_USE_STD_FUNCTION) */
 
 // log
 #define FILENAME __FILE__

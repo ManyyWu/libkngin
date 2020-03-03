@@ -8,36 +8,34 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class mutex_test;
-
-class mutex_test : public std::exception {
+class system_error : public std::exception {
 public:
-  mutex_test () = delete;
+  system_error () = delete;
 
   explicit
-  mutex_test (const char *what, error_code ec = k::last_error())
-    : what_(make_string("[k::system_error] %s - %s:%" PRId64,
-                        what, ec.message().c_str(), ec.value())),
-      ec_(ec) {
+  system_error (const char *what, error_code ec = k::last_error())
+   : what_(make_string("[k::system_error] %s - %s:%" PRId64,
+                       what, ec.message().c_str(), ec.value())),
+     ec_(ec) {
   }
 
   explicit
-  mutex_test (const std::string &what, error_code ec = k::last_error())
-    : what_(make_string("[k::system_error] %s:%" PRId64,
-                        ec.message().c_str(), ec.value())),
-      ec_(ec) {
+  system_error (const std::string &what, error_code ec = k::last_error())
+   : what_(make_string("[k::system_error] %s:%" PRId64,
+                       ec.message().c_str(), ec.value())),
+     ec_(ec) {
   }
 
-  mutex_test (const k::mutex_test &e)
-    : what_(e.what_),
-      ec_(e.ec_) {
+  system_error (const k::system_error &e)
+   : what_(e.what_),
+     ec_(e.ec_) {
   }
 
   virtual
-  ~mutex_test () = default;
+  ~system_error () = default;
 
-  k::mutex_test &
-  operator = (const k::mutex_test &e) = delete;
+  k::system_error &
+  operator = (const k::system_error &e) = delete;
 
   virtual
   const char *

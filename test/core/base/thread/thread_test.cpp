@@ -1,10 +1,13 @@
 #include "kngin/core/base/thread.h"
-#include <iostream>
+
 using namespace std;
 
 int
 main () {
-
+  k::thread t([] () -> int {
+    throw k::exception("");
+    return 0;
+  }, "thread_test");
 
   return 0;
 }

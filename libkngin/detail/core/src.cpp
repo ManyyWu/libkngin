@@ -3,6 +3,7 @@
 #include "detail/core/base/cond.cpp"
 #include "detail/core/base/rwlock.cpp"
 #include "detail/core/base/barrier.cpp"
+#include "detail/core/base/thread.cpp"
 #include "detail/core/base/log.cpp"
 #include "detail/core/base/log_mgr.cpp"
 #include "detail/core/base/logger.cpp"

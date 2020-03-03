@@ -3,7 +3,6 @@
 
 #include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
-#include "kngin/core/base/memory.h"
 #include "kngin/core/base/scope_lock.h"
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/impl.h"
@@ -18,18 +17,18 @@ class mutex : public noncopyable {
 public:
   typedef scope_lock<mutex> scoped_lock;
 
-  mutex ();
+  mutex () noexcept;
 
   ~mutex () noexcept;
 
   void
-  lock ();
+  lock () noexcept;
 
   void
-  unlock ();
+  unlock () noexcept;
 
   bool
-  try_lock ();
+  try_lock () noexcept;
 
 private:
   mutex_impl *impl_;

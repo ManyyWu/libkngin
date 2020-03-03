@@ -1,5 +1,6 @@
 #include "kngin/core/base/cond.h"
 #include "kngin/core/base/mutex.h"
+#include "kngin/core/base/thread.h"
 #include <iostream>
 #include <thread>
 #include <string>
@@ -13,19 +14,20 @@ main () {
   k::cond c(m);
   std::deque<int> q;
 
-  thread t([&] () {
+  k::thread t([&] () -> int {
     {
       k::mutex::scoped_lock lock(m);
       if (q.empty()) {
         cout << "wait" << endl;
-        c.timed_wait(1000);
+        c.wait();
         cout << "wake up, q.size = " << q.size() << endl;
         q.clear();
       }
     }
+    return 0;
   });
 
-  thread t1([&] () {
+  k::thread t1([&] () -> int {
     {
       while (true) {
         std::string s;
@@ -41,6 +43,7 @@ main () {
         }
       }
     }
+    return 0;
   });
 
   t.join();

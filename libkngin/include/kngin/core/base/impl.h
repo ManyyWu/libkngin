@@ -48,9 +48,9 @@
 
 // barrier
 #if defined(KNGIN_USE_WIN_BARRIER)
-#  define TYPEDEF_BARRIER_IMPL(type)    \
+#  define TYPEDEF_BARRIER_IMPL(type)   \
     KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN\
-      class win_barrier;                \
+      class win_barrier;               \
     KNGIN_NAMESPACE_K_DETAIL_IMPL_END  \
     typedef k::detail::impl::win_barrier (type)
 #elif defined(KNGIN_USE_POSIX_BARRIER)
@@ -60,5 +60,20 @@
     KNGIN_NAMESPACE_K_DETAIL_IMPL_END  \
     typedef k::detail::impl::posix_barrier (type)
 #endif /* defined(KNGIN_USE_WIN_BARRIER) */
+
+// thread
+#if defined(KNGIN_USE_WIN_THREAD)
+#  define TYPEDEF_THREAD_IMPL(type)    \
+    KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN\
+      class win_thread;                \
+    KNGIN_NAMESPACE_K_DETAIL_IMPL_END  \
+    typedef k::detail::impl::win_thread (type)
+#elif defined(KNGIN_USE_POSIX_THREAD)
+#  define TYPEDEF_THREAD_IMPL(type)    \
+    KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN\
+      class posix_thread;              \
+    KNGIN_NAMESPACE_K_DETAIL_IMPL_END  \
+    typedef k::detail::impl::posix_thread (type)
+#endif /* defined(KNGIN_USE_WIN_THREAD) */
 
 #endif /* KNGIN_IMPL_H */
