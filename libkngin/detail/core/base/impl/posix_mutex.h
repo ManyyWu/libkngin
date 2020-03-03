@@ -1,28 +1,28 @@
-#ifndef KNGIN_PTHREAD_MUTEX_H
-#define KNGIN_PTHREAD_MUTEX_H
+#ifndef KNGIN_POSIX_MUTEX_H
+#define KNGIN_POSIX_MUTEX_H
 
 #include "kngin/core/define.h"
-#if defined(KNGIN_USE_PTHREAD_MUTEX)
+#if defined(KNGIN_USE_POSIX_MUTEX)
 
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/system_error.h"
 #if defined(KNGIN_SYSTEM_WIN32)
-#  include "kngin/core/base/pthreads_win32/pthread.h"
+#  include "pthread.h"
 #else
 #  include <pthread.h>
 #endif /* defined(KNGIN_SYTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class pthread_mutex {
-  friend class pthread_cond;
+class posix_mutex {
+  friend class posix_cond;
 
 public:
-  pthread_mutex ()
+  posix_mutex ()
    : mutex_(PTHREAD_MUTEX_INITIALIZER) {
   }
 
-  ~pthread_mutex () noexcept {
+  ~posix_mutex () noexcept {
     assert(0 == ::pthread_mutex_destroy(&mutex_));
   }
 
@@ -61,6 +61,6 @@ private:
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* defined(KNGIN_USE_PTHREAD_MUTEX) */
+#endif /* defined(KNGIN_USE_POSIX_MUTEX) */
 
-#endif /* KNGIN_PTHREAD_MUTEX_H */
+#endif /* KNGIN_POSIX_MUTEX_H */

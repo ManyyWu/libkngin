@@ -28,10 +28,10 @@
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_MUTEX)
 #  define KNGIN_USE_WIN_MUTEX
-#elif defined(ENABLE_USE_PTHREAD_MUTEX)
-#  define KNGIN_USE_PTHREAD_MUTEX
+#elif defined(ENABLE_USE_POSIX_MUTEX)
+#  define KNGIN_USE_POSIX_MUTEX
 #else
-#  define KNGIN_USE_PTHREAD_MUTEX
+#  define KNGIN_USE_POSIX_MUTEX
 #endif /* defined(ENABLE_USE_WIN_MUTEX) */
 
 // cond
@@ -40,10 +40,10 @@
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_COND)
 #  define KNGIN_USE_WIN_COND
-#elif defined(ENABLE_USE_PTHREAD_COND)
-#  define KNGIN_USE_PTHREAD_COND
+#elif defined(ENABLE_USE_POSIX_COND)
+#  define KNGIN_USE_POSIX_COND
 #else
-#  define KNGIN_USE_PTHREAD_COND
+#  define KNGIN_USE_POSIX_COND
 #endif /* defined(ENABLE_USE_WIN_COND) */
 
 // rwlock
@@ -52,10 +52,10 @@
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_RWLOCK)
 #  define KNGIN_USE_WIN_RWLOCK
-#elif defined(ENABLE_USE_PTHREAD_RWLOCK)
-#  define KNGIN_USE_PTHREAD_RWLOCK
+#elif defined(ENABLE_USE_POSIX_RWLOCK)
+#  define KNGIN_USE_POSIX_RWLOCK
 #else
-#  define KNGIN_USE_PTHREAD_RWLOCK
+#  define KNGIN_USE_POSIX_RWLOCK
 #endif /* defined(ENABLE_USE_WIN_RWLOCK) */
 
 // barrier
@@ -64,20 +64,20 @@
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_BARRIER)
 #  define KNGIN_USE_WIN_BARRIER
-#elif defined(ENABLE_USE_PTHREAD_BARRIER)
-#  define KNGIN_USE_PTHREAD_BARRIER
+#elif defined(ENABLE_USE_POSIX_BARRIER)
+#  define KNGIN_USE_POSIX_BARRIER
 #else
-#  define KNGIN_USE_PTHREAD_BARRIER
+#  define KNGIN_USE_POSIX_BARRIER
 #endif /* defined(ENABLE_USE_WIN_BARRIER) */
 
-// barrier
+// thread
 #if !defined(KNGIN_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_THREAD
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_THREAD)
 #  define KNGIN_USE_WIN_THREAD
-#elif defined(ENABLE_USE_PTHREAD_THREAD)
-#  define KNGIN_USE_PTHREAD_THREAD
+#elif defined(ENABLE_USE_POSIX_THREAD)
+#  define KNGIN_USE_POSIX_THREAD
 #else
 #  error no thread definition was be selected
 #endif /* defined(ENABLE_USE_WIN_THREAD)*/

@@ -1,23 +1,23 @@
-#ifndef KNGIN_PTHREAD_COND_H
-#define KNGIN_PTHREAD_COND_H
+#ifndef KNGIN_POSIX_COND_H
+#define KNGIN_POSIX_COND_H
 
 #include "kngin/core/define.h"
-#if defined(KNGIN_USE_PTHREAD_COND)
+#if defined(KNGIN_USE_POSIX_COND)
 
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/system_error.h"
-#include "detail/core/base/impl/pthread_mutex.h"
+#include "detail/core/base/impl/posix_cond.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class pthread_cond {
+class posix_cond {
 public:
-  pthread_cond (mutex_impl &mutex)
+  posix_cond (mutex_impl &mutex)
       : cond_(PTHREAD_COND_INITIALIZER),
         mutex_(mutex.mutex_){
   }
 
-  ~pthread_cond () noexcept {
+  ~posix_cond () noexcept {
     assert(0 == ::pthread_cond_destroy(&cond_));
   }
 
@@ -55,6 +55,6 @@ private:
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* defined(KNGIN_USE_PTHREAD_COND) */
+#endif /* defined(KNGIN_USE_POSIX_COND) */
 
-#endif /* KNGIN_PTHREAD_COND_H */
+#endif /* KNGIN_POSIX_COND_H */
