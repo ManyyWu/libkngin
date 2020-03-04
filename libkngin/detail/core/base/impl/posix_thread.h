@@ -21,7 +21,7 @@ public:
     void *ptr;
     int code;
 
-    thread_error_code ()
+    thread_error_code () noexcept
      : ptr(0) {
     }
   };
@@ -29,12 +29,10 @@ public:
   struct thread_data {
     std::string name;
     thread_proc thr_fn;
-    thread_data **pdata;
 
-    thread_data (const char *name, thread_proc &&thr_fn)
+    thread_data (const char *name, thread_proc &&thr_fn) noexcept
      : name(name),
-       thr_fn(std::move(thr_fn)),
-       pdata(nullptr) {
+       thr_fn(std::move(thr_fn)) {
     }
   };
 
@@ -46,7 +44,7 @@ public:
     this->create_thread(data);
   }
 
-  ~posix_thread () {
+  ~posix_thread () noexcept {
     if (joinable())
       this->detach();
   }
@@ -75,8 +73,8 @@ public:
   }
 
   bool
-  equal_to (posix_thread &thr) noexcept {
-    return ::pthread_equal(pthr_, thr.pthr_);
+  equal_to (posix_thread &thr) const noexcept {
+    return !::pthread_equal(pthr_, thr.pthr_);
   }
 
 private:

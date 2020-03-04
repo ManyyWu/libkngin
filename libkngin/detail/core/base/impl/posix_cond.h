@@ -5,7 +5,6 @@
 #if defined(KNGIN_USE_POSIX_COND)
 
 #include "kngin/core/base/timestamp.h"
-#include "kngin/core/base/system_error.h"
 #include "detail/core/base/impl/posix_cond.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN

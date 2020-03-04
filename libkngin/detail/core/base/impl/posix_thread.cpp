@@ -7,8 +7,10 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 void
 posix_thread::create_thread (thread_data *data) {
   auto ec = ::pthread_create(&pthr_, nullptr, posix_thread::start, data);
-  if (ec)
-    throw_system_error("::pthread_create() error ", ec);
+  if (ec) {
+    safe_release(data);
+    throw_system_error("::pthread_create() error ", ERRNO(ec));
+  }
 }
 
 void *

@@ -10,10 +10,10 @@ KNGIN_NAMESPACE_K_BEGIN
 
 #if defined(KNGIN_SYSTEM_WIN32)
 typedef int64_t error_type;
-#define CERR(code) (assert((code) > 0), -(code))
+#define ERRNO(code) (assert((code) > 0), -(code))
 #else
 typedef int error_type;
-#define CERR(code) (code)
+#define ERRNO(code) (code)
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 inline

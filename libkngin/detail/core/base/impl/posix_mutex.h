@@ -5,7 +5,6 @@
 #if defined(KNGIN_USE_POSIX_MUTEX)
 
 #include "kngin/core/base/timestamp.h"
-#include "kngin/core/base/system_error.h"
 #if defined(KNGIN_SYSTEM_WIN32)
 #  include "pthreads_win32/pthread.h"
 #else

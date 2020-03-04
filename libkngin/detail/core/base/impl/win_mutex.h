@@ -6,7 +6,7 @@
 
 #include "kngin/core/base/timestamp.h"
 
-NAMESPACE_K_DETAIL_IMPL_BEGIN
+KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class win_mutex {
   friend class cond_impl;
