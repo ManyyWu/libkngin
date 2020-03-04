@@ -6,8 +6,21 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+inline
+void
+clear_string (std::string &str) {
+  std::string tmp;
+  std::swap(str, tmp);
+}
+
+std::string &
+format_string (std::string &result, const char *fmt, va_list vl);
+
+std::string &
+format_string (std::string &result, const char *fmt, ...);
+
 std::string
-make_string (const char *fmt, ...);
+format_string (const char *fmt, ...);
 
 KNGIN_NAMESPACE_K_END
 

@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(core/base/bits)
 add_subdirectory(core/base/exception)
+add_subdirectory(core/base/format_string)
 add_subdirectory(core/base/system_error)
 add_subdirectory(core/base/mutex)
 add_subdirectory(core/base/cond)

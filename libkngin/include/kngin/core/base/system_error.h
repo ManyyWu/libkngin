@@ -3,7 +3,6 @@
 
 #include "kngin/core/base/error_code.h"
 #include "kngin/core/base/string.h"
-#include <string>
 #include <exception>
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -14,15 +13,15 @@ public:
 
   explicit
   system_error (const char *what, error_code ec = k::last_error())
-   : what_(make_string("[k::system_error] %s - %s:%" PRId64,
-                       what, ec.message().c_str(), ec.value())),
+   : what_(format_string("[k::system_error] %s - %s:%" PRId64,
+                         what, ec.message().c_str(), ec.value())),
      ec_(ec) {
   }
 
   explicit
   system_error (const std::string &what, error_code ec = k::last_error())
-   : what_(make_string("[k::system_error] %s:%" PRId64,
-                       ec.message().c_str(), ec.value())),
+   : what_(format_string("[k::system_error] %s:%" PRId64,
+                         ec.message().c_str(), ec.value())),
      ec_(ec) {
   }
 
@@ -50,9 +49,9 @@ public:
   }
 
 private:
-  const std::string what_;
+  std::string what_;
 
-  const error_code  ec_;
+  error_code  ec_;
 };
 
 KNGIN_NAMESPACE_K_END

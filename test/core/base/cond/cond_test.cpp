@@ -32,8 +32,10 @@ main () {
       while (true) {
         std::string s;
         cin >> s;
-        if (s == "#")
+        if (s == "#") {
+          c.signal();
           break;
+        }
         {
           k::mutex::scoped_lock lock(m);
           for (auto iter : s)
