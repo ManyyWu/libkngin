@@ -57,8 +57,8 @@ public:
   }
 
   bool
-  is_c_error () {
-    return (code_ > 0);
+  is_errno () {
+    return (code_ < 0);
   }
 
   explicit
