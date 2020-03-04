@@ -22,7 +22,7 @@ format_string(std::string &result, const char *fmt, va_list vl) {
   if (length > 0) {
     result.resize(length + 1);
     va_copy(vl_copy, vl);
-    int len = vsnprintf(result.data(), length + 1, fmt, vl_copy);
+    vsnprintf(result.data(), length + 1, fmt, vl_copy);
     va_end(vl_copy);
     result[length] = '\0';
   }

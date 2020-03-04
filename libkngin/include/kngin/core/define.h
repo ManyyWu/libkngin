@@ -50,7 +50,7 @@
 // log
 #if defined(KNGIN_LOG_RELATIVE_PATH)
 #  undef FILENAME
-#  define FILENAME (__FILE__ + g_path_prefix_size)
+#  define FILENAME ((const char *)(__FILE__ + k::g_path_prefix_size))
 #endif /* (ON == KNGIN_LOG_RELATIVE_PATH) */
 
 #endif /* KNGIN_DEFINE_H */
