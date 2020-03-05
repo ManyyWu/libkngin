@@ -10,7 +10,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 std::string &
 format_string(std::string &result, const char *fmt, va_list vl,
-              size_t offset /* = 0 */) {
+              size_t offset /* = 0 */, size_t extra /* = 0 */) {
   assert(fmt);
 
   va_list vl_copy;
@@ -20,12 +20,13 @@ format_string(std::string &result, const char *fmt, va_list vl,
   if (length < 0)
     throw_exception("invalid format or parameters");
 
-  if (length > 0 and result.size() <= length + offset) {
-    result.resize(length + 1);
+  if (length > 0) {
+    if (result.size() <= length + offset + extra)
+      result.resize(length + offset + extra + 1);
     va_copy(vl_copy, vl);
     vsnprintf(result.data() + offset, length + 1, fmt, vl_copy);
     va_end(vl_copy);
-    result[length] = '\0';
+    result[length + offset + extra] = '\0';
   }
 
   return result;

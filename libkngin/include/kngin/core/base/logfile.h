@@ -12,7 +12,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-enum KNGIN_LOG_LEVEL {
+enum class KNGIN_LOG_LEVEL {
   KNGIN_LOG_LEVEL_FATAL = 0,
   KNGIN_LOG_LEVEL_ERROR,
   KNGIN_LOG_LEVEL_WARNING,
@@ -49,7 +49,7 @@ public:
 
   int
   set_mode (int mode) noexcept {
-    mode_ &= mode & KNGIN_LOG_MODE_ALL;
+    return (mode_ &= mode & KNGIN_LOG_MODE_ALL);
   }
 
   void

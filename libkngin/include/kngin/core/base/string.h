@@ -14,7 +14,8 @@ clear_string (std::string &str) {
 }
 
 std::string &
-format_string (std::string &result, const char *fmt, va_list vl, size_t offset);
+format_string (std::string &result, const char *fmt, va_list vl,
+               size_t offset = 0, size_t extra = 0);
 
 std::string &
 format_string (std::string &result, const char *fmt, ...);

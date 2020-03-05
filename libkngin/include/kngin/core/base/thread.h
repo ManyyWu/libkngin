@@ -11,7 +11,7 @@ TYPEDEF_THREAD_IMPL(thread_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class thread : noncopyable {
+class thread : public noncopyable {
 public:
   typedef k::thread_proc thread_proc;
 

@@ -12,8 +12,8 @@ log_file::fatal (const char *fmt, ...) {
   va_list vl;
   va_start(vl, fmt);
   std::string data;
-  logger::format_log(data, fmt, vl);
-  log.write_log(KNGIN_LOG_LEVEL_FATAL, *this, std::move(data), data.size());
+  logger::format_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL, data, fmt, vl);
+  log.write_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL, *this, std::move(data), data.size() - 1);
   va_end(vl);
 }
 
@@ -24,8 +24,8 @@ log_file::error (const char *fmt, ...) {
   va_list vl;
   va_start(vl, fmt);
   std::string data;
-  logger::format_log(data, fmt, vl);
-  log.write_log(KNGIN_LOG_LEVEL_ERROR, *this, std::move(data), data.size());
+  logger::format_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_ERROR, data, fmt, vl);
+  log.write_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_ERROR, *this, std::move(data), data.size() - 1);
   va_end(vl);
 }
 
@@ -36,8 +36,8 @@ log_file::warning (const char *fmt, ...) {
   va_list vl;
   va_start(vl, fmt);
   std::string data;
-  logger::format_log(data, fmt, vl);
-  log.write_log(KNGIN_LOG_LEVEL_WARNING, *this, std::move(data), data.size());
+  logger::format_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_WARNING, data, fmt, vl);
+  log.write_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_WARNING, *this, std::move(data), data.size() - 1);
   va_end(vl);
 }
 
@@ -48,8 +48,8 @@ log_file::info (const char *fmt, ...) {
   va_list vl;
   va_start(vl, fmt);
   std::string data;
-  logger::format_log(data, fmt, vl);
-  log.write_log(KNGIN_LOG_LEVEL_INFO, *this, std::move(data), data.size());
+  logger::format_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_INFO, data, fmt, vl);
+  log.write_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_INFO, *this, std::move(data), data.size() - 1);
   va_end(vl);
 }
 
@@ -60,8 +60,8 @@ log_file::debug (const char *fmt, ...) {
   va_list vl;
   va_start(vl, fmt);
   std::string data;
-  logger::format_log(data, fmt, vl);
-  log.write_log(KNGIN_LOG_LEVEL_DEBUG, *this, std::move(data), data.size());
+  logger::format_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_DEBUG, data, fmt, vl);
+  log.write_log(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_DEBUG, *this, std::move(data), data.size() - 1);
   va_end(vl);
 }
 

@@ -7,7 +7,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 template <typename Tp>
-class scope_lock : noncopyable {
+class scope_lock : public noncopyable {
 public:
   scope_lock (Tp &lock)
    : lock_(lock) {
