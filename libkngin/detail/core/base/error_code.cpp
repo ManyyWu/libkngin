@@ -23,7 +23,7 @@ error_code::get_error_str (error_type code) {
     return str ? str : "Unknown error";
   }
 #else
-  const char *str = ::strerror(int(code));
+  const char *str = ::strerror(static_cast<int>(code));
   return str ? str : "Unknown error";
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 }
