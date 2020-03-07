@@ -6,7 +6,7 @@ else()
     set(CMAKE_CXX_STANDARD 17)
 endif(MSVC)
 
-project(discriptor_test)
+project(descriptor_test)
 
-add_executable(discriptor_test discriptor_test.cpp)
-target_link_libraries(discriptor_test kngin-static)
+add_executable(descriptor_test descriptor_test.cpp)
+target_link_libraries(descriptor_test kngin-static)
