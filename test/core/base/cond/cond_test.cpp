@@ -14,7 +14,7 @@ main () {
   k::cond c(m);
   std::deque<int> q;
 
-  k::thread t([&] () -> int {
+  k::thread t([&] (void *) -> int {
     {
       k::mutex::scoped_lock lock(m);
       if (q.empty()) {
@@ -27,7 +27,7 @@ main () {
     return 0;
   });
 
-  k::thread t1([&] () -> int {
+  k::thread t1([&] (void *) -> int {
     {
       while (true) {
         std::string s;

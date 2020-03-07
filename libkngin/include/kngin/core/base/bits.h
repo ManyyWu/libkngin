@@ -40,7 +40,7 @@ inline
 Type
 set_bits (Type val, Type1 first, Args... args) {
   if (first < 0 or size_t(first) >= TYPE_BITS(Type))
-    throw k::exception("out of range");
+    throw_exception("out of range");
   return (BIT_VALUE(Type, first) | set_bits(val, args...));
 }
 
@@ -49,7 +49,7 @@ inline
 Type
 clear_bits (Type val, Type1 first, Args... args) {
   if (first < 0 or size_t(first) >= TYPE_BITS(Type))
-    throw k::exception("out of range");
+    throw_exception("out of range");
   return (CLEAR_BIT(Type, val, first) & clear_bits(val, args...));
 }
 
@@ -65,7 +65,7 @@ inline
 bool
 is_bits_set (Type val, Type1 first, Args... args) {
   if (first < 0 or size_t(first) >= TYPE_BITS(Type))
-    throw k::exception("out of range");
+    throw_exception("out of range");
   return IS_BIT_SET(Type, val, first) and is_bits_set(val, args...);
 }
 

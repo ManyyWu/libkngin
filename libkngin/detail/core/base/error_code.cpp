@@ -19,11 +19,11 @@ error_code::get_error_str (error_type code) {
         result.resize(result.size() - 2); // remove \r\n
     return result;
   }else {
-    const char *str = ::strerror(static_cast<int>(-code));
+    auto *str = ::strerror(static_cast<int>(-code));
     return str ? str : "Unknown error";
   }
 #else
-  const char *str = ::strerror(static_cast<int>(code));
+  auto *str = ::strerror(static_cast<int>(code));
   return str ? str : "Unknown error";
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 }

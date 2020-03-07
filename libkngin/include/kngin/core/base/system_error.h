@@ -5,6 +5,8 @@
 #include "kngin/core/base/string.h"
 #include <exception>
 
+#define throw_system_error(what, ec) throw k::system_error((what), (ec))
+
 KNGIN_NAMESPACE_K_BEGIN
 
 class system_error : public std::exception {

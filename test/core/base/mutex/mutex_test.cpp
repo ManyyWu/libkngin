@@ -10,7 +10,7 @@ main () {
   k::mutex m;
   int v = 0;
 
-  k::thread t([&] () -> int {
+  k::thread t([&] (void *) -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         ++v;
@@ -19,7 +19,7 @@ main () {
     return 0;
   });
 
-  k::thread t1([&] () -> int {
+  k::thread t1([&] (void *) -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         ++v;
@@ -33,7 +33,7 @@ main () {
   cout << v << endl;
 
   v = 0;
-  k::thread t2([&] () -> int {
+  k::thread t2([&] (void *) -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         k::mutex::scoped_lock lock(m);
@@ -43,7 +43,7 @@ main () {
     return 0;
   });
 
-  k::thread t3([&] () -> int {
+  k::thread t3([&] (void *) -> int {
     for (int i = 0; i < 10000000; ++i) {
       {
         k::mutex::scoped_lock lock(m);

@@ -92,7 +92,7 @@ private:
 
   pthread_t pthr_;
 
-  bool joined_;
+  std::atomic_bool joined_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

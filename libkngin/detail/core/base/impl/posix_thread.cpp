@@ -1,6 +1,5 @@
 #include "detail/core/base/impl/posix_thread.h"
 #include "kngin/core/base/system_error.h"
-#include "kngin/core/base/common.h"
 #include "kngin/core/base/log.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN

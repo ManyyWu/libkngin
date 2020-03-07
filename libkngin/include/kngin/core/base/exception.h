@@ -6,6 +6,8 @@
 #include <string>
 #include <exception>
 
+#define throw_exception(what) throw k::exception((what))
+
 KNGIN_NAMESPACE_K_BEGIN
 
 class exception : public std::exception {

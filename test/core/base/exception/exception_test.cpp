@@ -6,7 +6,7 @@ using namespace std;
 int
 main () {
   try {
-    throw k::exception("test");
+    throw_exception("test");
   } catch (std::exception &e) {
     cerr << "catch exception: " << e.what() << endl;
     auto &ex = (k::exception &)e;

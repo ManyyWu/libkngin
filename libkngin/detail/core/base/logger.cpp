@@ -127,7 +127,7 @@ logger::post_log (KNGIN_LOG_LEVEL level, logfile &file,
 
 int
 logger::log_thread (void *args) noexcept {
-  logger *pthis = static_cast<logger *>(args);
+  auto *pthis = static_cast<logger *>(args);
   auto &dataq = pthis->log_dataq_;
   auto &mutex = *pthis->mutex_;
   auto &cond = *pthis->cond_;
@@ -168,7 +168,7 @@ logger::log_thread (void *args) noexcept {
 const char *
 logger::get_datetime (char datetime[], size_type size) noexcept {
   assert(size >= KNGIN_LOG_DATETIME_LEN);
-  time_t t = ::time(nullptr);
+  auto t = ::time(nullptr);
   struct ::tm tm;
   get_localtime(&tm, &t);
   ::snprintf(datetime, KNGIN_LOG_DATETIME_LEN,

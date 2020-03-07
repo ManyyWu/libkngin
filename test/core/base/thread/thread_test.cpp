@@ -5,7 +5,7 @@ using namespace std;
 int
 main () {
   k::thread t([] (void *) -> int {
-    throw k::exception("");
+    throw_exception("");
     return 0;
   }, nullptr, "thread_test");
 

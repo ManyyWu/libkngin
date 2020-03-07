@@ -215,7 +215,7 @@ public:
   static
   timestamp
   diff (timestamp t1, timestamp t2) {
-    if (t1 < t2) throw k::exception("timestamp::diff t1 < t2");
+    if (t1 < t2) throw_exception("timestamp::diff t1 < t2");
     return (t1 - t2);
   }
   static

@@ -38,9 +38,7 @@ public:
   bool
   try_lock () noexcept {
     auto ec = ::pthread_mutex_trylock(&mutex_);
-    if (EBUSY == ec or (assert(0 == ec), true))
-      return false;
-    return true;
+    return (EBUSY != ec);
   }
 
 private:

@@ -229,7 +229,7 @@ public:
   void
   check_readable (size_t n) const {
     if (size_ < n)
-      throw k::exception("in_buffer::check_readable() - out of range");
+      throw_exception("in_buffer::check_readable() - out of range");
   }
 
 protected:
@@ -414,13 +414,13 @@ protected:
   void
   check_readable (size_t n) const {
     if (valid_ < n)
-      throw k::exception("in_buffer::check_readable() - out of range");
+      throw_exception("in_buffer::check_readable() - out of range");
   }
 
   void
   check_writeable (size_t n) const {
     if (size_ - valid_ < n)
-      throw k::exception("in_buffer::check_writeable() - out of range");
+      throw_exception("in_buffer::check_writeable() - out of range");
   }
 
   template <typename Type>

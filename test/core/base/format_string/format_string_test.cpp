@@ -10,7 +10,7 @@ int
 main () {
   {
     k::timestamp begin = k::timestamp::realtime();
-    for (int i = 0; i < 10000000; ++i)
+    for (int i = 0; i < 1000000; ++i)
     {
       std::string s;
       for (int j = 0; j < 10; ++j)
@@ -21,7 +21,7 @@ main () {
 
   {
     k::timestamp begin = k::timestamp::realtime();
-    for (int i = 0; i < 10000000; ++i)
+    for (int i = 0; i < 1000000; ++i)
     {
       std::string s;
       k::format_string(s, "%s%s%s%s%s%s%s%s%s%s",

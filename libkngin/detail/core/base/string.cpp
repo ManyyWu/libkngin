@@ -1,6 +1,5 @@
 #include "kngin/core/base/string.h"
 #include "kngin/core/base/exception.h"
-#include "kngin/core/base/common.h"
 #include <cassert>
 #include <cstdio>
 #include <cstdarg>
@@ -14,7 +13,7 @@ format_string(std::string &result, const char *fmt, va_list vl,
 
   va_list vl_copy;
   va_copy(vl_copy, vl);
-  int length = vsnprintf(NULL, 0, fmt, vl_copy);
+  int length = vsnprintf(nullptr, 0, fmt, vl_copy);
   va_end(vl_copy);
   if (length < 0)
     throw_exception("invalid format or parameters");
