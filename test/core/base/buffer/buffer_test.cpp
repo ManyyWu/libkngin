@@ -20,6 +20,11 @@ main () {
     cout << endl;
     //buf.read_int8();
   }
+  {
+    k::in_buffer buf(arr, SIZE);
+    buf.write_bytes("hello world!\n", 13);
+    cout << arr << endl;
+  }
 
   return 0;
 }
