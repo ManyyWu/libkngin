@@ -1,3 +1,4 @@
+#include "libkngin.h"
 #include "detail/core/base/common.cpp"
 #include "detail/core/base/mutex.cpp"
 #include "detail/core/base/cond.cpp"

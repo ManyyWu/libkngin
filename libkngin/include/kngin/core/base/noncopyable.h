@@ -1,6 +1,8 @@
 #ifndef KNGIN_NONCOPYABLE_H
 #define KNGIN_NONCOPYABLE_H
 
+#include "kngin/core/define.h"
+
 KNGIN_NAMESPACE_K_BEGIN
 
 class noncopyable {

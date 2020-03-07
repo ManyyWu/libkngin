@@ -1,6 +1,7 @@
 #ifndef KNGIN_CALLBACK_H
 #define KNGIN_CALLBACK_H
 
+#include "kngin/core/define.h"
 #include <functional>
 #include <string>
 

@@ -1,7 +1,6 @@
 #ifndef KNGIN_THREAD_H
 #define KNGIN_THREAD_H
 
-#include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/impl.h"

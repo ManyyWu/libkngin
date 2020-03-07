@@ -1,7 +1,6 @@
 #ifndef KNGIN_BITS_H
 #define KNGIN_BITS_H
 
-#include "kngin/core/define.h"
 #include "kngin/core/base/exception.h"
 
 #define TYPE_BITS(type)              static_cast<size_t>(sizeof(type) * 8)

@@ -1,4 +1,3 @@
-#include "kngin/core/define.h"
 #include "kngin/core/base/string.h"
 #include "kngin/core/base/exception.h"
 #include "kngin/core/base/common.h"

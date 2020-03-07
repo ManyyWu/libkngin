@@ -1,7 +1,6 @@
 #ifndef KNGIN_LOGFILE_H
 #define KNGIN_LOGFILE_H
 
-#include "kngin/core/define.h"
 #include "kngin/core/base/callback.h"
 #include <string>
 #include <memory>

@@ -1,7 +1,6 @@
 #ifndef KNGIN_TIMESTAMP_H
 #define KNGIN_TIMESTAMP_H
 
-#include "kngin/core/define.h"
 #include "kngin/core/base/exception.h"
 #include <ctime>
 #include <limits>

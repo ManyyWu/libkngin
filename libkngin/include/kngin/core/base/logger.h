@@ -1,7 +1,6 @@
 #ifndef KNGIN_LOGGER_H
 #define KNGIN_LOGGER_H
 
-#include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/logfile.h"
 #include <atomic>

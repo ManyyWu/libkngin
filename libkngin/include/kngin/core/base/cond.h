@@ -1,7 +1,6 @@
 #ifndef KNGIN_COND_H
 #define KNGIN_COND_H
 
-#include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/impl.h"

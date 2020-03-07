@@ -2,8 +2,6 @@
 #include <algorithm>
 #include "kngin/core/base/timestamp.h"
 
-#define KNGIN_FILENAME "libkngin/core/base/timestamp.cpp"
-
 KNGIN_NAMESPACE_K_BEGIN
 
 KNGIN_NAMESPACE_K_END
