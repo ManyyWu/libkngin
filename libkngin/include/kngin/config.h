@@ -86,7 +86,6 @@
 #endif /* defined(ENABLE_THREAD_USE_STD_FUNCTION) */
 
 // log
-#define LINE __LINE__
 #define FILENAME __FILE__
 #if defined(NDEBUG)
 #  define FUNCTION __FUNCTION__

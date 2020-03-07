@@ -8,15 +8,17 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-thread::thread (thread_proc &&proc, const char *name /* = nullptr */)
+thread::thread (thread_proc &&proc, void *args /* = nullptr */,
+                const char *name /* = nullptr */)
   : impl_(nullptr) {
   thread_impl::thread_data *data = nullptr;
   try {
     impl_ = new thread_impl(
               (data = new thread_impl::thread_data(name ? name : "",
-                                      std::move(proc))));
+                                                   std::move(proc), args)));
   } catch (...) {
     safe_release(data);
+    safe_release(impl_);
   }
 }
 
@@ -34,7 +36,7 @@ thread::joinable () const noexcept {
   return impl_->joinable();
 }
 
-const std::string &
+const char *
 thread::name () const noexcept {
   return impl_->name();
 }

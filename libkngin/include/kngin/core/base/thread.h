@@ -18,7 +18,8 @@ public:
   typedef uint64_t tid_type;
 
   explicit
-  thread (thread_proc &&proc, const char *name = nullptr);
+  thread (thread_proc &&proc, void *data = nullptr,
+          const char *name = nullptr);
 
   ~thread () noexcept;
 
@@ -28,7 +29,7 @@ public:
   bool
   joinable () const noexcept;
 
-  const std::string &
+  const char *
   name () const noexcept;
 
   static

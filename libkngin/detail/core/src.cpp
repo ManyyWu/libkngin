@@ -6,6 +6,7 @@
 #include "detail/core/base/thread.cpp"
 #include "detail/core/base/logfile.cpp"
 #include "detail/core/base/logger.cpp"
+#include "detail/core/base/log.cpp"
 #include "detail/core/base/error_code.cpp"
 #include "detail/core/base/string.cpp"
 #include "detail/core/base/exception.cpp"

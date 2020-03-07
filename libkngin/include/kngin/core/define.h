@@ -48,6 +48,7 @@
 #define KNGIN_NAMESPACE_K_DETAIL_IMPL_END   KNGIN_NAMESPACE_END
 
 // log
+#define LINE static_cast<int>(__LINE__)
 #if defined(KNGIN_LOG_RELATIVE_PATH)
 #  undef FILENAME
 #  define FILENAME ((const char *)(__FILE__ + k::g_path_prefix_size))

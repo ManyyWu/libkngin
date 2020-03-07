@@ -10,10 +10,10 @@ protected:
   ~noncopyable () = default;
 
 public:
-  noncopyable  (const noncopyable&) = delete;
+  noncopyable  (const noncopyable &) = delete;
 
-  noncopyable&
-  operator =   (const noncopyable&) = delete;
+  noncopyable &
+  operator =   (const noncopyable &) = delete;
 };
 
 KNGIN_NAMESPACE_K_END

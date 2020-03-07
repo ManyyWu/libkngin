@@ -29,10 +29,12 @@ public:
   struct thread_data {
     std::string name;
     thread_proc thr_fn;
+    void *args;
 
-    thread_data (const char *name, thread_proc &&thr_fn) noexcept
+    thread_data (const char *name, thread_proc &&thr_fn, void *args) noexcept
      : name(name),
-       thr_fn(std::move(thr_fn)) {
+       thr_fn(std::move(thr_fn)),
+       args(args) {
     }
   };
 
@@ -52,14 +54,14 @@ public:
   int
   join () noexcept {
     thread_error_code code;
-    assert(0 == ::pthread_join(pthr_, &code.ptr));
+    ::pthread_join(pthr_, &code.ptr);
     joined_ = true;
     return code.code;
   }
 
   void
   detach () noexcept {
-    assert(0 == ::pthread_detach(pthr_));
+    ::pthread_detach(pthr_);
   }
 
   bool
@@ -67,9 +69,9 @@ public:
     return !joined_;
   }
 
-  const std::string &
+  const char *
   name () const noexcept {
-    return name_;
+    return name_.c_str();
   }
 
   bool

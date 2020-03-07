@@ -18,22 +18,22 @@ public:
   }
 
   ~posix_cond () noexcept {
-    assert(0 == ::pthread_cond_destroy(&cond_));
+    ::pthread_cond_destroy(&cond_);
   }
 
   void
   wait () noexcept {
-    assert(0 == ::pthread_cond_wait(&cond_, &mutex_));
+    ::pthread_cond_wait(&cond_, &mutex_);
   }
 
   void
   signal () noexcept {
-    assert(0 == ::pthread_cond_signal(&cond_));
+    ::pthread_cond_signal(&cond_);
   }
 
   void
   broadcast () noexcept {
-    assert(0 == ::pthread_cond_broadcast(&cond_));
+    ::pthread_cond_broadcast(&cond_);
   }
 
 private:

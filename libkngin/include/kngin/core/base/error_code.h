@@ -104,6 +104,21 @@ public:
     return (code_ == code.code_);
   }
 
+  bool
+  operator != (const error_type code) const noexcept {
+    return (code_ != code);
+  }
+
+  bool
+  operator != (const error_code &code) const noexcept {
+    return (code_ != code.code_);
+  }
+
+  bool
+  operator != (const error_code &&code) const noexcept {
+    return (code_ != code.code_);
+  }
+
   friend
   bool
   operator == (int code1, const error_code &code2) noexcept;
@@ -111,6 +126,14 @@ public:
   friend
   bool
   operator == (int code1, const error_code &&code2) noexcept;
+
+  friend
+  bool
+  operator != (int code1, const error_code &code2) noexcept;
+
+  friend
+  bool
+  operator != (int code1, const error_code &&code2) noexcept;
 
 private:
   static
@@ -131,6 +154,18 @@ inline
 bool
 operator == (int code1, const error_code &&code2) noexcept {
   return (code1 == code2.code_);
+}
+
+inline
+bool
+operator != (int code1, const error_code &code2) noexcept {
+  return (code1 != code2.code_);
+}
+
+inline
+bool
+operator != (int code1, const error_code &&code2) noexcept {
+  return (code1 != code2.code_);
 }
 
 KNGIN_NAMESPACE_K_END

@@ -2,8 +2,8 @@
 #define KNGIN_LOGGER_H
 
 #include "kngin/core/define.h"
-#include "kngin/core/base/logfile.h"
 #include "kngin/core/base/noncopyable.h"
+#include "kngin/core/base/logfile.h"
 #include <atomic>
 #include <deque>
 
@@ -23,21 +23,40 @@ class mutex;
 class cond;
 class thread;
 class logger : public noncopyable {
-  friend logger& get_logger ();
+  friend class logfile;
+  friend logger &query_logger ();
 private:
   typedef size_t size_type;
 
   logger ();
 
-  ~logger () noexcept;
-
-private:
   void
   init ();
+
+  void
+  deinit () noexcept;
+
+  void
+  post_log (KNGIN_LOG_LEVEL level, logfile &file,
+            std::string &&data, size_type size);
+
+  static
+  int
+  log_thread (void *) noexcept;
 
   static
   const char *
   get_datetime (char datetime[], size_type size) noexcept;
+
+  static
+  void
+  format_log (KNGIN_LOG_LEVEL level, std::string &result,
+              const char *fmt, va_list vl);
+
+  static
+  void
+  write_log (KNGIN_LOG_LEVEL level, logfile &file,
+             std::string &data, size_type size);
 
   static
   void
@@ -53,39 +72,41 @@ private:
   write_stderr2 (KNGIN_LOG_LEVEL level, const char *data, ...) noexcept;
 
 public:
-  static
-  void
-  format_log (KNGIN_LOG_LEVEL level, std::string &result,
-              const char *fmt, va_list vl);
+  ~logger () noexcept;
 
-  void
-  write_log (KNGIN_LOG_LEVEL level, log_file &file,
-             std::string &&data, size_type size);
+  static
+  logfile &
+  add_logfile (const char *file, int mode, log_callback &&cb);
 
 private:
 #if defined(KNGIN_USE_ASYNC_LOGGER)
   struct async_log_data {
-    log_file &file;
+    KNGIN_LOG_LEVEL level;
+    logfile &file;
     std::string data;
     size_type size;
   };
 
   typedef std::deque<async_log_data> async_log_dataq;
 
-  static thread *write_thr_;
+  typedef std::vector<logfile *> logfile_vec;
 
-  static mutex *mutex_;
+  thread *write_thr_;
 
-  static cond *cond_;
+  mutex *mutex_;
 
-  static std::atomic_bool stop_;
+  cond *cond_;
 
-  static async_log_dataq log_dataq_;
+  std::atomic_bool stop_;
+
+  async_log_dataq log_dataq_;
 #endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
+
+  logfile_vec files_;
 };
 
 extern const size_t g_path_prefix_size;
-extern logger &log;
+extern logger &query_logger ();
 
 KNGIN_NAMESPACE_K_END
 

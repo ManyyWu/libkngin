@@ -1,7 +1,13 @@
 #include "kngin/core/base/logger.h"
 #include "kngin/core/base/string.h"
+#include "kngin/core/base/thread.h"
+#include "kngin/core/base/cond.h"
+#include "kngin/core/base/mutex.h"
+#include "kngin/core/base/memory.h"
 #include <cstring>
 #include <cstdarg>
+#include <memory>
+#include <iostream>
 
 #define KNGIN_LOG_BUF_SIZE       4096
 #define KNGIN_LOG_FILE_MAX_SIZE  20 * 1024 * 1024 // 20M
@@ -30,14 +36,16 @@ const size_t g_path_prefix_size = (::strlen(__FILE__) -
     ::strlen("libkngin/detail/core/base/logger.cpp"));
 
 // global logger
+std::unique_ptr<logger> g_logger_ptr = nullptr;
 logger &
-get_logger () {
-  static logger logger;
-  return logger;
+query_logger () {
+  if (!g_logger_ptr)
+     g_logger_ptr = std::unique_ptr<logger>(new logger());
+  return *g_logger_ptr;
 }
-logger &log = get_logger();
-extern logger &log;
+logger &g_logger = query_logger();
 
+// color prefix and suffix for logger
 #if defined(KNGIN_SYSTEM_WIN32)
 # define color_prefix_str(level) ""
 # define color_suffix_str()      ""
@@ -54,18 +62,107 @@ static const char * const log_color_prefix_entry[
 # define color_suffix_str()      KNGIN_LOG_COLOR_NONE
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-logger:: logger () {
-
+logger::logger ()
+ : write_thr_(nullptr),
+   mutex_(nullptr),
+   cond_(nullptr),
+   stop_(false),
+   log_dataq_() {
+  init();
 }
 
 logger::~logger () noexcept {
-
+  deinit();
 }
 
 void
 logger::init() {
 #if defined(KNGIN_USE_ASYNC_LOGGER)
+  try {
+    mutex_ = new mutex();
+    cond_ = new cond(*mutex_);
+    write_thr_ = new thread(logger::log_thread, this, "log_thread");
+  } catch (...) {
+    safe_release(cond_);
+    safe_release(mutex_);
+    safe_release(write_thr_);
+    throw;
+  }
 #endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
+}
+
+void
+logger::deinit () noexcept {
+#if defined(KNGIN_USE_ASYNC_LOGGER)
+  {
+    stop_ = true;
+    mutex::scoped_lock lock(*mutex_);
+  }
+  cond_->signal();
+  if (write_thr_->joinable())
+    write_thr_->join();
+
+  safe_release(cond_);
+  safe_release(mutex_);
+  safe_release(write_thr_);
+
+  for (auto &iter : g_logger.files_)
+    safe_release(iter);
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
+}
+
+void
+logger::post_log (KNGIN_LOG_LEVEL level, logfile &file,
+                  std::string &&data, size_type size) {
+#if defined(KNGIN_USE_ASYNC_LOGGER)
+  {
+    mutex::scoped_lock lock(*mutex_);
+    log_dataq_.push_front({level, file, std::move(data), size});
+  }
+  cond_->signal();
+#else
+  logger::write_log(level, file, data, size);
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
+}
+
+int
+logger::log_thread (void *args) noexcept {
+  logger *pthis = static_cast<logger *>(args);
+  auto &dataq = pthis->log_dataq_;
+  auto &mutex = *pthis->mutex_;
+  auto &cond = *pthis->cond_;
+  auto &stop = pthis->stop_;
+
+  try {
+    async_log_data *data = nullptr;
+    while (true) {
+      {
+        // wait for data
+        mutex::scoped_lock lock(mutex);
+        if (data) {
+          dataq.pop_back();
+          data = nullptr;
+        }
+        while (!stop and dataq.empty()) {
+          cond.wait();
+        }
+        if (stop and dataq.empty())
+          break;
+
+        // get next
+        data = &dataq.back();
+        assert(data);
+      }
+      // write log
+      logger::write_log(data->level, data->file, data->data, data->size);
+    }
+  } catch (std::exception &e) {
+    std::cerr << "catch an exception in log_thread: " << e.what() << std::endl;
+  } catch (...) {
+    std::cerr << "catch an unknown exception in log_thread" << std::endl;
+  }
+
+  return 0;
 }
 
 const char *
@@ -91,17 +188,14 @@ logger::format_log (KNGIN_LOG_LEVEL level, std::string &result,
 }
 
 void
-logger::write_log (KNGIN_LOG_LEVEL level, log_file &file,
-                   std::string &&data, size_type size) {
-#if defined(KNGIN_USE_ASYNC_LOGGER)
-#else
+logger::write_log (KNGIN_LOG_LEVEL level, logfile &file,
+                   std::string &data, size_type size) {
   if (file.mode_ & KNGIN_LOG_MODE_FILE)
-    write_logfile(file.file_.c_str(), level, data.c_str(), size);
+    logger::write_logfile(file.file_.c_str(), level, data.c_str(), size);
   if (file.mode_ & KNGIN_LOG_MODE_STDERR)
-    write_stderr(level, data.c_str(), size);
+    logger::write_stderr(level, data.c_str(), size);
   if (file.mode_ & KNGIN_LOG_MODE_CALLBACK and file.cb_)
     file.cb_(file.file_.c_str(), level, data.c_str(), size);
-#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 }
 
 void
@@ -122,23 +216,21 @@ logger::write_logfile (const char *file, KNGIN_LOG_LEVEL level,
              tm.tm_year + 1900, tm.tm_mon, tm.tm_mday);
   fplog = ::fopen(filename, "a");
   if (!fplog) {
-    write_stderr2(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL,
-                  "failed to open \"%s\", %s[%#x]",
-                  filename, ::strerror(errno), errno);
+    logger::write_stderr2(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL,
+                          "failed to open \"%s\", %s[%#x]",
+                          filename, ::strerror(errno), errno);
     return;
   }
 
   ret = ::fwrite(data, 1, len, fplog);
   if (ret < 0) {
-    write_stderr2(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL,
-                  "failed to write log to \"%s\", %s[%#x]",
-                  filename, ::strerror(errno), errno);
+    logger::write_stderr2(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL,
+                          "failed to write log to \"%s\", %s[%#x]",
+                          filename, ::strerror(errno), errno);
     goto fail;
   }
-  ::fflush(fplog);
 fail:
   ::fclose(fplog);
-
 }
 
 void
@@ -169,6 +261,12 @@ logger::write_stderr2 (KNGIN_LOG_LEVEL level, const char *fmt, ...) noexcept {
   ::fputs(color_suffix_str(), stderr);
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
   va_end(vl);
+}
+
+logfile &
+logger::add_logfile (const char *file, int mode, log_callback &&cb) {
+  g_logger.files_.push_back(new logfile(file, mode, std::move(cb)));
+  return *g_logger.files_.back();
 }
 
 KNGIN_NAMESPACE_K_END

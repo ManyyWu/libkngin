@@ -22,17 +22,17 @@ public:
   }
 
   ~posix_mutex () noexcept {
-    assert(0 == ::pthread_mutex_destroy(&mutex_));
+    ::pthread_mutex_destroy(&mutex_);
   }
 
   void
   lock () noexcept {
-    assert(0 == ::pthread_mutex_lock(&mutex_));
+    ::pthread_mutex_lock(&mutex_);
   }
 
   void
   unlock () noexcept {
-    assert(0 == ::pthread_mutex_unlock(&mutex_));
+    ::pthread_mutex_unlock(&mutex_);
   }
 
   bool

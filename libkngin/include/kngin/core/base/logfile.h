@@ -4,6 +4,7 @@
 #include "kngin/core/define.h"
 #include "kngin/core/base/callback.h"
 #include <string>
+#include <memory>
 
 #define KNGIN_LOG_MODE_FILE     0x1
 #define KNGIN_LOG_MODE_STDERR   0x2
@@ -21,40 +22,43 @@ enum class KNGIN_LOG_LEVEL {
   KNGIN_LOG_LEVEL_MAX
 };
 
-class log_file {
+class logfile
+  : public std::enable_shared_from_this<logfile> {
   friend class logger;
+private:
+  logfile (const char *file, int mode, log_callback &&cb);
+
 public:
-  log_file (const char *file, int mode, log_callback &&cb)
-    : file_(file),
-      mode_(mode),
-      cb_(std::move(cb)),
-      enable_info_(true),
-      enable_debug_(true) {
-    }
+  ~logfile () = default;
 
   void
-  fatal (const char *fmt, ...);
+  write_fatal (const char *fmt, ...);
 
   void
-  error (const char *fmt, ...);
+  write_error (const char *fmt, ...);
 
   void
-  warning (const char *fmt, ...);
+  write_warning (const char *fmt, ...);
 
   void
-  info (const char *fmt, ...);
+  write_info (const char *fmt, ...);
 
   void
-  debug (const char *fmt, ...);
+  write_debug (const char *fmt, ...);
 
   int
   set_mode (int mode) noexcept {
     return (mode_ &= mode & KNGIN_LOG_MODE_ALL);
   }
 
+  int
+  mode () const noexcept {
+    return mode_;
+  }
+
   void
-  set_cb (log_callback cb) noexcept {
-    cb_ = cb;
+  set_cb (log_callback &&cb) noexcept {
+    cb_ = std::move(cb);
   }
 
   void
@@ -75,6 +79,11 @@ public:
   void
   enble_debug () noexcept {
     enable_debug_ = true;
+  }
+
+  const char *
+  filename () const noexcept {
+    return file_.c_str();
   }
 
 private:
