@@ -124,7 +124,7 @@ public:
 
   bool
   empty () const noexcept {
-    assert(size_ && list_.next != list_.prev || list_.next == list_.prev);
+    assert(size_ ? list_.next != list_.prev : list_.next == list_.prev);
     return !size_;
   }
 
@@ -151,11 +151,10 @@ public:
         list_add_tail(&make_node(nullptr)->head_, &free_);
         ++size_free_;
       }
-    } else if (size < size_ || size == max_size()) {
+    } else if (size < size_ or size == max_size()) {
       return;
     } else {
       // remove nodes from free_
-      node_type *pos;
       for (size_type num = size_free_ - (size - size_), i = 0; i < num; ++i) {
         node_type *first_entry = list_first_entry_or_null(&free_, node_type, head_);
         assert(first_entry);

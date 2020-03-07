@@ -5,7 +5,7 @@
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/impl.h"
 
-TYPEDEF_COND_IMPL(cond_impl);
+typedef_cond_impl(cond_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
 

@@ -4,7 +4,7 @@
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/impl.h"
 
-TYPEDEF_BARRIER_IMPL(barrier_impl);
+typedef_barrier_impl(barrier_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
 

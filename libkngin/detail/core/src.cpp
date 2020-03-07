@@ -27,6 +27,7 @@
 #include "detail/core/base/timestamp.cpp"
 
 // event
+#include "detail/core/event/event_loop.cpp"
 #include "detail/core/event/impl/epoll_reactor.cpp"
 
 // net

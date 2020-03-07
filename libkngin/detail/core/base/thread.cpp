@@ -2,8 +2,8 @@
 #include "kngin/core/base/thread.h"
 #include "detail/core/base/thread_impl.h"
 #if !defined(KNGIN_SYSTEM_WIN32)
-# include <unistd.h>
-# include <sys/syscall.h>
+#  include <unistd.h>
+#  include <sys/syscall.h>
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_BEGIN

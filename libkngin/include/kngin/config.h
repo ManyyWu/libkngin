@@ -81,9 +81,26 @@
 #else
 #  error no thread definition was be selected
 #endif /* defined(ENABLE_USE_WIN_THREAD)*/
-#if defined(ENABLE_THREAD_USE_STD_FUNCTION)
-#  define KNGIN_THREAD_USE_STD_FUNCTION
-#endif /* defined(ENABLE_THREAD_USE_STD_FUNCTION) */
+#if defined(ENABLE_USE_STD_FUNCTION_THREAD_PROC)
+#  define KNGIN_USE_STD_FUNCTION_THREAD_PROC
+#endif /* defined(ENABLE_USE_STD_FUNCTION_THREAD_PROC) */
+
+// reactor
+#if defined(ENABLE_USE_IOCP_REACTOR)
+#  define KNGIN_USE_IOCP_REACTOR
+#elif defined(ENABLE_USE_EPOLL_REACTOR)
+#  define KNGIN_USE_EPOLL_REACTOR
+#elif defined(ENABLE_USE_POLL_REACTOR)
+#  define KNGIN_USE_POLL_REACTOR
+#elif defined(ENABLE_USE_SELECT_REACTOR)
+#  define KNGIN_USE_SELECT_REACTOR
+#else
+#  if defined(KNGIN_SYSTEM_WIN32)
+#    define KNGIN_USE_IOCP_REACTOR
+#  else
+#    define KNGIN_USE_EPOLL_REACTOR
+#  endif /* defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(ENABLE_USE_IOCP_REACTOR) */
 
 // log
 #define FILENAME __FILE__
@@ -92,9 +109,9 @@
 #else
 #  define FUNCTION ""
 #endif /* defined(NDEBUG) */
-#if defined(ENABLE_LOG_RELATIVE_PATH)
-#  define KNGIN_LOG_RELATIVE_PATH
-#endif /* defined(ENABLE_LOG_RELATIVE_PATH) */
+#if defined(ENABLE_USE_RELATIVE_LOG_PATH)
+#  define KNGIN_USE_RELATIVE_LOG_PATH
+#endif /* defined(ENABLE_USE_RELATIVE_LOG_PATH) */
 #if defined(ENABLE_USE_ASYNC_LOGGER)
 #  define KNGIN_USE_ASYNC_LOGGER
 #  if defined(ASYNC_LOGGER_TIMEOUT)
@@ -103,21 +120,29 @@
 #    defien KNGIN_ASYNC_LOGGER_TIMEOUT 3000ULL
 #  endif /* defined(ASYNC_LOGGER_TIMEOUT) */
 #endif /* defined(ENABLE_USE_ASYNC_LOGGER) */
-#if defined(ENABLE_LOG_CALLBACK_USE_STD_FUNCTION)
-#  define KNGIN_LOG_CALLBACK_USE_STD_FUNCTION
-#endif /* defined(ENABLE_LOG_CALLBACK_USE_STD_FUNCTION) */
+#if defined(ENABLE_USE_STD_FUNCTION_LOG_CALLBACK)
+#  define KNGIN_USE_STD_FUNCTION_LOG_CALLBACK
+#endif /* defined(ENABLE_USE_STD_FUNCTION_LOG_CALLBACK) */
+
+// event_loop
+#if defined(ENABLE_USE_STD_FUNCTION_EVENT_LOOP_TASK)
+#  define KNGIN_USE_STD_FUNCTION_EVENT_LOOP_TASK
+#endif /* defined(ENABLE_USE_STD_FUNCTION_EVENT_LOOP_TASK) */
+#if defined(ENABLE_USE_STD_FUNCTION_EVENT_LOOP_HANDLER)
+#  define KNGIN_USE_STD_FUNCTION_EVENT_LOOP_HANDLER
+#endif /* defined(ENABLE_USE_STD_FUNCTION_EVENT_LOOP_HANDLER) */
 
 // session
-#if defined(ENABLE_SESSION_USE_C_HANDLER)
-#  define KNGIN_SESSION_USE_C_HANDLER
-#endif /* defined(KNGIN_SESSION_USE_C_HANDLER) */
+#if defined(ENABLE_USE_STD_FUNCTION_SESSION_HANDLER)
+#  define KNGIN_USE_STD_FUNCTION_SESSION_HANDLER
+#endif /* defined(ENABLE_USE_STD_FUNCTION_SESSION_HANDLER) */
 #if defined(ENABLE_SESSION_NO_MUTEX)
 #  define KNGIN_SESSION_NO_MUTEX
-#endif /* defined(KNGIN_SESSION_NO_MUTEX) */
+#endif /* defined(ENABLE_SESSION_NO_MUTEX) */
 #if !defined(KNGIN_SYSTEM_WIN32)
 #  if defined(ENABLE_SESSION_USE_ET_MODE)
 #    define KNGIN_SESSION_USE_ET_MODE
-#  endif /* defined(KNGIN_SESSION_USE_ET_MODE) */
+#  endif /* defined(ENABLE_SESSION_USE_ET_MODE) */
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
 // timer

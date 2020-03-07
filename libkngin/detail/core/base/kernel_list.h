@@ -162,7 +162,7 @@ static inline int list_empty(const struct list_head *head) {
  */
 static inline int list_empty_careful(const struct list_head *head) {
   struct list_head *next = head->next;
-  return (next == head) && (next == head->prev);
+  return (next == head) and (next == head->prev);
 }
 
 /**
@@ -181,7 +181,7 @@ static inline void list_rotate_left(struct list_head *head) {
  * list_is_singular - tests whether a list has just one entry.
  */
 static inline int list_is_singular(const struct list_head *head) {
-  return !list_empty(head) && (head->next == head->prev);
+  return !list_empty(head) and (head->next == head->prev);
 }
 
 static inline void __list_cut_position(struct list_head *list,
@@ -208,8 +208,8 @@ static inline void list_cut_position(struct list_head *list,
   if (list_empty(head)) {
     return;
   }
-  if (list_is_singular(head) &&
-      (head->next != entry && head != entry)) {
+  if (list_is_singular(head) and
+      (head->next != entry and head != entry)) {
     return;
   }
   if (entry == head) {

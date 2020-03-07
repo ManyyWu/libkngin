@@ -6,7 +6,7 @@
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/impl.h"
 
-TYPEDEF_MUTEX_IMPL(mutex_impl);
+typedef_mutex_impl(mutex_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
 

@@ -22,9 +22,9 @@
 // types
 #if defined(KNGIN_SYSTEM_WIN32)
 #  if defined(KNGIN_SYSTEM_WIN64)
-    typedef __int64           ssize_t;
+  typedef __int64           ssize_t;
 #  else
-    typedef _W64 unsigned int ssize_t;
+  typedef _W64 unsigned int ssize_t;
 #  endif /* defined(KNGIN_SYSTEM_WIN64) */
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
@@ -47,10 +47,10 @@
 
 // log
 #define LINE static_cast<int>(__LINE__)
-#if defined(KNGIN_LOG_RELATIVE_PATH)
+#if defined(KNGIN_USE_RELATIVE_LOG_PATH)
 #  undef FILENAME
 #  define FILENAME ((const char *)(__FILE__ + k::g_path_prefix_size))
-#endif /* (ON == KNGIN_LOG_RELATIVE_PATH) */
+#endif /* defined(KNGIN_USE_RELATIVE_LOG_PATH) */
 
 #endif /* KNGIN_DEFINE_H */
 

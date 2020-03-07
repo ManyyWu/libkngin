@@ -6,7 +6,7 @@
 #include "kngin/core/base/impl.h"
 #include "kngin/core/base/callback.h"
 
-TYPEDEF_THREAD_IMPL(thread_impl);
+typedef_thread_impl(thread_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
 
