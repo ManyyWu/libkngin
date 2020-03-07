@@ -48,7 +48,10 @@ public:
   size () const noexcept {
     return size_;
   }
-
+  bool
+  eof () const noexcept {
+    return !size_;
+  }
   out_buffer &
   peek_uint8 (uint8_t &val) {
     val = read<uint8_t>(false);
@@ -253,7 +256,8 @@ public:
   }
 
   msg_buffer (uint8_arr_ptr &arr, size_t offset, size_t size)
-   : arr_(arr), buf_(arr.get() + offset, size) {}
+   : arr_(arr), buf_(arr.get() + offset, size) {
+  }
 
   msg_buffer (const void *arr, size_t size)
    : arr_(nullptr), buf_(arr, size) {
@@ -286,7 +290,6 @@ public:
   buffer () const noexcept {
     return buf_;
   }
-
   msg_buffer &
   operator = (const msg_buffer &buf) {
     arr_ = buf.arr_;
@@ -333,6 +336,10 @@ public:
   size_t
   size () const noexcept {
     return size_;
+  }
+  bool
+  eof () const noexcept {
+    return !size_;
   }
   size_t
   valid () const noexcept {
