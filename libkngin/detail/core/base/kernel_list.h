@@ -382,7 +382,7 @@ static inline void list_splice_tail_init(struct list_head *list,
     for (pos = list_last_entry(head, typeof(*pos), member); \
          &pos->member != (head); \
          pos = list_prev_entry(pos, member))
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_prepare_entry - prepare a pos entry for use in list_for_each_entry_continue()
@@ -394,7 +394,7 @@ static inline void list_splice_tail_init(struct list_head *list,
 #else
 #define list_prepare_entry(pos, head, member, ...) \
     ((pos) ? : list_entry(head, typeof(*pos), member))
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_for_each_entry_continue - continue iteration over list of given type
@@ -439,7 +439,7 @@ static inline void list_splice_tail_init(struct list_head *list,
         n = list_next_entry(pos, member); \
          &pos->member != (head); \
          pos = n, n = list_next_entry(n, member))
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_for_each_entry_safe_continue - continue list iteration safe against removal
@@ -479,7 +479,7 @@ static inline void list_splice_tail_init(struct list_head *list,
         n = list_prev_entry(pos, member); \
          &pos->member != (head); \
          pos = n, n = list_prev_entry(n, member))
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_safe_reset_next - reset a stale list_for_each_entry_safe loop
