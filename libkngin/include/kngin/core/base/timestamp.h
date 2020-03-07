@@ -175,7 +175,8 @@ public:
   timestamp
   realtime () noexcept {
     timeval tv;
-    ::gettimeofday(&tv, nullptr); return tv;
+    ::gettimeofday(&tv, nullptr);
+    return tv;
   }
 
   static

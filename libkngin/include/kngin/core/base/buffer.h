@@ -51,67 +51,83 @@ public:
 
   out_buffer &
   peek_uint8 (uint8_t &val) {
-    val = read<uint8_t>(false); return *this;
+    val = read<uint8_t>(false);
+    return *this;
   }
   out_buffer &
   peek_int8 (int8_t &val) {
-    val = read<int8_t>(false); return *this;
+    val = read<int8_t>(false);
+    return *this;
   }
   out_buffer &
   peek_uint16 (uint16_t &val) {
-    val = read<uint16_t>(false); return *this;
+    val = read<uint16_t>(false);
+    return *this;
   }
   out_buffer &
   peek_int16 (int16_t &val) {
-    val = read<int16_t>(false); return *this;
+    val = read<int16_t>(false);
+    return *this;
   }
   out_buffer &
   peek_uint32 (uint32_t &val) {
-    val = read<uint32_t>(false); return *this;
+    val = read<uint32_t>(false);
+    return *this;
   }
   out_buffer &
   peek_int32 (int32_t &val) {
-    val = read<int32_t>(false); return *this;
+    val = read<int32_t>(false);
+    return *this;
   }
   out_buffer &
   peek_uint64 (uint64_t &val) {
-    val = read<uint64_t>(false); return *this;
+    val = read<uint64_t>(false);
+    return *this;
   }
   out_buffer &
   peek_int64 (int64_t &val) {
-    val = read<int64_t>(false); return *this;
+    val = read<int64_t>(false);
+    return *this;
   }
   out_buffer &
   read_uint8 (uint8_t &val) {
-    val = read<uint8_t>(); return *this;
+    val = read<uint8_t>();
+    return *this;
   }
   out_buffer &
   read_int8 (int8_t &val) {
-    val = read<int8_t>(); return *this;
+    val = read<int8_t>();
+    return *this;
   }
   out_buffer &
   read_uint16 (uint16_t &val) {
-    val = read<uint16_t>(); return *this;
+    val = read<uint16_t>();
+    return *this;
   }
   out_buffer &
   read_int16 (int16_t &val) {
-    val = read<int16_t>(); return *this;
+    val = read<int16_t>();
+    return *this;
   }
   out_buffer &
   read_uint32 (uint32_t &val) {
-    val = read<uint32_t>(); return *this;
+    val = read<uint32_t>();
+    return *this;
   }
   out_buffer &
   read_int32 (int32_t &val) {
-    val = read<int32_t>(); return *this;
+    val = read<int32_t>();
+    return *this;
   }
   out_buffer &
   read_uint64 (uint64_t &val) {
-    val = read<uint64_t>(); return *this;
+    val = read<uint64_t>();
+    return *this;
   }
   out_buffer &
   read_int64 (int64_t &val) {
-    val = read<int64_t>(); return *this;
+    val = read<int64_t>();
+    return *this;
   }
   uint8_t
   peek_uint8 () {
@@ -195,12 +211,16 @@ public:
 
   out_buffer &
   operator -= (size_t size) {
-    check_readable(size); size_ -= size; return *this;
+    check_readable(size);
+    size_ -= size;
+    return *this;
   }
 
   out_buffer &
   operator = (const out_buffer &buf) noexcept {
-    arr_ = buf.arr_; size_ = buf.size_; return *this;
+    arr_ = buf.arr_;
+    size_ = buf.size_;
+    return *this;
   }
 
   void
@@ -269,7 +289,9 @@ public:
 
   msg_buffer &
   operator = (const msg_buffer &buf) {
-    arr_ = buf.arr_; buf_ = buf.buf_; return *this;
+    arr_ = buf.arr_;
+    buf_ = buf.buf_;
+    return *this;
   }
 
 private:
@@ -296,11 +318,13 @@ public:
   }
   uint8_t &
   at (size_t idx) {
-    check_readable(idx + 1); return arr_[idx];
+    check_readable(idx + 1);
+    return arr_[idx];
   }
   unsigned char *
   get (size_t idx) {
-    check_readable(idx + 1); return &arr_[idx];
+    check_readable(idx + 1);
+    return &arr_[idx];
   }
   unsigned char *
   begin () const noexcept {
@@ -366,12 +390,17 @@ public:
 
   in_buffer &
   operator += (size_t size) {
-    check_writeable(size); valid_ += size; return *this;
+    check_writeable(size);
+    valid_ += size;
+    return *this;
   }
 
   in_buffer &
   operator = (const in_buffer &buf) noexcept {
-    arr_ = buf.arr_; size_ = buf.size_; valid_ = buf.valid_; return *this;
+    arr_ = buf.arr_;
+    size_ = buf.size_;
+    valid_ = buf.valid_;
+    return *this;
   }
 
 protected:
