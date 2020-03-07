@@ -1,7 +1,28 @@
-#include <cassert>
 #include "kngin/core/base/error_code.h"
 
 KNGIN_NAMESPACE_K_BEGIN
+
+error_type
+last_error () {
+#if defined(KNGIN_SYSTEM_WIN32)
+  return ::GetLastError();
+#else
+  return (errno);
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+}
+
+void
+set_last_error (error_type ec) {
+#if defined(KNGIN_SYSTEM_WIN32)
+  if (ec < 0)
+    errno = ERRNO(ec);
+  else
+    ::SetLastError(ec);
+#else
+  assert(ec >= 0);
+  errno = ec;
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+}
 
 std::string
 error_code::get_error_str (error_type code) {

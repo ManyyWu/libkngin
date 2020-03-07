@@ -26,6 +26,16 @@ public:
     ::pthread_cond_wait(&cond_, &mutex_);
   }
 
+  bool
+  timed_wait (timestamp ms) noexcept {
+    timespec ts;
+    ::timespec_get(&ts, TIME_UTC);
+    timestamp time = ts;
+    (time += ms).to_timespec(ts);
+    auto ret = ::pthread_cond_timedwait(&cond_, &mutex_, &ts);
+    return (ETIMEDOUT != ret);
+  }
+
   void
   signal () noexcept {
     ::pthread_cond_signal(&cond_);

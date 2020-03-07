@@ -63,11 +63,15 @@ static const char * const log_color_prefix_entry[
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 logger::logger ()
- : write_thr_(nullptr),
+ :
+#if defined(KNGIN_USE_ASYNC_LOGGER)
+   write_thr_(nullptr),
    mutex_(nullptr),
    cond_(nullptr),
    stop_(false),
-   log_dataq_() {
+   log_dataq_(),
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
+   files_(){
   init();
 }
 
@@ -105,10 +109,9 @@ logger::deinit () noexcept {
   safe_release(cond_);
   safe_release(mutex_);
   safe_release(write_thr_);
-
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
   for (auto &iter : g_logger.files_)
     safe_release(iter);
-#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 }
 
 void
@@ -125,6 +128,7 @@ logger::post_log (KNGIN_LOG_LEVEL level, logfile &file,
 #endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 }
 
+#if defined(KNGIN_USE_ASYNC_LOGGER)
 int
 logger::log_thread (void *args) noexcept {
   auto *pthis = static_cast<logger *>(args);
@@ -143,9 +147,8 @@ logger::log_thread (void *args) noexcept {
           dataq.pop_back();
           data = nullptr;
         }
-        while (!stop and dataq.empty()) {
-          cond.wait();
-        }
+        while (!stop and dataq.empty())
+          cond.timed_wait(KNGIN_ASYNC_LOGGER_TIMEOUT);
         if (stop and dataq.empty())
           break;
 
@@ -164,6 +167,7 @@ logger::log_thread (void *args) noexcept {
 
   return 0;
 }
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 
 const char *
 logger::get_datetime (char datetime[], size_type size) noexcept {

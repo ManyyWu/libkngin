@@ -8,6 +8,7 @@ endif(MSVC)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_subdirectory(temp)
 add_subdirectory(core/base/bits)
 add_subdirectory(core/base/exception)
 add_subdirectory(core/base/format_string)
@@ -21,3 +22,5 @@ add_subdirectory(core/base/timestamp)
 add_subdirectory(core/base/log)
 add_subdirectory(core/base/buffer)
 add_subdirectory(core/base/timeout)
+add_subdirectory(core/base/detail/discriptor)
+add_subdirectory(core/base/detail/list)

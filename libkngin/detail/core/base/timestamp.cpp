@@ -6,7 +6,7 @@ KNGIN_NAMESPACE_K_BEGIN
 
 KNGIN_NAMESPACE_K_END
 
-#ifdef _WIN32
+#if defined(KNGIN_SYSTEM_WIN32)
 
 int gettimeofday(struct ::timeval *tv, struct ::timezone *tz) {
   FILETIME ft;
@@ -39,4 +39,4 @@ int gettimeofday(struct ::timeval *tv, struct ::timezone *tz) {
   return 0;
 }
 
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */

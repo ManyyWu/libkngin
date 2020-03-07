@@ -47,7 +47,7 @@ thread::tid () noexcept {
   return ::GetCurrentThreadId();
 #else
   return ::syscall(SYS_gettid);
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 }
 
 void
@@ -56,7 +56,7 @@ thread::sleep(timestamp ms) noexcept {
   ::Sleep(static_cast<DWORD>(ms.value_uint()));
 #else
   ::usleep(ms.value() * 1000);
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 }
 
 bool

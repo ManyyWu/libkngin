@@ -20,7 +20,7 @@ typedef void (void_ccp_KNGIN_LOG_LEVEL_ccp_size) (const char *, KNGIN_LOG_LEVEL,
 #endif /* defined(KNGIN_THREAD_USE_STD_FUNCTION) */
 
 #if defined(KNGIN_LOG_CALLBACK_USE_STD_FUNCTION)
-  typedef std::function<void_KNGIN_LOG_LEVEL_ccp_size> log_callback;
+  typedef std::function<void_ccp_KNGIN_LOG_LEVEL_ccp_size> log_callback;
 #else
   typedef void_ccp_KNGIN_LOG_LEVEL_ccp_size *log_callback;
 #endif /* defined(KNGIN_LOG_CALLBACK_USE_STD_FUNCTION) */

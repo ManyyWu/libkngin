@@ -19,6 +19,11 @@ cond::wait () noexcept {
 }
 
 void
+cond::timed_wait (timestamp ms) noexcept {
+  impl_->timed_wait(ms);
+}
+
+void
 cond::signal () noexcept {
   impl_->signal();
 }

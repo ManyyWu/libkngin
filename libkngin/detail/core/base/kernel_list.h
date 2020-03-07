@@ -1,13 +1,26 @@
-#ifndef LIST_H_
-#define LIST_H_ (1)
+#ifndef KNGIN_KERNEL_LIST_H
+#define KNGIN_KERNEL_LIST_H
 
-#ifdef _WIN32
+#include "kngin/core/define.h"
+
+#if defined(KNGIN_SYSTEM_WIN32)
 #include <Windows.h>
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+
+KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 struct list_head {
   struct list_head *next, *prev;
 };
+
+#define LIST_HEAD_INIT(name) { &(name), &(name) }
+#define LIST_HEAD(name) \
+    struct list_head name = LIST_HEAD_INIT(name)
+
+static inline void INIT_LIST_HEAD(struct list_head *list) {
+  list->next = list;
+  list->prev = list;
+}
 
 /*
  * Architectures might want to move the poison pointer offset
@@ -18,7 +31,7 @@ struct list_head {
 # define POISON_POINTER_DELTA _AC(CONFIG_ILLEGAL_POINTER_VALUE, UL)
 #else
 # define POISON_POINTER_DELTA (0)
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /*
  * These are non-NULL pointers that will result in page faults
@@ -33,26 +46,16 @@ struct list_head {
 #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
 #else
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-#ifdef _WIN32
-#define container_of(ptr, type, member) ((type *)(           \
+#if defined(KNGIN_SYSTEM_WIN32)
+#define container_of(ptr, type, member) ((type *)( \
         (PCHAR)(ptr) - (ULONG_PTR)(&((type *)0)->member)))
 #else
-#define container_of(ptr, type, member) ({                   \
+#define container_of(ptr, type, member) ({ \
         const typeof( ((type *)0)->member ) *__mptr = (ptr); \
         (type *)( (char *)__mptr - offsetof(type,member) );})
-#endif
-
-#define LIST_HEAD_INIT(name) { &(name), &(name) }
-
-#define LIST_HEAD(name) \
-    struct list_head name = LIST_HEAD_INIT(name)
-
-static inline void INIT_LIST_HEAD(struct list_head *list) {
-  list->next = list;
-  list->prev = list;
-}
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /*
  * Insert a new entry between two known consecutive entries.
@@ -305,24 +308,24 @@ static inline void list_splice_tail_init(struct list_head *list,
 /**
  * list_next_entry - get the next element in list
  */
-#ifdef _WIN32
+#if defined(KNGIN_SYSTEM_WIN32)
 #define list_next_entry(pos, member, pos_type) \
     list_entry((pos)->member.next, pos_type, member)
 #else
 #define list_next_entry(pos, member, ...) \
     list_entry((pos)->member.next, typeof(*(pos)), member)
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_prev_entry - get the prev element in list
  */
-#ifdef _WIN32
+#if defined(KNGIN_SYSTEM_WIN32)
 #define list_prev_entry(pos, member, pos_type) \
     list_entry((pos)->member.prev, pos_type, member)
 #else
 #define list_prev_entry(pos, member, ...) \
     list_entry((pos)->member.prev, typeof(*(pos)), member)
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_for_each	-	iterate over a list
@@ -354,30 +357,30 @@ static inline void list_splice_tail_init(struct list_head *list,
 /**
  * list_for_each_entry	-	iterate over list of given type
  */
-#ifdef _WIN32
-#define list_for_each_entry(pos, head, member, pos_type)                \
-    for (pos = list_first_entry(head, pos_type, member, pos_type);    \
-         &pos->member != (head);                    \
+#if defined(KNGIN_SYSTEM_WIN32)
+#define list_for_each_entry(pos, head, member, pos_type) \
+    for (pos = list_first_entry(head, pos_type, member, pos_type); \
+         &pos->member != (head); \
          pos = list_next_entry(pos, member, pos_type))
 #else
-#define list_for_each_entry(pos, head, member, ...)                \
-    for (pos = list_first_entry(head, typeof(*pos), member);    \
-         &pos->member != (head);                    \
+#define list_for_each_entry(pos, head, member, ...) \
+    for (pos = list_first_entry(head, typeof(*pos), member); \
+         &pos->member != (head); \
          pos = list_next_entry(pos, member))
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /**
  * list_for_each_entry_reverse - iterate backwards over list of given type.
  */
-#ifdef _WIN32
-#define list_for_each_entry_reverse(pos, head, member, pos_type)            \
-    for (pos = list_last_entry(head, pos_type, member, pos_type);        \
-         &pos->member != (head);                    \
+#if defined(KNGIN_SYSTEM_WIN32)
+#define list_for_each_entry_reverse(pos, head, member, pos_type) \
+    for (pos = list_last_entry(head, pos_type, member, pos_type); \
+         &pos->member != (head); \
          pos = list_prev_entry(pos, member, pos_type))
 #else
-#define list_for_each_entry_reverse(pos, head, member, ...)            \
-    for (pos = list_last_entry(head, typeof(*pos), member);        \
-         &pos->member != (head);                    \
+#define list_for_each_entry_reverse(pos, head, member, ...) \
+    for (pos = list_last_entry(head, typeof(*pos), member); \
+         &pos->member != (head); \
          pos = list_prev_entry(pos, member))
 #endif
 
@@ -385,7 +388,7 @@ static inline void list_splice_tail_init(struct list_head *list,
  * list_prepare_entry - prepare a pos entry for use in list_for_each_entry_continue()
  * Prepares a pos entry for use as a start point in list_for_each_entry_continue().
  */
-#ifdef _WIN32
+#if defined(KNGIN_SYSTEM_WIN32)
 #define list_prepare_entry(pos, head, member, pos_type) \
     ((pos) ? : list_entry(head, pos_type, member))
 #else
@@ -398,9 +401,9 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Continue to iterate over list of given type, continuing after
  * the current position.
  */
-#define list_for_each_entry_continue(pos, head, member)        \
-    for (pos = list_next_entry(pos, member);            \
-         &pos->member != (head);                    \
+#define list_for_each_entry_continue(pos, head, member) \
+    for (pos = list_next_entry(pos, member); \
+         &pos->member != (head); \
          pos = list_next_entry(pos, member))
 
 /**
@@ -408,33 +411,33 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Start to iterate over list of given type backwards, continuing after
  * the current position.
  */
-#define list_for_each_entry_continue_reverse(pos, head, member)        \
-    for (pos = list_prev_entry(pos, member);            \
-         &pos->member != (head);                    \
+#define list_for_each_entry_continue_reverse(pos, head, member) \
+    for (pos = list_prev_entry(pos, member); \
+         &pos->member != (head); \
          pos = list_prev_entry(pos, member))
 
 /**
  * list_for_each_entry_from - iterate over list of given type from the current point
  * Iterate over list of given type, continuing from current position.
  */
-#define list_for_each_entry_from(pos, head, member)            \
-    for (; &pos->member != (head);                    \
+#define list_for_each_entry_from(pos, head, member) \
+    for (; &pos->member != (head); \
          pos = list_next_entry(pos, member))
 
 /**
  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
  */
-#ifdef _WIN32
-#define list_for_each_entry_safe(pos, n, head, member, pos_type)            \
-    for (pos = list_first_entry(head, pos_type, member),    \
-        n = list_next_entry(pos, member, pos_type);            \
-         &pos->member != (head);                    \
+#if defined(KNGIN_SYSTEM_WIN32)
+#define list_for_each_entry_safe(pos, n, head, member, pos_type) \
+    for (pos = list_first_entry(head, pos_type, member), \
+        n = list_next_entry(pos, member, pos_type); \
+         &pos->member != (head); \
          pos = n, n = list_next_entry(n, member, pos_type))
 #else
-#define list_for_each_entry_safe(pos, n, head, member, ...)            \
-    for (pos = list_first_entry(head, typeof(*pos), member),    \
-        n = list_next_entry(pos, member);            \
-         &pos->member != (head);                    \
+#define list_for_each_entry_safe(pos, n, head, member, ...) \
+    for (pos = list_first_entry(head, typeof(*pos), member), \
+        n = list_next_entry(pos, member); \
+         &pos->member != (head); \
          pos = n, n = list_next_entry(n, member))
 #endif
 
@@ -443,10 +446,10 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Iterate over list of given type, continuing after current point,
  * safe against removal of list entry.
  */
-#define list_for_each_entry_safe_continue(pos, n, head, member)        \
-    for (pos = list_next_entry(pos, member),                \
-        n = list_next_entry(pos, member);                \
-         &pos->member != (head);                        \
+#define list_for_each_entry_safe_continue(pos, n, head, member) \
+    for (pos = list_next_entry(pos, member), \
+        n = list_next_entry(pos, member); \
+         &pos->member != (head); \
          pos = n, n = list_next_entry(n, member))
 
 /**
@@ -454,9 +457,9 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Iterate over list of given type from current point, safe against
  * removal of list entry.
  */
-#define list_for_each_entry_safe_from(pos, n, head, member)            \
-    for (n = list_next_entry(pos, member);                    \
-         &pos->member != (head);                        \
+#define list_for_each_entry_safe_from(pos, n, head, member) \
+    for (n = list_next_entry(pos, member); \
+         &pos->member != (head); \
          pos = n, n = list_next_entry(n, member))
 
 /**
@@ -464,17 +467,17 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Iterate backwards over list of given type, safe against removal
  * of list entry.
  */
-#ifdef _WIN32
-#define list_for_each_entry_safe_reverse(pos, n, head, member, pos_type)        \
-    for (pos = list_last_entry(head, pos_type, member, pos_type),        \
-        n = list_prev_entry(pos, member, pos_type);            \
-         &pos->member != (head);                    \
+#if defined(KNGIN_SYSTEM_WIN32)
+#define list_for_each_entry_safe_reverse(pos, n, head, member, pos_type) \
+    for (pos = list_last_entry(head, pos_type, member, pos_type), \
+        n = list_prev_entry(pos, member, pos_type); \
+         &pos->member != (head); \
          pos = n, n = list_prev_entry(n, member, pos_type))
 #else
-#define list_for_each_entry_safe_reverse(pos, n, head, member, ...)        \
-    for (pos = list_last_entry(head, typeof(*pos), member),        \
-        n = list_prev_entry(pos, member);            \
-         &pos->member != (head);                    \
+#define list_for_each_entry_safe_reverse(pos, n, head, member, ...) \
+    for (pos = list_last_entry(head, typeof(*pos), member), \
+        n = list_prev_entry(pos, member); \
+         &pos->member != (head); \
          pos = n, n = list_prev_entry(n, member))
 #endif
 
@@ -487,7 +490,9 @@ static inline void list_splice_tail_init(struct list_head *list,
  * and list_safe_reset_next is called after re-taking the lock and before
  * completing the current iteration of the loop body.
  */
-#define list_safe_reset_next(pos, n, member)                \
+#define list_safe_reset_next(pos, n, member) \
     n = list_next_entry(pos, member)
 
-#endif // LIST_H_
+KNGIN_NAMESPACE_K_DETAIL_END
+
+#endif /* KNGIN_KERNEL_LIST_H */

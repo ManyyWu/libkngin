@@ -15,8 +15,6 @@
 // for MSVC
 #if defined(KNGIN_SYSTEM_WIN32)
 #  define WIN32_LEAN_AND_MEAN
-#  include <Winsock2.h>
-#  include <Windows.h>
 #  pragma comment(lib,"ws2_32.lib")
 #  pragma warning(disable: 4996)
 #endif /* defined(KNGIN_SYSTEM_WIN32) */

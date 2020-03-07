@@ -16,15 +16,11 @@ typedef int error_type;
 #define ERRNO(code) (code)
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-inline
 error_type
-last_error () {
-#ifdef _WIN32
-  return ::GetLastError();
-#else
-  return (errno);
-#endif
-}
+last_error ();
+
+void
+set_last_error (error_type ec);
 
 class error_code {
 public:

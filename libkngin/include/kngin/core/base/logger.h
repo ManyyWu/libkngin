@@ -12,7 +12,6 @@
 // "YYYY/MM/DD hh:mm:ss.ms | type | fmt \n"
 #define KNGIN_LOG_FORMAT_NOLINE(type, fmt) " | " type " | " fmt "\n"
 
-
 // "****** func[file:line] ******\n"
 #define KNGIN_LOG_ASSERT_FORMAT " | ASSERT  | %s[%s:%d] | ****** %s *******\n"
 
@@ -39,9 +38,11 @@ private:
   post_log (KNGIN_LOG_LEVEL level, logfile &file,
             std::string &&data, size_type size);
 
+#if defined(KNGIN_USE_ASYNC_LOGGER)
   static
   int
   log_thread (void *) noexcept;
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 
   static
   const char *
@@ -88,8 +89,6 @@ private:
 
   typedef std::deque<async_log_data> async_log_dataq;
 
-  typedef std::vector<logfile *> logfile_vec;
-
   thread *write_thr_;
 
   mutex *mutex_;
@@ -100,6 +99,7 @@ private:
 
   async_log_dataq log_dataq_;
 #endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
+  typedef std::vector<logfile *> logfile_vec;
 
   logfile_vec files_;
 };

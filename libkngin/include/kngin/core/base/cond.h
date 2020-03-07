@@ -21,6 +21,9 @@ public:
   wait () noexcept;
 
   void
+  timed_wait (timestamp ms) noexcept;
+
+  void
   signal () noexcept;
 
   void

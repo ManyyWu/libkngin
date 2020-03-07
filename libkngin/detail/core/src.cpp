@@ -1,4 +1,6 @@
 #include "libkngin.h"
+
+// base
 #include "detail/core/base/common.cpp"
 #include "detail/core/base/mutex.cpp"
 #include "detail/core/base/cond.cpp"
@@ -20,6 +22,13 @@
 #include "detail/core/base/impl/win_mutex.cpp"
 #include "detail/core/base/impl/win_rwlock.cpp"
 #include "detail/core/base/thread_pool.cpp"
-#include "detail/core/base/discriptor.cpp"
+#include "detail/core/base/descriptor.cpp"
 #include "detail/core/base/buffer.cpp"
 #include "detail/core/base/timestamp.cpp"
+
+// event
+#include "detail/core/event/impl/epoll_reactor.cpp"
+
+// net
+
+// http
