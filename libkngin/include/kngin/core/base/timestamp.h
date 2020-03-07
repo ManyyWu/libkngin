@@ -56,7 +56,6 @@ public:
 
   ~timestamp () = default;
 
-public:
   timestamp &
   operator = (const timestamp &t) noexcept {
     ms_ = t.ms_;
@@ -96,7 +95,6 @@ public:
     return ms_ - t.ms_;
   }
 
-public:
   bool
   operator == (timestamp t) const noexcept {
     return t.ms_ == ms_;
@@ -122,7 +120,6 @@ public:
     return ms_ <= t.ms_;
   }
 
-public:
   operator
   bool () const noexcept {
     return ms_;
@@ -133,7 +130,6 @@ public:
     return ms_;
   }
 
-public:
   time_t
   value () const noexcept {
     return ms_;
