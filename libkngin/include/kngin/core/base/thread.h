@@ -13,7 +13,6 @@ KNGIN_NAMESPACE_K_BEGIN
 class thread : public noncopyable {
 public:
   typedef k::thread_proc thread_proc;
-
   typedef uint64_t tid_type;
 
   explicit

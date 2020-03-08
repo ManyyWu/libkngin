@@ -6,6 +6,8 @@
 #include "kngin/core/base/mutex.h"
 #include "kngin/core/base/impl.h"
 #include "kngin/core/base/callback.h"
+#include "kngin/core/event/event_base.h"
+#include "kngin/core/event/timer_queue.h"
 
 typedef_reactor_impl(reactor);
 
@@ -13,12 +15,88 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop {
 public:
+  typedef std::shared_ptr<timer> timer_ptr;
+  typedef std::weak_ptr<timer> timer_weak_ptr;
+  typedef event_loop_handler start_handler;
+  typedef event_loop_handler stop_handler;
+
   event_loop ();
 
   ~event_loop ();
 
   void
-  run ();
+  run (start_handler &&start = nullptr, stop_handler &&stop = nullptr);
+
+  void
+  stop ();
+
+  void
+  wakeup ();
+
+  bool
+  looping () const noexcept {
+    return looping_;
+  }
+
+  bool
+  in_loop_thread () const noexcept {
+    return (tid_ == thread::tid());
+  }
+
+  // event
+  void
+  register_event (event_base &e);
+
+  void
+  remove_event (event_base &e);
+
+  void
+  update_event (event_base &e);
+
+  bool
+  registed (event_base &e);
+
+  // task
+  void
+  run_in_loop (task &&t);
+
+  // timer
+  timer_id
+  run_after (timestamp delay, timeout_handler &&handler);
+
+  timer_id
+  run_every (timestamp interval, timeout_handler &&handler);
+
+  timer_id
+  run_at (timestamp absval, timeout_handler &&handler);
+
+  timer_id
+  run_until (timestamp absval, timestamp interval, timeout_handler &&handler);
+
+  void
+  cancel (timer_id &id);
+
+private:
+  size_t
+  wait ();
+
+  void
+  process_tasks ();
+
+  void
+  process_events ();
+
+  void
+  process_timer ();
+
+  void
+  sort_events ();
+
+  void
+  get_ready_timer ();
+
+  void
+  cancel (const timer_ptr &timer);
 
 private:
   typedef std::deque<task> taskq;
@@ -35,7 +113,7 @@ private:
 
   mutex taskq_mutex_;
 
-//  timer_queue timerq_;
+  timer_queue timerq_;
 
   mutex timerq_mutex_;
 

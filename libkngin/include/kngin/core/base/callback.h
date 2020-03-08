@@ -4,14 +4,18 @@
 #include "kngin/core/define.h"
 #include <functional>
 #include <string>
+#include <memory>
 
 KNGIN_NAMESPACE_K_BEGIN
 
 enum class KNGIN_LOG_LEVEL;
+class timer;
+typedef std::shared_ptr<timer> timer_ptr;
 
 typedef int (thread_proc_pfn) (void *);
 typedef void (log_callback_pfn) (const char *, KNGIN_LOG_LEVEL, const char *, size_t size);
 typedef void (void_void_pfn) (void);
+typedef void (timeout_pfn) (const timer_ptr &);
 
 #if defined(KNGIN_USE_STD_FUNCTION_THREAD_PROC)
   typedef std::function<thread_proc_pfn> thread_proc;
@@ -36,6 +40,12 @@ typedef void (void_void_pfn) (void);
 #else
   typedef void_void_pfn * event_loop_handler;
 #endif /* defined(KNGIN_USE_STD_FUNCTION_EVENT_LOOP_HANDLER) */
+
+#if defined(KNGIN_USE_STD_FUNCTION_TIMER_HANDLER)
+  typedef std::function<timeout_pfn> timeout_handler;
+#else
+  typedef timeout_pfn * timeout_handler;
+#endif /* defined(KNGIN_USE_STD_FUNCTION_TIMER_HANDLER) */
 
 
 KNGIN_NAMESPACE_K_END
