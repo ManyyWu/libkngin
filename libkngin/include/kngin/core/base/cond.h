@@ -3,9 +3,7 @@
 
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/timestamp.h"
-#include "kngin/core/base/impl.h"
-
-typedef_cond_impl(cond_impl);
+#include "kngin/core/base/detail.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -13,7 +11,7 @@ class mutex;
 class cond : public noncopyable {
 public:
   explicit
-  cond (mutex &mutex) noexcept;
+  cond (mutex &mutex);
 
   ~cond () noexcept;
 

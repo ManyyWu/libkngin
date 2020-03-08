@@ -9,13 +9,12 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 enum class KNGIN_LOG_LEVEL;
-class timer;
-typedef std::shared_ptr<timer> timer_ptr;
+class timer_id;
 
 typedef int (thread_proc_pfn) (void *);
 typedef void (log_callback_pfn) (const char *, KNGIN_LOG_LEVEL, const char *, size_t size);
 typedef void (void_void_pfn) (void);
-typedef void (timeout_pfn) (const timer_ptr &);
+typedef void (timeout_pfn) (const timer_id &);
 
 #if defined(KNGIN_USE_STD_FUNCTION_THREAD_PROC)
   typedef std::function<thread_proc_pfn> thread_proc;

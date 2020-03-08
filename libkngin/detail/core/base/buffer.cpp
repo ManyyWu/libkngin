@@ -13,12 +13,10 @@ out_buffer::out_buffer() noexcept
 }
 
 out_buffer::out_buffer (const void * arr, size_t size)
-try
  : arr_(static_cast<const unsigned char *>(arr)),
    size_(size) {
-  //arg_check(arr and size);
-} catch (...) {
-  //log_fatal("out_buffer::out_buffer() error");
+  assert(arr);
+  assert(size);
 }
 
 out_buffer::out_buffer(const out_buffer &buf) noexcept
@@ -81,13 +79,11 @@ in_buffer::in_buffer() noexcept : arr_(nullptr),
 }
 
 in_buffer::in_buffer (void * arr, size_t size)
-try
  : arr_(static_cast<unsigned char *>(arr)),
    size_(size),
    valid_(0) {
-  //arg_check(arr and size);
-} catch (...) {
-  //log_fatal("in_buffer::in_buffer() error");
+  assert(arr);
+  assert(size);
 }
 
 in_buffer::in_buffer (const in_buffer &buf) noexcept

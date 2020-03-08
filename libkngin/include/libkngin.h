@@ -1,6 +1,7 @@
 #ifndef KNGIN_LIBKNGIN_H
 #define KNGIN_LIBKNGIN_H
 
+// basic
 #include "kngin/core/define.h"
 #include "kngin/core/base/barrier.h"
 #include "kngin/core/base/bits.h"
@@ -10,7 +11,7 @@
 #include "kngin/core/base/cond.h"
 #include "kngin/core/base/error_code.h"
 #include "kngin/core/base/exception.h"
-#include "kngin/core/base/impl.h"
+#include "kngin/core/base/detail.h"
 #include "kngin/core/base/lock.h"
 #include "kngin/core/base/logfile.h"
 #include "kngin/core/base/logger.h"
@@ -26,5 +27,10 @@
 #include "kngin/core/base/thread_pool.h"
 #include "kngin/core/base/timeout.h"
 #include "kngin/core/base/timestamp.h"
+
+// event_loop
+#include "kngin/core/event/detail.h"
+#include "kngin/core/event/timer_id.h"
+#include "kngin/core/event/event_loop.h"
 
 #endif /* KNGIN_LIBKNGIN_H */

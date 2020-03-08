@@ -149,9 +149,21 @@
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
 // timer
-#if defined(KNGIN_SYSTEM_WIN32)
-#  undef KNGIN_USE_TIMERFD
-#endif /* KNGIN_SYSTEM_WIN32 */
+#if !defined(KNGIN_SYSTEM_LINUX)
+#  undef ENABLE_USE_TIMERFD_TIMER
+#endif /* !defined(KNGIN_SYSTEM_LINUX) */
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_QUEUED_TIMER
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_TIMERFD_TIMER)
+#  define KNGIN_USE_TIMERFD_TIMER
+#elif defined(ENABLE_USE_MONOTONIC_TIMER)
+#  define KNGIN_USE_MONOTONIC_TIMER
+#elif defined(ENABLE_USE_QUEUED_TIMER)
+#  define KNGIN_USE_TIMERFD_TIMER
+#else
+#  define KNGIN_USE_MONOTONIC_TIMER
+#endif /* defined(ENABLE_USE_TIMERFD_TIMER) */
 
 // epoll
 #if !defined(KNGIN_SYSTEM_WIN32)
@@ -170,11 +182,11 @@
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 // timer
-#if defined(ENABLE_USE_TIMERFD)
-#  define KNGIN_USE_TIMERFD
+#if defined(ENABLE_USE_TIMERFD_TIMER)
+#  define KNGIN_USE_TIMERFD_TIMER
 #else
 #  define KNGIN_TIMER_REMAINING_PRESISION TIMER_REMAINING_PRESISION
-#endif /* defined(ENABLE_USE_TIMERFD) */
+#endif /* defined(ENABLE_USE_TIMERFD_TIMER) */
 
 // event_fd
 #if !defined(KNGIN_SYSTEM_WIN32)

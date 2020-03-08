@@ -4,9 +4,7 @@
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/scope_lock.h"
 #include "kngin/core/base/timestamp.h"
-#include "kngin/core/base/impl.h"
-
-typedef_mutex_impl(mutex_impl);
+#include "kngin/core/base/detail.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

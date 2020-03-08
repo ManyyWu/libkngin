@@ -17,13 +17,13 @@ public:
   ~win_mutex () noexcept;
 
   void
-  lock ();
+  lock () noexcpet;
 
   void
-  unlock ();
+  unlock () noexcept;
 
   bool
-  try_lock ();
+  try_lock () noexcept;
 
 private:
 };

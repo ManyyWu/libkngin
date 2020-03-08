@@ -2,9 +2,7 @@
 #define KNGIN_BARRIER_H
 
 #include "kngin/core/base/noncopyable.h"
-#include "kngin/core/base/impl.h"
-
-typedef_barrier_impl(barrier_impl);
+#include "kngin/core/base/detail.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 

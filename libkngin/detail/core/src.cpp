@@ -1,6 +1,6 @@
 #include "libkngin.h"
 
-// base
+// basic
 #include "detail/core/base/common.cpp"
 #include "detail/core/base/mutex.cpp"
 #include "detail/core/base/cond.cpp"
@@ -27,8 +27,13 @@
 #include "detail/core/base/timestamp.cpp"
 
 // event
+#include "detail/core/event/timer_id.cpp"
+#include "detail/core/event/timer_queue.cpp"
+
 #include "detail/core/event/event_loop.cpp"
 #include "detail/core/event/impl/epoll_reactor.cpp"
+
+#include "detail/core/event/impl/monotonic_timer.cpp"
 
 // net
 

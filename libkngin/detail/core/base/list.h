@@ -3,48 +3,10 @@
 
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/memory.h"
-#include "detail/core/base/kernel_list.h"
+#include "detail/core/base/list_node.h"
 #include <cassert>
-#include <memory>
-#include <type_traits>
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
-
-template <typename Tp>
-class value_base;
-
-template <typename Tp>
-class node : public noncopyable {
-  template<typename T,
-      typename std::enable_if<std::is_base_of<value_base<T>, T>{}, int>::type>
-  friend class list;
-
-protected:
-  std::shared_ptr<Tp> ptr_;
-
-  list_head head_;
-};
-
-template <typename Tp>
-class value_base : public noncopyable {
-  template <typename T,
-      typename std::enable_if<std::is_base_of<value_base<T>, T>{}, int>::type>
-  friend class list;
-
-private:
-  void
-  reset_node (node<Tp> *ptr) noexcept {
-    node_ = ptr;
-  }
-
-  node<Tp> *
-  get_node () noexcept {
-    return node_;
-  }
-
-private:
-  node<Tp> *node_;
-};
 
 template <typename Tp,
     typename std::enable_if<std::is_base_of<value_base<Tp>, Tp>{}, int>::type = 0>
@@ -56,7 +18,7 @@ public:
   typedef std::shared_ptr<Tp> value_type;
   typedef node<Tp> node_type;
 
-  list (size_type size) noexcept {
+  list (size_type size) {
     INIT_LIST_HEAD(&list_);
     INIT_LIST_HEAD(&free_);
     size_ = size_free_ = 0;
@@ -129,7 +91,7 @@ public:
   }
 
   void
-  clear () {
+  clear () noexcept {
     node_type *pos, *n;
     list_for_each_entry_safe(pos, n, &list_, head_, node_type) {
       move_to_free(pos);
@@ -139,7 +101,7 @@ public:
   }
 
   void
-  shrink_to_fix () {
+  shrink_to_fix () noexcept {
     clear_free();
   }
 
@@ -183,7 +145,7 @@ protected:
   }
 
   void
-  clear_free () {
+  clear_free () noexcept {
     node_type *pos, *n;
     list_for_each_entry_safe(pos, n, &free_, head_, node<Tp>) {
       list_del(&pos->head_);

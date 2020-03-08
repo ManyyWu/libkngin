@@ -5,7 +5,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-cond::cond (mutex &mutex) noexcept
+cond::cond (mutex &mutex)
   : impl_(new cond_impl(*mutex.impl_)) {
 }
 

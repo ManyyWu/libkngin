@@ -4,12 +4,13 @@
 #include "kngin/core/define.h"
 #include "kngin/core/base/thread.h"
 #include "kngin/core/base/mutex.h"
-#include "kngin/core/base/impl.h"
-#include "kngin/core/base/callback.h"
+#include "kngin/core/base/barrier.h"
+#include "kngin/core/event/detail.h"
 #include "kngin/core/event/event_base.h"
-#include "kngin/core/event/timer_queue.h"
-
-typedef_reactor_impl(reactor);
+#include "kngin/core/event/timer_id.h"
+#include <memory>
+#include <deque>
+#include <atomic>
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -22,7 +23,7 @@ public:
 
   event_loop ();
 
-  ~event_loop ();
+  ~event_loop () noexcept;
 
   void
   run (start_handler &&start = nullptr, stop_handler &&stop = nullptr);
@@ -113,7 +114,7 @@ private:
 
   mutex taskq_mutex_;
 
-  timer_queue timerq_;
+  timer_queue *timerq_;
 
   mutex timerq_mutex_;
 

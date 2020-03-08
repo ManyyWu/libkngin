@@ -52,5 +52,26 @@
 #  define FILENAME ((const char *)(__FILE__ + k::g_path_prefix_size))
 #endif /* defined(KNGIN_USE_RELATIVE_LOG_PATH) */
 
+// impl
+#define declare_detail_impl_class(type) \
+    KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN \
+      class type;                       \
+    KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+#define typedef_detail_impl(src_type, dst_type)   \
+    KNGIN_NAMESPACE_K_BEGIN                       \
+      typedef k::detail::impl::src_type dst_type; \
+    KNGIN_NAMESPACE_K_END
+
+// detail
+#define declare_detail_class(type) \
+    KNGIN_NAMESPACE_K_DETAIL_BEGIN \
+      class type;                  \
+    KNGIN_NAMESPACE_K_DETAIL_END
+#define typedef_detail(src_type, dst_type)  \
+    KNGIN_NAMESPACE_K_BEGIN                 \
+      typedef k::detail::src_type dst_type; \
+    KNGIN_NAMESPACE_K_END
+
+
 #endif /* KNGIN_DEFINE_H */
 

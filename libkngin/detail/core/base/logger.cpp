@@ -76,7 +76,9 @@ logger::logger ()
 }
 
 logger::~logger () noexcept {
-  deinit();
+  TRY()
+    deinit();
+  IGNORE()
 }
 
 void
@@ -269,7 +271,13 @@ logger::write_stderr2 (KNGIN_LOG_LEVEL level, const char *fmt, ...) noexcept {
 
 logfile &
 logger::add_logfile (const char *file, int mode, log_callback &&cb) {
-  g_logger.files_.push_back(new logfile(file, mode, std::move(cb)));
+  logfile *ptr = nullptr;
+  ptr = new logfile(file, mode, std::move(cb));
+  try {
+    g_logger.files_.push_back(ptr);
+  } catch (...) {
+    safe_release(ptr);
+  }
   return *g_logger.files_.back();
 }
 

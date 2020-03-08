@@ -3,10 +3,8 @@
 
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/timestamp.h"
-#include "kngin/core/base/impl.h"
+#include "kngin/core/base/detail.h"
 #include "kngin/core/base/callback.h"
-
-typedef_thread_impl(thread_impl);
 
 KNGIN_NAMESPACE_K_BEGIN
 

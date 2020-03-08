@@ -233,13 +233,13 @@ public:
   }
 
 protected:
-  template <typename Type>
-  Type
+  template <typename Tp>
+  Tp
   read (bool forward = true) {
-    check_readable(sizeof(Type));
-    Type val = *static_cast<const Type *>(static_cast<const void *>(arr_));
-    size_ -= forward ? sizeof(Type) : 0;
-    arr_ += forward ? sizeof(Type) : 0;
+    check_readable(sizeof(Tp));
+    Tp val = *static_cast<const Tp *>(static_cast<const void *>(arr_));
+    size_ -= forward ? sizeof(Tp) : 0;
+    arr_ += forward ? sizeof(Tp) : 0;
     return val;
   }
 
@@ -423,12 +423,12 @@ protected:
       throw_exception("in_buffer::check_writeable() - out of range");
   }
 
-  template <typename Type>
+  template <typename Tp>
   in_buffer &
-  write (Type val) {
-    check_writeable(sizeof(Type));
-    *static_cast<Type *>(static_cast<void *>(arr_ + valid_)) = val;
-    valid_ += sizeof(Type);
+  write (Tp val) {
+    check_writeable(sizeof(Tp));
+    *static_cast<Tp *>(static_cast<void *>(arr_ + valid_)) = val;
+    valid_ += sizeof(Tp);
     return *this;
   }
 
