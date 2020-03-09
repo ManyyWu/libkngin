@@ -14,7 +14,7 @@ class mutex : public noncopyable {
 public:
   typedef scope_lock<mutex> scoped_lock;
 
-  mutex () noexcept;
+  mutex ();
 
   ~mutex () noexcept;
 

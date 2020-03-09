@@ -7,11 +7,11 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class timeout {
 public:
-  timeout ();
+  timeout () noexcept;
 
-  timeout (timestamp  interval, bool persist);
+  timeout (timestamp  interval, bool persist) noexcept;
 
-  timeout (timestamp now_time, timestamp  interval, bool persist);
+  timeout (timestamp now_time, timestamp  interval, bool persist) noexcept;
 
   ~timeout () = default;
 
@@ -49,7 +49,12 @@ public:
   timestamp
   remaining (timestamp now_time) const noexcept;
 
-public:
+  timestamp
+  reset (timestamp  interval, bool persist) noexcept;
+
+  timestamp
+  reset (timestamp now_time, timestamp  interval, bool persist) noexcept;
+
   void
   set_interval (timestamp interval) noexcept {
     interval_ = interval;

@@ -18,7 +18,7 @@ class out_buffer {
 public:
   out_buffer () noexcept;
 
-  out_buffer (const void *arr, size_t size);
+  out_buffer (const void *arr, size_t size) noexcept;
 
   out_buffer (const out_buffer &buf) noexcept;
 
@@ -201,13 +201,10 @@ public:
   read_bytes (void * p, size_t n);
 
   void
-  reset (const void * buf, size_t size);
+  reset (const void * buf, size_t size) noexcept;
 
   void
   swap (out_buffer &buf) noexcept;
-
-  std::shared_ptr<out_buffer>
-  clone ();
 
   std::string
   dump ();
@@ -307,7 +304,7 @@ class in_buffer {
 public:
   in_buffer () noexcept;
 
-  in_buffer (void * arr, size_t size);
+  in_buffer (void * arr, size_t size) noexcept;
 
   in_buffer (const in_buffer &buf) noexcept;
 
@@ -336,10 +333,6 @@ public:
   size_t
   size () const noexcept {
     return size_;
-  }
-  bool
-  eof () const noexcept {
-    return !size_;
   }
   size_t
   valid () const noexcept {
@@ -387,7 +380,7 @@ public:
   write_bytes (const void * p, size_t n);
 
   void
-  reset (void * buf, size_t size);
+  reset (void * buf, size_t size) noexcept;
 
   void
   swap (in_buffer &buf) noexcept;

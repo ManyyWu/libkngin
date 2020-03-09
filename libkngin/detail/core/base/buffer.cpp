@@ -12,7 +12,7 @@ out_buffer::out_buffer() noexcept
    size_(0) {
 }
 
-out_buffer::out_buffer (const void * arr, size_t size)
+out_buffer::out_buffer (const void * arr, size_t size) noexcept
  : arr_(static_cast<const unsigned char *>(arr)),
    size_(size) {
   assert(arr);
@@ -41,7 +41,7 @@ out_buffer::read_bytes (void * p, size_t n) {
 }
 
 void
-out_buffer::reset (const void * arr, size_t size) {
+out_buffer::reset (const void * arr, size_t size) noexcept {
   assert(arr);
   assert(size);
   arr_ = static_cast<const unsigned char *>(arr);
@@ -52,11 +52,6 @@ void
 out_buffer::swap (out_buffer &buf) noexcept {
   std::swap(arr_, buf.arr_);
   std::swap(size_, buf.size_);
-}
-
-std::shared_ptr<out_buffer>
-out_buffer::clone () {
-  return std::make_shared<out_buffer>(arr_, size_);
 }
 
 std::string
@@ -72,13 +67,14 @@ out_buffer::dump () {
   return result;
 }
 
-in_buffer::in_buffer() noexcept : arr_(nullptr),
-      size_(0),
-      valid_(0)
+in_buffer::in_buffer() noexcept
+ : arr_(nullptr),
+  size_(0),
+  valid_(0)
 {
 }
 
-in_buffer::in_buffer (void * arr, size_t size)
+in_buffer::in_buffer (void * arr, size_t size) noexcept
  : arr_(static_cast<unsigned char *>(arr)),
    size_(size),
    valid_(0) {
@@ -112,7 +108,7 @@ in_buffer::write_bytes (const void * p, size_t n) {
 }
 
 void
-in_buffer::reset (void * arr, size_t size) {
+in_buffer::reset (void * arr, size_t size) noexcept {
   assert(arr);
   assert(size);
   arr_ = static_cast<unsigned char *>(arr);

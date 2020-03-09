@@ -44,6 +44,7 @@ public:
   void
   destroy () noexcept {
     ::pthread_barrier_destroy(&barrier_);
+    inited_ = false;
   }
 
   bool

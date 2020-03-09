@@ -9,12 +9,12 @@ KNGIN_NAMESPACE_K_BEGIN
 template <typename Tp>
 class scope_lock : public noncopyable {
 public:
-  scope_lock (Tp &lock)
+  scope_lock (Tp &lock) noexcept
    : lock_(lock) {
     lock_.lock();
   }
 
-  ~scope_lock () {
+  ~scope_lock () noexcept {
     lock_.unlock();
   }
 

@@ -4,7 +4,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-mutex::mutex () noexcept
+mutex::mutex ()
   : impl_(new mutex_impl()) {
 }
 
