@@ -2,7 +2,7 @@
 #define KNGIN_MUTEX_H
 
 #include "kngin/core/base/noncopyable.h"
-#include "kngin/core/base/scope_lock.h"
+#include "kngin/core/base/scoped_lock.h"
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/detail.h"
 

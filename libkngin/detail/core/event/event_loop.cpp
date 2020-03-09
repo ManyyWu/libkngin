@@ -1,4 +1,5 @@
-#include "kngin/core/base/log.h"
+#include "kngin/core/base/scoped_flag.h"
+#include "kngin/core/base/common.h"
 #include "kngin/core/event/event_loop.h"
 #include "kngin/core/event/detail.h"
 #include "detail/core/event/timer.h"
@@ -92,7 +93,7 @@ event_loop::run_until (timestamp absval, timestamp interval,
 }
 
 void
-event_loop::cancel (timer_id &id) {
+event_loop::cancel (const timer_id &id) {
 }
 
 size_t
@@ -107,9 +108,16 @@ void
 event_loop::process_events () {
 }
 
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
 void
 event_loop::process_timer () {
+  timer_processing_ = true;
+  {
+    scoped_flag<std::atomic_bool, bool> flag(timer_processing_, false);
+    timerq_->process_ready_timer();
+  }
 }
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 
 void
 event_loop::sort_events () {

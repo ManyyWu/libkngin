@@ -75,7 +75,7 @@ public:
   run_until (timestamp absval, timestamp interval, timeout_handler &&handler);
 
   void
-  cancel (timer_id &id);
+  cancel (const timer_id &id);
 
 private:
   size_t
@@ -87,8 +87,10 @@ private:
   void
   process_events ();
 
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   void
   process_timer ();
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 
   void
   sort_events ();

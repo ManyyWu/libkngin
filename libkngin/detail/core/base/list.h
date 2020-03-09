@@ -3,6 +3,7 @@
 
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/memory.h"
+#include "kngin/core/base/common.h"
 #include "detail/core/base/list_node.h"
 #include <cassert>
 
@@ -33,8 +34,9 @@ public:
   }
 
   void
-  add (const value_type& ptr) {
-    assert(!exist(ptr));
+  insert (const value_type& ptr) {
+    return_if(ptr);
+    return_if(!exist(ptr));
     node_type *n = nullptr;
     if (size_free_) {
       assert(n = free_to_list(ptr));
@@ -49,7 +51,8 @@ public:
 
   void
   remove (const value_type& ptr) noexcept {
-    assert(exist(ptr));
+    return_if(ptr);
+    return_if(exist(ptr));
     if (ptr->node_) {
       auto *head = &ptr->node_->head_;
       if (head) {
@@ -63,6 +66,7 @@ public:
 
   bool
   exist (const value_type& ptr) const noexcept {
+    return_if(!ptr, false);
     if (ptr->get_node()) {
       auto *head = &ptr->get_node()->head_;
       if (head) {
@@ -72,6 +76,15 @@ public:
       }
     }
     return false;
+  }
+
+  template <class Fn>
+  void
+  for_each (Fn fn) noexcept {
+    node_type *pos, *n;
+    list_for_each_entry_safe(pos, n, &list_, head_, node_type) {
+      fn(pos->ptr_);
+    }
   }
 
   size_type
@@ -108,7 +121,7 @@ public:
   void
   resize (size_type size) {
     if (size > max_size()) {
-      // add to free_
+      // add to tail of free_
       for (size_type num = size - max_size(), i = 0; i < num; ++i) {
         list_add_tail(&make_node(nullptr)->head_, &free_);
         ++size_free_;

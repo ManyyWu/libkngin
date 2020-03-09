@@ -1,5 +1,4 @@
 #include "kngin/core/base/common.h"
-#include "kngin/core/event/event_loop.h"
 #include "detail/core/event/impl/monotonic_timer.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
@@ -17,11 +16,11 @@ monotonic_timer::close () noexcept {
 }
 
 void
-monotonic_timer::on_events (event_loop &loop) {
+monotonic_timer::on_events () {
   auto s = self();
   if (handler_) {
     TRY()
-      handler_(*id_);
+      handler_(id_);
     CATCH_ERROR("monotonic_timer::handler() error")
   }
 }

@@ -16,9 +16,11 @@ typedef std::shared_ptr<char> uint8_arr_ptr;
 
 class out_buffer {
 public:
+  typedef size_t size_type;
+
   out_buffer () noexcept;
 
-  out_buffer (const void *arr, size_t size) noexcept;
+  out_buffer (const void *arr, size_type size) noexcept;
 
   out_buffer (const out_buffer &buf) noexcept;
 
@@ -27,16 +29,16 @@ public:
   ~out_buffer () = default;
 
   const uint8_t &
-  operator [] (size_t idx) const noexcept {
+  operator [] (size_type idx) const noexcept {
     return arr_[idx];
   }
   const uint8_t &
-  at (size_t idx) const {
+  at (size_type idx) const {
     check_readable(idx + 1);
     return arr_[idx];
   }
   const unsigned char *
-  get (size_t idx) const {
+  get (size_type idx) const {
     check_readable(idx + 1);
     return &arr_[idx];
   }
@@ -44,7 +46,7 @@ public:
   begin () const noexcept {
     return arr_;
   }
-  size_t
+  size_type
   size () const noexcept {
     return size_;
   }
@@ -197,11 +199,11 @@ public:
     return read<int64_t>();
   }
 
-  size_t
-  read_bytes (void * p, size_t n);
+  size_type
+  read_bytes (void * p, size_type n);
 
   void
-  reset (const void * buf, size_t size) noexcept;
+  reset (const void * buf, size_type size) noexcept;
 
   void
   swap (out_buffer &buf) noexcept;
@@ -210,7 +212,7 @@ public:
   dump ();
 
   out_buffer &
-  operator -= (size_t size) {
+  operator -= (size_type size) {
     check_readable(size);
     size_ -= size;
     return *this;
@@ -224,7 +226,7 @@ public:
   }
 
   void
-  check_readable (size_t n) const {
+  check_readable (size_type n) const {
     if (size_ < n)
       throw_exception("in_buffer::check_readable() - out of range");
   }
@@ -243,20 +245,22 @@ protected:
 private:
   const unsigned char * arr_;
 
-  size_t size_;
+  size_type size_;
 };
 
 class msg_buffer {
 public:
+  typedef size_t size_type;
+
   msg_buffer () noexcept
    : arr_(nullptr), buf_() {
   }
 
-  msg_buffer (uint8_arr_ptr &arr, size_t offset, size_t size)
+  msg_buffer (uint8_arr_ptr &arr, size_type offset, size_type size)
    : arr_(arr), buf_(arr.get() + offset, size) {
   }
 
-  msg_buffer (const void *arr, size_t size)
+  msg_buffer (const void *arr, size_type size)
    : arr_(nullptr), buf_(arr, size) {
   }
   // the arr must be constant string or stack space that life cycle is longer than this
@@ -302,9 +306,11 @@ private:
 
 class in_buffer {
 public:
+  typedef size_t size_type;
+
   in_buffer () noexcept;
 
-  in_buffer (void * arr, size_t size) noexcept;
+  in_buffer (void * arr, size_type size) noexcept;
 
   in_buffer (const in_buffer &buf) noexcept;
 
@@ -313,16 +319,16 @@ public:
   ~in_buffer () = default;
 
   uint8_t &
-  operator [] (size_t idx) noexcept {
+  operator [] (size_type idx) noexcept {
     return arr_[idx];
   }
   uint8_t &
-  at (size_t idx) {
+  at (size_type idx) {
     check_readable(idx + 1);
     return arr_[idx];
   }
   unsigned char *
-  get (size_t idx) {
+  get (size_type idx) {
     check_readable(idx + 1);
     return &arr_[idx];
   }
@@ -330,15 +336,15 @@ public:
   begin () const noexcept {
     return arr_;
   }
-  size_t
+  size_type
   size () const noexcept {
     return size_;
   }
-  size_t
+  size_type
   valid () const noexcept {
     return valid_;
   }
-  size_t
+  size_type
   writeable () const noexcept {
     return (size_ - valid_);
   }
@@ -377,10 +383,10 @@ public:
   }
 
   in_buffer &
-  write_bytes (const void * p, size_t n);
+  write_bytes (const void * p, size_type n);
 
   void
-  reset (void * buf, size_t size) noexcept;
+  reset (void * buf, size_type size) noexcept;
 
   void
   swap (in_buffer &buf) noexcept;
@@ -389,7 +395,7 @@ public:
   dump ();
 
   in_buffer &
-  operator += (size_t size) {
+  operator += (size_type size) {
     check_writeable(size);
     valid_ += size;
     return *this;
@@ -405,13 +411,13 @@ public:
 
 protected:
   void
-  check_readable (size_t n) const {
+  check_readable (size_type n) const {
     if (valid_ < n)
       throw_exception("in_buffer::check_readable() - out of range");
   }
 
   void
-  check_writeable (size_t n) const {
+  check_writeable (size_type n) const {
     if (size_ - valid_ < n)
       throw_exception("in_buffer::check_writeable() - out of range");
   }
@@ -428,9 +434,9 @@ protected:
 private:
   unsigned char * arr_;
 
-  size_t size_;
+  size_type size_;
 
-  size_t valid_;
+  size_type valid_;
 };
 
 KNGIN_NAMESPACE_K_END

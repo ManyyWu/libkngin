@@ -173,43 +173,19 @@ public:
 #if defined(KNGIN_SYSTEM_WIN32)
   static
   timestamp
-  realtime () noexcept {
-    timeval tv;
-    ::gettimeofday(&tv, nullptr);
-    return tv;
-  }
+  realtime () noexcept;
 
   static
   timestamp
-  monotonic () noexcept {
-#ifdef KNGIN_SYSTEM_WIN64
-    return ::GetTickCount64();
-#else
-    return ::GetTickCount();
-#endif
-  }
+  monotonic () noexcept;
 #else
   static
   timestamp
-  realtime () noexcept {
-    timespec ts;
-    ::clock_gettime(CLOCK_REALTIME, &ts);
-    return ts;
-  }
+  realtime () noexcept;
+
   static
   timestamp
-  monotonic () noexcept {
-    timespec ts;
-    ::clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts;
-  }
-  static
-  timestamp
-  boot_time () noexcept {
-    timespec ts;
-    ::clock_gettime(CLOCK_BOOTTIME, &ts);
-    return ts;
-  }
+  monotonic () noexcept;
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
   static
@@ -223,6 +199,9 @@ public:
   abs_diff (timestamp t1, timestamp t2) noexcept {
     return (abs)(t1.ms_ - t2.ms_);
   }
+
+public:
+  static timestamp max;
 
 private:
   time_t ms_;

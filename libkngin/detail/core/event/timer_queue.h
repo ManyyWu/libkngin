@@ -3,21 +3,37 @@
 
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/event/detail.h"
-#include "detail/core/base/list.h"
-#include <detail/core/event/impl/monotonic_timer.h>
+#include "kngin/core/base/mutex.h"
+#include "detail/core/event/timer.h"
+#include <deque>
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 class timer_queue : noncopyable {
 public:
+  typedef size_t size_type;
+  typedef timer_id::timer_ptr timer_ptr;
+
   timer_queue ();
 
   ~timer_queue ();
 
-private:
-  typedef list<timer> timers;
+  timer &
+  insert (timestamp now_time, timestamp delay, bool persist,
+          timeout_handler &&handler);
 
-  timers timers_;
+  void
+  remove (timer_ptr &timer);
+
+  timestamp
+  process_ready_timer ();
+
+private:
+  typedef list<timer> timer_list;
+
+  timer_list timers_;
+
+  mutex mutex_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_END

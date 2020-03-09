@@ -1,8 +1,43 @@
 #include <ctime>
+#include <limits>
 #include <algorithm>
 #include "kngin/core/base/timestamp.h"
 
 KNGIN_NAMESPACE_K_BEGIN
+
+timestamp timestamp::max = time_t(std::numeric_limits<timer_t>::max());
+
+#if defined(KNGIN_SYSTEM_WIN32)
+timestamp
+timestamp::realtime () noexcept {
+  timeval tv;
+  ::gettimeofday(&tv, nullptr);
+  return tv;
+}
+
+timestamp
+timestamp::monotonic () noexcept {
+#ifdef KNGIN_SYSTEM_WIN64
+  return ::GetTickCount64();
+#else
+  return ::GetTickCount();
+#endif
+}
+#else
+timestamp
+timestamp::realtime () noexcept {
+  timespec ts;
+  ::clock_gettime(CLOCK_REALTIME, &ts);
+  return ts;
+}
+
+timestamp
+timestamp::monotonic () noexcept {
+  timespec ts;
+  ::clock_gettime(CLOCK_MONOTONIC, &ts);
+  return ts;
+}
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_END
 

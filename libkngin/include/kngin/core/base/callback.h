@@ -46,7 +46,6 @@ typedef void (timeout_pfn) (const timer_id &);
   typedef timeout_pfn * timeout_handler;
 #endif /* defined(KNGIN_USE_STD_FUNCTION_TIMER_HANDLER) */
 
-
 KNGIN_NAMESPACE_K_END
 
 #endif /* KNGIN_CALLBACK_H */

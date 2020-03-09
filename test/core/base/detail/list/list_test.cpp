@@ -32,10 +32,10 @@ main () {
   k::detail::list<mydata> c(20);
   mydata_ptr data[SIZE];
 
-  // add
+  // insert
   for (int i = 0; i < SIZE; ++i) {
     data[i] = std::make_shared<mydata>(i);
-    c.add(data[i]);
+    c.insert(data[i]);
   }
   std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
 
@@ -46,10 +46,10 @@ main () {
   }
   std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
 
-  // add
+  // insert
   for (int i = 0; i < SIZE; ++i) {
     data[i] = std::make_shared<mydata>(i);
-    c.add(data[i]);
+    c.insert(data[i]);
   }
   std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
 
@@ -67,7 +67,7 @@ main () {
 
   // pre alloc
   mydata_ptr tmp = std::make_shared<mydata>(11);
-  c.add(tmp);
+  c.insert(tmp);
   std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
 
   // auto fix

@@ -1,6 +1,7 @@
 #include "kngin/core/define.h"
 #if !defined(KNGIN_SYSTEM_WIN32)
 
+#include "kngin/core/base/system_error.h"
 #include "detail/core/base/descriptor.h"
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,7 +15,7 @@ read (fd_type fd, in_buffer &buf) {
   assert(FD_VALID(fd));
   auto size = ::read(fd, buf.begin(), buf.writeable());
   if (size < 0)
-    throw_system_error("::read() error");
+    throw_system_error("::read() error", last_error());
   buf += size;
   return size;
 }
@@ -40,7 +41,7 @@ write (fd_type fd, out_buffer &buf) {
   assert(FD_VALID(fd));
   auto size = ::write(fd, buf.begin(), buf.size());
   if (size < 0)
-    throw_system_error("::write() error");
+    throw_system_error("::write() error", last_error());
   buf -= size;
   return size;
 }
@@ -139,7 +140,7 @@ readable (fd_type fd) {
   assert(FD_VALID(fd));
   size_t bytes = 0;
   if (::ioctl(fd, FIONREAD, &bytes) < 0)
-    throw_system_error("::ioctl(FIONREAD) failed");
+    throw_system_error("::ioctl(FIONREAD) failed", last_error());
   return bytes;
 }
 
@@ -164,7 +165,7 @@ void
 close (fd_type fd) {
   assert(FD_VALID(fd));
   if (::close(fd) < 0)
-    throw_system_error("::close() error");
+    throw_system_error("::close() error", last_error());
 }
 
 void
@@ -178,7 +179,7 @@ dup (fd_type fd) {
   assert(FD_VALID(fd));
   auto new_fd = ::dup(fd);
   if (new_fd < 0)
-    throw_system_error("::dup() error");
+    throw_system_error("::dup() error", last_error());
   return new_fd;
 }
 
@@ -200,7 +201,7 @@ set_nonblock (fd_type fd, bool on) {
   auto flags = ::fcntl(fd, F_GETFL, 0);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
   if (::fcntl(fd, F_SETFL, flags) < 0)
-    throw_system_error("::fcntl() set O_NONBLOCK flag failed");
+    throw_system_error("::fcntl() set O_NONBLOCK flag failed", last_error());
 }
 
 void
@@ -217,7 +218,7 @@ set_closeexec (fd_type fd, bool on) {
   auto flags = ::fcntl(fd, F_GETFL, 0);
   flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
   if (::fcntl(fd, F_SETFL, flags) < 0)
-    throw_system_error("::fcntl() set O_CLOEXEC flag failed");
+    throw_system_error("::fcntl() set O_CLOEXEC flag failed", last_error());
 }
 
 void
@@ -233,7 +234,7 @@ nonblock (fd_type fd) {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   if (flags < 0)
-    throw_system_error("::fcntl() get O_CLOEXEC flag failed");
+    throw_system_error("::fcntl() get O_CLOEXEC flag failed", last_error());
   return (flags & O_NONBLOCK);
 }
 
