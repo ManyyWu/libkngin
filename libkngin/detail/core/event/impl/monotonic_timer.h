@@ -19,21 +19,21 @@ class monotonic_timer
   friend class event_loop;
 
 public:
-  monotonic_timer (timeout_handler &&handler)
+  monotonic_timer (timeout_handler &&handler) noexcept
    : timeout_(),
      handler_(std::move(handler)),
      closed_(false) {
   }
 
-  ~monotonic_timer () {
+  ~monotonic_timer () noexcept {
     assert(closed_);
   }
 
   void
-  set_time (timestamp cur_time, timestamp delay, bool persist);
+  set_time (timestamp now_time, timestamp delay, bool persist) noexcept;
 
   void
-  close ();
+  close () noexcept;
 
   std::shared_ptr<monotonic_timer>
   self () {

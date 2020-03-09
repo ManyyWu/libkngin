@@ -5,15 +5,13 @@
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 void
-monotonic_timer::set_time (timestamp cur_time, timestamp delay, bool persist) {
-  timeout_.update(cur_time);
-  timeout_.set_interval(delay);
-  timeout_.set_persist(persist);
+monotonic_timer::set_time (timestamp now_time, timestamp delay, bool persist) noexcept {
+  timeout_.reset(now_time, delay, persist);
   closed_ = false;
 }
 
 void
-monotonic_timer::close () {
+monotonic_timer::close () noexcept {
   timeout_.clear();
   closed_ = true;
 }
