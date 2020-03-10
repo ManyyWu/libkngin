@@ -17,6 +17,12 @@ class node : public noncopyable {
       typename std::enable_if<std::is_base_of<value_base<T>, T>{}, int>::type>
   friend class list;
 
+public:
+  node () noexcept {
+    ptr_(nullptr);
+    LIST_HEAD_INIT(head_);
+  }
+
 protected:
   std::shared_ptr<Tp> ptr_;
 
