@@ -197,11 +197,11 @@
 #endif /* defined(KNGIN_SYSTEM_MACOS) */
 
 // list
-#if defined(PRE_ALLOC_SIZE)
-#  define KNGIN_PRE_ALLOC_SIZE PRE_ALLOC_SIZE
+#if defined(LIST_PRE_ALLOC_SIZE)
+#  define KNGIN_LIST_PRE_ALLOC_SIZE LIST_PRE_ALLOC_SIZE
 #else
-#  define KNGIN_PRE_ALLOC_SIZE 15
-#endif /* defined(PRE_ALLOC_SIZE) */
+#  define KNGIN_LIST_PRE_ALLOC_SIZE 15
+#endif /* defined(LIST_PRE_ALLOC_SIZE) */
 
 
 #endif /* KNGIN_CONFIG_H */
