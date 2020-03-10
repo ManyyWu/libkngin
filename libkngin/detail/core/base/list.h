@@ -152,8 +152,8 @@ protected:
   void
   auto_fix () {
     if (!size_free_)
-      resize(max_size() + KNGIN_PRE_ALLOC_SIZE);
-    else if (size_free_ > KNGIN_AUTO_FIX_THRESHOLD)
+      resize(max_size() + size_ / 2);
+    else if (size_free_ > size_ / 2)
       resize(max_size() - (size_free_ - KNGIN_PRE_ALLOC_SIZE));
   }
 

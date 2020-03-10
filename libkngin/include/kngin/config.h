@@ -197,11 +197,6 @@
 #endif /* defined(KNGIN_SYSTEM_MACOS) */
 
 // list
-#if defined(AUTO_FIX_THRESHOLD)
-#  define KNGIN_AUTO_FIX_THRESHOLD AUTO_FIX_THRESHOLD
-#else
-#  define KNGIN_AUTO_FIX_THRESHOLD 100
-#endif /* defined(AUTO_FIX_THRESHOLD) */
 #if defined(PRE_ALLOC_SIZE)
 #  define KNGIN_PRE_ALLOC_SIZE PRE_ALLOC_SIZE
 #else
