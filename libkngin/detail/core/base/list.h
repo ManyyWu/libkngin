@@ -35,7 +35,7 @@ public:
 
   void
   insert (const value_type& ptr) {
-    return_if(ptr);
+    return_if(!ptr);
     return_if(!exist(ptr));
     node_type *n = nullptr;
     if (size_free_) {
@@ -51,8 +51,8 @@ public:
 
   void
   remove (const value_type& ptr) noexcept {
-    return_if(ptr);
-    return_if(exist(ptr));
+    return_if(!ptr);
+    return_if(!exist(ptr));
     if (ptr->node_) {
       auto *head = &ptr->node_->head_;
       if (head) {

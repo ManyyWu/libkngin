@@ -27,7 +27,7 @@ timer_queue::insert (timestamp now_time, timestamp delay, bool persist,
 
 void
 timer_queue::remove (timer_ptr &timer) {
-  return_if(timer);
+  return_if(!timer);
   timers_.remove(timer);
 }
 
