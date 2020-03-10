@@ -6,7 +6,7 @@ using namespace std;
 
 int
 main () {
-  k::timeout t(3000, false);
+  k::timeout t(k::timestamp::monotonic() + k::timestamp(3000), 0);
   while (true) {
     k::thread::sleep(100);
     cerr << t.remaining().value() << " ";

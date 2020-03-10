@@ -7,12 +7,19 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class event_loop;
 class timer_id {
+  friend class event_loop;
+
 public:
   typedef std::shared_ptr<timer> timer_ptr;
   typedef std::weak_ptr<timer> timer_weak_ptr;
 
   timer_id () = default;
+
+  timer_id (const timer_ptr &ptr) noexcept
+   : timer_(ptr) {
+  }
 
   timer_id (const timer_id &id) noexcept
    : timer_(id.timer_) {
@@ -34,6 +41,12 @@ public:
   bool
   cancelled () const noexcept {
     return timer_.expired();
+  }
+
+protected:
+  timer_ptr
+  query_timer () const noexcept {
+    return timer_.lock();
   }
 
 private:

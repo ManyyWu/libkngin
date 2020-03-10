@@ -17,7 +17,6 @@ KNGIN_NAMESPACE_K_BEGIN
 class event_loop {
 public:
   typedef std::shared_ptr<timer> timer_ptr;
-  typedef std::weak_ptr<timer> timer_weak_ptr;
   typedef event_loop_handler start_handler;
   typedef event_loop_handler stop_handler;
 
@@ -87,19 +86,16 @@ private:
   void
   process_events ();
 
-#if defined(KNGIN_USE_MONOTONIC_TIMER)
+  typedef std::vector<timer_ptr> timer_list;
+
   void
-  process_timer ();
-#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
+  process_timers ();
 
   void
   sort_events ();
 
   void
-  get_ready_timer ();
-
-  void
-  cancel (const timer_ptr &timer);
+  cancel (timer_ptr &ptr);
 
 private:
   typedef std::deque<task> taskq;
@@ -117,6 +113,8 @@ private:
   mutex taskq_mutex_;
 
   timer_queue *timerq_;
+
+  timer_list ready_timers_;
 
   mutex timerq_mutex_;
 

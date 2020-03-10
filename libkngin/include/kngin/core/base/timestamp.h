@@ -32,6 +32,14 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class timestamp {
+  friend
+  timestamp
+  timediff (const timeval &tvl, const timeval &tvr) noexcept;
+
+  friend
+  timestamp
+  timediff (const timespec &tvl, const timespec &tvr) noexcept;
+
 public:
   timestamp ()
    : ms_(0) {
@@ -191,9 +199,9 @@ public:
   static
   timestamp
   diff (timestamp t1, timestamp t2) {
-    if (t1 < t2) throw_exception("timestamp::diff t1 < t2");
     return (t1 - t2);
   }
+
   static
   timestamp
   abs_diff (timestamp t1, timestamp t2) noexcept {
@@ -203,6 +211,8 @@ public:
 public:
   static timestamp max;
 
+  static timestamp zero;
+
 private:
   time_t ms_;
 };
@@ -210,13 +220,13 @@ private:
 inline
 timestamp
 timediff (const timeval &tvl, const timeval &tvr) noexcept {
-  return (timestamp(tvl).value() - timestamp(tvr).value());
+  return (timestamp(tvl).ms_ - timestamp(tvr).ms_);
 }
 
 inline
 timestamp
 timediff (const timespec &tsl, const timespec &tsr) noexcept {
-  return (timestamp(tsl).value() - timestamp(tsr).value());
+  return (timestamp(tsl).ms_ - timestamp(tsr).ms_);
 }
 
 KNGIN_NAMESPACE_K_END

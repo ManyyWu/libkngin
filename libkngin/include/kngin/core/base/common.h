@@ -11,11 +11,11 @@ KNGIN_NAMESPACE_K_BEGIN
 #define TRY() \
     try {
 #define IGNORE() \
-    } catch (...) {}
+    } catch (...) { assert(0); }
 #define CATCH_FATAL(message, ...) \
-    } catch (...) { error(message, ##__VA_ARGS__); }
+    } catch (...) { assert(0); error(message, ##__VA_ARGS__); }
 #define CATCH_ERROR(message, ...) \
-    } catch (...) { error(message, ##__VA_ARGS__); throw; }
+    } catch (...) { assert(0); error(message, ##__VA_ARGS__); throw; }
 
 // expression check
 #define if_not(exp) \

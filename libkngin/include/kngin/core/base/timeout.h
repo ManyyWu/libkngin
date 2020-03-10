@@ -7,67 +7,61 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class timeout {
 public:
-  timeout () noexcept;
+  timeout () noexcept
+   : next_(0),
+     interval_(0) {
+  }
 
-  timeout (timestamp  interval, bool persist) noexcept;
-
-  timeout (timestamp now_time, timestamp  interval, bool persist) noexcept;
+  timeout (timestamp initval, timestamp interval) noexcept
+   : next_(initval),
+     interval_(interval) {
+  }
 
   ~timeout () = default;
 
 public:
   void
   update () noexcept {
-    update_time_ = timestamp::monotonic();
-  }
-
-  void
-  update (timestamp timeval) noexcept {
-    update_time_ = timeval;
+    next_ += interval_;
   }
 
   void
   clear () noexcept {
-    update_time_ = 0;
+    next_ = 0;
     interval_ = 0;
-    persist_ = false;
   }
 
   bool
   timed_out () const noexcept {
-    return (timestamp::monotonic() - update_time_) >= interval_;
+    return (timestamp::monotonic() >= next_);
   }
 
   bool
-  timed_out (timestamp now_time) const noexcept {
-    return (now_time - update_time_) >= interval_;
+  timed_out (timestamp now) const noexcept {
+    return (now >= next_);
   }
 
   timestamp
-  remaining () const noexcept;
+  remaining () const noexcept {
+    auto diff = timestamp::diff(next_, timestamp::monotonic());
+    return (diff > timestamp::zero ? diff : timestamp::zero);
+  }
 
   timestamp
-  remaining (timestamp now_time) const noexcept;
-
-  timestamp
-  reset (timestamp  interval, bool persist) noexcept;
-
-  timestamp
-  reset (timestamp now_time, timestamp  interval, bool persist) noexcept;
+  remaining (timestamp now) const noexcept {
+    auto diff = timestamp::diff(next_, now);
+    return (diff > timestamp::zero ? diff : timestamp::zero);
+  }
 
   void
-  set_interval (timestamp interval) noexcept {
+  reset (timestamp initval, timestamp  interval) noexcept {
+    next_ = initval;
     interval_ = interval;
   }
 
-  void
-  set_persist (bool on) noexcept {
-    persist_ = on;
-  }
-
   timestamp
-  update_time () const noexcept {
-    return update_time_;
+  next () const noexcept {
+    return next_;
   }
 
   timestamp
@@ -77,15 +71,13 @@ public:
 
   bool
   persist () const noexcept {
-    return persist_;
+    return interval_;
   }
 
 private:
-  timestamp update_time_;
+  timestamp next_;
 
   timestamp interval_;
-
-  bool persist_;
 };
 
 

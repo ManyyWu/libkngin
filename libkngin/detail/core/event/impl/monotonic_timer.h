@@ -10,12 +10,7 @@
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class monotonic_timer
-  : public value_base<monotonic_timer>,
-    public std::enable_shared_from_this<monotonic_timer> {
-  template <typename T,
-      typename std::enable_if<std::is_base_of<value_base<T>, T>{}, int>::type>
-  friend class list;
-  friend class timer_queue;
+  : public std::enable_shared_from_this<monotonic_timer> {
 
 public:
   monotonic_timer (timeout_handler &&handler) noexcept
@@ -30,7 +25,7 @@ public:
   }
 
   void
-  set_time (timestamp now_time, timestamp delay, bool persist) noexcept;
+  set_time (timestamp initval, timestamp interval) noexcept;
 
   void
   close () noexcept;
@@ -57,7 +52,7 @@ public:
 
 public:
   void
-  on_events ();
+  on_events (const timestamp &now);
 
 private:
   timeout timeout_;

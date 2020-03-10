@@ -4,7 +4,7 @@
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/memory.h"
 #include "kngin/core/base/common.h"
-#include "detail/core/base/list_node.h"
+#include "detail/core/base/kernel_list.h"
 #include <cassert>
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
@@ -35,8 +35,8 @@ public:
 
   void
   insert (const value_type& ptr) {
-    return_if(!ptr);
-    return_if(!exist(ptr));
+    return_if(exist(ptr));
+    assert(ptr);
     node_type *n = nullptr;
     if (size_free_) {
       assert(n = free_to_list(ptr));
@@ -51,12 +51,12 @@ public:
 
   void
   remove (const value_type& ptr) noexcept {
-    return_if(!ptr);
     return_if(!exist(ptr));
+    assert(ptr);
     if (ptr->node_) {
       auto *head = &ptr->node_->head_;
       if (head) {
-        ptr->node_->ptr_ = nullptr;
+        ptr->node_->reset_ptr(nullptr);
         move_to_free(ptr->node_);
         ptr->reset_node(nullptr);
       }
@@ -66,13 +66,14 @@ public:
 
   bool
   exist (const value_type& ptr) const noexcept {
-    return_if(!ptr, false);
+    assert(ptr);
     if (ptr->get_node()) {
       auto *head = &ptr->get_node()->head_;
       if (head) {
         node_type *pos, *n;
-        list_for_each_entry_safe(pos, n, &list_, head_, node_type)if (&pos->head_ == head)
-          return true;
+        list_for_each_entry_safe(pos, n, &list_, head_, node_type)
+          if (&pos->head_ == head)
+            return true;
       }
     }
     return false;
@@ -109,7 +110,7 @@ public:
     list_for_each_entry_safe(pos, n, &list_, head_, node_type) {
       move_to_free(pos);
       pos->ptr_->reset_node(nullptr);
-      pos->ptr_ = nullptr;
+      pos->reset_ptr(nullptr);
     }
   }
 
@@ -180,7 +181,7 @@ protected:
       node_type *first_entry = list_first_entry_or_null(&free_, node_type, head_);
       assert(first_entry);
       list_move_tail(&first_entry->head_, &list_);
-      first_entry->ptr_ = ptr;
+      first_entry->reset_ptr(ptr);
       ++size_;
       --size_free_;
       return first_entry;
@@ -192,8 +193,7 @@ protected:
   static
   node_type *
   make_node (const value_type& ptr) {
-    auto *n = new node_type();
-    n->ptr_ = ptr;
+    auto *n = new node_type(ptr);
     return n;
   }
 

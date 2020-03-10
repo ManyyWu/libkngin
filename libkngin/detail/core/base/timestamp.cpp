@@ -7,6 +7,8 @@ KNGIN_NAMESPACE_K_BEGIN
 
 timestamp timestamp::max = time_t(std::numeric_limits<timer_t>::max());
 
+timestamp timestamp::zero = time_t(0);
+
 #if defined(KNGIN_SYSTEM_WIN32)
 timestamp
 timestamp::realtime () noexcept {
@@ -27,14 +29,14 @@ timestamp::monotonic () noexcept {
 timestamp
 timestamp::realtime () noexcept {
   timespec ts;
-  ::clock_gettime(CLOCK_REALTIME, &ts);
+  ::clock_gettime(CLOCK_REALTIME_COARSE, &ts);
   return ts;
 }
 
 timestamp
 timestamp::monotonic () noexcept {
   timespec ts;
-  ::clock_gettime(CLOCK_MONOTONIC, &ts);
+  ::clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
   return ts;
 }
 #endif /* defined(KNGIN_SYSTEM_WIN32) */

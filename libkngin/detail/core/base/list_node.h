@@ -2,11 +2,23 @@
 #define KNGIN_LIST_NODE_H
 
 #include "kngin/core/define.h"
-#include "detail/core/base/kernel_list.h"
 #include <memory>
 #include <type_traits>
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
+
+struct list_head {
+  struct list_head *next, *prev;
+};
+
+#define LIST_HEAD_INIT(name) { &(name), &(name) }
+#define LIST_HEAD(name) \
+    struct list_head name = LIST_HEAD_INIT(name)
+
+static inline void INIT_LIST_HEAD(struct list_head *list) {
+  list->next = list;
+  list->prev = list;
+}
 
 template <typename Tp>
 class value_base;
@@ -18,13 +30,25 @@ class node : public noncopyable {
   friend class list;
 
 public:
-  node () noexcept {
-    ptr_(nullptr);
-    LIST_HEAD_INIT(head_);
+  typedef std::shared_ptr<Tp> ptr_type;
+
+  node () noexcept
+   : ptr_(nullptr),
+     head_(LIST_HEAD_INIT(head_)) {
+  }
+
+  node (ptr_type ptr) noexcept
+   : ptr_(ptr),
+     head_(LIST_HEAD_INIT(head_)) {
+  }
+
+  void
+  reset_ptr (ptr_type ptr) noexcept {
+    ptr_ = ptr;
   }
 
 protected:
-  std::shared_ptr<Tp> ptr_;
+  ptr_type ptr_;
 
   list_head head_;
 };

@@ -16,6 +16,7 @@ event_loop::event_loop ()
    taskq_(),
    taskq_mutex_(),
    timerq_(nullptr),
+   ready_timers_(),
    timerq_mutex_(),
    timer_processing_(false),
    stop_barrier_(2) {
@@ -73,31 +74,59 @@ event_loop::registed (event_base &e) {
 
 void
 event_loop::run_in_loop (task &&t) {
+  if (t) {
+    mutex::scoped_lock lock(taskq_mutex_);
+    taskq_.push_back(t);
+  }
+  if (looping_ and !in_loop_thread())
+    wakeup();
 }
 
 timer_id
 event_loop::run_after (timestamp delay, timeout_handler &&handler) {
+  mutex::scoped_lock lock(timerq_mutex_);
+  return timerq_->insert(timestamp::monotonic() + delay, 0, std::move(handler)).id();
 }
 
 timer_id
 event_loop::run_every (timestamp interval, timeout_handler &&handler) {
+  mutex::scoped_lock lock(timerq_mutex_);
+  return timerq_->insert(timestamp::monotonic() + interval, interval, std::move(handler)).id();
 }
 
 timer_id
 event_loop::run_at (timestamp absval, timeout_handler &&handler) {
+  mutex::scoped_lock lock(timerq_mutex_);
+  return timerq_->insert(absval - timestamp::realtime() + timestamp::monotonic(),
+                         0, std::move(handler)).id();
 }
 
 timer_id
 event_loop::run_until (timestamp absval, timestamp interval,
                        timeout_handler &&handler) {
+  mutex::scoped_lock lock(timerq_mutex_);
+  return timerq_->insert(absval - timestamp::realtime() + timestamp::monotonic(),
+                         interval, std::move(handler)).id();
 }
 
 void
 event_loop::cancel (const timer_id &id) {
+  auto ptr = id.query_timer();
+  if (ptr) {
+    mutex::scoped_lock lock(timerq_mutex_);
+    timerq_->remove(ptr);
+  }
 }
 
 size_t
 event_loop::event_loop::wait () {
+  auto delay = 0;
+  {
+    mutex::scoped_lock lock(timerq_mutex_);
+    delay = timerq_->min_delay();
+  }
+
+  //reactor_->wait(ready_events_);
 }
 
 void
@@ -106,30 +135,32 @@ event_loop::process_tasks () {
 
 void
 event_loop::process_events () {
-}
 
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
-void
-event_loop::process_timer () {
-  timer_processing_ = true;
-  {
-    scoped_flag<std::atomic_bool, bool> flag(timer_processing_, false);
-    timerq_->process_ready_timer();
-  }
-}
+  process_timers();
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
+}
+
+void
+event_loop::process_timers () {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+  {
+    mutex::scoped_lock lock(timerq_mutex_);
+    timerq_->get_ready_timers(ready_timers_);
+  }
+  timerq_->process_ready_timer(ready_timers_, timerq_mutex_);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
+}
 
 void
 event_loop::sort_events () {
+  // use min heap ?
 }
 
 void
-event_loop::get_ready_timer () {
-}
-
-void
-event_loop::cancel (const timer_ptr &timer) {
-
+event_loop::cancel (timer_ptr &ptr) {
+  mutex::scoped_lock lock(timerq_mutex_);
+  timerq_->remove(ptr);
 }
 
 KNGIN_NAMESPACE_K_END
