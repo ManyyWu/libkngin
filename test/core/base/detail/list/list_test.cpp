@@ -4,8 +4,7 @@
 using namespace std;
 
 class mydata :
-    public k::detail::value_base<mydata>,
-    public std::enable_shared_from_this<mydata> {
+    public k::detail::entry_base<mydata> {
 public:
   mydata () {
     data_ = 0;

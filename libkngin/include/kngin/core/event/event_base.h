@@ -5,9 +5,6 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_base : noncopyable {
-
-};
 
 KNGIN_NAMESPACE_K_END
 

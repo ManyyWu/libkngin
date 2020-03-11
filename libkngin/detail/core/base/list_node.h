@@ -21,12 +21,12 @@ static inline void INIT_LIST_HEAD(struct list_head *list) {
 }
 
 template <typename Tp>
-class value_base;
+class entry_base;
 
 template <typename Tp>
 class node : public noncopyable {
   template<typename T,
-      typename std::enable_if<std::is_base_of<value_base<T>, T>{}, int>::type>
+      typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
   friend class list;
 
 public:
@@ -54,9 +54,11 @@ protected:
 };
 
 template <typename Tp>
-class value_base : public noncopyable {
+class entry_base
+  : public noncopyable,
+    public std::enable_shared_from_this<entry_base<Tp>> {
   template <typename T,
-      typename std::enable_if<std::is_base_of<value_base<T>, T>{}, int>::type>
+      typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
   friend class list;
 
 private:

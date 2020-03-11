@@ -10,9 +10,9 @@
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 template <typename Tp,
-    typename std::enable_if<std::is_base_of<value_base<Tp>, Tp>{}, int>::type = 0>
+    typename std::enable_if<std::is_base_of<entry_base<Tp>, Tp>{}, int>::type = 0>
 class list {
-  static_assert(std::is_base_of<value_base<Tp>, Tp>::value, "class Tp must be based on class value_base");
+  static_assert(std::is_base_of<entry_base<Tp>, Tp>::value, "class Tp must be based on class entry_base");
 
 public:
   typedef std::size_t size_type;
@@ -36,7 +36,7 @@ public:
   void
   insert (const value_type& ptr) {
     assert(ptr);
-    assert(exist(ptr));
+    assert(!exist(ptr));
     node_type *n = nullptr;
     if (size_free_) {
       assert(n = free_to_list(ptr));

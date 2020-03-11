@@ -45,6 +45,25 @@ event_loop::run (start_handler &&start /* = nullptr */,
 
   debug("event_loop is running in thread %" PRIu64, tid_);
 
+  auto fail = [] () {
+
+  };
+
+  try {
+    while (!stop_) {
+      process_tasks();
+      wait();
+      if (stop_)
+        break;
+      sort_events();
+      process_events();
+    }
+  } catch (...) {
+    fail();
+    throw;
+  }
+  fail();
+
   debug("event_loop is stopped in thread %" PRIu64, tid_);
 }
 
@@ -54,8 +73,10 @@ event_loop::stop () {
 
 void
 event_loop::wakeup () {
+//  if (reactor_)
+//    reactor_->wakeup();
 }
-
+/*
 void
 event_loop::register_event (event_base &e) {
 }
@@ -71,7 +92,7 @@ event_loop::update_event (event_base &e) {
 bool
 event_loop::registed (event_base &e) {
 }
-
+*/
 void
 event_loop::run_in_loop (task &&t) {
   if (t) {
@@ -120,10 +141,10 @@ event_loop::cancel (const timer_id &id) {
 
 size_t
 event_loop::event_loop::wait () {
-  auto delay = 0;
+  time_t delay = 0;
   {
     mutex::scoped_lock lock(timerq_mutex_);
-    delay = std::min(timerq_->min_delay(), KNGIN_EVENT_LOOP_DEFAULT_DELAY);
+    delay = std::min<time_t>(timerq_->min_delay().value(), timestamp(KNGIN_EVENT_LOOP_DEFAULT_DELAY));
   }
 
   //reactor_->wait(ready_events_);

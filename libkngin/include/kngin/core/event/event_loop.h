@@ -42,7 +42,7 @@ public:
   in_loop_thread () const noexcept {
     return (tid_ == thread::tid());
   }
-
+/*
   // event
   void
   register_event (event_base &e);
@@ -55,7 +55,7 @@ public:
 
   bool
   registed (event_base &e);
-
+*/
   // task
   void
   run_in_loop (task &&t);
