@@ -95,17 +95,17 @@ event_loop::run_every (timestamp interval, timeout_handler &&handler) {
 }
 
 timer_id
-event_loop::run_at (timestamp absval, timeout_handler &&handler) {
+event_loop::run_at (timestamp realtime, timeout_handler &&handler) {
   mutex::scoped_lock lock(timerq_mutex_);
-  return timerq_->insert(absval - timestamp::realtime() + timestamp::monotonic(),
+  return timerq_->insert(realtime - timestamp::realtime() + timestamp::monotonic(),
                          0, std::move(handler)).id();
 }
 
 timer_id
-event_loop::run_until (timestamp absval, timestamp interval,
+event_loop::run_until (timestamp realtime, timestamp interval,
                        timeout_handler &&handler) {
   mutex::scoped_lock lock(timerq_mutex_);
-  return timerq_->insert(absval - timestamp::realtime() + timestamp::monotonic(),
+  return timerq_->insert(realtime - timestamp::realtime() + timestamp::monotonic(),
                          interval, std::move(handler)).id();
 }
 
@@ -123,7 +123,7 @@ event_loop::event_loop::wait () {
   auto delay = 0;
   {
     mutex::scoped_lock lock(timerq_mutex_);
-    delay = timerq_->min_delay();
+    delay = std::min(timerq_->min_delay(), KNGIN_EVENT_LOOP_DEFAULT_DELAY);
   }
 
   //reactor_->wait(ready_events_);
@@ -148,7 +148,7 @@ event_loop::process_timers () {
     mutex::scoped_lock lock(timerq_mutex_);
     timerq_->get_ready_timers(ready_timers_);
   }
-  timerq_->process_ready_timer(ready_timers_, timerq_mutex_);
+  timerq_->process_ready_timers(ready_timers_, timerq_mutex_);
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 

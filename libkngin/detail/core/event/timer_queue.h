@@ -36,12 +36,13 @@ public:
   get_ready_timers (timer_list &list);
 
   void
-  process_ready_timer (timer_list &list, mutex &m);
+  process_ready_timers (timer_list &list, mutex &m);
 
 private:
   struct timer_less {
     bool
     operator () (timer_ptr &first, timer_ptr &second) {
+      assert(first and second);
       return (first->get_timeout().next() < first->get_timeout().next());
     }
   };

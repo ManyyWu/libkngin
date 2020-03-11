@@ -68,10 +68,10 @@ public:
   run_every (timestamp interval, timeout_handler &&handler);
 
   timer_id
-  run_at (timestamp absval, timeout_handler &&handler);
+  run_at (timestamp realtime, timeout_handler &&handler);
 
   timer_id
-  run_until (timestamp absval, timestamp interval, timeout_handler &&handler);
+  run_until (timestamp realtime, timestamp interval, timeout_handler &&handler);
 
   void
   cancel (const timer_id &id);

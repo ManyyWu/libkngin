@@ -29,6 +29,8 @@ void
 timer_queue::remove (timer_ptr &ptr) {
   assert(ptr);
   static auto temp = std::make_shared<timer>(nullptr);
+  if (!temp->closed())
+    temp->close();
 
   ptr->close();
   heap_.push(temp);
@@ -48,7 +50,7 @@ timer_queue::clear () {
 
 timestamp
 timer_queue::min_delay() const noexcept {
-  return heap_.top()->get_timeout().remaining();
+  return heap_.empty() ? timestamp::max : heap_.top()->get_timeout().remaining();
 }
 
 timer_queue::timer_list &
@@ -68,25 +70,27 @@ timer_queue::get_ready_timers (timer_list &list) {
 }
 
 void
-timer_queue::process_ready_timer (timer_list &list, mutex &m) {
+timer_queue::process_ready_timers (timer_list &list, mutex &m) {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
   auto now = timestamp::monotonic();
   for (auto iter : list) {
     auto &timeout = iter->get_timeout();
-    if (iter->closed()) {
-      TRY()
-        iter->on_events(now);
-      CATCH_ERROR("timer_queue::process_ready_timer() error");
-    }
+    if (iter->closed())
+      continue;
+    TRY()
+      iter->on_events(now);
+    CATCH_ERROR("timer_queue::process_ready_timers() error");
+    if (iter->closed())
+      continue;
 
     if (timeout.persist()) {
-      iter->close();
-    } else {
       timeout.update();
       {
         mutex::scoped_lock lock(m);
         heap_.push(iter);
       }
+    } else {
+      iter->close();
     }
   }
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
