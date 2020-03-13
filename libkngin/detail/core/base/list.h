@@ -16,73 +16,54 @@ class list {
 
 public:
   typedef std::size_t size_type;
-  typedef std::shared_ptr<Tp> value_type;
-  typedef node<Tp> node_type;
 
-  list (size_type size) {
+  list () noexcept {
     INIT_LIST_HEAD(&list_);
-    INIT_LIST_HEAD(&free_);
-    size_ = size_free_ = 0;
-    resize(size);
+    size_ = 0;
   }
 
   ~list () noexcept {
-    if (max_size()) {
+    if (size())
       clear();
-      shrink_to_fix();
-    }
   }
 
   void
-  insert (const value_type& ptr) {
-    assert(ptr);
-    assert(!exist(ptr));
-    node_type *n = nullptr;
-    if (size_free_) {
-      assert(n = free_to_list(ptr));
-    } else {
-      auto_fix();
-      n = make_node(ptr);
-      list_add_tail(&n->head_, &list_);
-      ++size_;
-    }
-    ptr->reset_node(n);
+  insert (Tp &value) noexcept {
+    assert(!exist(value));
+    list_add_tail(&value.head_, &list_);
+    ++size_;
   }
 
   void
-  remove (const value_type& ptr) noexcept {
-    assert(ptr);
-    assert(exist(ptr));
-    if (ptr->node_) {
-      auto *head = &ptr->node_->head_;
-      if (head) {
-        ptr->node_->reset_ptr(nullptr);
-        move_to_free(ptr->node_);
-        ptr->reset_node(nullptr);
-      }
-    }
-    auto_fix();
+  remove (Tp &value) noexcept {
+    assert(exist(value));
+    list_del(&value.head_);
+    --size_;
+  }
+
+  Tp *
+  begin () const noexcept {
+    return list_first_entry_or_null(&list_, Tp, head_);
+  }
+
+  Tp *
+  end () const noexcept {
+    return size_ ? list_last_entry(&list_, Tp, head_) : nullptr;
   }
 
   bool
-  exist (const value_type& ptr) const noexcept {
-    assert(ptr);
-    if (ptr->get_node()) {
-      auto *head = &ptr->get_node()->head_;
-      if (head) {
-        node_type *pos, *n;
-        list_for_each_entry_safe(pos, n, &list_, head_, node_type)
-          if (&pos->head_ == head)
-            return true;
-      }
-    }
+  exist (const Tp &value) const noexcept {
+    Tp *pos, *n;
+    list_for_each_entry_safe(pos, n, &list_, head_, node_type)
+      if (pos == &value)
+        return true;
     return false;
   }
 
   template <class Fn>
   void
   for_each (Fn fn) noexcept {
-    node_type *pos, *n;
+    Tp *pos, *n;
     list_for_each_entry_safe(pos, n, &list_, head_, node_type) {
       fn(pos->ptr_);
     }
@@ -93,11 +74,6 @@ public:
     return size_;
   }
 
-  size_type
-  max_size () const noexcept {
-    return (size_ + size_free_);
-  }
-
   bool
   empty () const noexcept {
     assert(size_ ? list_.next != list_.prev : list_.next == list_.prev);
@@ -106,102 +82,22 @@ public:
 
   void
   clear () noexcept {
-    node_type *pos, *n;
-    list_for_each_entry_safe(pos, n, &list_, head_, node_type) {
-      move_to_free(pos);
-      pos->ptr_->reset_node(nullptr);
-      pos->reset_ptr(nullptr);
-    }
-  }
-
-  void
-  shrink_to_fix () noexcept {
-    clear_free();
-  }
-
-  void
-  resize (size_type size) {
-    if (size > max_size()) {
-      // add to tail of free_
-      for (size_type num = size - max_size(), i = 0; i < num; ++i) {
-        list_add_tail(&make_node(nullptr)->head_, &free_);
-        ++size_free_;
-      }
-    } else if (size < size_ or size == max_size()) {
-      return;
-    } else {
-      // remove nodes from free_
-      for (size_type num = size_free_ - (size - size_), i = 0; i < num; ++i) {
-        node_type *first_entry = list_first_entry_or_null(&free_, node_type, head_);
-        assert(first_entry);
-        list_del(&first_entry->head_);
-        safe_release(first_entry);
-        --size_free_;
-      }
-    }
-  }
-
-  void
-  swap (list & c) noexcept {
-    std::swap(list_, c.head_);
-    std::swap(free_, c.free_);
-    std::swap(size_, c.size_);
-    std::swap(size_free_, c.size_free_);
-  }
-
-protected:
-  void
-  auto_fix () {
-    if (!size_free_)
-      resize(max_size() * 2);
-    else if (size_free_ > size_ * 2 and size_free_ > KNGIN_LIST_PRE_ALLOC_SIZE)
-      resize(max_size() - (size_free_ - KNGIN_LIST_PRE_ALLOC_SIZE));
-  }
-
-  void
-  clear_free () noexcept {
-    node_type *pos, *n;
-    list_for_each_entry_safe(pos, n, &free_, head_, node<Tp>) {
+    Tp *pos, *n;
+    list_for_each_entry_safe(pos, n, &list_, head_, Tp) {
       list_del(&pos->head_);
-      safe_release(pos);
     }
-    size_free_ = 0;
+    size_ = 0;
   }
 
   void
-  move_to_free (node_type *node) noexcept {
-    list_move_tail(&node->head_, &free_);
-    --size_;
-    ++size_free_;
-  }
-
-  node_type *
-  free_to_list (const value_type& ptr) noexcept {
-    if (size_free_) {
-      node_type *first_entry = list_first_entry_or_null(&free_, node_type, head_);
-      assert(first_entry);
-      list_move_tail(&first_entry->head_, &list_);
-      first_entry->reset_ptr(ptr);
-      ++size_;
-      --size_free_;
-      return first_entry;
-    } else {
-      return nullptr;
-    }
-  }
-
-  static
-  node_type *
-  make_node (const value_type& ptr) {
-    auto *n = new node_type(ptr);
-    return n;
+  swap (list &c) noexcept {
+    std::swap(list_, c.head_);
+    std::swap(size_, c.size_);
   }
 
 private:
   list_head list_;
-  list_head free_;
   size_type size_;
-  size_type size_free_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_END

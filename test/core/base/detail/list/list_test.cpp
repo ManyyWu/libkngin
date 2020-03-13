@@ -14,6 +14,11 @@ public:
     data_ = val;
   }
 
+  void
+  set_value (int value) {
+    data_ = value;
+  }
+
   int
   value () {
     return data_;
@@ -23,56 +28,39 @@ private:
   int data_;
 };
 
-typedef std::shared_ptr<mydata> mydata_ptr;
-
 int
 main () {
 #define SIZE 5
-  k::detail::list<mydata> c(20);
-  mydata_ptr data[SIZE];
+  k::detail::list<mydata> c;
+  mydata data[SIZE];
 
   // insert
   for (int i = 0; i < SIZE; ++i) {
-    data[i] = std::make_shared<mydata>(i);
+    data[i].set_value(i);
     c.insert(data[i]);
   }
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
+  std::cerr << "first: " << c.begin()->value() << std::endl;
+  std::cerr << "end: " << c.end()->value() << std::endl;
+  std::cerr << "size:" << c.size() << std::endl;
+  std::cerr << "is_empty: " << c.empty() << std::endl;
 
   // remove
   for (int i = 0; i < SIZE; ++i) {
     assert(c.exist(data[i]));
     c.remove(data[i]);
   }
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
+  std::cerr << "size:" << c.size() << std::endl;
 
   // insert
   for (int i = 0; i < SIZE; ++i) {
-    data[i] = std::make_shared<mydata>(i);
+    data[i].set_value(i);
     c.insert(data[i]);
   }
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
-
-  // resize
-  c.resize(200);
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
+  std::cerr << "size:" << c.size() << std::endl;
 
   // clear
   c.clear();
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
-
-  // clear free
-  c.shrink_to_fix();
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
-
-  // pre alloc
-  mydata_ptr tmp = std::make_shared<mydata>(11);
-  c.insert(tmp);
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
-
-  // auto fix
-  c.resize(300);
-  c.remove(tmp);
-  std::cerr << "size:" << c.size() << " max_size:" << c.max_size() << std::endl;
+  std::cerr << "size:" << c.size() << std::endl;
 
   // empty
   std::cerr << "is_empty: " << c.empty() << std::endl;

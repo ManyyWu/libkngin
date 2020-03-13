@@ -51,7 +51,7 @@ logger &g_logger = query_logger();
 # define color_suffix_str()      ""
 #else
 static const char * const log_color_prefix_entry[
-    static_cast<int>(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_MAX)] = {
+    static_cast<int>(log_level::log_level_max)] = {
   KNGIN_LOG_COLOR_FATAL,
   KNGIN_LOG_COLOR_ERROR,
   KNGIN_LOG_COLOR_WARNING,
@@ -117,7 +117,7 @@ logger::deinit () noexcept {
 }
 
 void
-logger::post_log (KNGIN_LOG_LEVEL level, logfile &file,
+logger::post_log (log_level level, logfile &file,
                   std::string &&data, size_type size) {
 #if defined(KNGIN_USE_ASYNC_LOGGER)
   {
@@ -185,7 +185,7 @@ logger::get_datetime (char datetime[], size_type size) noexcept {
 }
 
 void
-logger::format_log (KNGIN_LOG_LEVEL level, std::string &result,
+logger::format_log (log_level level, std::string &result,
                     const char *fmt, va_list vl) {
   format_string(result, fmt, vl, KNGIN_LOG_DATETIME_LEN - 1, 0);
   char datetime[KNGIN_LOG_DATETIME_LEN];
@@ -194,7 +194,7 @@ logger::format_log (KNGIN_LOG_LEVEL level, std::string &result,
 }
 
 void
-logger::write_log (KNGIN_LOG_LEVEL level, logfile &file,
+logger::write_log (log_level level, logfile &file,
                    std::string &data, size_type size) {
   if (file.mode_ & KNGIN_LOG_MODE_FILE)
     logger::write_logfile(file.file_.c_str(), level, data.c_str(), size);
@@ -205,7 +205,7 @@ logger::write_log (KNGIN_LOG_LEVEL level, logfile &file,
 }
 
 void
-logger::write_logfile (const char *file, KNGIN_LOG_LEVEL level,
+logger::write_logfile (const char *file, log_level level,
                        const char *data, size_type len) noexcept {
   assert(file);
   assert(data);
@@ -222,7 +222,7 @@ logger::write_logfile (const char *file, KNGIN_LOG_LEVEL level,
              tm.tm_year + 1900, tm.tm_mon, tm.tm_mday);
   fplog = ::fopen(filename, "a");
   if (!fplog) {
-    logger::write_stderr2(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL,
+    logger::write_stderr2(log_level::log_level_fatal,
                           "failed to open \"%s\", %s[%#x]",
                           filename, ::strerror(errno), errno);
     return;
@@ -230,7 +230,7 @@ logger::write_logfile (const char *file, KNGIN_LOG_LEVEL level,
 
   ret = ::fwrite(data, 1, len, fplog);
   if (ret < 0) {
-    logger::write_stderr2(KNGIN_LOG_LEVEL::KNGIN_LOG_LEVEL_FATAL,
+    logger::write_stderr2(log_level::log_level_fatal,
                           "failed to write log to \"%s\", %s[%#x]",
                           filename, ::strerror(errno), errno);
     goto fail;
@@ -240,7 +240,7 @@ fail:
 }
 
 void
-logger::write_stderr (KNGIN_LOG_LEVEL level, const char *data, size_type len) noexcept {
+logger::write_stderr (log_level level, const char *data, size_type len) noexcept {
   assert(data);
   assert(len);
 
@@ -254,7 +254,7 @@ logger::write_stderr (KNGIN_LOG_LEVEL level, const char *data, size_type len) no
 }
 
 void
-logger::write_stderr2 (KNGIN_LOG_LEVEL level, const char *fmt, ...) noexcept {
+logger::write_stderr2 (log_level level, const char *fmt, ...) noexcept {
   assert(fmt);
   va_list vl;
   va_start(vl, fmt);

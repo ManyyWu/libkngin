@@ -1,3 +1,6 @@
+#ifndef KNGIN_DESCRIPTOR_H
+#define KNGIN_DESCRIPTOR_H
+
 #include "kngin/core/define.h"
 #if !defined(KNGIN_SYSTEM_WIN32)
 
@@ -11,71 +14,95 @@
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
-typedef int fd_type;
+class descriptor {
+public:
+  static
+  size_t
+  read (int fd, in_buffer &buf);
 
-size_t
-read (fd_type fd, in_buffer &buf);
+  static
+  size_t
+  read (int fd, in_buffer &buf, error_code &ec) noexcept;
 
-size_t
-read (fd_type fd, in_buffer &buf, error_code &ec) noexcept;
+  static
+  size_t
+  write (int fd, out_buffer &buf);
 
-size_t
-write (fd_type fd, out_buffer &buf);
+  static
+  size_t
+  write (int fd, out_buffer &buf, error_code &ec) noexcept;
 
-size_t
-write (fd_type fd, out_buffer &buf, error_code &ec) noexcept;
+  static
+  size_t
+  readn (int fd, in_buffer &buf);
 
-size_t
-readn (fd_type fd, in_buffer &buf);
+  static
+  size_t
+  readn (int fd, in_buffer &buf, error_code &ec) noexcept;
 
-size_t
-readn (fd_type fd, in_buffer &buf, error_code &ec) noexcept;
+  static
+  size_t
+  writen (int fd, out_buffer &buf);
 
-size_t
-writen (fd_type fd, out_buffer &buf);
+  static
+  size_t
+  writen (int fd, out_buffer &buf, error_code &ec) noexcept;
 
-size_t
-writen (fd_type fd, out_buffer &buf, error_code &ec) noexcept;
+  static
+  size_t
+  readable (int fd);
 
-size_t
-readable (fd_type fd);
+  static
+  size_t
+  readable (int fd, error_code &ec) noexcept;
 
-size_t
-readable (error_code &ec) noexcept;
+  static
+  error_code
+  read_error (int fd) noexcept;
 
-error_code
-read_error (fd_type fd) noexcept;
+  static
+  void
+  close (int fd);
 
-void
-close (fd_type fd);
+  static
+  void
+  close (int fd, error_code &ec) noexcept;
 
-void
-close (fd_type fd, error_code &ec) noexcept;
+  static
+  int
+  dup (int fd);
 
-fd_type
-dup (fd_type fd);
+  static
+  int
+  dup (int fd, error_code &ec) noexcept;
 
-fd_type
-dup (fd_type fd, error_code &ec) noexcept;
+  static
+  void
+  set_nonblock (int fd, bool on);
 
-void
-set_nonblock (fd_type fd, bool on);
+  static
+  void
+  set_nonblock (int fd, bool on, error_code &ec) noexcept;
 
-void
-set_nonblock (fd_type fd, bool on, error_code &ec) noexcept;
+  static
+  void
+  set_closeexec (int fd, bool on);
 
-void
-set_closeexec (fd_type fd, bool on);
+  static
+  void
+  set_closeexec (int fd, bool on, error_code &ec) noexcept;
 
-void
-set_closeexec (fd_type fd, bool on, error_code &ec) noexcept;
+  static
+  bool
+  nonblock (int fd);
 
-bool
-nonblock (fd_type fd);
-
-bool
-nonblock (fd_type fd, error_code &ec) noexcept;
+  static
+  bool
+  nonblock (int fd, error_code &ec) noexcept;
+};
 
 KNGIN_NAMESPACE_K_DETAIL_END
 
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
+
+#endif /* KNGIN_DESCRIPTOR_H */

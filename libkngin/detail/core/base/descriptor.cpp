@@ -10,7 +10,7 @@
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 size_t
-read (fd_type fd, in_buffer &buf) {
+descriptor::read (int fd, in_buffer &buf) {
   assert(buf.size() ? buf.writeable() : true);
   assert(FD_VALID(fd));
   auto size = ::read(fd, buf.begin(), buf.writeable());
@@ -21,7 +21,7 @@ read (fd_type fd, in_buffer &buf) {
 }
 
 size_t
-read (fd_type fd, in_buffer &buf, error_code &ec) noexcept {
+descriptor::read (int fd, in_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? buf.writeable() : true);
   assert(FD_VALID(fd));
   auto size = ::read(fd, buf.begin(), buf.writeable());
@@ -36,7 +36,7 @@ read (fd_type fd, in_buffer &buf, error_code &ec) noexcept {
 }
 
 size_t
-write (fd_type fd, out_buffer &buf) {
+descriptor::write (int fd, out_buffer &buf) {
   assert(buf.size() ? !buf.eof() : true);
   assert(FD_VALID(fd));
   auto size = ::write(fd, buf.begin(), buf.size());
@@ -47,7 +47,7 @@ write (fd_type fd, out_buffer &buf) {
 }
 
 size_t
-write (fd_type fd, out_buffer &buf, error_code &ec) noexcept {
+descriptor::write (int fd, out_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? !buf.eof() : true);
   assert(FD_VALID(fd));
   auto size = ::write(fd, buf.begin(), buf.size());
@@ -62,7 +62,7 @@ write (fd_type fd, out_buffer &buf, error_code &ec) noexcept {
 }
 
 size_t
-readn (fd_type fd, in_buffer &buf) {
+descriptor::readn (int fd, in_buffer &buf) {
   assert(buf.size() ? buf.writeable() : true);
   assert(FD_VALID(fd));
   auto valid = buf.valid();
@@ -80,7 +80,7 @@ readn (fd_type fd, in_buffer &buf) {
 }
 
 size_t
-readn (fd_type fd, in_buffer &buf, error_code &ec) noexcept {
+descriptor::readn (int fd, in_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? buf.writeable() : true);
   assert(FD_VALID(fd));
   auto valid = buf.valid();
@@ -98,7 +98,7 @@ readn (fd_type fd, in_buffer &buf, error_code &ec) noexcept {
 }
 
 size_t
-writen (fd_type fd, out_buffer &buf) {
+descriptor::writen (int fd, out_buffer &buf) {
   assert(buf.size() ? !buf.eof() : true);
   assert(FD_VALID(fd));
   out_buffer buffer = std::move(buf);
@@ -117,7 +117,7 @@ writen (fd_type fd, out_buffer &buf) {
 }
 
 size_t
-writen (fd_type fd, out_buffer &buf, error_code &ec) noexcept {
+descriptor::writen (int fd, out_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? !buf.eof() : true);
   assert(FD_VALID(fd));
   out_buffer buffer = std::move(buf);
@@ -136,7 +136,7 @@ writen (fd_type fd, out_buffer &buf, error_code &ec) noexcept {
 }
 
 size_t
-readable (fd_type fd) {
+descriptor::readable (int fd) {
   assert(FD_VALID(fd));
   size_t bytes = 0;
   if (::ioctl(fd, FIONREAD, &bytes) < 0)
@@ -145,7 +145,7 @@ readable (fd_type fd) {
 }
 
 size_t
-readable (fd_type fd, error_code &ec) noexcept {
+descriptor::readable (int fd, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   size_t bytes;
   ec = (::ioctl(fd, FIONREAD, &bytes) < 0) ? last_error() : error_code();
@@ -153,7 +153,7 @@ readable (fd_type fd, error_code &ec) noexcept {
 }
 
 error_code
-read_error (fd_type fd) noexcept {
+descriptor::read_error (int fd) noexcept {
   assert(FD_VALID(fd));
   auto size = ::read(fd, nullptr, 0);
   if (size < 0)
@@ -162,20 +162,20 @@ read_error (fd_type fd) noexcept {
 }
 
 void
-close (fd_type fd) {
+descriptor::close (int fd) {
   assert(FD_VALID(fd));
   if (::close(fd) < 0)
     throw_system_error("::close() error", last_error());
 }
 
 void
-close (fd_type fd, error_code &ec) noexcept {
+descriptor::close (int fd, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   ec = (::close(fd) < 0) ? last_error() : error_code();
 }
 
-fd_type
-dup (fd_type fd) {
+int
+descriptor::dup (int fd) {
   assert(FD_VALID(fd));
   auto new_fd = ::dup(fd);
   if (new_fd < 0)
@@ -183,8 +183,8 @@ dup (fd_type fd) {
   return new_fd;
 }
 
-fd_type
-dup (fd_type fd, error_code &ec) noexcept {
+int
+descriptor::dup (int fd, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   auto new_fd = ::dup(fd);
   if (new_fd < 0) {
@@ -196,7 +196,7 @@ dup (fd_type fd, error_code &ec) noexcept {
 }
 
 void
-set_nonblock (fd_type fd, bool on) {
+descriptor::set_nonblock (int fd, bool on) {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
@@ -205,7 +205,7 @@ set_nonblock (fd_type fd, bool on) {
 }
 
 void
-set_nonblock (fd_type fd, bool on, error_code &ec) noexcept {
+descriptor::set_nonblock (int fd, bool on, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
@@ -213,7 +213,7 @@ set_nonblock (fd_type fd, bool on, error_code &ec) noexcept {
 }
 
 void
-set_closeexec (fd_type fd, bool on) {
+descriptor::set_closeexec (int fd, bool on) {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
@@ -222,7 +222,7 @@ set_closeexec (fd_type fd, bool on) {
 }
 
 void
-set_closeexec (fd_type fd, bool on, error_code &ec) noexcept {
+descriptor::set_closeexec (int fd, bool on, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
@@ -230,7 +230,7 @@ set_closeexec (fd_type fd, bool on, error_code &ec) noexcept {
 }
 
 bool
-nonblock (fd_type fd) {
+descriptor::nonblock (int fd) {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   if (flags < 0)
@@ -239,7 +239,7 @@ nonblock (fd_type fd) {
 }
 
 bool
-nonblock (fd_type fd, error_code &ec) noexcept {
+descriptor::nonblock (int fd, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   auto flags = ::fcntl(fd, F_GETFL, 0);
   ec = (flags < 0) ? last_error() : error_code();

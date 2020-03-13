@@ -12,13 +12,13 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-enum class KNGIN_LOG_LEVEL {
-  KNGIN_LOG_LEVEL_FATAL = 0,
-  KNGIN_LOG_LEVEL_ERROR,
-  KNGIN_LOG_LEVEL_WARNING,
-  KNGIN_LOG_LEVEL_INFO,
-  KNGIN_LOG_LEVEL_DEBUG,
-  KNGIN_LOG_LEVEL_MAX
+enum class log_level {
+  log_level_fatal = 0,
+  log_level_error,
+  log_level_warning,
+  log_level_info,
+  log_level_debug,
+  log_level_max
 };
 
 class logfile

@@ -35,7 +35,7 @@ private:
   deinit () noexcept;
 
   void
-  post_log (KNGIN_LOG_LEVEL level, logfile &file,
+  post_log (log_level level, logfile &file,
             std::string &&data, size_type size);
 
 #if defined(KNGIN_USE_ASYNC_LOGGER)
@@ -50,26 +50,26 @@ private:
 
   static
   void
-  format_log (KNGIN_LOG_LEVEL level, std::string &result,
+  format_log (log_level level, std::string &result,
               const char *fmt, va_list vl);
 
   static
   void
-  write_log (KNGIN_LOG_LEVEL level, logfile &file,
+  write_log (log_level level, logfile &file,
              std::string &data, size_type size);
 
   static
   void
-  write_logfile (const char *file, KNGIN_LOG_LEVEL level,
+  write_logfile (const char *file, log_level level,
                  const char *data, size_type len) noexcept;
 
   static
   void
-  write_stderr (KNGIN_LOG_LEVEL level, const char *data, size_type len) noexcept;
+  write_stderr (log_level level, const char *data, size_type len) noexcept;
 
   static
   void
-  write_stderr2 (KNGIN_LOG_LEVEL level, const char *data, ...) noexcept;
+  write_stderr2 (log_level level, const char *data, ...) noexcept;
 
 public:
   ~logger () noexcept;
@@ -81,7 +81,7 @@ public:
 private:
 #if defined(KNGIN_USE_ASYNC_LOGGER)
   struct async_log_data {
-    KNGIN_LOG_LEVEL level;
+    log_level level;
     logfile &file;
     std::string data;
     size_type size;

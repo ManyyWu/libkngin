@@ -6,7 +6,7 @@ using namespace std;
 int
 main () {
   auto &mylogfile = k::query_logger().add_logfile("test", KNGIN_LOG_MODE_STDERR | KNGIN_LOG_MODE_CALLBACK,
-      [] (const char *file, k::KNGIN_LOG_LEVEL level, const char *data, size_t len) {
+      [] (const char *file, k::log_level level, const char *data, size_t len) {
     cerr << "file: " << file << "\nlevel: " << static_cast<int>(level) << "\ndata: " << data << endl;
   });
   mylogfile.write_fatal(" %s\n", "test");

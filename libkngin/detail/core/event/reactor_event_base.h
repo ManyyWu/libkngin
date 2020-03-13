@@ -1,0 +1,13 @@
+#ifndef KNGIN_REACTOR_EVENT_BASE_H
+#define KNGIN_REACTOR_EVENT_BASE_H
+
+KNGIN_NAMESPACE_K_DETAIL_BEGIN
+
+class reactor_event_base {
+  void
+
+};
+
+KNGIN_NAMESPACE_K_DETAIL_END
+
+#endif /* KNGIN_REACTOR_EVENT_BASE_H */

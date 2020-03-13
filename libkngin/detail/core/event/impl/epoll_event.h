@@ -5,13 +5,14 @@
 
 #if !defined(KNGIN_SYSTEM_WIN32)
 #include "kngin/core/event/event_base.h"
-#include "detail/core/base/list_node.h"
+#include "detail/core/event/op_queue.h"
 #include <sys/epoll.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class event_loop;
-class epoll_event : entry_base<epoll_event> {
+class epoll_reactor;
+class epoll_event : public entry_base<epoll_event> {
+  friend class epoll_reactor;
 public:
   epoll_event () = delete;
 
@@ -19,14 +20,12 @@ public:
   epoll_event (int fd) noexcept
    : fd_(fd),
      flags_(EPOLLERR | EPOLLHUP),
-     event_({0, nullptr}),
      registed_(false) {
   }
 
   epoll_event (class epoll_event &&e) noexcept {
     std::swap(fd_, e.fd_);
     std::swap(flags_, e.flags_);
-    std::swap(event_, e.event_);
     std::swap(registed_, e.registed_);
   }
 
@@ -40,10 +39,11 @@ public:
   }
 
 protected:
-  void
-  set_registed (bool on) noexcept {
-    registed_ = on;
+  int
+  fd () const noexcept {
+    return fd_;
   }
+
   void
   set_flags (uint32_t flags) noexcept {
     flags_ = flags;
@@ -92,10 +92,6 @@ protected:
   disable_et () noexcept {
     flags_ &= ~EPOLLET;
   }
-  void
-  disable_all () noexcept {
-    flags_ = EPOLLHUP | EPOLLERR;
-  }
   bool
   pollin () const noexcept {
     return (flags_ & EPOLLIN);
@@ -117,18 +113,33 @@ protected:
     return (flags_ & EPOLLET);
   }
 
-  virtual
+  op_queue &
+  read_op_queue () noexcept {
+    return opq_[0];
+  }
+  op_queue &
+  write_op_queue () noexcept {
+    return opq_[1];
+  }
+  op_queue &
+  error_op_queue () noexcept {
+    return opq_[0];
+  }
+
+private:
   void
-  on_events (event_loop &loop, uint32_t flags) = 0;
+  set_registed (bool on) noexcept {
+    registed_ = on;
+  }
 
 private:
   int fd_;
 
   uint32_t flags_;
 
-  struct ::epoll_event event_;
-
   bool registed_;
+
+  op_queue opq_[2];
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
