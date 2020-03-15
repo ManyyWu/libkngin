@@ -82,7 +82,7 @@ logger::~logger () noexcept {
 }
 
 void
-logger::init() {
+logger::init () {
 #if defined(KNGIN_USE_ASYNC_LOGGER)
   try {
     mutex_ = new mutex();

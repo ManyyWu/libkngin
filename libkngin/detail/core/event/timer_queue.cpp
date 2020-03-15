@@ -33,10 +33,10 @@ timer_queue::insert (timestamp initval, timestamp interval,
 void
 timer_queue::remove (timer_ptr &ptr) {
   assert(ptr);
+  ptr->close();
 #if defined(KNGIN_USE_TIMERFD_TIMER)
   heap_.remove(ptr);
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
-  ptr->close();
   sort();
 }
 
@@ -47,9 +47,9 @@ timer_queue::clear () {
     heap_.pop();
 #elif defined(KNGIN_USE_TIMERFD_TIMER)
   heap_.for_each([&] (timer_ptr &ptr) {
-    loop_->cancel(ptr);
+    loop_->remove_event(*ptr);
+    remove(ptr);
   });
-  heap_.clear();
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 

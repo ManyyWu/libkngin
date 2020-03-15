@@ -5,6 +5,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
+class event_loop;
 class operation_base {
 public:
   enum class op_type : unsigned char {
@@ -29,7 +30,7 @@ public:
 
   virtual
   void
-  on_operation () = 0;
+  on_operation (event_loop &) = 0;
 
 private:
   op_type type_;

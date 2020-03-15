@@ -9,15 +9,10 @@ KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 class op_queue {
 public:
-  typedef operation_base::op_type op_type;
-
-  op_queue ()
-   : opq_() {
-  }
+  op_queue () = default;
 
   virtual
-  ~op_queue () noexcept {
-  }
+  ~op_queue () = default;
 
   virtual
   void
@@ -42,11 +37,6 @@ public:
   virtual
   void
   clear () = 0;
-
-protected:
-  typedef std::vector<operation_base *> queue_type;
-
-  queue_type opq_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_END

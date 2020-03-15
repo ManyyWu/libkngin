@@ -23,6 +23,7 @@ class thread;
 class logger : public noncopyable {
   friend class logfile;
   friend logger &query_logger ();
+
 private:
   typedef size_t size_type;
 

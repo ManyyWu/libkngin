@@ -57,9 +57,10 @@ public:
     if (ptr->node_) {
       auto *head = &ptr->node_->head_;
       if (head) {
-        ptr->node_->reset_ptr(nullptr);
         move_to_free(ptr->node_);
-        ptr->reset_node(nullptr);
+        auto temp = ptr;
+        ptr->node_->reset_ptr(nullptr);
+        temp->reset_node(nullptr);
       }
     }
     auto_fix();
@@ -101,7 +102,7 @@ public:
 
   bool
   empty () const noexcept {
-    assert(size_ ? list_.next != list_.prev : list_.next == list_.prev);
+    assert(size_ ? true : list_empty_careful(&list_));
     return !size_;
   }
 

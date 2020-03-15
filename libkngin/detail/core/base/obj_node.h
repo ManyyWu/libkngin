@@ -26,18 +26,18 @@ class obj_node : public noncopyable {
 public:
   typedef std::shared_ptr<Tp> ptr_type;
 
-  obj_node() noexcept
+  obj_node () noexcept
    : ptr_(nullptr),
      head_(LIST_HEAD_INIT(head_)) {
   }
 
-  obj_node(ptr_type ptr) noexcept
+  obj_node (ptr_type ptr) noexcept
    : ptr_(ptr),
      head_(LIST_HEAD_INIT(head_)) {
   }
 
   void
-  reset_ptr(ptr_type ptr) noexcept {
+  reset_ptr (ptr_type ptr) noexcept {
     ptr_ = ptr;
   }
 
@@ -50,7 +50,7 @@ protected:
 template<typename Tp>
 class entry_base
   : public noncopyable,
-    public std::enable_shared_from_this<entry_base<Tp>> {
+    public std::enable_shared_from_this<Tp> {
   template<typename T,
       typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
   friend
@@ -58,12 +58,12 @@ class entry_base
 
 private:
   void
-  reset_node(obj_node<Tp> *ptr) noexcept {
+  reset_node (obj_node<Tp> *ptr) noexcept {
     node_ = ptr;
   }
 
   obj_node<Tp> *
-  get_node() noexcept {
+  get_node () noexcept {
     return node_;
   }
 

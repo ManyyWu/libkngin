@@ -24,6 +24,7 @@ enum class log_level {
 class logfile
   : public std::enable_shared_from_this<logfile> {
   friend class logger;
+
 private:
   logfile (const char *file, int mode, log_callback &&cb);
 

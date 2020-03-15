@@ -13,6 +13,7 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 class epoll_reactor;
 class epoll_event {
   friend class epoll_reactor;
+
 public:
   epoll_event () = delete;
 
@@ -44,7 +45,7 @@ public:
 protected:
   typedef operation_base::op_type op_type;
 
-  uint32_t
+  int
   fd () const noexcept {
     return fd_;
   }
@@ -131,10 +132,10 @@ private:
   }
 
 protected:
-  uint32_t fd_;
+  int fd_;
 
 private:
-  int flags_;
+  uint32_t flags_;
 
   bool registed_;
 };

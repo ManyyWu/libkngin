@@ -12,6 +12,7 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 class monotonic_timer
   : public std::enable_shared_from_this<monotonic_timer> {
   friend class detail::timer_queue;
+
 public:
   monotonic_timer (timeout_handler &&handler,
                    timestamp initval, timestamp interval) noexcept;

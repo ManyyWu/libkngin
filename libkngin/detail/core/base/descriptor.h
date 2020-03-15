@@ -62,11 +62,11 @@ public:
 
   static
   void
-  close (int fd);
+  close (int &fd);
 
   static
   void
-  close (int fd, error_code &ec) noexcept;
+  close (int &fd, error_code &ec) noexcept;
 
   static
   int

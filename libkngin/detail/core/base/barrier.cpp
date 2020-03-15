@@ -4,7 +4,8 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 barrier::barrier (int count)
- : impl_(new barrier_impl(count)) {
+ : impl_(nullptr) {
+  impl_ = new barrier_impl(count);
 }
 
 barrier::~barrier () noexcept {

@@ -71,9 +71,9 @@ epoll_reactor::wakeup () {
 
 void
 epoll_reactor::close () {
-  if (epoll_fd_)
+  if (FD_VALID(epoll_fd_))
     descriptor::close(epoll_fd_);
-  if (waker_fd_)
+  if (FD_VALID(waker_fd_))
     descriptor::close(waker_fd_);
 }
 

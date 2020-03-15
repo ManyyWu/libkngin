@@ -5,6 +5,7 @@
 #if defined(KNGIN_USE_TIMERFD_TIMER)
 
 #include "kngin/core/event/timer_id.h"
+#include "detail/core/event/op_queue.h"
 #include "detail/core/event/impl/epoll_event.h"
 #include <memory>
 
@@ -13,11 +14,13 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 class timerfd_timer
   : public epoll_event,
     public obj_node::entry_base<timerfd_timer> {
-  friend class detail::timer_queue;
-public:
   class operation;
-  typedef std::shared_ptr<obj_node::entry_base<timerfd_timer>> self_type;
+  class timer_op_queue;
+  friend class detail::timer_queue;
+  friend class timerfd_timer::operation;
+  friend class timerfd_timer::timer_op_queue;
 
+public:
   timerfd_timer (timeout_handler &&handler,
                  timestamp initval, timestamp interval);
 
@@ -35,7 +38,7 @@ public:
     return FD_INVALID(fd_);
   }
 
-  self_type
+  std::shared_ptr<timerfd_timer>
   self () {
     return shared_from_this();
   }
@@ -45,10 +48,22 @@ public:
     return id_;
   }
 
+  virtual
+  op_queue *
+  query_op_queue (op_type type) noexcept {
+    if (op_type::op_read == type)
+      return opq_;
+    return nullptr;
+  }
+
 private:
+  timeout timeout_;
+
   timeout_handler handler_;
 
   timer_id id_;
+
+  op_queue *opq_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

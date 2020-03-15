@@ -12,7 +12,7 @@ namespace list_node {
 template<typename Tp>
 class entry_base
  : public noncopyable,
-   public std::enable_shared_from_this<entry_base<Tp>> {
+   public std::enable_shared_from_this<Tp> {
   template<typename T,
       typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
   friend

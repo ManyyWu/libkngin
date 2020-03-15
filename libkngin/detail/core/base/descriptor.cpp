@@ -162,16 +162,18 @@ descriptor::read_error (int fd) noexcept {
 }
 
 void
-descriptor::close (int fd) {
+descriptor::close (int &fd) {
   assert(FD_VALID(fd));
   if (::close(fd) < 0)
     throw_system_error("::close() error", last_error());
+  fd = INVALID_FD;
 }
 
 void
-descriptor::close (int fd, error_code &ec) noexcept {
+descriptor::close (int &fd, error_code &ec) noexcept {
   assert(FD_VALID(fd));
   ec = (::close(fd) < 0) ? last_error() : error_code();
+  fd = INVALID_FD;
 }
 
 int

@@ -59,6 +59,11 @@ public:
   clear () {
     opq_.clear();
   }
+
+private:
+  typedef std::vector<operation_base *> queue_type;
+
+  queue_type opq_;
 };
 
 event_loop::event_loop ()
@@ -251,8 +256,8 @@ event_loop::cancel (const timer_id &id) {
   if (ptr) {
     {
       mutex::scoped_lock lock(timerq_mutex_);
-      timerq_->remove(ptr);
       reactor_->remove_event(*ptr);
+      timerq_->remove(ptr);
     }
     wakeup();
   }
@@ -262,11 +267,14 @@ size_t
 event_loop::event_loop::wait (event_queue &evq) {
   time_t delay = 0;
   {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
     mutex::scoped_lock lock(timerq_mutex_);
-    if (timerq_->empty())
-      delay = KNGIN_EVENT_LOOP_DEFAULT_DELAY;
-    else
-      delay = timerq_->min_delay().value();
+    delay = timerq_->empty()
+            ? KNGIN_EVENT_LOOP_DEFAULT_DELAY
+            : timerq_->min_delay().value();
+#elif defined(KNGIN_USE_TIMERFD_TIMER)
+    delay = KNGIN_EVENT_LOOP_DEFAULT_DELAY;
+#endif
   }
   debug("dealy: %" PRIu64 " ms", delay);
   return reactor_->wait(evq, delay);
@@ -291,7 +299,8 @@ void
 event_loop::process_events (event_queue &evq) {
   while (evq.size()) {
     TRY()
-      evq.top().on_operation();
+      if (evq.size())
+        evq.top().on_operation(*this);
     CATCH_ERROR("event_loop::process_events()")
     evq.pop();
   }
@@ -315,8 +324,8 @@ event_loop::process_timers () {
 void
 event_loop::cancel (timer_ptr &ptr) {
   mutex::scoped_lock lock(timerq_mutex_);
-  timerq_->remove(ptr);
   reactor_->remove_event(*ptr);
+  timerq_->remove(ptr);
 }
 
 KNGIN_NAMESPACE_K_END

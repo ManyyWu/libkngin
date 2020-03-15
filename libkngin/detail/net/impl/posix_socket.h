@@ -1,15 +1,15 @@
 /*
-class posix_socket::socket_op_queue : public op_queue {
+class posix_socket::op_queue : public op_queue {
 public:
   typedef operation_base::op_type op_type;
 
-  socket_op_queue ()
+  op_queue ()
    : op_queue(),
      mutex_() {
   }
 
   virtual
-  ~socket_op_queue () noexcept {
+  ~op_queue () noexcept {
     this->clear();
   }
 
@@ -46,6 +46,8 @@ public:
   }
 
 private:
+  typedef std::vector<oeration_base *> opq_;
+
   mutex mutex_;
 };
 */

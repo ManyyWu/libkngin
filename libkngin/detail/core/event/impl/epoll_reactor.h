@@ -10,7 +10,6 @@
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class event_loop;
 class epoll_reactor {
 public:
   epoll_reactor ();
