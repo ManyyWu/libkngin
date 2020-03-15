@@ -4,10 +4,10 @@ using namespace std;
 
 int
 main () {
-  k::thread t([] (void *) -> int {
+  k::thread t([] () -> int {
     throw_exception("");
     return 0;
-  }, nullptr, "thread_test");
+  }, "thread_test");
 
   return 0;
 }
