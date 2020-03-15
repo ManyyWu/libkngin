@@ -5,9 +5,9 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-timestamp timestamp::max = time_t(std::numeric_limits<timer_t>::max());
+const timestamp timestamp::max = time_t(std::numeric_limits<timer_t>::max());
 
-timestamp timestamp::zero = time_t(0);
+const timestamp timestamp::zero = time_t(0);
 
 #if defined(KNGIN_SYSTEM_WIN32)
 timestamp

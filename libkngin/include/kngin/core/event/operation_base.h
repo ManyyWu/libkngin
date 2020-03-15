@@ -2,11 +2,10 @@
 #define KNGIN_OPERATION_BASE_H
 
 #include "kngin/core/define.h"
-#include "detail/core/base/list_node.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class operation_base : public detail::entry_base<operation_base> {
+class operation_base {
 public:
   enum class op_type : unsigned char {
     op_read  = 0,
@@ -20,7 +19,7 @@ public:
   }
 
   virtual
-  ~operation_base () {
+  ~operation_base () noexcept {
   }
 
   op_type

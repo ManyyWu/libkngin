@@ -1,27 +1,22 @@
 #ifndef KNGIN_MONOTONIC_TIMER_H
 #define KNGIN_MONOTONIC_TIMER_H
 
-#include "kngin/core/base/callback.h"
-#include "kngin/core/base/timeout.h"
+#include "kngin/core/define.h"
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+
 #include "kngin/core/event/timer_id.h"
-#include "detail/core/base/list.h"
 #include <memory>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class monotonic_timer
   : public std::enable_shared_from_this<monotonic_timer> {
-
+  friend class detail::timer_queue;
 public:
-  monotonic_timer (timeout_handler &&handler) noexcept
-   : timeout_(),
-     handler_(std::move(handler)),
-     closed_(false),
-     id_() {
-  }
+  monotonic_timer (timeout_handler &&handler,
+                   timestamp initval, timestamp interval) noexcept;
 
   ~monotonic_timer () noexcept {
-    assert(closed_);
   }
 
   void
@@ -65,5 +60,7 @@ private:
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 
 #endif /* KNGIN_MONOTONIC_TIMER_H */

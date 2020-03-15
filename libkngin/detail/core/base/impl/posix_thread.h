@@ -9,13 +9,12 @@
 #else
 #  include <pthread.h>
 #endif /* defined(KNGIN_SYTEM_WIN32) */
-#include "kngin/core/base/callback.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class posix_thread {
 public:
-  typedef k::thread_proc thread_proc;
+  typedef thread::thread_proc thread_proc;
 
   union thread_error_code {
     void *ptr;
@@ -29,12 +28,10 @@ public:
   struct thread_data {
     std::string name;
     thread_proc thr_fn;
-    void *args;
 
-    thread_data (const char *name, thread_proc &&thr_fn, void *args) noexcept
+    thread_data (const char *name, thread_proc &&thr_fn) noexcept
      : name(name),
-       thr_fn(std::move(thr_fn)),
-       args(args) {
+       thr_fn(std::move(thr_fn)) {
     }
   };
 

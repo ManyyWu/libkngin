@@ -5,6 +5,6 @@
 
 // timer_queue
 declare_detail_class(timer_queue)
-typedef_detail(timer_queue, timer_queue)
+declare_detail_class(op_queue)
 
 #endif /* KNGIN_EVENT_DETAIL_H */

@@ -1,5 +1,5 @@
-#include "detail/core/event/impl/epoll_reactor.h"
 #include "detail/core/base/descriptor.h"
+#include "detail/core/event/impl/epoll_reactor.h"
 
 #if !defined(KNGIN_SYSTEM_WIN32)
 #include <sys/eventfd.h>
@@ -9,12 +9,17 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 epoll_reactor::epoll_reactor ()
  : epoll_fd_(::epoll_create1(EPOLL_CLOEXEC)),
    waker_fd_(::eventfd(0, EFD_CLOEXEC)) {
-  if (!epoll_fd_)
+  if (epoll_fd_ < 0)
     throw_system_error("::epoll_create1() error", last_error());
-  if (!waker_fd_) {
-    throw_system_error("::eventfd(0, EFD_CLOEXEC)", last_error());
+  if (waker_fd_ < 0) {
     ::close(epoll_fd_);
+    throw_system_error("::eventfd()", last_error());
   }
+
+  // add waker to epoll
+  ::epoll_event ev = {EPOLLHUP | EPOLLERR | EPOLLET | EPOLLIN, this};
+  if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, waker_fd_, &ev) < 0)
+    throw_system_error("::epoll_ctl()", last_error());
 }
 
 epoll_reactor::~epoll_reactor () noexcept {
@@ -34,25 +39,34 @@ epoll_reactor::wait (op_queue &ops, timestamp delay) {
     throw_system_error("::epoll_wait() error", last_error());
   for (int i = 0; i < size; ++i) {
     auto &internal_event = internal_events[i];
+    if (internal_event.data.ptr == this) {
+      on_wakeup();
+      continue;
+    }
     auto *event = static_cast<class epoll_event *>(internal_event.data.ptr);
     assert(event);
     if (internal_event.events & (EPOLLERR | EPOLLHUP)) {
-      ops.push(event->error_op_queue().top());
+      if (op_queue *q = event->query_op_queue(operation_base::op_type::op_error))
+        ops.push(q->top());
       continue;
     }
-    if (internal_event.events & EPOLLIN)
-      ops.push(event->read_op_queue().top());
-    if (internal_event.events & EPOLLOUT)
-      ops.push(event->write_op_queue().top());
+    if (internal_event.events & EPOLLIN) {
+      if (auto *q = event->query_op_queue(operation_base::op_type::op_read))
+        ops.push(q->top());
+    }
+    if (internal_event.events & EPOLLOUT) {
+      if (auto *q = event->query_op_queue(operation_base::op_type::op_write))
+        ops.push(q->top());
+    }
   }
   return std::max<size_t>(size, 0);
 }
 
 void
 epoll_reactor::wakeup () {
-  ::epoll_event ev = {0, nullptr};
-  if (::epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, waker_fd_, &ev) < 0)
-    throw_system_error("::epoll_ctl() error", last_error());
+  int64_t val = 1;
+  auto buf = out_buffer(&val, 8);
+  descriptor::write(waker_fd_, buf);
 }
 
 void
@@ -103,6 +117,14 @@ epoll_reactor::update_event (int opt, int fd, class epoll_event *ev) {
   ::epoll_event internal_event = {ev->flags(), ev};
   if (::epoll_ctl(epoll_fd_, opt, fd, &internal_event) < 0)
     throw k::system_error("::epoll_ctl() error");
+}
+
+void
+epoll_reactor::on_wakeup() {
+  int64_t val = 0;
+  auto buf = in_buffer(&val, 8);
+  descriptor::read(waker_fd_, buf);
+  debug("read 8");
 }
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

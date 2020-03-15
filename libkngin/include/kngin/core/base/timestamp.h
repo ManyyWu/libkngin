@@ -209,9 +209,9 @@ public:
   }
 
 public:
-  static timestamp max;
+  static const timestamp max;
 
-  static timestamp zero;
+  static const timestamp zero;
 
 private:
   time_t ms_;

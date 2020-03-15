@@ -4,9 +4,8 @@
 #include "kngin/core/define.h"
 #if !defined(KNGIN_SYSTEM_WIN32)
 
-#include "detail/core/base/list.h"
-#include "detail/core/event/impl/epoll_event.h"
 #include "detail/core/event/op_queue.h"
+#include "detail/core/event/impl/epoll_event.h"
 #include <vector>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
@@ -39,6 +38,9 @@ public:
 private:
   void
   update_event (int opt, int fd, class epoll_event *ev);
+
+  void
+  on_wakeup ();
 
 private:
   int epoll_fd_;

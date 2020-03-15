@@ -7,14 +7,14 @@ int
 main () {
   try {
     throw_system_error("EAGAIN", ERRNO(EAGAIN));
-  } catch (std::exception &e) {
+  } catch (const std::exception &e) {
     cerr << "catch exception: " << e.what() << endl;
   }
 
 #if defined(KNGIN_SYSTEM_WIN32)
   try {
     throw_system_error("WSAEWOULDBLOCK", WSAEWOULDBLOCK);
-  } catch (std::exception &e) {
+  } catch (const std::exception &e) {
     cerr << "catch exception: " << e.what() << endl;
   }
 #endif

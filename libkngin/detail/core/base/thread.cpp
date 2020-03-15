@@ -8,14 +8,13 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-thread::thread (thread_proc &&proc, void *args /* = nullptr */,
-                const char *name /* = nullptr */)
+thread::thread (thread_proc &&proc, const char *name /* = nullptr */)
   : impl_(nullptr) {
   thread_impl::thread_data *data = nullptr;
   try {
     impl_ = new thread_impl(
               (data = new thread_impl::thread_data(name ? name : "",
-                                                   std::move(proc), args)));
+                                                   std::move(proc))));
   } catch (...) {
     safe_release(data);
     safe_release(impl_);

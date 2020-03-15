@@ -21,7 +21,7 @@ posix_thread::start (void *args) noexcept {
   try {
     //debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
     if (data->thr_fn)
-      code.code = data->thr_fn(data->args);
+      code.code = data->thr_fn();
     //debug("thread \"%s\" is stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
   } catch (const k::exception &e) {
     fatal("caught an exception in thread \"%s\", %s",

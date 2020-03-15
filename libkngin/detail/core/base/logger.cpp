@@ -87,7 +87,8 @@ logger::init() {
   try {
     mutex_ = new mutex();
     cond_ = new cond(*mutex_);
-    write_thr_ = new thread(logger::log_thread, this, "log_thread");
+    write_thr_ = new thread(std::bind(&logger::log_thread, this),
+                            "log_thread");
   } catch (...) {
     safe_release(cond_);
     safe_release(mutex_);
@@ -132,36 +133,30 @@ logger::post_log (log_level level, logfile &file,
 
 #if defined(KNGIN_USE_ASYNC_LOGGER)
 int
-logger::log_thread (void *args) noexcept {
-  auto *pthis = static_cast<logger *>(args);
-  auto &dataq = pthis->log_dataq_;
-  auto &mutex = *pthis->mutex_;
-  auto &cond = *pthis->cond_;
-  auto &stop = pthis->stop_;
-
+logger::log_thread () noexcept {
   try {
     async_log_data *data = nullptr;
     while (true) {
       {
         // wait for data
-        mutex::scoped_lock lock(mutex);
+        mutex::scoped_lock lock(*mutex_);
         if (data) {
-          dataq.pop_back();
+          log_dataq_.pop_back();
           data = nullptr;
         }
-        while (!stop and dataq.empty())
-          cond.timed_wait(KNGIN_ASYNC_LOGGER_TIMEOUT);
-        if (stop and dataq.empty())
+        while (!stop_ and log_dataq_.empty())
+          cond_->timed_wait(KNGIN_ASYNC_LOGGER_TIMEOUT);
+        if (stop_ and log_dataq_.empty())
           break;
 
         // get next
-        data = &dataq.back();
+        data = &log_dataq_.back();
         assert(data);
       }
       // write log
       logger::write_log(data->level, data->file, data->data, data->size);
     }
-  } catch (std::exception &e) {
+  } catch (const std::exception &e) {
     std::cerr << "catch an exception in log_thread: " << e.what() << std::endl;
   } catch (...) {
     std::cerr << "catch an unknown exception in log_thread" << std::endl;
@@ -200,8 +195,10 @@ logger::write_log (log_level level, logfile &file,
     logger::write_logfile(file.file_.c_str(), level, data.c_str(), size);
   if (file.mode_ & KNGIN_LOG_MODE_STDERR)
     logger::write_stderr(level, data.c_str(), size);
-  if (file.mode_ & KNGIN_LOG_MODE_CALLBACK and file.cb_)
-    file.cb_(file.file_.c_str(), level, data.c_str(), size);
+  TRY()
+    if (file.mode_ & KNGIN_LOG_MODE_CALLBACK and file.cb_)
+      file.cb_(file.file_.c_str(), level, data.c_str(), size);
+  CATCH_FATAL("logger::write_log()")
 }
 
 void

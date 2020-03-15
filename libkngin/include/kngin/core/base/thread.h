@@ -4,18 +4,17 @@
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/detail.h"
-#include "kngin/core/base/callback.h"
+#include <functional>
 
 KNGIN_NAMESPACE_K_BEGIN
 
 class thread : public noncopyable {
 public:
-  typedef k::thread_proc thread_proc;
+  typedef std::function<int (void)> thread_proc;
   typedef uint64_t tid_type;
 
   explicit
-  thread (thread_proc &&proc, void *data = nullptr,
-          const char *name = nullptr);
+  thread (thread_proc &&proc, const char *name = nullptr);
 
   ~thread () noexcept;
 

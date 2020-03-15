@@ -7,26 +7,34 @@
 #if defined(KNGIN_USE_IOCP_REACTOR)
   declare_detail_impl_class(iocp_reactor)
   typedef_detail_impl(iocp_reactor, reactor)
+  declare_detail_impl_class(iocp_event)
+  typedef_detail_impl(iocp_event, reactor_event)
 #elif defined(KNGIN_USE_EPOLL_REACTOR)
   declare_detail_impl_class(epoll_reactor)
   typedef_detail_impl(epoll_reactor, reactor)
+  declare_detail_impl_class(epoll_event)
+  typedef_detail_impl(epoll_event, reactor_event)
 #elif defined(KNGIN_USE_POLL_REACTOR)
   declare_detail_impl_class(poll_reactor)
   typedef_detail_impl(poll_reactor, reactor)
+  declare_detail_impl_class(poll_event)
+  typedef_detail_impl(poll_event, reactor_event)
 #elif defined(KNGIN_USE_SELECT_REACTOR)
   declare_detail_impl_class(select_reactor)
   typedef_detail_impl(select_reactor, reactor)
+  declare_detail_impl_class(select_event)
+  typedef_detail_impl(select_event, reactor_event)
 #endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 
 // timer
 #if defined(KNGIN_USE_TIMERFD_TIMER)
-declare_detail_impl_class(timerfd_timer);
+  declare_detail_impl_class(timerfd_timer);
   typedef_detail_impl(timerfd_timer, timer);
 #elif defined(KNGIN_USE_MONOTONIC_TIMER)
-declare_detail_impl_class(monotonic_timer);
-typedef_detail_impl(monotonic_timer, timer);
+  declare_detail_impl_class(monotonic_timer);
+  typedef_detail_impl(monotonic_timer, timer);
 #elif defined(KNGIN_USE_QUEUED_TIMER)
-declare_detail_impl_class(queued_timer);
+  declare_detail_impl_class(queued_timer);
   typedef_detail_impl(queued_timer, timer);
 #endif /* defined(KNGIN_USE_TIMERFD_TIMER) */
 

@@ -1,16 +1,17 @@
 #include "kngin/core/base/common.h"
 #include "kngin/core/base/scoped_lock.h"
+#include "kngin/core/event/event_loop.h"
 #include "detail/core/event/timer_queue.h"
-#include "detail/core/event/timer.h"
 #include <memory>
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
-timer_queue::timer_queue ()
- : heap_() {
+timer_queue::timer_queue (event_loop *loop)
+ : heap_(),
+   loop_(loop) {
 }
 
-timer_queue::~timer_queue () {
+timer_queue::~timer_queue () noexcept {
   TRY()
     clear();
   IGNORE()
@@ -19,20 +20,45 @@ timer_queue::~timer_queue () {
 timer &
 timer_queue::insert (timestamp initval, timestamp interval,
                      timeout_handler &&handler) {
-  auto new_timer = std::make_shared<timer>(std::move(handler));
+  auto new_timer = std::make_shared<timer>(std::move(handler), initval, interval);
+  new_timer->id_ = timer_id(new_timer);
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   heap_.push(new_timer);
-  new_timer->set_time(initval, interval);
+#elif defined(KNGIN_USE_TIMERFD_TIMER)
+  heap_.insert(new_timer);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return *new_timer;
 }
 
 void
 timer_queue::remove (timer_ptr &ptr) {
   assert(ptr);
-  static auto temp = std::make_shared<timer>(nullptr);
-  if (!temp->closed())
-    temp->close();
-
+#if defined(KNGIN_USE_TIMERFD_TIMER)
+  heap_.remove(ptr);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   ptr->close();
+  sort();
+}
+
+void
+timer_queue::clear () {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+  while (heap_.size())
+    heap_.pop();
+#elif defined(KNGIN_USE_TIMERFD_TIMER)
+  heap_.for_each([&] (timer_ptr &ptr) {
+    loop_->cancel(ptr);
+  });
+  heap_.clear();
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
+}
+
+void
+timer_queue::sort () {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+  static auto temp = std::make_shared<timer>(nullptr, 0, 0);
+  assert(temp->closed());
+
   heap_.push(temp);
   while (heap_.size()) {
     auto top = heap_.top();
@@ -40,21 +66,21 @@ timer_queue::remove (timer_ptr &ptr) {
       break;
     heap_.pop();
   }
-}
-
-void
-timer_queue::clear () {
-  while (heap_.size())
-    heap_.pop();
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 
 timestamp
 timer_queue::min_delay() const noexcept {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   return heap_.empty() ? timestamp::max : heap_.top()->get_timeout().remaining();
+#elif defined(KNGIN_USE_TIMERFD_TIMER)
+  return timestamp::zero;
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 
 timer_queue::timer_list &
 timer_queue::get_ready_timers (timer_list &list) {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   list.clear();
 
   auto now = timestamp::monotonic();
@@ -66,6 +92,7 @@ timer_queue::get_ready_timers (timer_list &list) {
       list.push_back(top);
     heap_.pop();
   }
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return list;
 }
 
@@ -79,7 +106,7 @@ timer_queue::process_ready_timers (timer_list &list, mutex &m) {
       continue;
     TRY()
       iter->on_events(now);
-    CATCH_ERROR("timer_queue::process_ready_timers() error");
+    CATCH_ERROR("timer_queue::process_ready_timers()");
     if (iter->closed())
       continue;
 

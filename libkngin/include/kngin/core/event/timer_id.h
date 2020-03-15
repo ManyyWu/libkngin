@@ -4,6 +4,7 @@
 #include "kngin/core/define.h"
 #include "kngin/core/base/timeout.h"
 #include "kngin/core/event/detail.h"
+#include <memory>
 
 KNGIN_NAMESPACE_K_BEGIN
 

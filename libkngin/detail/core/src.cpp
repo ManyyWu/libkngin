@@ -34,6 +34,7 @@
 #include "detail/core/event/impl/epoll_reactor.cpp"
 
 #include "detail/core/event/impl/monotonic_timer.cpp"
+#include "detail/core/event/impl/timerfd_timer.cpp"
 
 // net
 

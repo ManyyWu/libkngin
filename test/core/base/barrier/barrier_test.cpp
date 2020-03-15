@@ -8,21 +8,21 @@ int
 main () {
   k::barrier b(4);
 
-  k::thread t([&b] (void *) -> int {
+  k::thread t([&b] () -> int {
     if (b.wait()) {
       b.destroy();
       cerr << "t destoryed barrier" << endl;
     }
     return 0;
   });
-  k::thread t1([&b] (void *) -> int {
+  k::thread t1([&b] () -> int {
     if (b.wait()) {
       b.destroy();
       cerr << "t1 destoryed barrier" << endl;
     }
     return 0;
   });
-  k::thread t2([&b] (void *) -> int {
+  k::thread t2([&b] () -> int {
     if (b.wait()) {
       b.destroy();
       cerr << "t2 destoryed barrier" << endl;

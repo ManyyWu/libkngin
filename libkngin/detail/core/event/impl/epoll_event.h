@@ -4,14 +4,14 @@
 #include "kngin/core/define.h"
 
 #if !defined(KNGIN_SYSTEM_WIN32)
+#include "kngin/core/event/operation_base.h"
 #include "kngin/core/event/event_base.h"
-#include "detail/core/event/op_queue.h"
 #include <sys/epoll.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class epoll_reactor;
-class epoll_event : public entry_base<epoll_event> {
+class epoll_event {
   friend class epoll_reactor;
 public:
   epoll_event () = delete;
@@ -23,10 +23,13 @@ public:
      registed_(false) {
   }
 
-  epoll_event (class epoll_event &&e) noexcept {
-    std::swap(fd_, e.fd_);
-    std::swap(flags_, e.flags_);
-    std::swap(registed_, e.registed_);
+  epoll_event (class epoll_event &&ev) noexcept
+    : fd_(INVALID_FD),
+      flags_(EPOLLERR | EPOLLHUP),
+      registed_(false) {
+    std::swap(fd_, ev.fd_);
+    std::swap(flags_, ev.flags_);
+    std::swap(registed_, ev.registed_);
   }
 
   virtual
@@ -39,7 +42,9 @@ public:
   }
 
 protected:
-  int
+  typedef operation_base::op_type op_type;
+
+  uint32_t
   fd () const noexcept {
     return fd_;
   }
@@ -113,17 +118,10 @@ protected:
     return (flags_ & EPOLLET);
   }
 
-  op_queue &
-  read_op_queue () noexcept {
-    return opq_[0];
-  }
-  op_queue &
-  write_op_queue () noexcept {
-    return opq_[1];
-  }
-  op_queue &
-  error_op_queue () noexcept {
-    return opq_[0];
+  virtual
+  op_queue *
+  query_op_queue (op_type) noexcept {
+    return nullptr;
   }
 
 private:
@@ -132,14 +130,13 @@ private:
     registed_ = on;
   }
 
-private:
-  int fd_;
+protected:
+  uint32_t fd_;
 
-  uint32_t flags_;
+private:
+  int flags_;
 
   bool registed_;
-
-  op_queue opq_[2];
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

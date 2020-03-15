@@ -1,12 +1,20 @@
-#include "kngin/core/base/common.h"
 #include "detail/core/event/impl/monotonic_timer.h"
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+
+#include "kngin/core/base/common.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
+monotonic_timer::monotonic_timer (timeout_handler &&handler,
+                                  timestamp initval, timestamp interval) noexcept
+ : timeout_(initval, interval),
+   handler_(std::move(handler)),
+   closed_(false),
+   id_() {
+}
+
 void
 monotonic_timer::set_time (timestamp initval, timestamp interval) noexcept {
-  if (id_.cancelled())
-    id_ = timer_id(self());
   timeout_.reset(initval, interval);
   closed_ = false;
 }
@@ -28,3 +36,5 @@ monotonic_timer::on_events (const timestamp &now) {
 }
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */

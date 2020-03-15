@@ -39,9 +39,8 @@ private:
             std::string &&data, size_type size);
 
 #if defined(KNGIN_USE_ASYNC_LOGGER)
-  static
   int
-  log_thread (void *) noexcept;
+  log_thread () noexcept;
 #endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 
   static

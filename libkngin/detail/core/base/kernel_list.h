@@ -3,6 +3,7 @@
 
 #include "kngin/core/define.h"
 #include "detail/core/base/list_node.h"
+#include "detail/core/base/obj_node.h"
 
 #if defined(KNGIN_SYSTEM_WIN32)
 #include <Windows.h>
