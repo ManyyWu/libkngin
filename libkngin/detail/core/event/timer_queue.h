@@ -68,6 +68,8 @@ private:
   typedef std::priority_queue<timer_ptr, timer_list, timer_less> min_heap_type;
 
   min_heap_type heap_;
+#elif defined(KNGIN_USE_TIMING_WHEEL)
+
 #elif defined(KNGIN_USE_TIMERFD_TIMER)
   obj_mgr<timer> heap_;
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */

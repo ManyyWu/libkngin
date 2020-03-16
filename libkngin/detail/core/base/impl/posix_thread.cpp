@@ -16,24 +16,24 @@ posix_thread::create_thread (thread_data *data) {
 void *
 posix_thread::start (void *args) noexcept {
   thread_error_code code;
-  auto data = static_cast<thread_data *>(args);
+  auto *data = static_cast<thread_data *>(args);
 
+  debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
   try {
-    //debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
     if (data->thr_fn)
       code.code = data->thr_fn();
-    //debug("thread \"%s\" is stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
   } catch (const k::exception &e) {
-    fatal("caught an exception in thread \"%s\", %s",
-              data->name.c_str(), e.what());
+    fatal("posix_thread::start(), thread = \"%s\", message = %s",
+          data->name.c_str(), e.what());
     fatal("%s", e.dump());
   } catch (const std::exception &e) {
-    fatal("caught an exception in thread \"%s\", %s",
-              data->name.c_str(), e.what());
+    fatal("posix_thread::start(), thread = \"%s\", message = %s",
+          data->name.c_str(), e.what());
   } catch (...) {
-    fatal("caught an undefined exception in thread \"%s\"",
-              data->name.c_str());
+    fatal("posix_thread::start(), thread = \"%s\", message = unknown exception",
+          data->name.c_str());
   }
+  debug("thread \"%s\" stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
 
   safe_release(data);
   return code.ptr;

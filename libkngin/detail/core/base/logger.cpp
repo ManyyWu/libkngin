@@ -157,9 +157,9 @@ logger::log_thread () noexcept {
       logger::write_log(data->level, data->file, data->data, data->size);
     }
   } catch (const std::exception &e) {
-    std::cerr << "catch an exception in log_thread: " << e.what() << std::endl;
+    std::cerr << "logger::log_thread(), message = " << e.what() << std::endl;
   } catch (...) {
-    std::cerr << "catch an unknown exception in log_thread" << std::endl;
+    std::cerr << "logger::log_thread(), message = unknown exception" << std::endl;
   }
 
   return 0;
@@ -274,6 +274,7 @@ logger::add_logfile (const char *file, int mode, log_callback &&cb) {
     g_logger.files_.push_back(ptr);
   } catch (...) {
     safe_release(ptr);
+    throw;
   }
   return *g_logger.files_.back();
 }

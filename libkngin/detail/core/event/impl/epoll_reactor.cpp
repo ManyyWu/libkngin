@@ -13,13 +13,13 @@ epoll_reactor::epoll_reactor ()
     throw_system_error("::epoll_create1() error", last_error());
   if (waker_fd_ < 0) {
     ::close(epoll_fd_);
-    throw_system_error("::eventfd()", last_error());
+    throw_system_error("::eventfd() error", last_error());
   }
 
   // add waker to epoll
   ::epoll_event ev = {EPOLLHUP | EPOLLERR | EPOLLET | EPOLLIN, this};
   if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, waker_fd_, &ev) < 0)
-    throw_system_error("::epoll_ctl()", last_error());
+    throw_system_error("::epoll_ctl() error", last_error());
 }
 
 epoll_reactor::~epoll_reactor () noexcept {
@@ -123,8 +123,9 @@ void
 epoll_reactor::on_wakeup() {
   int64_t val = 0;
   auto buf = in_buffer(&val, 8);
-  descriptor::read(waker_fd_, buf);
-  debug("read 8");
+  TRY()
+    descriptor::read(waker_fd_, buf);
+  CATCH_FATAL("descriptor::on_wakeup()");
 }
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

@@ -140,7 +140,7 @@ descriptor::readable (int fd) {
   assert(FD_VALID(fd));
   size_t bytes = 0;
   if (::ioctl(fd, FIONREAD, &bytes) < 0)
-    throw_system_error("::ioctl(FIONREAD) failed", last_error());
+    throw_system_error("::ioctl(FIONREAD) error", last_error());
   return bytes;
 }
 

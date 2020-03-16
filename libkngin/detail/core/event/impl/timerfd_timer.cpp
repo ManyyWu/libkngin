@@ -108,6 +108,7 @@ timerfd_timer::timerfd_timer (timeout_handler &&handler,
   if (FD_VALID(fd_))
     descriptor::close(fd_);
   safe_release(opq_);
+  throw;
 }
 
 timerfd_timer::~timerfd_timer () noexcept {
@@ -124,7 +125,7 @@ timerfd_timer::set_time (timestamp initval, timestamp interval) {
   initval.to_timespec(its.it_value);
   interval.to_timespec(its.it_interval);
   if (::timerfd_settime(fd_, TFD_TIMER_ABSTIME, &its, nullptr) < 0)
-    throw_system_error("::timerfd_settime()", last_error());
+    throw_system_error("::timerfd_settime() error", last_error());
   timeout_.reset(initval, interval);
 }
 
