@@ -60,12 +60,12 @@ timer_queue::sort () {
   assert(temp->closed());
 
   heap_.push(temp);
-  while (heap_.size()) {
+/*  while (heap_.size()) {
     auto top = heap_.top();
     if (!top->closed())
       break;
     heap_.pop();
-  }
+  }*/
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 

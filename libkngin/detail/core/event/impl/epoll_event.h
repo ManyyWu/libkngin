@@ -121,7 +121,7 @@ protected:
 
   virtual
   op_queue *
-  query_op_queue (op_type) noexcept {
+  get_op_queue (op_type) noexcept {
     return nullptr;
   }
 

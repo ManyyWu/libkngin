@@ -50,7 +50,7 @@ public:
 
   virtual
   op_queue *
-  query_op_queue (op_type type) noexcept {
+  get_op_queue (op_type type) noexcept {
     if (op_type::op_read == type or op_type::op_error == type)
       return opq_;
     return nullptr;

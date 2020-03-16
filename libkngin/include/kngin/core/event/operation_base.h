@@ -2,6 +2,7 @@
 #define KNGIN_OPERATION_BASE_H
 
 #include "kngin/core/define.h"
+#include "kngin/core/event/detail.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -15,8 +16,9 @@ public:
   };
 
   explicit
-  operation_base (op_type type) noexcept
-   : type_(type) {
+  operation_base (reactor_event &owner, op_type type) noexcept
+   : owner_(owner),
+     type_(type) {
   }
 
   virtual
@@ -29,10 +31,18 @@ public:
   }
 
   virtual
+  reactor_event &
+  owner () noexcept {
+    return owner_;
+  }
+
+  virtual
   void
   on_operation (event_loop &) = 0;
 
-private:
+protected:
+  reactor_event &owner_;
+
   op_type type_;
 };
 

@@ -46,16 +46,16 @@ epoll_reactor::wait (op_queue &ops, timestamp delay) {
     auto *event = static_cast<class epoll_event *>(internal_event.data.ptr);
     assert(event);
     if (internal_event.events & (EPOLLERR | EPOLLHUP)) {
-      if (op_queue *q = event->query_op_queue(operation_base::op_type::op_error))
+      if (op_queue *q = event->get_op_queue(operation_base::op_type::op_error))
         ops.push(q->top());
       continue;
     }
     if (internal_event.events & EPOLLIN) {
-      if (auto *q = event->query_op_queue(operation_base::op_type::op_read))
+      if (auto *q = event->get_op_queue(operation_base::op_type::op_read))
         ops.push(q->top());
     }
     if (internal_event.events & EPOLLOUT) {
-      if (auto *q = event->query_op_queue(operation_base::op_type::op_write))
+      if (auto *q = event->get_op_queue(operation_base::op_type::op_write))
         ops.push(q->top());
     }
   }

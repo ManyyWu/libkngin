@@ -87,7 +87,7 @@ descriptor::readn (int fd, in_buffer &buf, error_code &ec) noexcept {
   while (buf.writeable()) {
     auto size = ::read(fd, buf.begin(), buf.writeable());
     if (size <= 0) {
-      if (EINTR == (ec = last_error()) || EAGAIN == ec)
+      if (EINTR == (ec = last_error()) or EAGAIN == ec)
         continue;
       return (buf.valid() - valid);
     }
@@ -107,7 +107,7 @@ descriptor::writen (int fd, out_buffer &buf) {
     auto size = ::write(fd, buffer.begin(), buffer.size());
     if (size < 0) {
       auto ec = last_error();
-      if (EINTR == ec || EAGAIN == ec)
+      if (EINTR == ec or EAGAIN == ec)
         continue;
       throw_system_error("::writen() error", ec);
     }
