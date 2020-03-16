@@ -214,10 +214,9 @@ event_loop::run_after (timestamp delay, timeout_handler &&handler) {
     mutex::scoped_lock lock(timerq_mutex_);
     auto &timer = timerq_->insert(timestamp::monotonic() + delay,
                                   0, std::move(handler));
-    reactor_->register_event(timer);
-    id = timer.id();
   }
-
+  reactor_->register_event(timer);
+  id = timer.id();
   wakeup();
   return id;
 }
@@ -229,9 +228,9 @@ event_loop::run_every (timestamp interval, timeout_handler &&handler) {
     mutex::scoped_lock lock(timerq_mutex_);
     auto &timer = timerq_->insert(timestamp::monotonic() + interval,
                                   interval, std::move(handler));
-    reactor_->register_event(timer);
-    id = timer.id();
   }
+  reactor_->register_event(timer);
+  id = timer.id();
   wakeup();
   return id;
 }
@@ -243,9 +242,9 @@ event_loop::run_at (timestamp realtime, timeout_handler &&handler) {
     mutex::scoped_lock lock(timerq_mutex_);
     auto &timer = timerq_->insert(realtime - timestamp::realtime() + timestamp::monotonic(),
                                   0, std::move(handler));
-    reactor_->register_event(timer);
-    id = timer.id();
   }
+  reactor_->register_event(timer);
+  id = timer.id();
   wakeup();
   return id;
 }
@@ -261,6 +260,13 @@ event_loop::cancel (const timer_id &id) {
     }
     wakeup();
   }
+}
+
+void
+event_loop::cancel (timer_ptr &ptr) {
+  mutex::scoped_lock lock(timerq_mutex_);
+  reactor_->remove_event(*ptr);
+  timerq_->remove(ptr);
 }
 
 size_t
@@ -319,13 +325,6 @@ event_loop::process_timers () {
   }
   timerq_->process_ready_timers(ready_timers_, timerq_mutex_);
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
-}
-
-void
-event_loop::cancel (timer_ptr &ptr) {
-  mutex::scoped_lock lock(timerq_mutex_);
-  reactor_->remove_event(*ptr);
-  timerq_->remove(ptr);
 }
 
 KNGIN_NAMESPACE_K_END
