@@ -111,7 +111,7 @@ event_loop::run () {
       if (!stop_barrier_.destroyed())
         stop_barrier_.destroy();
     } else {
-      if (!stop_barrier_.destroyed() and stop_barrier_.wait())
+      if (stop_barrier_.wait())
         stop_barrier_.destroy();
     }
   };

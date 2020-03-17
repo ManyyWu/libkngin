@@ -37,8 +37,11 @@ public:
 
   bool
   wait () noexcept {
-    auto ret = ::pthread_barrier_wait(&barrier_);
-    return (PTHREAD_BARRIER_SERIAL_THREAD == ret);
+    if (inited_) {
+      auto ret = ::pthread_barrier_wait(&barrier_);
+      return (PTHREAD_BARRIER_SERIAL_THREAD == ret);
+    }
+    return false;
   }
 
   void
