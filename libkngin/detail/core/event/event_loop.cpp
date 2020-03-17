@@ -213,8 +213,7 @@ void
 event_loop::remove_event (reactor_event &ev) {
   if (reactor_) {
     if (events_processing_) {
-      if (&ev != processing_event_)
-          opq_->erase_owner_ops(ev));
+      opq_->erase_owner_ops(ev));
     }
     reactor_->remove_event(ev);
   }
