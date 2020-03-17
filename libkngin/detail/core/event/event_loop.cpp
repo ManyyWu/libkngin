@@ -348,8 +348,8 @@ event_loop::process_events (event_queue &evq) {
     scoped_flag<std::atomic<reactor_event *>, reactor_event *> actived_event(processing_event_, nullptr);
     while (evq.size()) {
       TRY()
-        if (auto &ev = evq.top()) {
-          processing_event_ = &ev.owner();
+        if (auto *ev = &evq.top()) {
+          processing_event_ = &ev->owner();
           evq.top().on_operation(*this);
         }
       CATCH_ERROR("event_loop::process_events()")
