@@ -63,9 +63,14 @@ public:
   }
 
   bool
-  exist (operation_base &op) {
-    return (std::find(opq_.begin(), opq_.end(), &op) != opq_.end());
+  erase_owner_ops (reactor_event &ev) {
+    for (auto &iter : opq_)
+      if (iter.owner() == &ev)
+        iter= nullptr;
   }
+  
+  size_t
+  emplace ();
 
 private:
   typedef std::vector<operation_base *> queue_type;
@@ -208,8 +213,8 @@ void
 event_loop::remove_event (reactor_event &ev) {
   if (reactor_) {
     if (events_processing_) {
-      //assert(&ev != processing_event_ and opq_->exist());
-      //unsolved
+      if (&ev != processing_event_)
+          opq_->erase_owner_ops(ev));
     }
     reactor_->remove_event(ev);
   }
@@ -343,8 +348,8 @@ event_loop::process_events (event_queue &evq) {
     scoped_flag<std::atomic<reactor_event *>, reactor_event *> actived_event(processing_event_, nullptr);
     while (evq.size()) {
       TRY()
-        if (evq.size()) {
-          processing_event_ = &(evq.top().owner());
+        if (auto &ev = evq.top()) {
+          processing_event_ = &ev.owner();
           evq.top().on_operation(*this);
         }
       CATCH_ERROR("event_loop::process_events()")
