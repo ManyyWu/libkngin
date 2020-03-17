@@ -62,7 +62,7 @@ public:
     opq_.clear();
   }
 
-  bool
+  void
   erase_owner_ops (reactor_event &ev) {
     for (auto &iter : opq_)
       if (iter.owner() == &ev)
