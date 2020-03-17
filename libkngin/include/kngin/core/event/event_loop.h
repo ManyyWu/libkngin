@@ -3,7 +3,7 @@
 
 #include "kngin/core/define.h"
 #include "kngin/core/base/thread.h"
-#include "kngin/core/base/mutex.h"
+#include "kngin/core/base/lock.h"
 #include "kngin/core/base/barrier.h"
 #include "kngin/core/event/detail.h"
 #include "kngin/core/event/timer_id.h"
@@ -120,6 +120,8 @@ private:
   std::atomic_bool events_processing_;
 
   event_queue *opq_;
+
+  rmutex event_rmutex_;
 };
 
 KNGIN_NAMESPACE_K_END

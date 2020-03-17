@@ -9,7 +9,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 thread::thread (thread_proc &&proc, const char *name /* = nullptr */)
-  : impl_(nullptr) {
+ : impl_(nullptr) {
   thread_impl::thread_data *data = nullptr;
   try {
     impl_ = new thread_impl(

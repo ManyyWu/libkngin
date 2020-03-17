@@ -34,6 +34,18 @@
 #  define KNGIN_USE_POSIX_MUTEX
 #endif /* defined(ENABLE_USE_WIN_MUTEX) */
 
+// rmutex
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_RMUTEX
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_RMUTEX)
+#  define KNGIN_USE_WIN_RMUTEX
+#elif defined(ENABLE_USE_POSIX_RMUTEX)
+#  define KNGIN_USE_POSIX_RMUTEX
+#else
+#  define KNGIN_USE_POSIX_RMUTEX
+#endif /* defined(ENABLE_USE_WIN_RMUTEX) */
+
 // cond
 #if !defined(KNGIN_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_COND

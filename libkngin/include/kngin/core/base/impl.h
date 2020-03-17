@@ -12,6 +12,15 @@
   typedef_detail_impl(posix_mutex, mutex_impl)
 #endif /* defined(KNGIN_USE_WIN_MUTEX) */
 
+// rmutex
+#if defined(KNGIN_USE_WIN_RMUTEX)
+declare_detail_impl_class(win_rmutex)
+  typedef_detail_impl(win_rmutex, rmutex_impl)
+#elif defined(KNGIN_USE_POSIX_RMUTEX)
+declare_detail_impl_class(posix_rmutex)
+typedef_detail_impl(posix_rmutex, rmutex_impl)
+#endif /* defined(KNGIN_USE_WIN_RMUTEX) */
+
 // cond
 #if defined(KNGIN_USE_WIN_COND)
   declare_detail_impl_class(win_cond)

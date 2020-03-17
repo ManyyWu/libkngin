@@ -6,7 +6,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 cond::cond (mutex &mutex)
-  : impl_(nullptr) {
+ : impl_(nullptr) {
   impl_ = new cond_impl(*mutex.impl_);
 }
 

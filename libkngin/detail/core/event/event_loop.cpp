@@ -65,12 +65,9 @@ public:
   void
   erase_owner_ops (reactor_event &ev) {
     for (auto &iter : opq_)
-      if (iter.owner() == &ev)
+      if (&iter->owner() == &ev)
         iter= nullptr;
   }
-  
-  size_t
-  emplace ();
 
 private:
   typedef std::vector<operation_base *> queue_type;
@@ -92,7 +89,8 @@ event_loop::event_loop ()
    timer_queue_processing_(false),
    processing_event_(nullptr),
    events_processing_(false),
-   opq_(nullptr) {
+   opq_(nullptr),
+   event_rmutex_() {
   try {
     reactor_ = new reactor();
     timerq_ = new detail::timer_queue(this);
@@ -194,7 +192,6 @@ event_loop::stop () {
       timerq_->clear();
     }
   }
-  throw k::exception("test");
 }
 
 void
@@ -213,7 +210,8 @@ void
 event_loop::remove_event (reactor_event &ev) {
   if (reactor_) {
     if (events_processing_) {
-      opq_->erase_owner_ops(ev));
+      rmutex::scoped_lock lock(event_rmutex_);
+      opq_->erase_owner_ops(ev);
     }
     reactor_->remove_event(ev);
   }
@@ -345,6 +343,7 @@ event_loop::process_events (event_queue &evq) {
     scoped_flag<std::atomic_bool, bool> flag(events_processing_, false);
     processing_event_ = nullptr;
     scoped_flag<std::atomic<reactor_event *>, reactor_event *> actived_event(processing_event_, nullptr);
+    rmutex::scoped_lock lock(event_rmutex_);
     while (evq.size()) {
       TRY()
         if (auto *ev = &evq.top()) {
