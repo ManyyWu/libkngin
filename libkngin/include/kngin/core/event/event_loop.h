@@ -111,9 +111,15 @@ private:
 
   mutex timerq_mutex_;
 
-  std::atomic_bool timer_processing_;
-
   barrier stop_barrier_;
+
+  std::atomic_bool timer_queue_processing_;
+
+  std::atomic<reactor_event *> processing_event_;
+
+  std::atomic_bool events_processing_;
+
+  event_queue *opq_;
 };
 
 KNGIN_NAMESPACE_K_END

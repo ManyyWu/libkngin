@@ -13,13 +13,13 @@ epoll_reactor::epoll_reactor ()
     throw_system_error("::epoll_create1() error", last_error());
   if (waker_fd_ < 0) {
     ::close(epoll_fd_);
-    throw_system_error("::eventfd()", last_error());
+    throw_system_error("::eventfd() error", last_error());
   }
 
   // add waker to epoll
   ::epoll_event ev = {EPOLLHUP | EPOLLERR | EPOLLET | EPOLLIN, this};
   if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, waker_fd_, &ev) < 0)
-    throw_system_error("::epoll_ctl()", last_error());
+    throw_system_error("::epoll_ctl() error", last_error());
 }
 
 epoll_reactor::~epoll_reactor () noexcept {
@@ -46,16 +46,16 @@ epoll_reactor::wait (op_queue &ops, timestamp delay) {
     auto *event = static_cast<class epoll_event *>(internal_event.data.ptr);
     assert(event);
     if (internal_event.events & (EPOLLERR | EPOLLHUP)) {
-      if (op_queue *q = event->query_op_queue(operation_base::op_type::op_error))
+      if (op_queue *q = event->get_op_queue(operation_base::op_type::op_error))
         ops.push(q->top());
       continue;
     }
     if (internal_event.events & EPOLLIN) {
-      if (auto *q = event->query_op_queue(operation_base::op_type::op_read))
+      if (auto *q = event->get_op_queue(operation_base::op_type::op_read))
         ops.push(q->top());
     }
     if (internal_event.events & EPOLLOUT) {
-      if (auto *q = event->query_op_queue(operation_base::op_type::op_write))
+      if (auto *q = event->get_op_queue(operation_base::op_type::op_write))
         ops.push(q->top());
     }
   }
@@ -123,8 +123,9 @@ void
 epoll_reactor::on_wakeup() {
   int64_t val = 0;
   auto buf = in_buffer(&val, 8);
-  descriptor::read(waker_fd_, buf);
-  debug("read 8");
+  TRY()
+    descriptor::read(waker_fd_, buf);
+  CATCH_FATAL("descriptor::on_wakeup()");
 }
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

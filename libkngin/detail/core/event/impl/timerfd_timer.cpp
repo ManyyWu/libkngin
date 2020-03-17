@@ -12,8 +12,7 @@ class timerfd_timer::operation : public operation_base {
 public:
   explicit
   operation (timerfd_timer &timer)
-   : operation_base(operation_base::op_type::op_read),
-     timer_(timer) {
+   : operation_base(timer, operation_base::op_type::op_read) {
   }
 
   virtual
@@ -23,22 +22,20 @@ public:
   virtual
   void
   on_operation (event_loop &loop) {
-    auto self = timer_.self();
+    timerfd_timer &owner = dynamic_cast<timerfd_timer &>(owner_);
+    auto self = owner.self();
     int64_t val = 0;
     in_buffer buf(&val, 8);
-    descriptor::read(timer_.fd_, buf);
-    if (timer_.handler_) {
+    descriptor::read(owner.fd_, buf);
+    if (owner.handler_) {
       auto now = timestamp::monotonic();
       TRY()
-        timer_.handler_(timer_.id_, now);
+        owner.handler_(owner.id_, now);
       CATCH_ERROR("timerfd_timer::on_operation()");
-      if (!timer_.timeout_.persist())
+      if (!owner.timeout_.persist())
         loop.cancel(self);
     }
   }
-
-private:
-  timerfd_timer &timer_;
 };
 
 class timerfd_timer::timer_op_queue : detail::op_queue {
@@ -108,6 +105,7 @@ timerfd_timer::timerfd_timer (timeout_handler &&handler,
   if (FD_VALID(fd_))
     descriptor::close(fd_);
   safe_release(opq_);
+  throw;
 }
 
 timerfd_timer::~timerfd_timer () noexcept {
@@ -124,7 +122,7 @@ timerfd_timer::set_time (timestamp initval, timestamp interval) {
   initval.to_timespec(its.it_value);
   interval.to_timespec(its.it_interval);
   if (::timerfd_settime(fd_, TFD_TIMER_ABSTIME, &its, nullptr) < 0)
-    throw_system_error("::timerfd_settime()", last_error());
+    throw_system_error("::timerfd_settime() error", last_error());
   timeout_.reset(initval, interval);
 }
 

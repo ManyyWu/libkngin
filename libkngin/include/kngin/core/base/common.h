@@ -25,7 +25,7 @@ KNGIN_NAMESPACE_K_BEGIN
 #define return_if(exp, ...)                                                           \
     do {                                                                              \
       if ((exp) ? error("expression (" #exp ") is false"), assert(exp), true : false) \
-        return __VA_ARGS__;                                                         \
+        return __VA_ARGS__;                                                           \
     } while (false)
 
 

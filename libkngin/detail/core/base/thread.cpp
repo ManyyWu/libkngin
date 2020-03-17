@@ -18,6 +18,7 @@ thread::thread (thread_proc &&proc, const char *name /* = nullptr */)
   } catch (...) {
     safe_release(data);
     safe_release(impl_);
+    throw;
   }
 }
 
