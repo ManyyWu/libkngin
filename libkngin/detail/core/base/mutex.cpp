@@ -5,7 +5,7 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 mutex::mutex ()
-  : impl_(nullptr) {
+ : impl_(nullptr) {
   impl_ = new mutex_impl();
 }
 

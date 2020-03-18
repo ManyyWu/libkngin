@@ -1,7 +1,6 @@
 #include "kngin/core/base/mutex.h"
 #include "kngin/core/base/thread.h"
 #include <iostream>
-#include <thread>
 
 using namespace std;
 

@@ -3,6 +3,7 @@
 // basic
 #include "detail/core/base/common.cpp"
 #include "detail/core/base/mutex.cpp"
+#include "detail/core/base/rmutex.cpp"
 #include "detail/core/base/cond.cpp"
 #include "detail/core/base/rwlock.cpp"
 #include "detail/core/base/barrier.cpp"

@@ -1,5 +1,5 @@
-#ifndef KNGIN_MUTEX_H
-#define KNGIN_MUTEX_H
+#ifndef KNGIN_RMUTEX_H
+#define KNGIN_RMUTEX_H
 
 #include "kngin/core/base/mutex_base.h"
 #include "kngin/core/base/scoped_lock.h"
@@ -7,16 +7,16 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class mutex : public mutex_base {
+class rmutex : public mutex_base {
   friend class cond;
 
 public:
-  typedef scope_lock<mutex> scoped_lock;
+  typedef scope_lock<rmutex> scoped_lock;
 
-  mutex ();
+  rmutex ();
 
   virtual
-  ~mutex () noexcept;
+  ~rmutex () noexcept;
 
   virtual
   void
@@ -31,9 +31,9 @@ public:
   try_lock () noexcept;
 
 private:
-  mutex_impl *impl_;
+  rmutex_impl *impl_;
 };
 
 KNGIN_NAMESPACE_K_END
 
-#endif /* KNGIN_MUTEX_H */
+#endif /* KNGIN_RMUTEX_H */
