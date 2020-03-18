@@ -1,4 +1,7 @@
 #include "kngin/core/base/error_code.h"
+#if defined(KNGIN_SYSTEM_WIN32)
+#include "detail/core/base/win_utils.h"
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_BEGIN
 

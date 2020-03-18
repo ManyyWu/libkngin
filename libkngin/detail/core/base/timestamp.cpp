@@ -5,7 +5,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-const timestamp timestamp::max = time_t(std::numeric_limits<timer_t>::max());
+const timestamp timestamp::max = time_t((std::numeric_limits<time_t>::max)());
 
 const timestamp timestamp::zero = time_t(0);
 
@@ -19,11 +19,14 @@ timestamp::realtime () noexcept {
 
 timestamp
 timestamp::monotonic () noexcept {
-#ifdef KNGIN_SYSTEM_WIN64
+#if defined(KNGIN_USE_WINDOWS_GETTICKCOUNT)
+#if defined(KNGIN_SYSTEM_WIN64)
   return ::GetTickCount64();
 #else
   return ::GetTickCount();
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN64) */
+#else
+#endif /* defined(KNGIN_USE_WINDOWS_GETTICKCOUNT) */
 }
 #else
 timestamp
@@ -44,7 +47,6 @@ timestamp::monotonic () noexcept {
 KNGIN_NAMESPACE_K_END
 
 #if defined(KNGIN_SYSTEM_WIN32)
-
 int gettimeofday (struct ::timeval *tv, struct ::timezone *tz) {
   FILETIME ft;
   unsigned __int64 tmpres = 0;
@@ -75,5 +77,4 @@ int gettimeofday (struct ::timeval *tv, struct ::timezone *tz) {
 
   return 0;
 }
-
 #endif /* defined(KNGIN_SYSTEM_WIN32) */

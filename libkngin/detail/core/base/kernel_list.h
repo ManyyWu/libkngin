@@ -6,7 +6,7 @@
 #include "detail/core/base/obj_node.h"
 
 #if defined(KNGIN_SYSTEM_WIN32)
-#include <Windows.h>
+#include "detail/core/base/win_utils.h"
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN

@@ -5,7 +5,9 @@
 #include <ctime>
 #include <limits>
 #include <algorithm>
-#ifndef KNGIN_SYSTEM_WIN32
+#if defined(KNGIN_SYSTEM_WIN32)
+#  include "detail/core/base/win_utils.h"
+#else
 #  include <sys/time.h>
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
