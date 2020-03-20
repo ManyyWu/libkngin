@@ -14,7 +14,7 @@ timer_queue::timer_queue (event_loop *loop)
 timer_queue::~timer_queue () noexcept {
   TRY()
     clear();
-  IGNORE()
+  IGNORE_EXCP()
 }
 
 timer &

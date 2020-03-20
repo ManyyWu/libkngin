@@ -36,7 +36,7 @@ add_library(kngin-static STATIC ${KNGIN_SRC})
 # pthread-win32
 set(CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/libs/pthreads_win32" ${CMAKE_PREFIX_PATH})
 if(WIN32)
-  find_package(PTHREADW32 REQUIRED)
+  find_package(pthreadw32 REQUIRED)
 endif(WIN32)
 
 # property
@@ -95,6 +95,11 @@ set_target_properties(kngin-static PROPERTIES PREFIX      lib)
 
 set_target_properties(kngin PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties(kngin-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+
+if(MSVC)
+set_target_properties(kngin PROPERTIES COMPILE_FLAGS "/EHa")
+set_target_properties(kngin-static PROPERTIES COMPILE_FLAGS "/EHa")
+endif(MSVC)
 
 # link
 if(TARGET pthreadw32)

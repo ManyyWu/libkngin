@@ -15,8 +15,7 @@ class entry_base
    public std::enable_shared_from_this<Tp> {
   template<typename T,
       typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
-  friend
-  class list;
+  friend class list;
 
 private:
   list_head head_;

@@ -6,6 +6,7 @@ using namespace std;
 
 int
 main () {
+#if !defined(_WIN32)
   int in = 0;
 
   cerr << "read:" << endl;
@@ -25,6 +26,7 @@ main () {
     buf.write_int8(0);
     cerr << arr;
   }
+#endif
 
   return 0;
 }

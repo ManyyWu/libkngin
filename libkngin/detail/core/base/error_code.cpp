@@ -18,9 +18,9 @@ void
 set_last_error (error_type ec) {
 #if defined(KNGIN_SYSTEM_WIN32)
   if (ec < 0)
-    errno = ERRNO(ec);
+    errno = static_cast<int>(ERRNO(ec));
   else
-    ::SetLastError(ec);
+    ::SetLastError(static_cast<int>(ec));
 #else
   assert(ec >= 0);
   errno = ec;

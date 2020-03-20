@@ -20,8 +20,7 @@ template<typename Tp>
 class obj_node : public noncopyable {
   template<typename T,
       typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
-  friend
-  class obj_mgr;
+  friend class obj_mgr;
 
 public:
   typedef std::shared_ptr<Tp> ptr_type;
@@ -53,8 +52,7 @@ class entry_base
     public std::enable_shared_from_this<Tp> {
   template<typename T,
       typename std::enable_if<std::is_base_of<entry_base<T>, T>{}, int>::type>
-  friend
-  class obj_mgr;
+  friend class obj_mgr;
 
 private:
   void

@@ -1,4 +1,5 @@
 #include "kngin/core/base/system_error.h"
+#include <Windows.h>
 #include <iostream>
 
 using namespace std;

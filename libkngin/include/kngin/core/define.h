@@ -17,6 +17,8 @@
 #  define WIN32_LEAN_AND_MEAN
 #  pragma comment(lib,"ws2_32.lib")
 #  pragma warning(disable: 4996)
+#  pragma warning(disable: 4068)
+#  pragma execution_character_set("utf-8")
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 // types

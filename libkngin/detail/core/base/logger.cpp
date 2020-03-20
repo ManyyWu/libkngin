@@ -78,7 +78,7 @@ logger::logger ()
 logger::~logger () noexcept {
   TRY()
     deinit();
-  IGNORE()
+  IGNORE_EXCP()
 }
 
 void
@@ -257,7 +257,7 @@ logger::write_stderr2 (log_level level, const char *fmt, ...) noexcept {
   va_start(vl, fmt);
 
 #if defined(KNGIN_SYSTEM_WIN32)
-  ::vfprintf(stderr, KNGIN_LOG_BUF_SIZE, fmt, vl);
+  ::vfprintf_s(stderr, fmt, vl);
 #else
   ::fputs(color_prefix_str(level), stderr);
   ::vfprintf(stderr, fmt, vl);

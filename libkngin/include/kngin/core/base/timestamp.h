@@ -56,7 +56,7 @@ public:
   }
 
   timestamp (const timeval &tv) noexcept
-   : ms_(tv.tv_sec * 1000 + tv.tv_usec / 1000) {
+   : ms_(static_cast<time_t>(tv.tv_sec) * 1000 + static_cast<time_t>(tv.tv_usec) / 1000) {
   }
 
   timestamp (const timespec &ts) noexcept
@@ -77,7 +77,7 @@ public:
   }
   timestamp &
   operator = (const timeval &tv) noexcept {
-    ms_ = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    ms_ = static_cast<time_t>(tv.tv_sec) * 1000 + static_cast<time_t>(tv.tv_usec) / 1000;
     return *this;
   }
   timestamp &

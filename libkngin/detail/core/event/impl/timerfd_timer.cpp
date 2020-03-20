@@ -112,7 +112,7 @@ timerfd_timer::~timerfd_timer () noexcept {
   TRY()
   if (!closed())
     close();
-  IGNORE()
+  IGNORE_EXCP()
   safe_release(opq_);
 }
 

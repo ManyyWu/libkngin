@@ -109,7 +109,7 @@ event_loop::~event_loop () noexcept {
     safe_release(reactor_);
     safe_release(timerq_);
     safe_release(opq_);
-  IGNORE()
+  IGNORE_EXCP()
 }
 
 void

@@ -36,7 +36,7 @@ main () {
       });
     });
     loop.run();
-  IGNORE("main()")
+  IGNORE_EXCP("main()")
 
   return 0;
 }

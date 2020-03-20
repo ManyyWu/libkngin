@@ -25,7 +25,7 @@ epoll_reactor::epoll_reactor ()
 epoll_reactor::~epoll_reactor () noexcept {
   TRY()
     this->close();
-  IGNORE()
+  IGNORE_EXCP()
 }
 
 size_t

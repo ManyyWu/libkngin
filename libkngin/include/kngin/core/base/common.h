@@ -10,7 +10,7 @@ KNGIN_NAMESPACE_K_BEGIN
 // exception
 #define TRY() \
     try {
-#define IGNORE(message, ...) \
+#define IGNORE_EXCP() \
     } catch (...) { assert(!"ignore exception"); error("an exception has been ignored"); }
 #define CATCH_FATAL(message, ...) \
     } catch (...) { assert(!"exception"); fatal(message, ##__VA_ARGS__); throw; }
