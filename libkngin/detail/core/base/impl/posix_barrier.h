@@ -4,11 +4,7 @@
 #include "kngin/core/base/noncopyable.h"
 #if defined(KNGIN_USE_POSIX_BARRIER)
 
-#if defined(KNGIN_SYSTEM_WIN32)
-#  include "pthreads_win32/pthread.h"
-#else
-#  include <pthread.h>
-#endif /* defined(KNGIN_SYTEM_WIN32) */
+#include <pthread.h>
 #include <atomic>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN

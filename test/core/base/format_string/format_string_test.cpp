@@ -30,7 +30,11 @@ main () {
     cout << "k::make_string cost: " << (k::timestamp::realtime() - begin).value() << "ms\n";
   }
 
+  // linux
   // std::string += cost: 72132ms
   // k::make_string cost: 24201ms
+  // windows
+  // std::string += cost: 5164ms
+  // k::make_string cost: 6628ms
   return 0;
 }

@@ -28,7 +28,7 @@
     int tz_dsttime;     // type of dst correction
   };
 
-  int gettimeofday (struct ::timeval *tv, struct ::timezone *tz);
+  int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #endif /* defined(KNGIN_SYTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_BEGIN

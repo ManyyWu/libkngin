@@ -7,8 +7,16 @@
 #include <WinSock2.h>
 #include <Windows.h>
 
+KNGIN_NAMESPACE_GROBLE_BEGIN
+extern const LONGLONG g_monotonic_base;
+KNGIN_NAMESPACE_GROBLE_END
+
 KNGIN_NAMESPACE_DETAIL_BEGIN
 
+#if !defined(KNGIN_USE_WINDOWS_GETTICKCOUNT)
+LONGLONG
+get_monotonic_base ();
+#endif /* !defined(KNGIN_USE_WINDOWS_GETTICKCOUNT) */
 
 KNGIN_NAMESPACE_DETAIL_END
 

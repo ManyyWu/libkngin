@@ -34,8 +34,8 @@ add_library(kngin        SHARED ${KNGIN_SRC})
 add_library(kngin-static STATIC ${KNGIN_SRC})
 
 # pthread-win32
-set(CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/libs/pthreads_win32" ${CMAKE_PREFIX_PATH})
 if(WIN32)
+  set(CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/libs/pthreads_win32" ${CMAKE_PREFIX_PATH})
   find_package(pthreadw32 REQUIRED)
 endif(WIN32)
 

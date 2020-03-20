@@ -32,6 +32,8 @@
 
 // namespace
 #define KNGIN_NAMESPACE_END                 };
+#define KNGIN_NAMESPACE_GROBLE_BEGIN        namespace {
+#define KNGIN_NAMESPACE_GROBLE_END          KNGIN_NAMESPACE_END
 #define KNGIN_NAMESPACE_K_BEGIN             namespace k {
 #define KNGIN_NAMESPACE_K_END               KNGIN_NAMESPACE_END
 #define KNGIN_NAMESPACE_DETAIL_BEGIN        namespace detail {

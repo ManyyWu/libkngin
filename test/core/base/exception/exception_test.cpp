@@ -15,7 +15,7 @@ main () {
     cerr << ex.dump() << endl;
     throw;
   }
-  IGNORE_EXCP("main()");
+  IGNORE_EXCP();
 
   return 0;
 }

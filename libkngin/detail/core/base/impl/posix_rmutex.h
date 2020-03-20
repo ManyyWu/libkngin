@@ -6,11 +6,7 @@
 
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/thread.h"
-#if defined(KNGIN_SYSTEM_WIN32)
-#  include "pthreads_win32/pthread.h"
-#else
-#  include <pthread.h>
-#endif /* defined(KNGIN_SYTEM_WIN32) */
+#include <pthread.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
