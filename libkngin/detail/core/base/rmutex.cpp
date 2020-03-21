@@ -14,17 +14,17 @@ rmutex::~rmutex () noexcept {
 }
 
 void
-rmutex::lock () noexcept {
+rmutex::lock () {
   impl_->lock();
 }
 
 void
-rmutex::unlock () noexcept {
+rmutex::unlock () {
   impl_->unlock();
 }
 
 bool
-rmutex::try_lock () noexcept {
+rmutex::try_lock () {
   return impl_->try_lock();
 }
 

@@ -25,8 +25,6 @@ class logger : public noncopyable {
   friend logger &query_logger ();
 
 private:
-  typedef size_t size_type;
-
   logger ();
 
   void
@@ -37,7 +35,7 @@ private:
 
   void
   post_log (log_level level, logfile &file,
-            std::string &&data, size_type size);
+            std::string &&data, size_t size);
 
 #if defined(KNGIN_USE_ASYNC_LOGGER)
   int
@@ -46,7 +44,7 @@ private:
 
   static
   const char *
-  get_datetime (char datetime[], size_type size) noexcept;
+  get_datetime (char datetime[], size_t size) noexcept;
 
   static
   void
@@ -56,16 +54,16 @@ private:
   static
   void
   write_log (log_level level, logfile &file,
-             std::string &data, size_type size);
+             std::string &data, size_t size);
 
   static
   void
   write_logfile (const char *file, log_level level,
-                 const char *data, size_type len) noexcept;
+                 const char *data, size_t len) noexcept;
 
   static
   void
-  write_stderr (log_level level, const char *data, size_type len) noexcept;
+  write_stderr (log_level level, const char *data, size_t len) noexcept;
 
   static
   void
@@ -84,7 +82,7 @@ private:
     log_level level;
     logfile &file;
     std::string data;
-    size_type size;
+    size_t size;
   };
 
   typedef std::deque<async_log_data> async_log_dataq;

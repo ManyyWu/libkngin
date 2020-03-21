@@ -13,17 +13,17 @@ barrier::~barrier () noexcept {
 }
 
 void
-barrier::reinit (int count) noexcept {
+barrier::reinit (int count) {
   impl_->reinit(count);
 }
 
 bool
-barrier::wait () noexcept {
+barrier::wait () {
   return impl_->wait();
 }
 
 void
-barrier::destroy () noexcept {
+barrier::destroy () {
   impl_->destroy();
 }
 

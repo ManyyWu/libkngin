@@ -8,24 +8,28 @@
 KNGIN_NAMESPACE_K_BEGIN
 
 class mutex;
+class rmutex;
 class cond : public noncopyable {
 public:
   explicit
   cond (mutex &mutex);
 
+  explicit
+  cond (rmutex &mutex);
+
   ~cond () noexcept;
 
   void
-  wait () noexcept;
+  wait ();
 
   void
-  timed_wait (timestamp ms) noexcept;
+  timed_wait (timestamp ms);
 
   void
-  signal () noexcept;
+  signal ();
 
   void
-  broadcast () noexcept;
+  broadcast ();
 
 private:
   cond_impl *impl_;

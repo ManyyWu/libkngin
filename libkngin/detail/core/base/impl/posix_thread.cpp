@@ -19,7 +19,7 @@ posix_thread::start (void *args) noexcept {
   thread_error_code code;
   auto *data = static_cast<thread_data *>(args);
 
-  debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
+  //debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
   try {
     if (data->thr_fn)
       code.code = data->thr_fn();
@@ -34,7 +34,7 @@ posix_thread::start (void *args) noexcept {
     fatal("posix_thread::start(), thread = \"%s\", message = unknown exception",
           data->name.c_str());
   }
-  debug("thread \"%s\" stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
+  //debug("thread \"%s\" stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
 
   safe_release(data);
   return code.ptr;

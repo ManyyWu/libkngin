@@ -20,15 +20,15 @@ public:
 
   virtual
   void
-  lock () noexcept;
+  lock ();
 
   virtual
   void
-  unlock () noexcept;
+  unlock ();
 
   virtual
   bool
-  try_lock () noexcept;
+  try_lock ();
 
 private:
   mutex_impl *impl_;

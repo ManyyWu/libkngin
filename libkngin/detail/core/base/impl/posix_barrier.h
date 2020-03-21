@@ -12,8 +12,7 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 class posix_barrier {
 public:
   posix_barrier (int count)
-   : barrier_(),
-     inited_(false) {
+   : inited_(false) {
     reinit(count);
   }
 
@@ -25,24 +24,18 @@ public:
   void
   reinit (int count) {
     assert(!inited_);
-    auto ec = ::pthread_barrier_init(&barrier_, nullptr,  count);
-    if (ec)
-      throw_system_error("::pthread_barrier_init() error", ERRNO(ec));
     inited_ = true;
   }
 
   bool
-  wait () noexcept {
+  wait () {
     if (inited_) {
-      auto ret = ::pthread_barrier_wait(&barrier_);
-      return (PTHREAD_BARRIER_SERIAL_THREAD == ret);
     }
     return false;
   }
 
   void
-  destroy () noexcept {
-    ::pthread_barrier_destroy(&barrier_);
+  destroy () {
     inited_ = false;
   }
 
@@ -52,7 +45,6 @@ public:
   }
 
 private:
-  pthread_barrier_t barrier_;
 
   std::atomic_bool inited_;
 };

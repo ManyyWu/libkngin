@@ -5,16 +5,23 @@
 #if defined(KNGIN_USE_POSIX_COND)
 
 #include "kngin/core/base/timestamp.h"
-#include "detail/core/base/impl/posix_cond.h"
+#include "detail/core/base/impl/posix_mutex.h"
+#include "detail/core/base/impl/posix_rmutex.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class posix_cond {
 public:
   explicit
-  posix_cond (mutex_impl &mutex) noexcept
+  posix_cond (posix_mutex &mutex) noexcept
    : cond_(PTHREAD_COND_INITIALIZER),
-     mutex_(mutex.mutex_){
+    mutex_(mutex.mutex_){
+  }
+
+  explicit
+  posix_cond (posix_rmutex &mutex) noexcept
+   : cond_(PTHREAD_COND_INITIALIZER),
+    mutex_(mutex.mutex_){
   }
 
   ~posix_cond () noexcept {
@@ -22,28 +29,36 @@ public:
   }
 
   void
-  wait () noexcept {
-    ::pthread_cond_wait(&cond_, &mutex_);
+  wait () {
+    auto ec = ::pthread_cond_wait(&cond_, &mutex_);
+    if (ec)
+      throw_system_error("::pthread_cond_wait() error", ERRNO(ec));
   }
 
   bool
-  timed_wait (timestamp ms) noexcept {
+  timed_wait (timestamp ms) {
     timespec ts;
     ::timespec_get(&ts, TIME_UTC);
     timestamp time = ts;
     (time += ms).to_timespec(ts);
-    auto ret = ::pthread_cond_timedwait(&cond_, &mutex_, &ts);
-    return (ETIMEDOUT != ret);
+    auto ec = ::pthread_cond_timedwait(&cond_, &mutex_, &ts);
+    if (ec and ETIMEDOUT != ec)
+      throw_system_error("::pthread_cond_timedwait() error", ERRNO(ec));
+    return (ETIMEDOUT != ec);
   }
 
   void
-  signal () noexcept {
-    ::pthread_cond_signal(&cond_);
+  signal () {
+    auto ec = ::pthread_cond_signal(&cond_);
+    if (ec)
+      throw_system_error("::pthread_cond_signal() error", ERRNO(ec));
   }
 
   void
-  broadcast () noexcept {
-    ::pthread_cond_broadcast(&cond_);
+  broadcast () {
+    auto ec = ::pthread_cond_broadcast(&cond_);
+    if (ec)
+      throw_system_error("::pthread_cond_broadcast() error", ERRNO(ec));
   }
 
 private:

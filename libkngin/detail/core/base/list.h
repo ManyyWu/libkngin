@@ -16,8 +16,6 @@ class list {
                 "class Tp must be based on class entry_base");
 
 public:
-  typedef std::size_t size_type;
-
   list () noexcept {
     INIT_LIST_HEAD(&list_);
     size_ = 0;
@@ -70,7 +68,7 @@ public:
     }
   }
 
-  size_type
+  size_t
   size () const noexcept {
     return size_;
   }
@@ -98,7 +96,7 @@ public:
 
 private:
   list_head list_;
-  size_type size_;
+  size_t size_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_END

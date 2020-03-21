@@ -4,28 +4,68 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_WIN_MUTEX)
 
-#include "kngin/core/base/timestamp.h"
+#include "detail/core/base/win_utils.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class win_mutex {
-  friend class cond_impl;
+  friend class win_cond;
 
 public:
-  win_mutex ();
+  win_mutex () {
+#if !defined(NDEBUG)
+    assert(thread::tid() != owner_);
+#endif /* !defined(NDEBUG) */
+    ::InitializeCriticalSection(&mutex_);
+#if !defined(NDEBUG)
+    owner_ = thread::tid();
+#endif /* !defined(NDEBUG) */
+  }
 
-  ~win_mutex () noexcept;
+  ~win_mutex () noexcept {
+    TRY()
+      ::DeleteCriticalSection(&mutex_);
+    IGNORE_EXCP();
+  }
 
   void
-  lock () noexcpet;
+  lock () {
+#if !defined(NDEBUG)
+    assert(thread::tid() != owner_);
+#endif /* !defined(NDEBUG) */
+    ::EnterCriticalSection(&mutex_);
+#if !defined(NDEBUG)
+    owner_ = thread::tid();
+#endif /* !defined(NDEBUG) */
+
+  }
 
   void
-  unlock () noexcept;
+  unlock () {
+    ::LeaveCriticalSection(&mutex_);
+#if !defined(NDEBUG)
+    owner_ = 0;
+#endif /* !defined(NDEBUG) */
+  }
 
   bool
-  try_lock () noexcept;
+  try_lock () {
+#if !defined(NDEBUG)
+    assert(thread::tid() != owner_);
+#endif /* !defined(NDEBUG) */
+    auto ret = ::TryEnterCriticalSection(&mutex_);
+#if !defined(NDEBUG)
+    owner_ = thread::tid();
+#endif /* !defined(NDEBUG) */
+    return ret;
+  }
 
 private:
+  CRITICAL_SECTION mutex_;
+
+#if !defined(NDEBUG)
+  std::atomic_uint64_t owner_;
+#endif /* !defined(NDEBUG) */
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

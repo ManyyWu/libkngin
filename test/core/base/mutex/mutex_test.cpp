@@ -29,7 +29,7 @@ main () {
 
   t.join();
   t1.join();
-  cout << v << endl;
+  cerr << v << endl;
 
   v = 0;
   k::thread t2([&] () -> int {
@@ -54,7 +54,7 @@ main () {
 
   t2.join();
   t3.join();
-  cout << v << endl;
+  cerr << v << endl;
 
   return 0;
 }

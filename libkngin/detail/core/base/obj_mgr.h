@@ -16,11 +16,10 @@ class obj_mgr {
                 "class Tp must be based on class entry_base");
 
 public:
-  typedef std::size_t size_type;
   typedef std::shared_ptr<Tp> value_type;
   typedef obj_node::obj_node<Tp> node_type;
 
-  obj_mgr (size_type size = KNGIN_DEFAULT_PREALLOC_SIZE) {
+  obj_mgr (size_t size = KNGIN_DEFAULT_PREALLOC_SIZE) {
     INIT_LIST_HEAD(&list_);
     INIT_LIST_HEAD(&free_);
     size_ = size_free_ = 0;
@@ -90,12 +89,12 @@ public:
     }
   }
 
-  size_type
+  size_t
   size () const noexcept {
     return size_;
   }
 
-  size_type
+  size_t
   max_size () const noexcept {
     return (size_ + size_free_);
   }
@@ -122,10 +121,10 @@ public:
   }
 
   void
-  resize (size_type size) {
+  resize (size_t size) {
     if (size > max_size()) {
       // add to tail of free_
-      for (size_type num = size - max_size(), i = 0; i < num; ++i) {
+      for (size_t num = size - max_size(), i = 0; i < num; ++i) {
         list_add_tail(&make_node(nullptr)->head_, &free_);
         ++size_free_;
       }
@@ -133,7 +132,7 @@ public:
       return;
     } else {
       // remove nodes from free_
-      for (size_type num = size_free_ - (size - size_), i = 0; i < num; ++i) {
+      for (size_t num = size_free_ - (size - size_), i = 0; i < num; ++i) {
         node_type *first_entry = list_first_entry_or_null(&free_, node_type, head_);
         assert(first_entry);
         list_del(&first_entry->head_);
@@ -202,8 +201,8 @@ protected:
 private:
   list_head list_;
   list_head free_;
-  size_type size_;
-  size_type size_free_;
+  size_t    size_;
+  size_t    size_free_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_END

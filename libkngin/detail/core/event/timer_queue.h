@@ -17,7 +17,6 @@ class timer_queue : noncopyable {
   friend class event_loop;
 
 public:
-  typedef size_t size_type;
   typedef timer_id::timer_ptr timer_ptr;
   typedef std::vector<timer_ptr> timer_list;
 
@@ -31,7 +30,7 @@ public:
   void
   remove (timer_ptr &ptr);
 
-  size_type
+  size_t
   size () const noexcept {
     return heap_.size();
   }

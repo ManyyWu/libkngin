@@ -12,15 +12,15 @@ class mutex_base : public noncopyable {
 public:
   virtual
   void
-  lock () noexcept = 0;
+  lock () = 0;
 
   virtual
   void
-  unlock () noexcept = 0;
+  unlock () = 0;
 
   virtual
   bool
-  try_lock () noexcept = 0;
+  try_lock () = 0;
 };
 
 KNGIN_NAMESPACE_K_END

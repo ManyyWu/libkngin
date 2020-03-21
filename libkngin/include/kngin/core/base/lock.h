@@ -1,6 +1,7 @@
 #ifndef KNGIN_LOCK_H
 #define KNGIN_LOCK_H
 
+#include "kngin/core/base/semaphore.h"
 #include "kngin/core/base/mutex.h"
 #include "kngin/core/base/rmutex.h"
 #include "kngin/core/base/cond.h"

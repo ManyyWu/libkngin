@@ -4,7 +4,6 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_POSIX_RMUTEX)
 
-#include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/thread.h"
 #include <pthread.h>
 
@@ -15,44 +14,69 @@ class posix_rmutex {
 
 public:
   posix_rmutex ()
-   : rmutex_(),
+   : mutex_(),
      attr_() {
     auto ec = ::pthread_mutexattr_init(&attr_);
     if (ec)
       throw_system_error("::pthread_mutexattr_init() error", ERRNO(ec));
     ::pthread_mutexattr_settype(&attr_, PTHREAD_MUTEX_RECURSIVE);
-    ec = ::pthread_mutex_init(&rmutex_, &attr_);
+    ec = ::pthread_mutex_init(&mutex_, &attr_);
     if (ec) {
       ::pthread_mutexattr_destroy(&attr_);
       throw_system_error("::pthread_mutex_init() error", ERRNO(ec));
     }
+#if !defined(NDEBUG)
+    stack_ = 0;
+#endif /* !defined(NDEBUG) */
   }
 
   ~posix_rmutex () noexcept {
-    ::pthread_mutex_destroy(&rmutex_);
+    ::pthread_mutex_destroy(&mutex_);
     ::pthread_mutexattr_destroy(&attr_);
+#if !defined(NDEBUG)
+    assert(!stack_);
+#endif /* !defined(NDEBUG) */
   }
 
   void
-  lock () noexcept {
-    ::pthread_mutex_lock(&rmutex_);
+  lock () {
+    auto ec = ::pthread_mutex_lock(&mutex_);
+    if (ec)
+      throw_system_error("::pthread_mutex_lock() error", ERRNO(ec));
+#if !defined(NDEBUG)
+    stack_++;
+#endif /* !defined(NDEBUG) */
   }
 
   void
-  unlock () noexcept {
-    ::pthread_mutex_unlock(&rmutex_);
+  unlock () {
+    auto ec = ::pthread_mutex_unlock(&mutex_);
+    if (ec)
+      throw_system_error("::pthread_mutex_unlock() error", ERRNO(ec));
+#if !defined(NDEBUG)
+    stack_--;
+#endif /* !defined(NDEBUG) */
   }
 
   bool
-  try_lock () noexcept {
-    auto ec = ::pthread_mutex_trylock(&rmutex_);
+  try_lock () {
+    auto ec = ::pthread_mutex_trylock(&mutex_);
+    if (ec and EBUSY != ec)
+      throw_system_error("::pthread_mutex_trylock() error", ERRNO(ec));
+#if !defined(NDEBUG)
+    stack_++;
+#endif /* !defined(NDEBUG) */
     return (EBUSY != ec);
   }
 
 private:
-  pthread_mutex_t rmutex_;
+  pthread_mutex_t mutex_;
 
   pthread_mutexattr_t attr_;
+
+#if !defined(NDEBUG)
+  std::atomic_size_t stack_;
+#endif /* !defined(NDEBUG) */
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

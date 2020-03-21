@@ -13,13 +13,13 @@ public:
   ~barrier () noexcept;
 
   void
-  reinit (int count) noexcept;
+  reinit (int count);
 
   bool
-  wait () noexcept;
+  wait ();
 
   void
-  destroy () noexcept;
+  destroy ();
 
   bool
   destroyed () const noexcept;

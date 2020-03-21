@@ -14,17 +14,17 @@ mutex::~mutex () noexcept {
 }
 
 void
-mutex::lock () noexcept {
+mutex::lock () {
   impl_->lock();
 }
 
 void
-mutex::unlock () noexcept {
+mutex::unlock () {
   impl_->unlock();
 }
 
 bool
-mutex::try_lock () noexcept {
+mutex::try_lock () {
   return impl_->try_lock();
 }
 

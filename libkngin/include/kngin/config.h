@@ -22,6 +22,18 @@
 #  error unsupported platform
 #endif /* defined(_WIN32) */
 
+// semaphore
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_WIN_SEMAPHORE
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#if defined(ENABLE_USE_WIN_SEMAPHORE)
+#  define KNGIN_USE_WIN_SEMAPHORE
+#elif defined(ENABLE_USE_POSIX_SEMAPHORE)
+#  define KNGIN_USE_POSIX_SEMAPHORE
+#else
+#  define KNGIN_USE_POSIX_SEMAPHORE
+#endif /* defined(ENABLE_USE_WIN_SEMAPHORE) */
+
 // mutex
 #if !defined(KNGIN_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_MUTEX

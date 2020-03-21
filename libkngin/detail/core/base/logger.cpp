@@ -119,7 +119,7 @@ logger::deinit () noexcept {
 
 void
 logger::post_log (log_level level, logfile &file,
-                  std::string &&data, size_type size) {
+                  std::string &&data, size_t size) {
 #if defined(KNGIN_USE_ASYNC_LOGGER)
   {
     mutex::scoped_lock lock(*mutex_);
@@ -167,7 +167,7 @@ logger::log_thread () noexcept {
 #endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 
 const char *
-logger::get_datetime (char datetime[], size_type size) noexcept {
+logger::get_datetime (char datetime[], size_t size) noexcept {
   assert(size >= KNGIN_LOG_DATETIME_LEN);
   auto t = ::time(nullptr);
   struct ::tm tm;
@@ -190,7 +190,7 @@ logger::format_log (log_level level, std::string &result,
 
 void
 logger::write_log (log_level level, logfile &file,
-                   std::string &data, size_type size) {
+                   std::string &data, size_t size) {
   if (file.mode_ & KNGIN_LOG_MODE_FILE)
     logger::write_logfile(file.file_.c_str(), level, data.c_str(), size);
   if (file.mode_ & KNGIN_LOG_MODE_STDERR)
@@ -203,13 +203,13 @@ logger::write_log (log_level level, logfile &file,
 
 void
 logger::write_logfile (const char *file, log_level level,
-                       const char *data, size_type len) noexcept {
+                       const char *data, size_t len) noexcept {
   assert(file);
   assert(data);
   assert(len);
 
   static char  filename[FILENAME_MAX];
-  size_type    ret = 0;
+  size_t       ret = 0;
   tm           tm;
   time_t       t = ::time(nullptr);
   FILE *       fplog = nullptr;
@@ -237,7 +237,7 @@ fail:
 }
 
 void
-logger::write_stderr (log_level level, const char *data, size_type len) noexcept {
+logger::write_stderr (log_level level, const char *data, size_t len) noexcept {
   assert(data);
   assert(len);
 
