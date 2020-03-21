@@ -1,6 +1,6 @@
 #include "kngin/core/base/barrier.h"
 #include "kngin/core/base/thread.h"
-#include <iostream>
+#include <cstdio>
 
 using namespace std;
 
@@ -11,28 +11,28 @@ main () {
   k::thread t([&b] () -> int {
     if (b.wait()) {
       b.destroy();
-      cerr << "t destoryed barrier" << endl;
+      fprintf(stderr, "t destoryed barrier\n");
     }
     return 0;
   });
   k::thread t1([&b] () -> int {
     if (b.wait()) {
       b.destroy();
-      cerr << "t1 destoryed barrier" << endl;
+      fprintf(stderr, "t1 destoryed barrier\n");
     }
     return 0;
   });
   k::thread t2([&b] () -> int {
     if (b.wait()) {
       b.destroy();
-      cerr << "t2 destoryed barrier" << endl;
+      fprintf(stderr, "t2 destoryed barrier\n");
     }
     return 0;
   });
 
   if (b.wait()) {
     b.destroy();
-    cerr << "main thread destoryed barrier" << endl;
+    fprintf(stderr, "main destoryed barrier\n");
   }
 
   t.join();

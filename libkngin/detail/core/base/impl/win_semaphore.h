@@ -13,7 +13,7 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 class win_semaphore {
 public:
   explicit
-  win_semaphore (int initval)
+  win_semaphore (unsigned initval)
    : sem_(nullptr) {
     sem_ = ::CreateSemaphore(nullptr, initval, LONG_MAX, nullptr);
     if (!sem_)

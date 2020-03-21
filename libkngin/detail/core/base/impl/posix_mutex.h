@@ -23,15 +23,9 @@ public:
 
   void
   lock () {
-#if !defined(NDEBUG)
-    assert(thread::tid() != owner_);
-#endif /* !defined(NDEBUG) */
     auto ec = ::pthread_mutex_lock(&mutex_);
     if (ec)
       throw_system_error("::pthread_mutex_lock() error", ERRNO(ec));
-#if !defined(NDEBUG)
-    owner_ = thread::tid();
-#endif /* !defined(NDEBUG) */
   }
 
   void
@@ -39,31 +33,18 @@ public:
     auto ec = ::pthread_mutex_unlock(&mutex_);
     if (ec)
       throw_system_error("::pthread_mutex_unlock() error", ERRNO(ec));
-#if !defined(NDEBUG)
-    owner_ = 0;
-#endif /* !defined(NDEBUG) */
   }
 
   bool
   try_lock () {
-#if !defined(NDEBUG)
-    assert(thread::tid() != owner_);
-#endif /* !defined(NDEBUG) */
     auto ec = ::pthread_mutex_trylock(&mutex_);
     if (ec and EBUSY != ec)
       throw_system_error("::pthread_mutex_trylock() error", ERRNO(ec));
-#if !defined(NDEBUG)
-    owner_ = thread::tid();
-#endif /* !defined(NDEBUG) */
     return (EBUSY != ec);
   }
 
 private:
   pthread_mutex_t mutex_;
-
-#if !defined(NDEBUG)
-  std::atomic_uint64_t owner_;
-#endif /* !defined(NDEBUG) */
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

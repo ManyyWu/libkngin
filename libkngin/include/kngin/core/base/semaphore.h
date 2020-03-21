@@ -13,7 +13,7 @@ public:
   typedef scope_sem<semaphore> scoped_sem;
 
   explicit
-  semaphore (int initval);
+  semaphore (unsigned initval);
 
   ~semaphore () noexcept;
 

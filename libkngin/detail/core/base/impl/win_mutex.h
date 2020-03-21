@@ -13,59 +13,31 @@ class win_mutex {
 
 public:
   win_mutex () {
-#if !defined(NDEBUG)
-    assert(thread::tid() != owner_);
-#endif /* !defined(NDEBUG) */
     ::InitializeCriticalSection(&mutex_);
-#if !defined(NDEBUG)
-    owner_ = thread::tid();
-#endif /* !defined(NDEBUG) */
   }
 
   ~win_mutex () noexcept {
-    TRY()
-      ::DeleteCriticalSection(&mutex_);
-    IGNORE_EXCP();
+    ::DeleteCriticalSection(&mutex_);
   }
 
   void
   lock () {
-#if !defined(NDEBUG)
-    assert(thread::tid() != owner_);
-#endif /* !defined(NDEBUG) */
     ::EnterCriticalSection(&mutex_);
-#if !defined(NDEBUG)
-    owner_ = thread::tid();
-#endif /* !defined(NDEBUG) */
 
   }
 
   void
   unlock () {
     ::LeaveCriticalSection(&mutex_);
-#if !defined(NDEBUG)
-    owner_ = 0;
-#endif /* !defined(NDEBUG) */
   }
 
   bool
   try_lock () {
-#if !defined(NDEBUG)
-    assert(thread::tid() != owner_);
-#endif /* !defined(NDEBUG) */
-    auto ret = ::TryEnterCriticalSection(&mutex_);
-#if !defined(NDEBUG)
-    owner_ = thread::tid();
-#endif /* !defined(NDEBUG) */
-    return ret;
+    return ::TryEnterCriticalSection(&mutex_);
   }
 
 private:
   CRITICAL_SECTION mutex_;
-
-#if !defined(NDEBUG)
-  std::atomic_uint64_t owner_;
-#endif /* !defined(NDEBUG) */
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

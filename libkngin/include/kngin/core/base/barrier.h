@@ -8,12 +8,12 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class barrier : public noncopyable {
 public:
-  barrier (int count);
+  barrier (unsigned count);
 
   ~barrier () noexcept;
 
   void
-  reinit (int count);
+  reinit (unsigned count);
 
   bool
   wait ();

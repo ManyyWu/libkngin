@@ -3,7 +3,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-barrier::barrier (int count)
+barrier::barrier (unsigned count)
  : impl_(nullptr) {
   impl_ = new barrier_impl(count);
 }
@@ -13,7 +13,7 @@ barrier::~barrier () noexcept {
 }
 
 void
-barrier::reinit (int count) {
+barrier::reinit (unsigned count) {
   impl_->reinit(count);
 }
 

@@ -17,7 +17,7 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 class posix_semaphore {
 public:
   explicit
-  posix_semaphore (int initval)
+  posix_semaphore (unsigned initval)
    : sem_(nullptr) {
     if (::sem_init(&sem_, 0, initval) < 0)
       throw_system_error("::sem_init() error", ERRNO(errno));

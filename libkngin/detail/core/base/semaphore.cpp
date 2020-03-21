@@ -3,7 +3,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-semaphore::semaphore (int initval)
+semaphore::semaphore (unsigned initval)
  : impl_(nullptr) {
   impl_ = new semaphore_impl(initval);
 }

@@ -2,6 +2,8 @@
 #define KNGIN_WIN_BARRIER_H
 
 #include "kngin/core/base/noncopyable.h"
+#include "detail/core/base/impl/win_thread.h"
+#include "detail/core/base/impl/win_cond.h"
 #if defined(KNGIN_USE_WIN_BARRIER)
 
 #include <pthread.h>
@@ -11,54 +13,85 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class win_barrier {
 public:
-  win_barrier (int count)
-   : barrier_(),
-     inited_(false) {
+  win_barrier (unsigned count)
+   : mutex_(nullptr),
+     cond_(nullptr),
+     count_(count),
+     in_(0),
+     out_(0) {
     reinit(count);
   }
 
   ~win_barrier () noexcept {
-    if (inited_)
+    if (!destroyed())
       destroy();
   }
 
   void
-  reinit (int count) {
-    assert(!inited_);
-    auto ec = ::pthread_barrier_init(&barrier_, nullptr,  count);
-    if (ec)
-      throw_system_error("::pthread_barrier_init() error", ERRNO(ec));
-    inited_ = true;
+  reinit (unsigned count) {
+    assert(destroyed());
+    try {
+      mutex_ = new win_mutex();
+      cond_ = new win_cond(*mutex_);
+    } catch (...) {
+      safe_release(mutex_);
+      safe_release(cond_);
+      throw;
+    }
+    count_ = count;
+    in_ = 0;
+    out_ = 0;
   }
 
   bool
   wait () {
-    if (inited_) {
-      auto ec = ::pthread_barrier_wait(&barrier_);
-      if (ec and PTHREAD_BARRIER_SERIAL_THREAD != ec)
-        throw_system_error("::pthread_barrier_wait() error", ERRNO(ec));
-      return (PTHREAD_BARRIER_SERIAL_THREAD == ec);
+    if (!destroyed()) {
+      mutex_->lock();
+
+      if (++in_ == count_) {
+        in_ = 0;
+        out_ = count_;
+        cond_->signal();
+      } else {
+        do {
+          cond_->wait();
+        } while (0 != in_);
+      }
+
+      bool last = (0 == --out_);
+      if (!last)
+        cond_->signal(); // wake next
+
+      mutex_->unlock();
+      return last;
     }
     return false;
   }
 
   void
   destroy () {
-    auto ec = ::pthread_barrier_destroy(&barrier_);
-    if (ec)
-      throw_system_error("::pthread_barrier_destroy() error", ERRNO(ec));
-    inited_ = false;
+    assert(!in_ and !out_);
+    safe_release(mutex_);
+    safe_release(cond_);
+    in_ = 0;
+    out_ = 0;
   }
 
   bool
   destroyed () const noexcept {
-    return !inited_;
+    return (!mutex_ and !cond_);
   }
 
 private:
-  pthread_barrier_t barrier_;
+  win_mutex *mutex_;
 
-  std::atomic_bool inited_;
+  win_cond *cond_;
+
+  unsigned count_;
+
+  unsigned in_;
+
+  unsigned out_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
