@@ -1,8 +1,10 @@
+#include "kngin/core/define.h"
+#if defined(KNGIN_USE_TIMERFD_TIMER)
+
 #include "kngin/core/event/event_loop.h"
 #include "detail/core/event/op_queue.h"
 #include "detail/core/base/descriptor.h"
 #include "detail/core/event/impl/timerfd_timer.h"
-#if defined(KNGIN_USE_TIMERFD_TIMER)
 
 #include <sys/timerfd.h>
 

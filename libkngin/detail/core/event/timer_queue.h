@@ -3,7 +3,7 @@
 
 #include "kngin/core/base/noncopyable.h"
 #if defined(KNGIN_USE_TIMERFD_TIMER)
-#include "detail/core/base/obj_mgr.h"
+#  include "detail/core/base/obj_mgr.h"
 #endif /* defined(KNGIN_USE_TIMERFD_TIMER) */
 #include "detail/core/event/timer.h"
 #include <vector>

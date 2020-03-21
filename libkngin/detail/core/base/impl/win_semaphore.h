@@ -14,8 +14,8 @@ class win_semaphore {
 public:
   explicit
   win_semaphore (int initval)
-   : sem_(NULL) {
-    sem_ = ::CreateSemaphore(NULL, initval, LONG_MAX, NULL);
+   : sem_(nullptr) {
+    sem_ = ::CreateSemaphore(nullptr, initval, LONG_MAX, nullptr);
     if (!sem_)
       throw_system_error("::CreateSemaphore() error", last_error());
   }
@@ -48,7 +48,7 @@ public:
 
   void
   post () {
-    if (FALSE == ::ReleaseSemaphore(sem_, 1, NULL))
+    if (FALSE == ::ReleaseSemaphore(sem_, 1, nullptr))
       throw_system_error("::ReleaseSemaphore() error", last_error());
   }
 
