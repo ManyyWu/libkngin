@@ -1,26 +1,25 @@
 #include "kngin/core/base/memory.h"
 #include "kngin/core/base/semaphore.h"
 #include "kngin/core/base/thread.h"
-#include <iostream>
+#include <cstdio>
 
 using namespace std;
 
 int
 main () {
-  k::semaphore sem(3);
+  k::semaphore sem(10);
 
-  k::thread *t[10];
-  for (int i = 0; i < 10; ++i) {
+  k::thread *t[50];
+  for (int i = 0; i < 50; ++i) {
     t[i] = new k::thread([&, i]() -> int {
-      sem.wait();
-      cerr << i;
-      k::thread::sleep(3000);
-      sem.post();
+      k::semaphore::scoped_sem s(sem);
+      fprintf(stderr, "%d ", i);
+      k::thread::sleep(1000);
       return 0;
     });
   }
 
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 50; ++i) {
     t[i]->join();
     k::safe_release(t[i]);
   }

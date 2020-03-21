@@ -3,12 +3,15 @@
 
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/timestamp.h"
+#include "kngin/core/base/scoped_sem.h"
 #include "kngin/core/base/detail.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
 class semaphore : public noncopyable {
 public:
+  typedef scope_sem<semaphore> scoped_sem;
+
   explicit
   semaphore (int initval);
 
