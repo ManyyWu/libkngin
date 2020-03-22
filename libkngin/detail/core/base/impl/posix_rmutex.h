@@ -14,15 +14,15 @@ class posix_rmutex {
 
 public:
   posix_rmutex ()
-   : mutex_(),
-     attr_() {
-    auto ec = ::pthread_mutexattr_init(&attr_);
+   : mutex_() {
+    pthread_mutexattr_t attr;
+    auto ec = ::pthread_mutexattr_init(&attr);
     if (ec)
       throw_system_error("::pthread_mutexattr_init() error", ERRNO(ec));
-    ::pthread_mutexattr_settype(&attr_, PTHREAD_MUTEX_RECURSIVE);
-    ec = ::pthread_mutex_init(&mutex_, &attr_);
+    ::pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    ec = ::pthread_mutex_init(&mutex_, &attr);
+    ::pthread_mutexattr_destroy(&attr);
     if (ec) {
-      ::pthread_mutexattr_destroy(&attr_);
       throw_system_error("::pthread_mutex_init() error", ERRNO(ec));
     }
 #if !defined(NDEBUG)
@@ -32,7 +32,6 @@ public:
 
   ~posix_rmutex () noexcept {
     ::pthread_mutex_destroy(&mutex_);
-    ::pthread_mutexattr_destroy(&attr_);
 #if !defined(NDEBUG)
     assert(!stack_);
 #endif /* !defined(NDEBUG) */
@@ -71,8 +70,6 @@ public:
 
 private:
   pthread_mutex_t mutex_;
-
-  pthread_mutexattr_t attr_;
 
 #if !defined(NDEBUG)
   std::atomic_size_t stack_;

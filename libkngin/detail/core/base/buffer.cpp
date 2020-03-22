@@ -21,11 +21,13 @@ out_buffer::out_buffer (const void * arr, size_t size) noexcept
 }
 
 out_buffer::out_buffer(const out_buffer &buf) noexcept
- : arr_(buf.arr_), size_(buf.size_) {
+ : arr_(buf.arr_),
+   size_(buf.size_) {
 }
 
 out_buffer::out_buffer(out_buffer &&buf) noexcept
- : arr_(nullptr), size_(0) {
+ : arr_(nullptr),
+   size_(0) {
   std::swap(arr_, buf.arr_);
   std::swap(size_, buf.size_);
 }
@@ -70,8 +72,8 @@ out_buffer::dump () {
 
 in_buffer::in_buffer() noexcept
  : arr_(nullptr),
-  size_(0),
-  valid_(0)
+   size_(0),
+   valid_(0)
 {
 }
 

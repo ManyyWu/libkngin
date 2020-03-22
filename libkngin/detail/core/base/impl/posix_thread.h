@@ -4,6 +4,7 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_POSIX_THREAD)
 
+#include "kngin/core/base/thread.h"
 #include <pthread.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
@@ -32,11 +33,11 @@ public:
   };
 
   explicit
-  posix_thread (thread_data *data)
+  posix_thread (thread_data *&data, thread::thread_opt *opt)
    : name_(data->name),
      pthr_(),
      joined_(false) {
-    this->create_thread(data);
+    this->create_thread(data, opt);
   }
 
   ~posix_thread () noexcept {
@@ -78,7 +79,7 @@ private:
   start (void *args) noexcept;
 
   void
-  create_thread (thread_data *data);
+  create_thread (thread_data *&data, thread::thread_opt *opt);
 
 private:
   const std::string name_;

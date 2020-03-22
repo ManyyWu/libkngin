@@ -15,13 +15,13 @@ public:
   explicit
   posix_cond (posix_mutex &mutex) noexcept
    : cond_(PTHREAD_COND_INITIALIZER),
-    mutex_(mutex.mutex_){
+     mutex_(mutex.mutex_) {
   }
 
   explicit
   posix_cond (posix_rmutex &mutex) noexcept
    : cond_(PTHREAD_COND_INITIALIZER),
-    mutex_(mutex.mutex_){
+     mutex_(mutex.mutex_) {
   }
 
   ~posix_cond () noexcept {

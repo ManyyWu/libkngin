@@ -15,13 +15,13 @@ public:
   explicit
   win_cond (win_mutex &mutex) noexcept
    : cond_(),
-    mutex_(mutex.mutex_){
+     mutex_(mutex.mutex_){
   }
 
   explicit
   win_cond (win_rmutex &mutex) noexcept
    : cond_(),
-    mutex_(mutex.mutex_){
+     mutex_(mutex.mutex_){
   }
 
   ~win_cond () noexcept {

@@ -13,8 +13,14 @@ public:
   typedef std::function<int (void)> thread_proc;
   typedef uint64_t tid_type;
 
+  struct thread_opt {
+    size_t stack_size;
+  };
+
   explicit
-  thread (thread_proc &&proc, const char *name = nullptr);
+  thread (thread_proc &&proc,
+          const char *name = nullptr,
+          thread_opt *opt = nullptr);
 
   ~thread () noexcept;
 

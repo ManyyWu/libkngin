@@ -13,24 +13,28 @@ KNGIN_NAMESPACE_K_BEGIN
 class exception : public std::exception {
 public:
   exception ()
-   : what_(), dump_str_() {
+   : what_(),
+     dump_str_() {
     dump_stack();
   }
 
   explicit
   exception (const char *what)
-   : what_(std::string("[k::exception] ") + what), dump_str_() {
+   : what_(std::string("[k::exception] ") + what),
+     dump_str_() {
     dump_stack();
   }
 
   explicit
   exception (const std::string &what)
-   : what_(std::string("[k::exception] ") + what), dump_str_() {
+   : what_(std::string("[k::exception] ") + what),
+     dump_str_() {
     dump_stack();
   }
 
   exception (const k::exception &e)
-   : what_(e.what_), dump_str_(e.dump_str_) {
+   : what_(e.what_),
+     dump_str_(e.dump_str_) {
   }
 
   virtual
