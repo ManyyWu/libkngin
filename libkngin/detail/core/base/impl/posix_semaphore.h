@@ -9,7 +9,7 @@
 #if defined(KNGIN_SYSTEM_WIN32)
 # include "semaphore.h"
 #else
-# include <sys/sem.h>
+# include <semaphore.h>
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
@@ -18,7 +18,7 @@ class posix_semaphore {
 public:
   explicit
   posix_semaphore (unsigned initval)
-   : sem_(nullptr) {
+   : sem_() {
     if (::sem_init(&sem_, 0, initval) < 0)
       throw_system_error("::sem_init() error", ERRNO(errno));
   }
