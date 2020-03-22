@@ -9,11 +9,23 @@
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
+template<typename Tp>
+class list_entry
+ : public noncopyable,
+   public std::enable_shared_from_this<Tp> {
+  template<typename T,
+      typename std::enable_if<std::is_base_of<list_entry<T>, T>{}, int>::type>
+  friend class list;
+
+private:
+  list_head head_;
+};
+
 template <typename Tp,
-    typename std::enable_if<std::is_base_of<list_node::entry_base<Tp>, Tp>{}, int>::type = 0>
+    typename std::enable_if<std::is_base_of<list_entry<Tp>, Tp>{}, int>::type = 0>
 class list {
-  static_assert(std::is_base_of<list_node::entry_base<Tp>, Tp>::value,
-                "class Tp must be based on class entry_base");
+  static_assert(std::is_base_of<list_entry<Tp>, Tp>::value,
+                "class Tp must be based on class list_entry");
 
 public:
   list () noexcept {
@@ -53,7 +65,7 @@ public:
   bool
   exist (const Tp &value) const noexcept {
     Tp *pos, *n;
-    list_for_each_entry_safe(pos, n, &list_, head_, node_type)
+    list_for_each_entry_safe(pos, n, &list_, head_, Tp)
       if (pos == &value)
         return true;
     return false;
@@ -63,7 +75,7 @@ public:
   void
   for_each (Fn fn) noexcept {
     Tp *pos, *n;
-    list_for_each_entry_safe(pos, n, &list_, head_, node_type) {
+    list_for_each_entry_safe(pos, n, &list_, head_, Tp) {
       fn(pos->ptr_);
     }
   }

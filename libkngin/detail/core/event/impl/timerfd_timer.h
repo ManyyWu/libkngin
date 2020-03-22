@@ -13,7 +13,7 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class timerfd_timer
   : public epoll_event,
-    public obj_node::entry_base<timerfd_timer> {
+    public obj_entry<timerfd_timer> {
   class operation;
   class timer_op_queue;
   friend class detail::timer_queue;

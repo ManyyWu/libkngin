@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class mydata : public k::detail::list_node::entry_base<mydata> {
+class mydata : public k::detail::list_entry<mydata> {
 public:
   mydata () {
     data_ = 0;
@@ -28,7 +28,7 @@ private:
   int data_;
 };
 
-class myobj : public k::detail::obj_node::entry_base<myobj> {
+class myobj : public k::detail::obj_entry<myobj> {
 public:
   myobj () {
     data_ = 0;

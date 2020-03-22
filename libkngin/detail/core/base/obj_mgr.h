@@ -9,15 +9,71 @@
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
+template<typename Tp>
+class obj_entry;
+
+template<typename Tp>
+class obj_node : public noncopyable {
+  template<typename T,
+      typename std::enable_if<std::is_base_of<obj_entry<T>, T>{}, int>::type>
+  friend class obj_mgr;
+
+public:
+  typedef std::shared_ptr<Tp> ptr_type;
+
+  obj_node () noexcept
+   : ptr_(nullptr),
+     head_(LIST_HEAD_INIT(head_)) {
+  }
+
+  obj_node (ptr_type ptr) noexcept
+   : ptr_(ptr),
+     head_(LIST_HEAD_INIT(head_)) {
+  }
+
+  void
+  reset_ptr (ptr_type ptr) noexcept {
+    ptr_ = ptr;
+  }
+
+protected:
+  ptr_type ptr_;
+
+  list_head head_;
+};
+
+template<typename Tp>
+class obj_entry
+ : public noncopyable,
+   public std::enable_shared_from_this<Tp> {
+  template<typename T,
+      typename std::enable_if<std::is_base_of<obj_entry<T>, T>{}, int>::type>
+  friend class obj_mgr;
+
+private:
+  void
+  reset_node (obj_node<Tp> *ptr) noexcept {
+    node_ = ptr;
+  }
+
+  obj_node<Tp> *
+  get_node () noexcept {
+    return node_;
+  }
+
+private:
+  obj_node<Tp> *node_;
+};
+
 template <typename Tp,
-    typename std::enable_if<std::is_base_of<obj_node::entry_base<Tp>, Tp>{}, int>::type = 0>
+    typename std::enable_if<std::is_base_of<obj_entry<Tp>, Tp>{}, int>::type = 0>
 class obj_mgr {
-  static_assert(std::is_base_of<obj_node::entry_base<Tp>, Tp>::value,
-                "class Tp must be based on class entry_base");
+  static_assert(std::is_base_of<obj_entry<Tp>, Tp>::value,
+                "class Tp must be based on class obj_entry");
 
 public:
   typedef std::shared_ptr<Tp> value_type;
-  typedef obj_node::obj_node<Tp> node_type;
+  typedef obj_node<Tp> node_type;
 
   obj_mgr (size_t size = KNGIN_DEFAULT_PREALLOC_SIZE) {
     INIT_LIST_HEAD(&list_);
@@ -162,7 +218,7 @@ protected:
   void
   clear_free () noexcept {
     node_type *pos, *n;
-    list_for_each_entry_safe(pos, n, &free_, head_, node<Tp>) {
+    list_for_each_entry_safe(pos, n, &free_, head_, obj_node<Tp>) {
       list_del(&pos->head_);
       safe_release(pos);
     }

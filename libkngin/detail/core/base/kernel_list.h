@@ -2,14 +2,25 @@
 #define KNGIN_KERNEL_LIST_H
 
 #include "kngin/core/define.h"
-#include "detail/core/base/list_node.h"
-#include "detail/core/base/obj_node.h"
 
 #if defined(KNGIN_SYSTEM_WIN32)
 #include "detail/core/base/win_utils.h"
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
+
+#define LIST_HEAD_INIT(name) { &(name), &(name) }
+#define LIST_HEAD(name) \
+    struct list_head name = LIST_HEAD_INIT(name)
+
+struct list_head {
+  struct list_head *next, *prev;
+};
+
+static inline void INIT_LIST_HEAD(struct list_head *list) {
+  list->next = list;
+  list->prev = list;
+}
 
 /*
  * Architectures might want to move the poison pointer offset
