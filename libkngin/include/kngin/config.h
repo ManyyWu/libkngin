@@ -110,6 +110,10 @@
 #endif /* defined(ENABLE_USE_STD_FUNCTION_THREAD_PROC) */
 
 // reactor
+#if defined(KNGIN_SYSTEM_WIN32)
+#  undef ENABLE_USE_EPOLL_REACTOR
+#  undef ENABLE_USE_POLL_REACTOR
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_IOCP_REACTOR)
 #  define KNGIN_USE_IOCP_REACTOR
 #elif defined(ENABLE_USE_EPOLL_REACTOR)

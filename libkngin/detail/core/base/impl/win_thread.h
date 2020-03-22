@@ -26,7 +26,7 @@ public:
   explicit
   win_thread (thread_data *&data, thread::thread_opt *opt)
    : name_(data->name),
-     hthr_(nullptr),
+     thr_(nullptr),
      joined_(false) {
     this->create_thread(data, opt);
   }
@@ -38,15 +38,17 @@ public:
 
   int
   join () noexcept {
-    assert(WAIT_OBJECT_0 == ::WaitForSingleObject(hthr_, INFINITE));
-    ::CloseHandle(hthr_);
+    assert(WAIT_OBJECT_0 == ::WaitForSingleObject(thr_, INFINITE));
+    ::CloseHandle(thr_);
+    thr_ = nullptr;
     joined_ = true;
     return 0;
   }
 
   void
   detach () noexcept {
-    ::CloseHandle(hthr_);
+    ::CloseHandle(thr_);
+    thr_ = nullptr;
   }
 
   bool
@@ -75,7 +77,7 @@ private:
 private:
   const std::string name_;
 
-  HANDLE hthr_;
+  HANDLE thr_;
 
   unsigned tid_;
 

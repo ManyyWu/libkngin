@@ -38,16 +38,17 @@
 #include "detail/core/base/buffer.cpp"
 #include "detail/core/base/timestamp.cpp"
 #include "detail/core/base/win_utils.cpp"
-//
+
 // event
-//#include "detail/core/event/timer_id.cpp"
-//#include "detail/core/event/timer_queue.cpp"
-//
-//#include "detail/core/event/event_loop.cpp"
-//#include "detail/core/event/impl/epoll_reactor.cpp"
-//
-//#include "detail/core/event/impl/monotonic_timer.cpp"
-//#include "detail/core/event/impl/timerfd_timer.cpp"
+#include "detail/core/event/timer_id.cpp"
+#include "detail/core/event/timer_queue.cpp"
+
+#include "detail/core/event/event_loop.cpp"
+#include "detail/core/event/impl/epoll_reactor.cpp"
+#include "detail/core/event/impl/iocp_reactor.cpp"
+
+#include "detail/core/event/impl/monotonic_timer.cpp"
+#include "detail/core/event/impl/timerfd_timer.cpp"
 
 // net
 

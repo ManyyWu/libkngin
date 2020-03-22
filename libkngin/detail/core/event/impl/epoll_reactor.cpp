@@ -30,7 +30,6 @@ epoll_reactor::~epoll_reactor () noexcept {
 
 size_t
 epoll_reactor::wait (op_queue &ops, timestamp delay) {
-
   ::epoll_event internal_events[KNGIN_EPOLL_REACTOR_MAX_EVENTS];
   auto size = ::epoll_wait(epoll_fd_, internal_events,
                            KNGIN_EPOLL_REACTOR_MAX_EVENTS, delay.value_int());

@@ -11,13 +11,13 @@ KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 void
 win_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
   size_t stack_size = opt ? opt->stack_size : 0;
-  hthr_ = (HANDLE)::_beginthreadex(NULL,
-                                   static_cast<unsigned>(stack_size),
-                                   win_thread::start,
-                                   data,
-                                   0,
-                                   &tid_);
-  if (!hthr_)
+  thr_ = (HANDLE)::_beginthreadex(NULL,
+                                  static_cast<unsigned>(stack_size),
+                                  win_thread::start,
+                                  data,
+                                  0,
+                                  &tid_);
+  if (!thr_)
     throw_system_error("::_beginthreadex() error", ERRNO(errno));
 }
 
