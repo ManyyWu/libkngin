@@ -1,7 +1,8 @@
+#include "detail/core/define.h"
+#if !defined(KNGIN_SYSTEM_WIN32)
+
 #include "detail/core/base/descriptor.h"
 #include "detail/core/event/impl/epoll_reactor.h"
-
-#if !defined(KNGIN_SYSTEM_WIN32)
 #include <sys/eventfd.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN

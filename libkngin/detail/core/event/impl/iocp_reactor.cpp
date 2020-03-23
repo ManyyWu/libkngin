@@ -1,6 +1,7 @@
-#include "detail/core/event/impl/iocp_reactor.h"
-
+#include "kngin/core/define.h"
 #if defined(KNGIN_SYSTEM_WIN32)
+
+#include "detail/core/event/impl/iocp_reactor.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
@@ -38,15 +39,17 @@ iocp_reactor::close () {
 void
 iocp_reactor::register_event (class iocp_event &ev) {
   assert(iocp_);
-  iocp_ = ::CreateIoCompletionPort(ev.handle(), iocp_, &ev, 1);
+  iocp_ = ::CreateIoCompletionPort(ev.handle(), iocp_, ULONG_PTR(&ev), 1);
   if (!iocp_)
     throw_system_error("::CreateIoCompletionPort() error", last_error());
+  ev.set_registed(true);
 }
 
 void
 iocp_reactor::remove_event (class iocp_event &ev) {
   assert(iocp_);
-
+  ev.cancel();
+  ev.set_registed(false);
 }
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

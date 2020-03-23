@@ -2,10 +2,9 @@
 #define KNGIN_EPOLL_EVENT_H
 
 #include "kngin/core/define.h"
-
 #if !defined(KNGIN_SYSTEM_WIN32)
+
 #include "kngin/core/event/operation_base.h"
-#include "kngin/core/event/event_base.h"
 #include <sys/epoll.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
@@ -15,6 +14,15 @@ class epoll_event {
   friend class epoll_reactor;
 
 public:
+  /*
+  enum file_discriptor_type {
+    fd_type_unknown = 0;
+    fd_type_file    = 1;
+    fd_type_socket  = 2;
+    fd_type_timer   = 3;
+  };
+  */
+
   epoll_event () = delete;
 
   explicit
