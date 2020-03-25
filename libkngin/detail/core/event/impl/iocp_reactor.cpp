@@ -1,5 +1,5 @@
 #include "kngin/core/define.h"
-#if defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_USE_IOCP_REACTOR)
 
 #include "detail/core/event/impl/iocp_reactor.h"
 
@@ -20,6 +20,72 @@ iocp_reactor::~iocp_reactor () noexcept {
 
 size_t
 iocp_reactor::wait (op_queue &ops, timestamp delay) {
+  return (g_have_get_iocp_status_ex ? poll(ops, delay) : poll_wine(ops, delay));
+}
+
+size_t
+iocp_reactor::poll (op_queue &ops, const timestamp &_ms)
+{
+  ULONG            size = 0;
+  ULONG            count = 0;
+  ULONG_PTR        key = 0;
+  OVERLAPPED_ENTRY overlappeds[KNGIN_IOCP_REACTOR_MAX_EVENTS];
+
+  ::GetQueuedCompletionStatusEx(iocp_,
+                                overlappeds,
+                                KNGIN_IOCP_REACTOR_MAX_EVENTS,
+                                &size,
+                                _ms.value_uint(),
+                                FALSE);
+  auto ec = last_error();
+  if (size > 0) {
+    count = size;
+    for (size_t i = 0; i < size; ++i) {
+      auto overlapped = overlappeds[i].lpOverlapped;
+      if (overlapped) {
+        ops.push(*(operation_base *)CONTAINING_RECORD(
+            &overlappeds[i], iocp_operation, overlapped_));
+      } else {
+        --count; // wakeup;
+      }
+    }
+  } else if (WAIT_TIMEOUT == ec) {
+    return 0;
+  } else {
+    throw_system_error("::GetQueuedCompletionStatusEx() error", ec);
+  }
+  return count;
+}
+
+size_t
+iocp_reactor::poll_wine (op_queue &ops, const timestamp &_ms)
+{
+  auto   size = KNGIN_IOCP_REACTOR_MAX_EVENTS;
+  size_t count = 0;
+  while (count < size) {
+    DWORD       bytes = 0;
+    ULONG_PTR   key = 0;
+    OVERLAPPED *overlapped = nullptr;
+
+    bool _ok = ::GetQueuedCompletionStatus(iocp_,
+                                           &bytes,
+                                           &key,
+                                           &overlapped,
+                                           _ms.value_uint());
+    auto ec = last_error();
+    if (_ok) {
+      if (overlapped)
+        ops.push(*(operation_base *)CONTAINING_RECORD(
+            overlapped, iocp_operation, overlapped_));
+      else
+        break; // wakeup
+    } else if (WAIT_TIMEOUT == ec) {
+      return 0;
+    } else {
+      throw_system_error("::GetQueuedCompletionStatus() error", ec);
+    }
+  }
+  return count;
 }
 
 void
@@ -54,4 +120,4 @@ iocp_reactor::remove_event (class iocp_event &ev) {
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_USE_IOCP_REACTOR) */

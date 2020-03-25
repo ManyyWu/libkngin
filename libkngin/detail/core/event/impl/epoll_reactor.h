@@ -2,7 +2,7 @@
 #define KNGIN_EPOLL_REACTOR_H
 
 #include "kngin/core/define.h"
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_USE_EPOLL_REACTOR)
 
 #include "detail/core/event/op_queue.h"
 #include "detail/core/event/impl/epoll_event.h"
@@ -49,6 +49,6 @@ private:
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_USE_EPOLL_REACTOR) */
 
 #endif /* KNGIN_EPOLL_REACTOR_H */

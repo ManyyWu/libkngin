@@ -1,5 +1,5 @@
-#include "detail/core/define.h"
-#if !defined(KNGIN_SYSTEM_WIN32)
+#include "kngin/core/define.h"
+#if defined(KNGIN_USE_EPOLL_REACTOR)
 
 #include "detail/core/base/descriptor.h"
 #include "detail/core/event/impl/epoll_reactor.h"
@@ -130,4 +130,4 @@ epoll_reactor::on_wakeup() {
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_USE_EPOLL_REACTOR) */

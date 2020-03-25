@@ -1,7 +1,7 @@
 #include "kngin/core/base/system_error.h"
 #if defined(KNGIN_SYSTEM_WIN32)
 #include <Windows.h>
-#endif
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
 #include <iostream>
 
 using namespace std;

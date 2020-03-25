@@ -219,8 +219,11 @@ event_loop::remove_event (reactor_event &ev) {
 
 void
 event_loop::update_event (reactor_event &ev) {
+#if defined(KNGIN_USE_IOCP_REACTOR)
+#else
   if (reactor_)
     reactor_->modify_event(ev);
+#endif
 }
 
 bool
@@ -243,11 +246,14 @@ event_loop::run_after (timestamp delay, timeout_handler &&handler) {
   {
     mutex::scoped_lock lock(timerq_mutex_);
     new_timer = &timerq_->insert(timestamp::monotonic() + delay,
-                                  0, std::move(handler));
+                                 0, std::move(handler));
   }
   assert(new_timer);
-  reactor_->register_event(*new_timer);
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   wakeup();
+#else
+  reactor_->register_event(*new_timer);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return new_timer->id();
 }
 
@@ -257,11 +263,14 @@ event_loop::run_every (timestamp interval, timeout_handler &&handler) {
   {
     mutex::scoped_lock lock(timerq_mutex_);
     new_timer = &timerq_->insert(timestamp::monotonic() + interval,
-                                  interval, std::move(handler));
+                                 interval, std::move(handler));
   }
   assert(new_timer);
-  reactor_->register_event(*new_timer);
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   wakeup();
+#else
+  reactor_->register_event(*new_timer);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return new_timer->id();
 }
 
@@ -271,36 +280,51 @@ event_loop::run_at (timestamp realtime, timeout_handler &&handler) {
   {
     mutex::scoped_lock lock(timerq_mutex_);
     new_timer = &timerq_->insert(realtime - timestamp::realtime() + timestamp::monotonic(),
-                                  0, std::move(handler));
+                                 0, std::move(handler));
   }
   assert(new_timer);
-  reactor_->register_event(*new_timer);
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
   wakeup();
+#else
+  reactor_->register_event(*new_timer);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return new_timer->id();
 }
 
 void
 event_loop::cancel (const timer_id &id) {
   auto ptr = id.query_timer();
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+  if (ptr) {
+#else
   if (ptr and ptr->registed()) {
     reactor_->remove_event(*ptr);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
     {
       mutex::scoped_lock lock(timerq_mutex_);
       timerq_->remove(ptr);
     }
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
     wakeup();
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   }
 }
 
 void
 event_loop::cancel (timer_ptr &ptr) {
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
+  if (ptr) {
+#else
   if (ptr and ptr->registed()) {
     reactor_->remove_event(*ptr);
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
     {
       mutex::scoped_lock lock(timerq_mutex_);
       timerq_->remove(ptr);
     }
+#if defined(KNGIN_USE_MONOTONIC_TIMER)
     wakeup();
+#endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   }
 }
 

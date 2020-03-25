@@ -8,7 +8,13 @@
 #include <Windows.h>
 
 KNGIN_NAMESPACE_GROBLE_BEGIN
+
 extern const LONGLONG g_monotonic_base;
+
+#if defined(KNGIN_USE_IOCP_REACTOR)
+extern bool g_have_get_iocp_status_ex;
+#endif /* defined(KNGIN_USE_IOCP_REACTOR) */
+
 KNGIN_NAMESPACE_GROBLE_END
 
 KNGIN_NAMESPACE_DETAIL_BEGIN

@@ -2,7 +2,7 @@
 #define KNGIN_IOCP_REACTOR_H
 
 #include "kngin/core/define.h"
-#if defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_USE_IOCP_REACTOR)
 
 #include "detail/core/event/op_queue.h"
 #include "detail/core/base/win_utils.h"
@@ -32,11 +32,18 @@ public:
   remove_event (class iocp_event &ev);
 
 private:
+  size_t
+  poll (op_queue &ops, const timestamp &_ms);
+
+  size_t
+  poll_wine (op_queue &ops, const timestamp &_ms);
+
+private:
   HANDLE iocp_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 
 #endif /* KNGIN_IOCP_REACTOR_H */

@@ -2,10 +2,10 @@
 #define KNGIN_IOCP_EVENT_H
 
 #include "kngin/core/define.h"
-#if defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_USE_IOCP_REACTOR)
 
-#include "kngin/core/event/operation_base.h"
 #include "detail/core/base/win_utils.h"
+#include "detail/core/event/impl/iocp_operation.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
@@ -38,6 +38,11 @@ public:
 
   virtual
   ~iocp_event() noexcept {
+  }
+
+  bool
+  registed () const noexcept {
+    return registed_;
   }
 
   handle_type
@@ -80,6 +85,6 @@ private:
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
 
-#endif /* defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 
 #endif /* KNGIN_IOCP_EVENT_H */
