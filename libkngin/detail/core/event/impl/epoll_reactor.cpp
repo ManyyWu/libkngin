@@ -116,7 +116,7 @@ epoll_reactor::update_event (int opt, int fd, class epoll_event *ev) {
 
   ::epoll_event internal_event = {ev->flags(), ev};
   if (::epoll_ctl(epoll_fd_, opt, fd, &internal_event) < 0)
-    throw k::system_error("::epoll_ctl() error");
+    throw_system_error("::epoll_ctl() error", errno);
 }
 
 void

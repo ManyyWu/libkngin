@@ -40,8 +40,8 @@ if(WIN32)
 endif(WIN32)
 
 # property
-set(USE_POSIX_THREAD 0)
-set(USE_WIN_THREAD 1)
+set(USE_POSIX_THREAD 1)
+set(USE_WIN_THREAD 0)
 if(USE_POSIX_THREAD)
 target_compile_definitions(kngin PUBLIC -DENABLE_USE_POSIX_SEMAPHORE)
 target_compile_definitions(kngin PUBLIC -DENABLE_USE_POSIX_COND)
