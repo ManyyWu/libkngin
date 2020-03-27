@@ -27,15 +27,12 @@ public:
   error_code () noexcept
    : code_(0) {
   }
-
   error_code (error_type code) noexcept
    : code_(code) {
   }
-
   error_code (const error_code &code) noexcept
    : code_(code.code_) {
   }
-
   error_code (const error_code &&code) noexcept
    : code_(code.code_) {
   }
@@ -61,7 +58,6 @@ public:
   operator bool () const noexcept {
     return code_;
   }
-
   explicit
   operator error_type () const noexcept {
     return code_;
@@ -72,13 +68,11 @@ public:
     code_ = code;
     return *this;
   }
-
   error_code &
   operator = (const error_code &code) noexcept {
     code_ = code.code_;
     return *this;
   }
-
   error_code &
   operator = (const error_code &&code) noexcept {
     code_ = code.code_;
@@ -89,27 +83,22 @@ public:
   operator == (const error_type code) const noexcept {
     return (code_ == code);
   }
-
   bool
   operator == (const error_code &code) const noexcept {
     return (code_ == code.code_);
   }
-
   bool
   operator == (const error_code &&code) const noexcept {
     return (code_ == code.code_);
   }
-
   bool
   operator != (const error_type code) const noexcept {
     return (code_ != code);
   }
-
   bool
   operator != (const error_code &code) const noexcept {
     return (code_ != code.code_);
   }
-
   bool
   operator != (const error_code &&code) const noexcept {
     return (code_ != code.code_);
@@ -118,15 +107,12 @@ public:
   friend
   bool
   operator == (int code1, const error_code &code2) noexcept;
-
   friend
   bool
   operator == (int code1, const error_code &&code2) noexcept;
-
   friend
   bool
   operator != (int code1, const error_code &code2) noexcept;
-
   friend
   bool
   operator != (int code1, const error_code &&code2) noexcept;
