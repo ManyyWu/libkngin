@@ -3,8 +3,6 @@
 #include "kngin/core/base/thread.h"
 #include <cstdio>
 
-using namespace std;
-
 int
 main () {
   k::semaphore sem(10);

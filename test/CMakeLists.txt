@@ -28,3 +28,5 @@ add_subdirectory(core/base/detail/descriptor)
 add_subdirectory(core/base/detail/list)
 
 add_subdirectory(core/event/event_loop)
+
+add_subdirectory(net/socket/address)

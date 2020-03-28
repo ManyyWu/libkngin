@@ -1,14 +1,15 @@
 #include "kngin/core/base/exception.h"
 #include "kngin/core/base/system_error.h"
-#include "kngin/net/addres.h"
+#include "kngin/net/address.h"
 #if !defined(KNGIN_SYSTEM_WIN32)
 #include <arpa/inet.h>
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
 KNGIN_NAMESPACE_K_BEGIN
 
-address::address (const std::string &addrstr, uint16_t port, bool v6)
+address::address (const char *addrstr, uint16_t port, bool v6)
 {
+  ::memset(&sa_, 0, sizeof(sockaddr_u));
   if (v6) {
     sa_.v6.sin6_port = ::htons(port);
     sa_.v6.sin6_family = AF_INET6;
@@ -17,11 +18,11 @@ address::address (const std::string &addrstr, uint16_t port, bool v6)
     sa_.v4.sin_family = AF_INET;
   }
   auto ret = ::inet_pton(v6 ? AF_INET6 : AF_INET,
-                         addrstr.c_str(),
+                         addrstr,
                          v6 ? static_cast<void *>(&sa_.v6.sin6_addr)
                                  : static_cast<void *>(&sa_.v4.sin_addr));
   if (!ret)
-    throw_system_error("::inet_pton() error", ERRNO(errno));
+    throw_system_error("::invalid inet4(6) address", ERRNO(errno));
 }
 
 std::string
@@ -29,7 +30,7 @@ address::addrstr () const
 {
   std::string str;
   str.reserve(size() + 1);
-  bool ip6 = inet6();
+  bool ip6 = ipv6();
   auto *ret = ::inet_ntop(
       ip6 ? AF_INET6 : AF_INET,
       ip6 ? static_cast<const void *>(&sa_.v6.sin6_addr)
@@ -42,20 +43,20 @@ address::addrstr () const
 }
 
 bool
-address::is_valid_inet_addrstr (const std::string &addrstr)
+address::is_valid_ipv4_addrstr (const char *addrstr)
 {
   struct ::sockaddr_in sa;
-  int ret = ::inet_pton(AF_INET, addrstr.data(), &sa);
+  int ret = ::inet_pton(AF_INET, addrstr, &sa);
   if (!ret)
     throw_system_error("::inet_pton() error", ERRNO(errno));
   return ret;
 }
 
 bool
-address::is_valid_inet6_addrstr (const std::string &addrstr)
+address::is_valid_ipv6_addrstr (const char *addrstr)
 {
   struct ::sockaddr_in sa;
-  int ret = ::inet_pton(AF_INET6, addrstr.data(), &sa);
+  int ret = ::inet_pton(AF_INET6, addrstr, &sa);
   if (!ret)
     throw_system_error("::inet_pton() error", ERRNO(errno));
   return ret;

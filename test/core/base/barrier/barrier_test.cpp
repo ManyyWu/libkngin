@@ -2,8 +2,6 @@
 #include "kngin/core/base/thread.h"
 #include <cstdio>
 
-using namespace std;
-
 int
 main () {
   k::barrier b(4);

@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 #include <cassert>
+#include <string>
 #include <cstring>
 
 KNGIN_NAMESPACE_K_BEGIN
@@ -16,12 +17,12 @@ class address {
   friend class socket;
 
 public:
-  union internal_in_addr {
+  union in_addr_u {
     struct ::in_addr  v4;
     struct ::in6_addr v6;
   };
 
-  union internal_sockaddr {
+  union sockaddr_u {
     struct ::sockaddr_in  v4;
     struct ::sockaddr_in6 v6;
   };
@@ -32,15 +33,17 @@ public:
     assert(AF_INET == sa.sin_family);
     sa_.v4 = sa;
   }
+
   address (const struct ::sockaddr_in6 &sa) noexcept {
     assert(AF_INET6 == sa.sin6_family);
     sa_.v6 = sa;
   }
+
   address (const address &sa) noexcept {
     sa_ = sa.sa_;
   }
 
-  address (const std::string &addrstr, uint16_t port, bool v6);
+  address (const char *addrstr, uint16_t port, bool v6);
 
   ~address () = default;
 
@@ -50,23 +53,28 @@ public:
   }
 
   bool
-  inet4 () const noexcept {
+  ipv4 () const noexcept {
     return (AF_INET == reinterpret_cast<const ::sockaddr_in *>(&sa_)->sin_family);
   }
 
   bool
-  inet6 () const noexcept {
+  ipv6 () const noexcept {
     return (AF_INET6 == reinterpret_cast<const ::sockaddr_in *>(&sa_)->sin_family);
   }
 
   size_t
   size () const noexcept {
-    return (inet6() ? sizeof(const ::sockaddr_in) : sizeof(::sockaddr_in6));
+    return (ipv6() ? sizeof(::sockaddr_in6) : sizeof(::sockaddr_in));
+  }
+
+  const sockaddr_u &
+  sa () const noexcept {
+    return sa_;
   }
 
   uint16_t
   port () const noexcept {
-    return (::ntohs(inet6() ? sa_.v6.sin6_port : sa_.v4.sin_port));
+    return (::ntohs(ipv6() ? sa_.v6.sin6_port : sa_.v4.sin_port));
   }
 
   std::string
@@ -78,23 +86,14 @@ public:
     sa_.v4 = sa;
     return *this;
   }
-  address &
-  operator = (const struct ::sockaddr_in &&sa) noexcept {
-    assert(AF_INET == sa.sin_family);
-    sa_.v4 = sa;
-    return *this;
-  }
+
   address &
   operator = (const struct ::sockaddr_in6 &sa) noexcept {
     assert(AF_INET6 == sa.sin6_family);
     sa_.v6 = sa;
     return *this;
   }
-  address &
-  operator = (const struct ::sockaddr_in6 &&sa) noexcept {
-    assert(AF_INET6 == sa.sin6_family); sa_.v6 = sa;
-    return *this;
-  }
+
   address &
   operator = (const address &sa) noexcept {
     sa_ = sa.sa_;
@@ -105,6 +104,7 @@ public:
   operator == (const address &sa) const noexcept {
     return !::memcmp(&sa_, &sa.sa_, size());
   }
+
   bool
   operator != (const address &sa) const noexcept {
     return ::memcmp(&sa_, &sa.sa_, size());
@@ -117,14 +117,14 @@ public:
 
   static
   bool
-  is_valid_inet_addrstr (const std::string &addrstr);
+  is_valid_ipv4_addrstr (const char *addrstr);
 
   static
   bool
-  is_valid_inet6_addrstr (const std::string &addrstr);
+  is_valid_ipv6_addrstr (const char *addrstr);
 
 protected:
-  internal_sockaddr sa_;
+  sockaddr_u sa_;
 };
 
 KNGIN_NAMESPACE_K_END
