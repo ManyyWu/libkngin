@@ -28,8 +28,10 @@ posix_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
   }
 #endif /* defined(_POSIX_THREAD_ATTR_STACKSIZE) */
   ec = ::pthread_create(&pthr_, attr, posix_thread::start, data);
-  ::pthread_attr_destroy(attr);
-  safe_release(attr);
+  if (attr) {
+    ::pthread_attr_destroy(attr);
+    safe_release(attr);
+  }
   if (ec)
     throw_system_error("::pthread_create() error ", ERRNO(ec));
 }
