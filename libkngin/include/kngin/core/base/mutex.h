@@ -15,18 +15,14 @@ public:
 
   mutex ();
 
-  virtual
   ~mutex () noexcept;
 
-  virtual
   void
   lock ();
 
-  virtual
   void
   unlock ();
 
-  virtual
   bool
   try_lock ();
 

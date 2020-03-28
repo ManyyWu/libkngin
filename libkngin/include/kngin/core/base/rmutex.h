@@ -15,18 +15,14 @@ public:
 
   rmutex ();
 
-  virtual
   ~rmutex () noexcept;
 
-  virtual
   void
   lock ();
 
-  virtual
   void
   unlock ();
 
-  virtual
   bool
   try_lock ();
 
