@@ -62,6 +62,15 @@ main () {
     cerr << "ipv4 mapped:" << a.is_ipv4_mapped() << endl;
     cerr << endl;
   }
+  {
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("192.168.0.2") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("192.168.0.0") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("0.0.0.0") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("::ffff:0.0.0.0") << endl;
+    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_addrstr("0.0.0.0") << endl;
+    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_addrstr("::ffff:0.0.0.0") << endl;
+    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_addrstr("::1") << endl;
+  }
 
   return 0;
 }

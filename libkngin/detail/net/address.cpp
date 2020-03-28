@@ -46,20 +46,14 @@ bool
 address::is_valid_ipv4_addrstr (const char *addrstr)
 {
   struct ::sockaddr_in sa;
-  int ret = ::inet_pton(AF_INET, addrstr, &sa);
-  if (!ret)
-    throw_system_error("::inet_pton() error", ERRNO(errno));
-  return ret;
+  return ::inet_pton(AF_INET, addrstr, &sa);
 }
 
 bool
 address::is_valid_ipv6_addrstr (const char *addrstr)
 {
   struct ::sockaddr_in sa;
-  int ret = ::inet_pton(AF_INET6, addrstr, &sa);
-  if (!ret)
-    throw_system_error("::inet_pton() error", ERRNO(errno));
-  return ret;
+  return ::inet_pton(AF_INET6, addrstr, &sa);
 }
 
 KNGIN_NAMESPACE_K_END
