@@ -44,8 +44,8 @@ protected:
 
 template<typename Tp>
 class obj_entry
- : public noncopyable,
-   public std::enable_shared_from_this<Tp> {
+  : public noncopyable,
+    public std::enable_shared_from_this<Tp> {
   template<typename T,
       typename std::enable_if<std::is_base_of<obj_entry<T>, T>{}, int>::type>
   friend class obj_mgr;
@@ -136,7 +136,7 @@ public:
     return false;
   }
 
-  template <class Fn>
+  template <typename Fn>
   void
   for_each (Fn fn) noexcept {
     node_type *pos, *n;

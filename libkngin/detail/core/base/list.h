@@ -11,8 +11,8 @@ KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 template<typename Tp>
 class list_entry
- : public noncopyable,
-   public std::enable_shared_from_this<Tp> {
+  : public noncopyable,
+    public std::enable_shared_from_this<Tp> {
   template<typename T,
       typename std::enable_if<std::is_base_of<list_entry<T>, T>{}, int>::type>
   friend class list;
@@ -71,7 +71,7 @@ public:
     return false;
   }
 
-  template <class Fn>
+  template <typename Fn>
   void
   for_each (Fn fn) noexcept {
     Tp *pos, *n;

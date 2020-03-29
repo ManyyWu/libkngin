@@ -62,80 +62,6 @@ descriptor::write (int fd, out_buffer &buf, error_code &ec) noexcept {
 }
 
 size_t
-descriptor::readn (int fd, in_buffer &buf) {
-  assert(buf.size() ? buf.writeable() : true);
-  assert(FD_VALID(fd));
-  auto valid = buf.valid();
-  while (buf.writeable()) {
-    auto size = ::read(fd, buf.begin(), buf.writeable());
-    if (size <= 0) {
-      auto ec = last_error();
-      if (EINTR == ec)
-        continue;
-      throw_system_error("::readn() error", ec);
-    }
-    buf += size;
-  }
-  return (buf.valid() - valid);
-}
-
-size_t
-descriptor::readn (int fd, in_buffer &buf, error_code &ec) noexcept {
-  assert(buf.size() ? buf.writeable() : true);
-  assert(FD_VALID(fd));
-  auto valid = buf.valid();
-  while (buf.writeable()) {
-    auto size = ::read(fd, buf.begin(), buf.writeable());
-    if (size <= 0) {
-      if (EINTR == (ec = last_error()) or EAGAIN == ec)
-        continue;
-      return (buf.valid() - valid);
-    }
-    buf += size;
-  }
-  ec = error_code();
-  return (buf.valid() - valid);
-}
-
-size_t
-descriptor::writen (int fd, out_buffer &buf) {
-  assert(buf.size() ? !buf.eof() : true);
-  assert(FD_VALID(fd));
-  out_buffer buffer = std::move(buf);
-  auto ret = buffer.size();
-  while (buffer.size()) {
-    auto size = ::write(fd, buffer.begin(), buffer.size());
-    if (size < 0) {
-      auto ec = last_error();
-      if (EINTR == ec or EAGAIN == ec)
-        continue;
-      throw_system_error("::writen() error", ec);
-    }
-    buffer -= size;
-  }
-  return ret;
-}
-
-size_t
-descriptor::writen (int fd, out_buffer &buf, error_code &ec) noexcept {
-  assert(buf.size() ? !buf.eof() : true);
-  assert(FD_VALID(fd));
-  out_buffer buffer = std::move(buf);
-  auto ret = buffer.size();
-  while (buffer.size()) {
-    auto size = ::write(fd, buffer.begin(), buffer.size());
-    if (size < 0) {
-      if (EINTR == (ec = last_error()))
-        continue;
-      return (ret - buffer.size());
-    }
-    buffer -= size;
-  }
-  ec = error_code();
-  return ret;
-}
-
-size_t
 descriptor::readable (int fd) {
   assert(FD_VALID(fd));
   size_t bytes = 0;
@@ -200,7 +126,7 @@ descriptor::dup (int fd, error_code &ec) noexcept {
 void
 descriptor::set_nonblock (int fd, bool on) {
   assert(FD_VALID(fd));
-  auto flags = ::fcntl(fd, F_GETFL, 0);
+  auto flags = ::fcntl(fd, F_GETFL);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
   if (::fcntl(fd, F_SETFL, flags) < 0)
     throw_system_error("::fcntl() set O_NONBLOCK flag failed", last_error());
@@ -209,7 +135,7 @@ descriptor::set_nonblock (int fd, bool on) {
 void
 descriptor::set_nonblock (int fd, bool on, error_code &ec) noexcept {
   assert(FD_VALID(fd));
-  auto flags = ::fcntl(fd, F_GETFL, 0);
+  auto flags = ::fcntl(fd, F_GETFL);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
   ec = (::fcntl(fd, F_SETFL, flags) < 0) ? last_error() : error_code();
 }
@@ -217,35 +143,52 @@ descriptor::set_nonblock (int fd, bool on, error_code &ec) noexcept {
 void
 descriptor::set_closeexec (int fd, bool on) {
   assert(FD_VALID(fd));
-  auto flags = ::fcntl(fd, F_GETFL, 0);
-  flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
-  if (::fcntl(fd, F_SETFL, flags) < 0)
-    throw_system_error("::fcntl() set O_CLOEXEC flag failed", last_error());
+  auto flags = ::fcntl(fd, F_GETFD);
+  flags = on ? flags | FD_CLOEXEC : flags & ~FD_CLOEXEC;
+  if (::fcntl(fd, F_SETFD, flags) < 0)
+    throw_system_error("::fcntl() set FD_CLOEXEC flag failed", last_error());
 }
 
 void
 descriptor::set_closeexec (int fd, bool on, error_code &ec) noexcept {
   assert(FD_VALID(fd));
-  auto flags = ::fcntl(fd, F_GETFL, 0);
-  flags = on ? flags | O_CLOEXEC : flags & ~O_CLOEXEC;
-  ec = (::fcntl(fd, F_SETFL, flags) < 0) ? last_error() : error_code();
+  auto flags = ::fcntl(fd, F_GETFD);
+  flags = on ? flags | FD_CLOEXEC : flags & ~FD_CLOEXEC;
+  ec = (::fcntl(fd, F_SETFD, flags) < 0) ? last_error() : error_code();
 }
 
 bool
 descriptor::nonblock (int fd) {
   assert(FD_VALID(fd));
-  auto flags = ::fcntl(fd, F_GETFL, 0);
+  auto flags = ::fcntl(fd, F_GETFL);
   if (flags < 0)
-    throw_system_error("::fcntl() get O_CLOEXEC flag failed", last_error());
+    throw_system_error("::fcntl() get O_NONBLOCK flag failed", last_error());
   return (flags & O_NONBLOCK);
 }
 
 bool
 descriptor::nonblock (int fd, error_code &ec) noexcept {
   assert(FD_VALID(fd));
-  auto flags = ::fcntl(fd, F_GETFL, 0);
+  auto flags = ::fcntl(fd, F_GETFL);
   ec = (flags < 0) ? last_error() : error_code();
   return (flags & O_NONBLOCK);
+}
+
+bool
+descriptor::closeexec (int fd) {
+  assert(FD_VALID(fd));
+  auto flags = ::fcntl(fd, F_GETFD);
+  if (flags < 0)
+    throw_system_error("::fcntl() get FD_CLOEXEC flag failed", last_error());
+  return (flags & FD_CLOEXEC);
+}
+
+bool
+descriptor::closeexec (int fd, error_code &ec) noexcept {
+  assert(FD_VALID(fd));
+  auto flags = ::fcntl(fd, F_GETFD);
+  ec = (flags < 0) ? last_error() : error_code();
+  return (flags & FD_CLOEXEC);
 }
 
 KNGIN_NAMESPACE_K_DETAIL_END
