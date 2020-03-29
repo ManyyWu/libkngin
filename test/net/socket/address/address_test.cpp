@@ -1,6 +1,6 @@
 #include "kngin/net/address.h"
 #include <iostream>
-#ifdef _WIN32
+#if defined(KNGIN_SYSTEM_WIN32)
 #include <ws2ipdef.h>
 #else
 #include <netinet/in.h>

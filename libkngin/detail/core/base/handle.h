@@ -14,49 +14,49 @@ KNGIN_NAMESPACE_K_DETAIL_BEGIN
 namespace handle {
 
 size_t
-read (HANDLE handle, in_buffer &buf);
+read (handle_t h, in_buffer &buf);
 
 size_t
-read (HANDLE handle, in_buffer &buf, error_code &ec) noexcept;
+read (handle_t h, in_buffer &buf, error_code &ec) noexcept;
 
 size_t
-write (HANDLE handle, out_buffer &buf);
+write (handle_t h, out_buffer &buf);
 
 size_t
-write (HANDLE handle, out_buffer &buf, error_code &ec) noexcept;
+write (handle_t h, out_buffer &buf, error_code &ec) noexcept;
 
 size_t
-readable (HANDLE handle);
+readable (handle_t h);
 
 size_t
-readable (HANDLE handle, error_code &ec) noexcept;
+readable (handle_t h, error_code &ec) noexcept;
 
 error_code
-read_error (HANDLE handle) noexcept;
+read_error (handle_t h) noexcept;
 
 void
-close (int &fd);
+close (handle_t &h);
 
 void
-close (int &fd, error_code &ec) noexcept;
+close (handle_t &h, error_code &ec) noexcept;
 
 void
-set_nonblock (HANDLE handle, bool on);
+set_nonblock (handle_t h, bool on);
 
 void
-set_nonblock (HANDLE handle, bool on, error_code &ec) noexcept;
+set_nonblock (handle_t h, bool on, error_code &ec) noexcept;
 
 void
-set_closeexec (HANDLE handle, bool on);
+set_closeexec (handle_t h, bool on);
 
 void
-set_closeexec (HANDLE handle, bool on, error_code &ec) noexcept;
+set_closeexec (handle_t h, bool on, error_code &ec) noexcept;
 
 bool
-nonblock (HANDLE handle);
+nonblock (handle_t h);
 
 bool
-nonblock (HANDLE handle, error_code &ec) noexcept;
+nonblock (handle_t h, error_code &ec) noexcept;
 
 };
 

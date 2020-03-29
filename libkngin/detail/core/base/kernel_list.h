@@ -43,7 +43,7 @@ static inline void INIT_LIST_HEAD(struct list_head *list) {
 
 #undef offsetof
 #ifdef __compiler_offsetof
-#define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
+#define offsetof(TYPE, MEMBER) __compiler_offsetof(TYPE, MEMBER)
 #else
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
@@ -54,7 +54,7 @@ static inline void INIT_LIST_HEAD(struct list_head *list) {
 #else
 #define container_of(ptr, type, member) ({ \
         const typeof( ((type *)0)->member ) *__mptr = (ptr); \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
+        (type *)( (char *)__mptr - offsetof(type, member) );})
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
 /*

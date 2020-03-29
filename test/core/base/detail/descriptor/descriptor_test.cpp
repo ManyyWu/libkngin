@@ -2,7 +2,7 @@
 #include "kngin/core/base/buffer.h"
 #include <iostream>
 #include <cstring>
-#if !defined(_WIN32)
+#if !defined(KNGIN_SYSTEM__WIN32)
 #include <fcntl.h>
 #include <unistd.h>
 #endif
@@ -12,7 +12,7 @@ using namespace std;
 int
 main () {
 #define DATA "hello world!\n"
-#if !defined(_WIN32)
+#if !defined(KNGIN_SYSTEM_WIN32)
   int f = 0;
 
   {

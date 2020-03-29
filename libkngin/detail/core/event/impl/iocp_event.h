@@ -22,8 +22,8 @@ public:
   iocp_event () = delete;
 
   explicit
-  iocp_event (HANDLE handle, handle_type type)
-   : handle_(handle),
+  iocp_event (handle_t h, handle_type type)
+   : handle_(h),
      type_(type) {
   }
 
@@ -53,7 +53,7 @@ public:
 protected:
   typedef operation_base::op_type op_type;
 
-  HANDLE
+  handle_t
   handle () const noexcept {
     return handle_;
   }
@@ -75,7 +75,7 @@ private:
   }
 
 protected:
-  HANDLE handle_;
+  handle_t handle_;
 
   handle_type type_;
 

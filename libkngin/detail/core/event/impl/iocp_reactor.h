@@ -39,7 +39,7 @@ private:
   poll_wine (op_queue &ops, const timestamp &_ms);
 
 private:
-  HANDLE iocp_;
+  handle_t iocp_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

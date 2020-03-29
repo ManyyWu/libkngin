@@ -120,7 +120,7 @@ event_loop::run () {
   if (stop_barrier_.destroyed())
     stop_barrier_.reinit(2);
 
-  debug("event_loop is running in thread %" PRIu64, tid_);
+  log_debug("event_loop is running in thread %" PRIu64, tid_);
 
   auto fail = [&] () {
     looping_ = false;
@@ -146,7 +146,7 @@ event_loop::run () {
       auto size = wait(*opq_);
       if (stop_)
         break;
-      debug("%" PRIu64 " events were captured in event_loop of thread %" PRIu64, size, tid_);
+      log_debug("%" PRIu64 " events were captured in event_loop of thread %" PRIu64, size, tid_);
 
       // sort events
       //sort_events();
@@ -156,19 +156,19 @@ event_loop::run () {
     }
     is_throw = false;
   } catch (const k::exception &e) {
-    fatal("posix_thread::start(), thread = %" PRIu64 ", message = %s",
+    log_fatal("posix_thread::start(), thread = %" PRIu64 ", message = %s",
           thread::tid(), e.what());
-    fatal("%s", e.dump());
+    log_fatal("%s", e.dump());
   } catch (const std::exception &e) {
-    fatal("posix_thread::start(), thread = %" PRIu64 ", message = %s",
+    log_fatal("posix_thread::start(), thread = %" PRIu64 ", message = %s",
           thread::tid(), e.what());
   } catch (...) {
-    fatal("posix_thread::start(), thread = %" PRIu64 ", message = unkown exception",
+    log_fatal("posix_thread::start(), thread = %" PRIu64 ", message = unkown exception",
           thread::tid());
   }
   fail();
 
-  debug("event_loop stopped in thread %" PRIu64, tid_);
+  log_debug("event_loop stopped in thread %" PRIu64, tid_);
 }
 
 void
@@ -341,7 +341,7 @@ event_loop::event_loop::wait (event_queue &evq) {
     delay = KNGIN_EVENT_LOOP_DEFAULT_DELAY;
 #endif
   }
-  debug("dealy: %" PRIu64 " ms", delay);
+  log_debug("dealy: %" PRIu64 " ms", delay);
   return reactor_->wait(evq, delay);
 }
 

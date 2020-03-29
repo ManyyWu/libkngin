@@ -76,6 +76,23 @@
       typedef k::detail::src_type dst_type; \
     KNGIN_NAMESPACE_K_END
 
+KNGIN_NAMESPACE_K_BEGIN
+
+// handle_t type
+#if defined(KNGIN_SYSTEM_WIN32)
+  typedef HANDLE handle_t;
+#  define HANDLE_INVALID(h) (!h)
+#  define HANDLE_VALID(h)   (h)
+#  define INVALID_HANDLE    (nullptr)
+#else
+  typedef int handle_t;
+#  define HANDLE_INVALID(h) ((h) < 0)
+#  define HANDLE_VALID(h)   ((h) >= 0)
+#  define INVALID_HANDLE    (-1)
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+
+KNGIN_NAMESPACE_K_END
+
 
 #endif /* KNGIN_DEFINE_H */
 

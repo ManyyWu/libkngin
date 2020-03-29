@@ -36,7 +36,7 @@ public:
 
 private:
   void
-  update_event (int opt, int fd, class epoll_event *ev);
+  update_event (int opt, handle_t h, class epoll_event *ev);
 
   void
   on_wakeup ();

@@ -15,10 +15,10 @@ main () {
   mylogfile.write_info(" test\n");
   mylogfile.write_debug(" test\n");
 
-  fatal("%s", "test");
-  error("test");
-  warning("test");
-  info("test");
-  debug("test");
+  log_fatal("%s", "test");
+  log_error("test");
+  log_warn("test");
+  log_info("test");
+  log_debug("test");
   return 0;
 }

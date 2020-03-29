@@ -77,7 +77,7 @@ private:
 private:
   const std::string name_;
 
-  HANDLE thr_;
+  handle_t thr_;
 
   unsigned tid_;
 

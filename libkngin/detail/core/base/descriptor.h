@@ -8,70 +8,66 @@
 #include "kngin/core/base/system_error.h"
 #include "kngin/core/base/buffer.h"
 
-#define FD_INVALID(fd) ((fd) < 0)
-#define FD_VALID(fd)   ((fd) >= 0)
-#define INVALID_FD     (-1)
-
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 namespace descriptor {
 
 size_t
-read (int fd, in_buffer &buf);
+read (handle_t h, in_buffer &buf);
 
 size_t
-read (int fd, in_buffer &buf, error_code &ec) noexcept;
+read (handle_t h, in_buffer &buf, error_code &ec) noexcept;
 
 size_t
-write (int fd, out_buffer &buf);
+write (handle_t h, out_buffer &buf);
 
 size_t
-write (int fd, out_buffer &buf, error_code &ec) noexcept;
+write (handle_t h, out_buffer &buf, error_code &ec) noexcept;
 
 size_t
-readable (int fd);
+readable (handle_t h);
 
 size_t
-readable (int fd, error_code &ec) noexcept;
+readable (handle_t h, error_code &ec) noexcept;
 
 error_code
-read_error (int fd) noexcept;
+read_error (handle_t h) noexcept;
 
 void
-close (int &fd);
+close (handle_t &h);
 
 void
-close (int &fd, error_code &ec) noexcept;
+close (handle_t &h, error_code &ec) noexcept;
 
 int
-dup (int fd);
+dup (handle_t h);
 
 int
-dup (int fd, error_code &ec) noexcept;
+dup (handle_t h, error_code &ec) noexcept;
 
 void
-set_nonblock (int fd, bool on);
+set_nonblock (handle_t h, bool on);
 
 void
-set_nonblock (int fd, bool on, error_code &ec) noexcept;
+set_nonblock (handle_t h, bool on, error_code &ec) noexcept;
 
 void
-set_closeexec (int fd, bool on);
+set_closeexec (handle_t h, bool on);
 
 void
-set_closeexec (int fd, bool on, error_code &ec) noexcept;
+set_closeexec (handle_t h, bool on, error_code &ec) noexcept;
 
 bool
-nonblock (int fd);
+nonblock (handle_t h);
 
 bool
-nonblock (int fd, error_code &ec) noexcept;
+nonblock (handle_t h, error_code &ec) noexcept;
 
 bool
-closeexec (int fd);
+closeexec (handle_t h);
 
 bool
-closeexec (int fd, error_code &ec) noexcept;
+closeexec (handle_t h, error_code &ec) noexcept;
 
 };
 

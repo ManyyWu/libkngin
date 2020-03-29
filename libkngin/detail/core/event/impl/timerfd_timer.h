@@ -35,7 +35,7 @@ public:
 
   bool
   closed () const noexcept {
-    return FD_INVALID(fd_);
+    return HANDLE_INVALID(handle_);
   }
 
   std::shared_ptr<timerfd_timer>

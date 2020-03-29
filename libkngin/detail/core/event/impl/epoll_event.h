@@ -26,17 +26,17 @@ public:
   epoll_event () = delete;
 
   explicit
-  epoll_event (int fd) noexcept
-   : fd_(fd),
+  epoll_event (handle_t h) noexcept
+   : handle_(h),
      flags_(EPOLLERR | EPOLLHUP),
      registed_(false) {
   }
 
   epoll_event (class epoll_event &&ev) noexcept
-    : fd_(INVALID_FD),
+    : handle_(INVALID_HANDLE),
       flags_(EPOLLERR | EPOLLHUP),
       registed_(false) {
-    std::swap(fd_, ev.fd_);
+    std::swap(handle_, ev.handle_);
     std::swap(flags_, ev.flags_);
     std::swap(registed_, ev.registed_);
   }
@@ -53,9 +53,9 @@ public:
 protected:
   typedef operation_base::op_type op_type;
 
-  int
-  fd () const noexcept {
-    return fd_;
+  handle_t
+  handle () const noexcept {
+    return handle_;
   }
 
   void
@@ -140,7 +140,7 @@ private:
   }
 
 protected:
-  int fd_;
+  handle_t handle_;
 
 private:
   uint32_t flags_;

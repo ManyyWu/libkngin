@@ -24,7 +24,7 @@ posix_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
     ::pthread_attr_setstacksize(attr, stack_size);
     size_t size;
     ::pthread_attr_getstacksize(attr, &size);
-    info("thread \"%s\", set stack size: %" PRIu64, data->name.c_str(), size);
+    log_info("thread \"%s\", set stack size: %" PRIu64, data->name.c_str(), size);
   }
 #endif /* defined(_POSIX_THREAD_ATTR_STACKSIZE) */
   ec = ::pthread_create(&pthr_, attr, posix_thread::start, data);
@@ -41,22 +41,22 @@ posix_thread::start (void *args) noexcept {
   thread_error_code code;
   auto *data = static_cast<thread_data *>(args);
 
-  debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
+  log_debug("thread \"%s\" is running, tid = %" PRIu64, data->name.c_str(), thread::tid());
   try {
     if (data->thr_fn)
       code.code = data->thr_fn();
   } catch (const k::exception &e) {
-    fatal("posix_thread::start(), thread = \"%s\", message = %s",
+    log_fatal("posix_thread::start(), thread = \"%s\", message = %s",
           data->name.c_str(), e.what());
-    fatal("%s", e.dump());
+    log_fatal("%s", e.dump());
   } catch (const std::exception &e) {
-    fatal("posix_thread::start(), thread = \"%s\", message = %s",
+    log_fatal("posix_thread::start(), thread = \"%s\", message = %s",
           data->name.c_str(), e.what());
   } catch (...) {
-    fatal("posix_thread::start(), thread = \"%s\", message = unknown exception",
+    log_fatal("posix_thread::start(), thread = \"%s\", message = unknown exception",
           data->name.c_str());
   }
-  debug("thread \"%s\" stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
+  log_debug("thread \"%s\" stopped, tid = %" PRIu64, data->name.c_str(), thread::tid());
 
   safe_release(data);
   return code.ptr;

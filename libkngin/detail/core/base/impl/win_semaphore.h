@@ -53,7 +53,7 @@ public:
   }
 
 private:
-  HANDLE sem_;
+  handle_t sem_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

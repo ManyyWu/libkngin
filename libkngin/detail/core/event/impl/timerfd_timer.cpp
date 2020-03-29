@@ -28,7 +28,7 @@ public:
     auto self = owner.self();
     int64_t val = 0;
     in_buffer buf(&val, 8);
-    descriptor::read(owner.fd_, buf);
+    descriptor::read(owner.handle_, buf);
     if (owner.handler_) {
       auto now = timestamp::monotonic();
       TRY()
@@ -99,13 +99,13 @@ timerfd_timer::timerfd_timer (timeout_handler &&handler,
    id_(),
    opq_(nullptr) {
   opq_ = new timerfd_timer::timer_op_queue(*this);
-  if (fd_ < 0)
+  if (handle_ < 0)
     throw_system_error("::timerfd_create() error", last_error());
   set_time(initval, interval);
   enable_read();
 } catch (...) {
-  if (FD_VALID(fd_))
-    descriptor::close(fd_);
+  if (HANDLE_VALID(handle_))
+    descriptor::close(handle_);
   safe_release(opq_);
   throw;
 }
@@ -123,15 +123,15 @@ timerfd_timer::set_time (timestamp initval, timestamp interval) {
   itimerspec its;
   initval.to_timespec(its.it_value);
   interval.to_timespec(its.it_interval);
-  if (::timerfd_settime(fd_, TFD_TIMER_ABSTIME, &its, nullptr) < 0)
+  if (::timerfd_settime(handle_, TFD_TIMER_ABSTIME, &its, nullptr) < 0)
     throw_system_error("::timerfd_settime() error", last_error());
   timeout_.reset(initval, interval);
 }
 
 void
 timerfd_timer::close () {
-  if (FD_VALID(fd_))
-    descriptor::close(fd_);
+  if (HANDLE_VALID(handle_))
+    descriptor::close(handle_);
 }
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

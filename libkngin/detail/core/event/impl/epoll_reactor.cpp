@@ -71,9 +71,9 @@ epoll_reactor::wakeup () {
 
 void
 epoll_reactor::close () {
-  if (FD_VALID(epoll_fd_))
+  if (HANDLE_VALID(epoll_fd_))
     descriptor::close(epoll_fd_);
-  if (FD_VALID(waker_fd_))
+  if (HANDLE_VALID(waker_fd_))
     descriptor::close(waker_fd_);
 }
 
@@ -81,24 +81,24 @@ void
 epoll_reactor::register_event (class epoll_event &ev) {
   assert(!ev.registed());
   ev.set_registed(true);
-  update_event(EPOLL_CTL_ADD, ev.fd(), &ev);
+  update_event(EPOLL_CTL_ADD, ev.handle(), &ev);
 }
 
 void
 epoll_reactor::remove_event (class epoll_event &ev) {
   assert(ev.registed());
   ev.set_registed(false);
-  update_event(EPOLL_CTL_DEL, ev.fd(), &ev);
+  update_event(EPOLL_CTL_DEL, ev.handle(), &ev);
 }
 
 void
 epoll_reactor::modify_event (class epoll_event &ev) {
   assert(ev.registed());
-  update_event(EPOLL_CTL_MOD, ev.fd(), &ev);
+  update_event(EPOLL_CTL_MOD, ev.handle(), &ev);
 }
 
 void
-epoll_reactor::update_event (int opt, int fd, class epoll_event *ev) {
+epoll_reactor::update_event (int opt, handle_t h, class epoll_event *ev) {
   /**
    * NOTES:
    * While one thread is blocked in a call to epoll_pwait(), it is possible for another thread
@@ -115,7 +115,7 @@ epoll_reactor::update_event (int opt, int fd, class epoll_event *ev) {
    */
 
   ::epoll_event internal_event = {ev->flags(), ev};
-  if (::epoll_ctl(epoll_fd_, opt, fd, &internal_event) < 0)
+  if (::epoll_ctl(epoll_fd_, opt, h, &internal_event) < 0)
     throw_system_error("::epoll_ctl() error", errno);
 }
 
