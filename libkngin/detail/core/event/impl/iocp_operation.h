@@ -4,12 +4,15 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_IOCP_REACTOR)
 
+#include "kngin/core/base/noncopyable.h"
 #include "kngin/core/event/operation_base.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class event_loop;
-class iocp_operation : public operation_base {
+class iocp_operation
+  : public noncoypable,
+    public operation_base {
 public:
   friend class iocp_reactor;
 

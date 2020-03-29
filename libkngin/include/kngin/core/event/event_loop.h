@@ -14,7 +14,7 @@
 
 KNGIN_NAMESPACE_K_BEGIN
 
-class event_loop {
+class event_loop : public noncopyable {
 public:
   typedef std::shared_ptr<timer> timer_ptr;
 

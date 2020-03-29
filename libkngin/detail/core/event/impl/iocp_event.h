@@ -4,12 +4,13 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_IOCP_REACTOR)
 
+#include "kngin/core/base/noncopyable.h"
 #include "detail/core/base/win_utils.h"
 #include "detail/core/event/impl/iocp_operation.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class iocp_event {
+class iocp_event : public noncopyable {
   friend class iocp_reactor;
 
 public:

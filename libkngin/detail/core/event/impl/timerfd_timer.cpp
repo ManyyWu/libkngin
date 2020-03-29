@@ -10,7 +10,9 @@
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class timerfd_timer::operation : public operation_base {
+class timerfd_timer::operation
+  : public noncopyable,
+    public operation_base {
 public:
   explicit
   operation (timerfd_timer &timer)
@@ -40,7 +42,9 @@ public:
   }
 };
 
-class timerfd_timer::timer_op_queue : detail::op_queue {
+class timerfd_timer::timer_op_queue
+  : public noncopyable,
+    public detail::op_queue {
   friend class timerfd_timer;
 
 public:

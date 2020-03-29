@@ -10,7 +10,7 @@
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
-class iocp_reactor {
+class iocp_reactor : public noncopyable {
 public:
   iocp_reactor ();
 

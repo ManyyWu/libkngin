@@ -4,13 +4,14 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_EPOLL_REACTOR)
 
+#include "kngin/core/base/noncopyable.h"
 #include "kngin/core/event/operation_base.h"
 #include <sys/epoll.h>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class epoll_reactor;
-class epoll_event {
+class epoll_event : public noncopyable {
   friend class epoll_reactor;
 
 public:

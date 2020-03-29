@@ -12,7 +12,7 @@ KNGIN_NAMESPACE_K_DETAIL_BEGIN
 size_t
 descriptor::read (handle_t h, in_buffer &buf) {
   assert(buf.size() ? buf.writeable() : true);
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto size = ::read(h, buf.begin(), buf.writeable());
   if (size < 0)
     throw_system_error("::read() error", last_error());
@@ -23,7 +23,7 @@ descriptor::read (handle_t h, in_buffer &buf) {
 size_t
 descriptor::read (handle_t h, in_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? buf.writeable() : true);
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto size = ::read(h, buf.begin(), buf.writeable());
   if (size < 0) {
     ec = last_error();
@@ -38,7 +38,7 @@ descriptor::read (handle_t h, in_buffer &buf, error_code &ec) noexcept {
 size_t
 descriptor::write (handle_t h, out_buffer &buf) {
   assert(buf.size() ? !buf.eof() : true);
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto size = ::write(h, buf.begin(), buf.size());
   if (size < 0)
     throw_system_error("::write() error", last_error());
@@ -49,7 +49,7 @@ descriptor::write (handle_t h, out_buffer &buf) {
 size_t
 descriptor::write (handle_t h, out_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? !buf.eof() : true);
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto size = ::write(h, buf.begin(), buf.size());
   if (size < 0) {
     ec = last_error();
@@ -63,7 +63,7 @@ descriptor::write (handle_t h, out_buffer &buf, error_code &ec) noexcept {
 
 size_t
 descriptor::readable (handle_t h) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   size_t bytes = 0;
   if (::ioctl(h, FIONREAD, &bytes) < 0)
     throw_system_error("::ioctl(FIONREAD) error", last_error());
@@ -72,7 +72,7 @@ descriptor::readable (handle_t h) {
 
 size_t
 descriptor::readable (handle_t h, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   size_t bytes;
   ec = (::ioctl(h, FIONREAD, &bytes) < 0) ? last_error() : error_code();
   return bytes;
@@ -80,7 +80,7 @@ descriptor::readable (handle_t h, error_code &ec) noexcept {
 
 error_code
 descriptor::read_error (handle_t h) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto size = ::read(h, nullptr, 0);
   if (size < 0)
     return last_error();
@@ -89,22 +89,22 @@ descriptor::read_error (handle_t h) noexcept {
 
 void
 descriptor::close (handle_t &h) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   if (::close(h) < 0)
     throw_system_error("::close() error", last_error());
-  h = INVALID_FD;
+  h = INVALID_HANDLE;
 }
 
 void
 descriptor::close (handle_t &h, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   ec = (::close(h) < 0) ? last_error() : error_code();
-  h = INVALID_FD;
+  h = INVALID_HANDLE;
 }
 
 int
 descriptor::dup (handle_t h) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto new_fd = ::dup(h);
   if (new_fd < 0)
     throw_system_error("::dup() error", last_error());
@@ -113,11 +113,11 @@ descriptor::dup (handle_t h) {
 
 int
 descriptor::dup (handle_t h, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto new_fd = ::dup(h);
   if (new_fd < 0) {
     ec = last_error();
-    return INVALID_FD;
+    return INVALID_HANDLE;
   }
   ec = error_code();
   return new_fd;
@@ -125,7 +125,7 @@ descriptor::dup (handle_t h, error_code &ec) noexcept {
 
 void
 descriptor::set_nonblock (handle_t h, bool on) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFL);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
   if (::fcntl(h, F_SETFL, flags) < 0)
@@ -134,7 +134,7 @@ descriptor::set_nonblock (handle_t h, bool on) {
 
 void
 descriptor::set_nonblock (handle_t h, bool on, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFL);
   flags = on ? flags | O_NONBLOCK : flags & ~O_NONBLOCK;
   ec = (::fcntl(h, F_SETFL, flags) < 0) ? last_error() : error_code();
@@ -142,7 +142,7 @@ descriptor::set_nonblock (handle_t h, bool on, error_code &ec) noexcept {
 
 void
 descriptor::set_closeexec (handle_t h, bool on) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFD);
   flags = on ? flags | FD_CLOEXEC : flags & ~FD_CLOEXEC;
   if (::fcntl(h, F_SETFD, flags) < 0)
@@ -151,7 +151,7 @@ descriptor::set_closeexec (handle_t h, bool on) {
 
 void
 descriptor::set_closeexec (handle_t h, bool on, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFD);
   flags = on ? flags | FD_CLOEXEC : flags & ~FD_CLOEXEC;
   ec = (::fcntl(h, F_SETFD, flags) < 0) ? last_error() : error_code();
@@ -159,7 +159,7 @@ descriptor::set_closeexec (handle_t h, bool on, error_code &ec) noexcept {
 
 bool
 descriptor::nonblock (handle_t h) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFL);
   if (flags < 0)
     throw_system_error("::fcntl() get O_NONBLOCK flag failed", last_error());
@@ -168,7 +168,7 @@ descriptor::nonblock (handle_t h) {
 
 bool
 descriptor::nonblock (handle_t h, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFL);
   ec = (flags < 0) ? last_error() : error_code();
   return (flags & O_NONBLOCK);
@@ -176,7 +176,7 @@ descriptor::nonblock (handle_t h, error_code &ec) noexcept {
 
 bool
 descriptor::closeexec (handle_t h) {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFD);
   if (flags < 0)
     throw_system_error("::fcntl() get FD_CLOEXEC flag failed", last_error());
@@ -185,7 +185,7 @@ descriptor::closeexec (handle_t h) {
 
 bool
 descriptor::closeexec (handle_t h, error_code &ec) noexcept {
-  assert(FD_VALID(h));
+  assert(HANDLE_VALID(h));
   auto flags = ::fcntl(h, F_GETFD);
   ec = (flags < 0) ? last_error() : error_code();
   return (flags & FD_CLOEXEC);

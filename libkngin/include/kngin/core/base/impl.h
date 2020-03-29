@@ -3,7 +3,6 @@
 
 #include "kngin/core/define.h"
 
-
 // semaphore
 #if defined(KNGIN_USE_WIN_SEMAPHORE)
 declare_detail_impl_class(win_semaphore)

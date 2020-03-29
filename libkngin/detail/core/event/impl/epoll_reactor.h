@@ -42,9 +42,9 @@ private:
   on_wakeup ();
 
 private:
-  int epoll_fd_;
+  handle_t epoll_fd_;
 
-  int waker_fd_;
+  handle_t waker_fd_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END
