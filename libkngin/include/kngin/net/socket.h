@@ -4,6 +4,7 @@
 #include "kngin/core/define.h"
 #include "kngin/core/base/buffer.h"
 #include "kngin/net/address.h"
+#include "kngin/net/detail.h"
 
 KNGIN_NAMESPACE_K_BEGIN
 
@@ -107,8 +108,8 @@ public:
 
 private:
   struct streams {
-    stream *rstream;
-    stream *ostream;
+    detail::stream *rstream;
+    detail::stream *ostream;
   };
 
   handle_t handle_;
