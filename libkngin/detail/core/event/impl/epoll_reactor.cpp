@@ -8,18 +8,22 @@
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 epoll_reactor::epoll_reactor ()
- : epoll_fd_(::epoll_create1(EPOLL_CLOEXEC)),
+ : epoll_fd_(::sys::epoll::epoll_create1(sys::epoll::EPOLL_CLOEXEC)),
    waker_fd_(::eventfd(0, EFD_CLOEXEC)) {
   if (epoll_fd_ < 0)
-    throw_system_error("::epoll_create1() error", last_error());
+    throw_system_error("::sys::epoll::epoll_create1() error", last_error());
   if (waker_fd_ < 0) {
     ::close(epoll_fd_);
     throw_system_error("::eventfd() error", last_error());
   }
 
   // add waker to epoll
-  ::epoll_event ev = {EPOLLHUP | EPOLLERR | EPOLLET | EPOLLIN, this};
-  if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, waker_fd_, &ev) < 0)
+  sys::epoll::epoll_event ev = {sys::epoll::EPOLLHUP
+                                  | sys::epoll::EPOLLERR
+                                  | sys::epoll::EPOLLET
+                                  | sys::epoll::EPOLLIN,
+                                this};
+  if (sys::epoll::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, waker_fd_, &ev) < 0)
     throw_system_error("::epoll_ctl() error", last_error());
 }
 
@@ -30,9 +34,9 @@ epoll_reactor::~epoll_reactor () noexcept {
 }
 
 size_t
-epoll_reactor::wait (op_queue &ops, timestamp delay) {
-  ::epoll_event internal_events[KNGIN_EPOLL_REACTOR_MAX_EVENTS];
-  auto size = ::epoll_wait(epoll_fd_, internal_events,
+epoll_reactor::wait (event_list &list, timestamp delay) {
+  sys::epoll::epoll_event internal_events[KNGIN_EPOLL_REACTOR_MAX_EVENTS];
+  auto size = sys::epoll::epoll_wait(epoll_fd_, internal_events,
                            KNGIN_EPOLL_REACTOR_MAX_EVENTS, delay.value_int());
   auto ec = last_error();
   if (size < 0 and EINTR != ec)
@@ -43,21 +47,20 @@ epoll_reactor::wait (op_queue &ops, timestamp delay) {
       on_wakeup();
       continue;
     }
-    auto *event = static_cast<class epoll_event *>(internal_event.data.ptr);
+    auto *event = static_cast<epoll_event *>(internal_event.data.ptr);
     assert(event);
-    if (internal_event.events & (EPOLLERR | EPOLLHUP)) {
-      if (op_queue *q = event->get_op_queue(operation_base::op_type::op_error))
-        ops.push(q->top());
+    if (internal_event.events & (sys::epoll::EPOLLERR | sys::epoll::EPOLLHUP)) {
+      list.push_back({event, epoll_event::event_type_error});
       continue;
     }
-    if (internal_event.events & EPOLLIN) {
-      if (auto *q = event->get_op_queue(operation_base::op_type::op_read))
-        ops.push(q->top());
-    }
-    if (internal_event.events & EPOLLOUT) {
-      if (auto *q = event->get_op_queue(operation_base::op_type::op_write))
-        ops.push(q->top());
-    }
+    int flags = 0;
+    if (internal_event.events & sys::epoll::EPOLLIN)
+      flags |= epoll_event::event_type_read;
+    if (internal_event.events & sys::epoll::EPOLLOUT)
+      flags |= epoll_event::event_type_write;
+    if (internal_event.events & sys::epoll::EPOLLPRI)
+      flags |= epoll_event::event_type_oob;
+    list.push_back({event, flags});
   }
   return std::max<size_t>(size, 0);
 }
@@ -78,27 +81,27 @@ epoll_reactor::close () {
 }
 
 void
-epoll_reactor::register_event (class epoll_event &ev) {
+epoll_reactor::register_event (epoll_event &ev) {
   assert(!ev.registed());
   ev.set_registed(true);
   update_event(EPOLL_CTL_ADD, ev.handle(), &ev);
 }
 
 void
-epoll_reactor::remove_event (class epoll_event &ev) {
+epoll_reactor::remove_event (epoll_event &ev) {
   assert(ev.registed());
   ev.set_registed(false);
   update_event(EPOLL_CTL_DEL, ev.handle(), &ev);
 }
 
 void
-epoll_reactor::modify_event (class epoll_event &ev) {
+epoll_reactor::modify_event (epoll_event &ev) {
   assert(ev.registed());
   update_event(EPOLL_CTL_MOD, ev.handle(), &ev);
 }
 
 void
-epoll_reactor::update_event (int opt, handle_t h, class epoll_event *ev) {
+epoll_reactor::update_event (int opt, handle_t h, epoll_event *ev) {
   /**
    * NOTES:
    * While one thread is blocked in a call to epoll_pwait(), it is possible for another thread
@@ -114,8 +117,8 @@ epoll_reactor::update_event (int opt, handle_t h, class epoll_event *ev) {
    * particular behavior in this scenario must be considered buggy.
    */
 
-  ::epoll_event internal_event = {ev->flags(), ev};
-  if (::epoll_ctl(epoll_fd_, opt, h, &internal_event) < 0)
+  sys::epoll::epoll_event internal_event = {ev->flags(), ev};
+  if (sys::epoll::epoll_ctl(epoll_fd_, opt, h, &internal_event) < 0)
     throw_system_error("::epoll_ctl() error", errno);
 }
 

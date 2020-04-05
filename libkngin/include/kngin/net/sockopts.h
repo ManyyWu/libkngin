@@ -31,7 +31,7 @@ struct sockopts_info {
   int         opt_name;
 };
 
-enum SOCKOPTS_TYPE {
+typedef enum {
   SOCKOPTS_TYPE_BROADCAST = 0,
   SOCKOPTS_TYPE_DEBUG,          // it needs to be set as root
   SOCKOPTS_TYPE_DONTROUTE,
@@ -57,7 +57,7 @@ enum SOCKOPTS_TYPE {
   SOCKOPTS_TYPE_TCP_INFO,
 #endif /* defined(KNGIN_SYSTEM__WIN32) */
   SOCKOPTS_TYPE_MAX
-};
+} SOCKOPTS_TYPE;
 
 extern const sockopts_info opts_entry[SOCKOPTS_TYPE_MAX];
 

@@ -2,78 +2,11 @@
 #include "kngin/core/base/common.h"
 #include "kngin/core/event/event_loop.h"
 #include "detail/core/event/timer_queue.h"
-#include "detail/core/event/op_queue.h"
 #include "detail/core/event/reactor.h"
 #include <vector>
 #include <algorithm>
 
 KNGIN_NAMESPACE_K_BEGIN
-
-class event_loop::event_queue : public detail::op_queue {
-public:
-  typedef operation_base::op_type op_type;
-
-  event_queue ()
-   : op_queue() {
-  }
-
-  virtual
-  ~event_queue () noexcept {
-    event_queue::clear();
-  }
-
-  virtual
-  void
-  push (operation_base &op) {
-    opq_.push_back(&op);
-  }
-
-  virtual
-  void
-  pop () {
-    if (opq_.empty())
-      throw_exception("out of range");
-    opq_.pop_back();
-  }
-
-  virtual
-  operation_base &
-  top () {
-    if (opq_.empty())
-      throw_exception("out of range");
-    return *opq_.back();
-  }
-
-  virtual
-  size_t
-  size () const noexcept {
-    return opq_.size();
-  }
-
-  virtual
-  bool
-  empty () const noexcept {
-    return opq_.empty();
-  }
-
-  virtual
-  void
-  clear () {
-    opq_.clear();
-  }
-
-  void
-  erase_owner_ops (reactor_event &ev) {
-    for (auto &iter : opq_)
-      if (&iter->owner() == &ev)
-        iter= nullptr;
-  }
-
-private:
-  typedef std::vector<operation_base *> queue_type;
-
-  queue_type opq_;
-};
 
 event_loop::event_loop ()
  : tid_(0),
@@ -87,18 +20,14 @@ event_loop::event_loop ()
    timerq_mutex_(),
    stop_barrier_(2),
    timer_queue_processing_(false),
-   processing_event_(nullptr),
-   events_processing_(false),
-   opq_(nullptr),
+   events_processing_(0),
    event_rmutex_() {
   try {
     reactor_ = new reactor();
     timerq_ = new detail::timer_queue(this);
-    opq_ = new event_loop::event_queue();
   } catch (...) {
     safe_release(reactor_);
     safe_release(timerq_);
-    safe_release(opq_);
     throw;
   }
 }
@@ -108,7 +37,6 @@ event_loop::~event_loop () noexcept {
     stop();
     safe_release(reactor_);
     safe_release(timerq_);
-    safe_release(opq_);
   IGNORE_EXCP()
 }
 
@@ -135,7 +63,7 @@ event_loop::run () {
 
   try {
     while (!stop_) {
-      opq_->clear();
+      actived_events_.clear();
 
       // process queued tasks
       process_tasks();
@@ -143,7 +71,7 @@ event_loop::run () {
         break;
 
       // wait for events
-      auto size = wait(*opq_);
+      auto size = wait();
       if (stop_)
         break;
       log_debug("%" PRIu64 " events were captured in event_loop of thread %" PRIu64, size, tid_);
@@ -152,7 +80,7 @@ event_loop::run () {
       //sort_events();
 
       // process events
-      process_events(*opq_);
+      process_events();
     }
     is_throw = false;
   } catch (const k::exception &e) {
@@ -211,7 +139,10 @@ event_loop::remove_event (reactor_event &ev) {
   if (reactor_) {
     if (events_processing_) {
       rmutex::scoped_lock lock(event_rmutex_);
-      opq_->erase_owner_ops(ev);
+      auto size = actived_events_.size();
+      for (auto i = events_processing_.load(); i > size; ++i)
+        if (&ev == actived_events_[i].ev)
+          actived_events_[i].ev = nullptr;
     }
     reactor_->remove_event(ev);
   }
@@ -252,7 +183,7 @@ event_loop::run_after (timestamp delay, timeout_handler &&handler) {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
   wakeup();
 #else
-  reactor_->register_event(*new_timer);
+  reactor_->register_event(new_timer->event());
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return new_timer->id();
 }
@@ -269,7 +200,7 @@ event_loop::run_every (timestamp interval, timeout_handler &&handler) {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
   wakeup();
 #else
-  reactor_->register_event(*new_timer);
+  reactor_->register_event(new_timer->event());
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return new_timer->id();
 }
@@ -286,7 +217,7 @@ event_loop::run_at (timestamp realtime, timeout_handler &&handler) {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
   wakeup();
 #else
-  reactor_->register_event(*new_timer);
+  reactor_->register_event(new_timer->event());
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
   return new_timer->id();
 }
@@ -298,7 +229,7 @@ event_loop::cancel (const timer_id &id) {
   if (ptr) {
 #else
   if (ptr and ptr->registed()) {
-    reactor_->remove_event(*ptr);
+    reactor_->remove_event(ptr->event());
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
     {
       mutex::scoped_lock lock(timerq_mutex_);
@@ -316,7 +247,7 @@ event_loop::cancel (timer_ptr &ptr) {
   if (ptr) {
 #else
   if (ptr and ptr->registed()) {
-    reactor_->remove_event(*ptr);
+    reactor_->remove_event(ptr->event());
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
     {
       mutex::scoped_lock lock(timerq_mutex_);
@@ -329,7 +260,7 @@ event_loop::cancel (timer_ptr &ptr) {
 }
 
 size_t
-event_loop::event_loop::wait (event_queue &evq) {
+event_loop::event_loop::wait () {
   time_t delay = 0;
   {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
@@ -342,7 +273,7 @@ event_loop::event_loop::wait (event_queue &evq) {
 #endif
   }
   log_debug("dealy: %" PRIu64 " ms", delay);
-  return reactor_->wait(evq, delay);
+  return reactor_->wait(actived_events_, delay);
 }
 
 void
@@ -361,21 +292,14 @@ event_loop::process_tasks () {
 }
 
 void
-event_loop::process_events (event_queue &evq) {
+event_loop::process_events () {
   {
     events_processing_ = true;
-    scoped_flag<std::atomic_bool, bool> flag(events_processing_, false);
-    processing_event_ = nullptr;
-    scoped_flag<std::atomic<reactor_event *>, reactor_event *> actived_event(processing_event_, nullptr);
+    scoped_flag<std::atomic_size_t, size_t> flag(events_processing_, 0);
     rmutex::scoped_lock lock(event_rmutex_);
-    while (evq.size()) {
-      TRY()
-        if (auto *ev = &evq.top()) {
-          processing_event_ = &ev->owner();
-          evq.top().on_operation(*this);
-        }
-      CATCH_ERROR("event_loop::process_events()")
-      evq.pop();
+    for (auto iter : actived_events_) {
+      if (iter.ev)
+        iter.ev->on_events(*this, iter.events);
     }
   }
 

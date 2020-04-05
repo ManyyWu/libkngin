@@ -9,11 +9,11 @@ KNGIN_NAMESPACE_K_BEGIN
 class event_loop;
 class operation_base {
 public:
-  enum class op_type : unsigned char {
+  typedef enum class : unsigned char {
     op_read  = 0,
     op_write = 1,
     op_error = 2
-  };
+  } op_type;
 
   explicit
   operation_base (reactor_event &owner, op_type type) noexcept

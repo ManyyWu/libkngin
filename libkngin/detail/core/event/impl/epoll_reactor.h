@@ -4,20 +4,22 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_EPOLL_REACTOR)
 
-#include "detail/core/event/op_queue.h"
 #include "detail/core/event/impl/epoll_event.h"
+#include "kngin/core/event/event_loop.h"
 #include <vector>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class epoll_reactor {
 public:
+  typedef std::vector<event_loop::actived_event> event_list;
+
   epoll_reactor ();
 
   ~epoll_reactor () noexcept;
 
   size_t
-  wait (op_queue &ops, timestamp delay);
+  wait (event_list &list, timestamp delay);
 
   void
   wakeup ();
@@ -26,17 +28,17 @@ public:
   close ();
 
   void
-  register_event (class epoll_event &ev);
+  register_event (epoll_event &ev);
 
   void
-  remove_event (class epoll_event &ev);
+  remove_event (epoll_event &ev);
 
   void
-  modify_event (class epoll_event &ev);
+  modify_event (epoll_event &ev);
 
 private:
   void
-  update_event (int opt, handle_t h, class epoll_event *ev);
+  update_event (int opt, handle_t h, epoll_event *ev);
 
   void
   on_wakeup ();

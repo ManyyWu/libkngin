@@ -47,7 +47,7 @@ timer_queue::clear () {
     heap_.pop();
 #elif defined(KNGIN_USE_TIMERFD_TIMER)
   heap_.for_each([&] (timer_ptr &ptr) {
-    loop_->remove_event(*ptr);
+    loop_->remove_event(ptr->event());
     remove(ptr);
   });
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */

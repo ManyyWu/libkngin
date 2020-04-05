@@ -5,27 +5,27 @@
 #if defined(KNGIN_USE_TIMERFD_TIMER)
 
 #include "kngin/core/event/timer_id.h"
-#include "detail/core/event/op_queue.h"
 #include "detail/core/event/impl/epoll_event.h"
 #include <memory>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class timerfd_timer
-  : public epoll_event,
-    public obj_entry<timerfd_timer> {
+  : public obj_entry<timerfd_timer> {
   class operation;
-  class timer_op_queue;
   friend class detail::timer_queue;
   friend class timerfd_timer::operation;
-  friend class timerfd_timer::timer_op_queue;
 
 public:
   timerfd_timer (timeout_handler &&handler,
                  timestamp initval, timestamp interval);
 
-  virtual
   ~timerfd_timer () noexcept;
+
+  epoll_event &
+  event () noexcept {
+    return ev_;
+  }
 
   void
   set_time (timestamp initval, timestamp interval);
@@ -38,6 +38,11 @@ public:
     return HANDLE_INVALID(handle_);
   }
 
+  bool
+  registed () const noexcept {
+    return ev_.registed();
+  }
+
   std::shared_ptr<timerfd_timer>
   self () {
     return shared_from_this();
@@ -48,22 +53,20 @@ public:
     return id_;
   }
 
-  virtual
-  op_queue *
-  get_op_queue (op_type type) noexcept {
-    if (op_type::op_read == type or op_type::op_error == type)
-      return opq_;
-    return nullptr;
-  }
+private:
+  void
+  on_events (event_loop &loop, int events);
 
 private:
+  handle_t handle_;
+
   timeout timeout_;
 
   timeout_handler handler_;
 
   timer_id id_;
 
-  op_queue *opq_;
+  epoll_event ev_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

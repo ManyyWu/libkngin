@@ -14,8 +14,6 @@ class event_loop;
 KNGIN_NAMESPACE_K_DETAIL_BEGIN
 
 class timer_queue : noncopyable {
-  friend class event_loop;
-
 public:
   typedef timer_id::timer_ptr timer_ptr;
   typedef std::vector<timer_ptr> timer_list;

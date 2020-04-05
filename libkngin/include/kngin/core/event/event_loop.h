@@ -16,6 +16,11 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class event_loop : public noncopyable {
 public:
+  struct actived_event {
+    reactor_event *ev;
+    int events;
+  };
+
   typedef std::shared_ptr<timer> timer_ptr;
 
   event_loop ();
@@ -75,16 +80,16 @@ public:
   cancel (timer_ptr &ptr);
 
 private:
-  class event_queue;
+  typedef std::vector<actived_event> event_list;
 
   size_t
-  wait (event_queue &evq);
+  wait ();
 
   void
   process_tasks ();
 
   void
-  process_events (event_queue &evq);
+  process_events ();
 
   void
   process_timers ();
@@ -115,11 +120,9 @@ private:
 
   std::atomic_bool timer_queue_processing_;
 
-  std::atomic<reactor_event *> processing_event_;
+  std::atomic_size_t events_processing_;
 
-  std::atomic_bool events_processing_;
-
-  event_queue *opq_;
+  event_list actived_events_;
 
   rmutex event_rmutex_;
 };

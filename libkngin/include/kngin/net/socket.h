@@ -10,12 +10,12 @@ KNGIN_NAMESPACE_K_BEGIN
 
 class socket {
 public:
-  enum inet_protocol {
-    IPV4_TCP = 0x0,
-    IPV4_UDP = 0x1,
-    IPV6_TCP = 0x2,
-    IPV6_UDP = 0x3,
-  };
+  typedef enum {
+    ipv4_tcp = 0x0,
+    ipv4_udp = 0x1,
+    ipv6_tcp = 0x2,
+    ipv6_udp = 0x3,
+  } inet_protocol;
 
   socket ();
 

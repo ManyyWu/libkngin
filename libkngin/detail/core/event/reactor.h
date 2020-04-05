@@ -5,6 +5,7 @@
 
 #if defined(KNGIN_USE_IOCP_REACTOR)
 #  include "detail/core/event/impl/iocp_reactor.h"
+
 #elif defined(KNGIN_USE_EPOLL_REACTOR)
 #  include "detail/core/event/impl/epoll_reactor.h"
 #elif defined(KNGIN_USE_POLL_REACTOR)

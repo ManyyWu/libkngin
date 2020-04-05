@@ -41,22 +41,6 @@ static inline void INIT_LIST_HEAD(struct list_head *list) {
 #define LIST_POISON1  (void *)((char *) 0x00100100 + POISON_POINTER_DELTA)
 #define LIST_POISON2  (void *)((char *) 0x00200200 + POISON_POINTER_DELTA)
 
-#undef offsetof
-#ifdef __compiler_offsetof
-#define offsetof(TYPE, MEMBER) __compiler_offsetof(TYPE, MEMBER)
-#else
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif /* defined(KNGIN_SYSTEM_WIN32) */
-
-#if defined(KNGIN_SYSTEM_WIN32)
-#define container_of(ptr, type, member) ((type *)( \
-        (PCHAR)(ptr) - (ULONG_PTR)(&((type *)0)->member)))
-#else
-#define container_of(ptr, type, member) ({ \
-        const typeof( ((type *)0)->member ) *__mptr = (ptr); \
-        (type *)( (char *)__mptr - offsetof(type, member) );})
-#endif /* defined(KNGIN_SYSTEM_WIN32) */
-
 /*
  * Insert a new entry between two known consecutive entries.
  *

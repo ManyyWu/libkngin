@@ -4,55 +4,67 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_EPOLL_REACTOR)
 
-#include "kngin/core/base/noncopyable.h"
-#include "kngin/core/event/operation_base.h"
+#include "kngin/core/base/common.h"
+namespace sys::epoll {
 #include <sys/epoll.h>
+}
+#include <functional>
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
 class epoll_reactor;
 class epoll_event : public noncopyable {
   friend class epoll_reactor;
+  friend class k::event_loop;
 
 public:
-  /*
-  enum file_discriptor_type {
-    fd_type_unknown = 0;
-    fd_type_file    = 1;
-    fd_type_socket  = 2;
-    fd_type_timer   = 3;
+  enum {
+    event_type_read  = 1,
+    event_type_write = 2,
+    event_type_error = 4,
+    event_type_oob   = 8,
   };
-  */
 
-  epoll_event () = delete;
+  typedef std::function<void (event_loop &, int)> handler;
 
-  explicit
-  epoll_event (handle_t h) noexcept
-   : handle_(h),
-     flags_(EPOLLERR | EPOLLHUP),
-     registed_(false) {
+  epoll_event () noexcept
+   : handle_(INVALID_HANDLE),
+     flags_(sys::epoll::EPOLLERR | sys::epoll::EPOLLHUP),
+     registed_(false),
+     handler_() {
   }
 
-  epoll_event (class epoll_event &&ev) noexcept
+  explicit
+  epoll_event (handle_t h, handler &&cb) noexcept
+   : handle_(h),
+     flags_(sys::epoll::EPOLLERR | sys::epoll::EPOLLHUP),
+     registed_(false),
+     handler_(std::move(cb)) {
+    }
+
+  epoll_event (epoll_event &&ev) noexcept
     : handle_(INVALID_HANDLE),
-      flags_(EPOLLERR | EPOLLHUP),
-      registed_(false) {
+      flags_(sys::epoll::EPOLLERR | sys::epoll::EPOLLHUP),
+      registed_(false),
+      handler_() {
     std::swap(handle_, ev.handle_);
     std::swap(flags_, ev.flags_);
     std::swap(registed_, ev.registed_);
+    //std::swap(handler_, ev.handler_); // unsafe
   }
 
-  virtual
   ~epoll_event () noexcept {
+  }
+
+  void
+  set_handler (handler &&cb) noexcept {
+    handler_ = std::move(cb);
   }
 
   bool
   registed () const noexcept {
     return registed_;
   }
-
-protected:
-  typedef operation_base::op_type op_type;
 
   handle_t
   handle () const noexcept {
@@ -69,75 +81,77 @@ protected:
   }
   void
   enable_read () noexcept {
-    flags_ |= EPOLLIN;
+    flags_ |= sys::epoll::EPOLLIN;
   }
   void
   enable_write () noexcept {
-    flags_ |= EPOLLOUT;
+    flags_ |= sys::epoll::EPOLLOUT;
   }
   void
   enable_oob () noexcept {
-    flags_ |= EPOLLPRI;
+    flags_ |= sys::epoll::EPOLLPRI;
   }
   void
   enable_once () noexcept {
-    flags_ |= EPOLLONESHOT;
+    flags_ |= sys::epoll::EPOLLONESHOT;
   }
   void
   enable_et () noexcept {
-    flags_ |= EPOLLET;
+    flags_ |= sys::epoll::EPOLLET;
   }
   void
   disable_read () noexcept {
-    flags_ &= ~EPOLLIN;
+    flags_ &= ~sys::epoll::EPOLLIN;
   }
   void
   disable_write () noexcept {
-    flags_ &= ~EPOLLOUT;
+    flags_ &= ~sys::epoll::EPOLLOUT;
   }
   void
   disable_oob () noexcept {
-    flags_ &= ~EPOLLPRI;
+    flags_ &= ~sys::epoll::EPOLLPRI;
   }
   void
   disable_once () noexcept {
-    flags_ &= ~EPOLLONESHOT;
+    flags_ &= ~sys::epoll::EPOLLONESHOT;
   }
   void
   disable_et () noexcept {
-    flags_ &= ~EPOLLET;
+    flags_ &= ~sys::epoll::EPOLLET;
   }
   bool
   pollin () const noexcept {
-    return (flags_ & EPOLLIN);
+    return (flags_ & sys::epoll::EPOLLIN);
   }
   bool
   pollout () const noexcept {
-    return (flags_ & EPOLLOUT);
+    return (flags_ & sys::epoll::EPOLLOUT);
   }
   bool
   pollpri () const noexcept {
-    return (flags_ & EPOLLPRI);
+    return (flags_ & sys::epoll::EPOLLPRI);
   }
   bool
   pollonce () const noexcept {
-    return (flags_ & EPOLLONESHOT);
+    return (flags_ & sys::epoll::EPOLLONESHOT);
   }
   bool
   et () const noexcept {
-    return (flags_ & EPOLLET);
-  }
-
-  virtual
-  op_queue *
-  get_op_queue (op_type) noexcept {
-    return nullptr;
+    return (flags_ & sys::epoll::EPOLLET);
   }
 
 private:
   void
   set_registed (bool on) noexcept {
     registed_ = on;
+  }
+
+  void
+  on_events (event_loop &loop, int events) {
+    TRY()
+      if (handler_)
+        handler_(loop, events);
+    CATCH_ERROR("epoll_event::on_events")
   }
 
 protected:
@@ -147,6 +161,8 @@ private:
   uint32_t flags_;
 
   bool registed_;
+
+  handler handler_;
 };
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_END

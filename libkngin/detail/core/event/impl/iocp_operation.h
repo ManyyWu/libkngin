@@ -5,7 +5,6 @@
 #if defined(KNGIN_USE_IOCP_REACTOR)
 
 #include "kngin/core/base/noncopyable.h"
-#include "kngin/core/event/operation_base.h"
 
 KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
 
