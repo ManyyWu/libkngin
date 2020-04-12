@@ -1,10 +1,7 @@
 #include "kngin/net/socket.h"
 #include "kngin/core/base/system_error.h"
-#if defined(KNGIN_SYSTEM_WIN32)
-#  include "detail/core/base/win_utils.h"
-#else
-#  include "sys/socket.h"
-#endif
+#if !defined(KNGIN_SYSTEM_WIN32)
+#include "sys/socket.h"
 
 namespace k {
 
@@ -261,4 +258,7 @@ socket::sendto (const address &addr, out_buffer buf, int flags, error_code &ec) 
   }
   return size;
 }
+
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+
 } /* namespace k */

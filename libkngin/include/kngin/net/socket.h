@@ -2,6 +2,7 @@
 #define KNGIN_SOCKET_H
 
 #include "kngin/core/define.h"
+#include "kngin/net/address.h"
 #include "kngin/core/base/buffer.h"
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/error_code.h"
