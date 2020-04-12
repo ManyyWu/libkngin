@@ -2,13 +2,13 @@
 
 #if defined(KNGIN_SYSTEM_WIN32)
 
-KNGIN_NAMESPACE_GROBLE_BEGIN
+namespace {
 #if defined(KNGIN_SYSTEM_WIN32)
 const LONGLONG g_monotonic_base = detail::get_monotonic_base();
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
-KNGIN_NAMESPACE_GROBLE_END
+}
 
-KNGIN_NAMESPACE_DETAIL_BEGIN
+namespace k::detail {
 
 #  if !defined(KNGIN_USE_WINDOWS_GETTICKCOUNT)
 LONGLONG
@@ -23,6 +23,6 @@ get_monotonic_base () {
 bool g_have_get_iocp_status_ex = true;
 #endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 
-KNGIN_NAMESPACE_DETAIL_END
+} /* k::detail */
 
 #endif /* defined(KNGIN_SYSTEM_WIN32) */

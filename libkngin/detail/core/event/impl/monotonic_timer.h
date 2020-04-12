@@ -7,7 +7,7 @@
 #include "kngin/core/event/timer_id.h"
 #include <memory>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class monotonic_timer
   : public noncopyable,
@@ -61,7 +61,7 @@ private:
   timer_id id_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 

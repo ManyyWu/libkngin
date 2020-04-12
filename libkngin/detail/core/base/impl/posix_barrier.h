@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <atomic>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class posix_barrier {
 public:
@@ -60,7 +60,7 @@ private:
   std::atomic_bool inited_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_POSIX_BARRIER) */
 

@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 size_t
 descriptor::read (handle_t h, in_buffer &buf) {
@@ -23,7 +23,7 @@ descriptor::read (handle_t h, in_buffer &buf) {
 size_t
 descriptor::read (handle_t h, in_buffer &buf, error_code &ec) noexcept {
   assert(buf.size() ? buf.writeable() : true);
-  assert(HANDLE_VALID(h));
+//  assert(HANDLE_VALID(h));
   auto size = ::read(h, buf.begin(), buf.writeable());
   if (size < 0) {
     ec = last_error();
@@ -36,18 +36,17 @@ descriptor::read (handle_t h, in_buffer &buf, error_code &ec) noexcept {
 }
 
 size_t
-descriptor::write (handle_t h, out_buffer &buf) {
+descriptor::write (handle_t h, out_buffer buf) {
   assert(buf.size() ? !buf.eof() : true);
   assert(HANDLE_VALID(h));
   auto size = ::write(h, buf.begin(), buf.size());
   if (size < 0)
     throw_system_error("::write() error", last_error());
-  buf -= size;
   return size;
 }
 
 size_t
-descriptor::write (handle_t h, out_buffer &buf, error_code &ec) noexcept {
+descriptor::write (handle_t h, out_buffer buf, error_code &ec) noexcept {
   assert(buf.size() ? !buf.eof() : true);
   assert(HANDLE_VALID(h));
   auto size = ::write(h, buf.begin(), buf.size());
@@ -57,7 +56,6 @@ descriptor::write (handle_t h, out_buffer &buf, error_code &ec) noexcept {
   } else {
     ec = error_code();
   }
-  buf -= size;
   return size;
 }
 
@@ -191,6 +189,6 @@ descriptor::closeexec (handle_t h, error_code &ec) noexcept {
   return (flags & FD_CLOEXEC);
 }
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */

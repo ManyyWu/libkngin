@@ -3,7 +3,7 @@
 
 #include "kngin/core/base/logger.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 // default logfile
 #define KNGIN_DEFAULT_LOGFILE_NAME "kngin"
@@ -22,6 +22,6 @@ extern logfile &log ();
 #define log_debug(fmt, ...) \
     k::log().write_debug(KNGIN_LOG_FORMAT("DEBUG  ", fmt), FUNCTION, FILENAME, LINE, ##__VA_ARGS__)
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_LOG_H */

@@ -8,7 +8,7 @@
 #include "detail/core/base/impl/win_mutex.h"
 #include "detail/core/base/impl/win_rmutex.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class win_cond {
 public:
@@ -54,7 +54,7 @@ private:
   CRITICAL_SECTION &mutex_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_WIN_COND) */
 

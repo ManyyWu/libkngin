@@ -8,7 +8,7 @@
 #include "detail/core/base/impl/posix_mutex.h"
 #include "detail/core/base/impl/posix_rmutex.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class posix_cond {
 public:
@@ -67,7 +67,7 @@ private:
   pthread_mutex_t &mutex_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_POSIX_COND) */
 

@@ -7,7 +7,7 @@
 #define KNGIN_DUMP_LINE_SIZE 512
 #define KNGIN_DUMP_LINE 128
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 void
 exception::dump_stack () {
@@ -32,4 +32,4 @@ exception::dump_stack () {
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

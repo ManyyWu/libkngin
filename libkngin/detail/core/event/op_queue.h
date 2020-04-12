@@ -1,11 +1,11 @@
 #ifndef KNGIN_OP_QUEUE_H
 #define KNGIN_OP_QUEUE_H
-
+/*
 #include "kngin/core/define.h"
 #include "kngin/core/event/operation_base.h"
 #include <vector>
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 class op_queue {
 public:
@@ -38,7 +38,7 @@ public:
   void
   clear () = 0;
 };
-
-KNGIN_NAMESPACE_K_DETAIL_END
+*/
+} /* namespace k::detail */
 
 #endif /* KNGIN_OP_QUEUE_H */

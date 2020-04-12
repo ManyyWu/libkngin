@@ -11,7 +11,7 @@
 
 class event_loop;
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 class timer_queue : noncopyable {
 public:
@@ -74,6 +74,6 @@ private:
   event_loop *loop_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* KNGIN_TIMER_QUEUE_H */

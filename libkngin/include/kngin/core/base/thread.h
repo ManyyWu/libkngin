@@ -6,7 +6,7 @@
 #include "kngin/core/base/detail.h"
 #include <functional>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class thread : public noncopyable {
 public:
@@ -48,6 +48,6 @@ private:
   thread_impl *impl_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_THREAD_H */

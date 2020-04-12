@@ -4,8 +4,8 @@
 #include "kngin/core/define.h"
 #include "kngin/core/event/detail.h"
 
-KNGIN_NAMESPACE_K_BEGIN
-
+namespace k {
+/*
 class event_loop;
 class operation_base {
 public:
@@ -45,7 +45,7 @@ protected:
 
   op_type type_;
 };
-
-KNGIN_NAMESPACE_K_END
+*/
+} /* namespace k */
 
 #endif /* KNGIN_OPERATION_BASE_H */

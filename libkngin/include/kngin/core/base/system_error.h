@@ -7,7 +7,7 @@
 
 #define throw_system_error(what, ec) throw k::system_error((what), (ec))
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class system_error : public std::exception {
 public:
@@ -56,6 +56,6 @@ private:
   error_code  ec_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_SYSTEM_ERROR_H */

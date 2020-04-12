@@ -2,6 +2,6 @@
 
 #define KNGIN_FILENAME "libkngin/core/base/timeout.cpp"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

@@ -11,7 +11,7 @@
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 #include <ctime>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 namespace sockopts {
 
@@ -61,11 +61,9 @@ typedef enum {
 
 extern const sockopts_info opts_entry[SOCKOPTS_TYPE_MAX];
 
-inline
 bool
 get_flag (handle_t h, const sockopts_info &opt_info);
 
-inline
 int
 get_int (handle_t h, const sockopts_info &opt_info);
 
@@ -366,6 +364,6 @@ tcp_info (const socket &s) {
 
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_SOCK_OPTS_H */

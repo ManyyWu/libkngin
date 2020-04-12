@@ -6,7 +6,7 @@
 
 #include "kngin/core/base/noncopyable.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class event_loop;
 class iocp_operation
@@ -21,7 +21,7 @@ protected:
   WSABUF data_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 

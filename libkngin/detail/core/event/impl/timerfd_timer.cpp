@@ -7,7 +7,7 @@
 
 #include <sys/timerfd.h>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 timerfd_timer::timerfd_timer (timeout_handler &&handler,
                               timestamp initval, timestamp interval)
@@ -71,6 +71,6 @@ timerfd_timer::on_events (event_loop &loop, int events) {
   }
 }
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_TIMERFD_TIMER) */

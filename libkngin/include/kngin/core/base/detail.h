@@ -3,8 +3,8 @@
 
 #include "kngin/core/base/impl.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_BASE_DETAIL_H */

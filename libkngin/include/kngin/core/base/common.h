@@ -5,7 +5,7 @@
 #include "kngin/core/base/log.h"
 #include <cassert>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 // exception
 #define TRY() \
@@ -45,6 +45,6 @@ KNGIN_NAMESPACE_K_BEGIN
         const typeof( ((type *)0)->member ) *__mptr = (ptr); \
         (type *)( (char *)__mptr - offsetof(type, member) );})
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_COMMON_H */

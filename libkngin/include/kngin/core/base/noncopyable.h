@@ -3,7 +3,7 @@
 
 #include "kngin/core/define.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class noncopyable {
 protected:
@@ -18,6 +18,6 @@ public:
   operator =   (const noncopyable &) = delete;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_NONCOPYABLE_H */

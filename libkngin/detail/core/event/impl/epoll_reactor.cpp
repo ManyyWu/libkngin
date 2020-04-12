@@ -5,7 +5,7 @@
 #include "detail/core/event/impl/epoll_reactor.h"
 #include <sys/eventfd.h>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 epoll_reactor::epoll_reactor ()
  : epoll_fd_(::sys::epoll::epoll_create1(sys::epoll::EPOLL_CLOEXEC)),
@@ -131,6 +131,6 @@ epoll_reactor::on_wakeup() {
   CATCH_FATAL("descriptor::on_wakeup()");
 }
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_EPOLL_REACTOR) */

@@ -4,7 +4,7 @@
 #include "kngin/core/base/mutex.h"
 #include "kngin/core/base/rmutex.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 cond::cond (mutex &mutex)
  : impl_(nullptr) {
@@ -40,4 +40,4 @@ cond::broadcast() {
   impl_->broadcast();
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

@@ -5,12 +5,12 @@
 #if defined(KNGIN_USE_EPOLL_REACTOR)
 
 #include "kngin/core/base/common.h"
+#include <functional>
 namespace sys::epoll {
 #include <sys/epoll.h>
 }
-#include <functional>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class epoll_reactor;
 class epoll_event : public noncopyable {
@@ -165,7 +165,7 @@ private:
   handler handler_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_EPOLL_REACTOR) */
 

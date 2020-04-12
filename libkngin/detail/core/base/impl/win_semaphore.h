@@ -8,7 +8,7 @@
 #include "detail/core/base/win_utils.h"
 #include "detail/core/base/impl/win_semaphore.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class win_semaphore {
 public:
@@ -56,7 +56,7 @@ private:
   handle_t sem_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_WIN_SEMAPHORE) */
 

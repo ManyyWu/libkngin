@@ -7,7 +7,7 @@
 #include "detail/core/base/win_utils.h"
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 #define LIST_HEAD(name) \
@@ -477,6 +477,6 @@ static inline void list_splice_tail_init(struct list_head *list,
 #define list_safe_reset_next(pos, n, member) \
     n = list_next_entry(pos, member)
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* KNGIN_KERNEL_LIST_H */

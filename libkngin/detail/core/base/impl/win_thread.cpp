@@ -6,7 +6,7 @@
 #include "kngin/core/base/log.h"
 #include "kngin/core/base/memory.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 void
 win_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
@@ -47,6 +47,6 @@ win_thread::start (void *args) noexcept {
   return code;
 }
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_WIN_THREAD) */

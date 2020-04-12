@@ -4,12 +4,12 @@
 #include "kngin/core/base/timestamp.h"
 
 #if defined(KNGIN_SYSTEM_WIN32)
-KNGIN_NAMESPACE_GROBLE_BEGIN
+namespace {
 extern const LONGLONG g_monotonic_base;
-KNGIN_NAMESPACE_GROBLE_END
+}
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 const timestamp timestamp::max = time_t((std::numeric_limits<time_t>::max)());
 const timestamp timestamp::zero = time_t(0);
@@ -52,7 +52,7 @@ timestamp::monotonic () noexcept {
 }
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #if defined(KNGIN_SYSTEM_WIN32)
 int gettimeofday (struct timeval* tp, struct timezone* tzp)

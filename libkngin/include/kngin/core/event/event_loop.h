@@ -10,9 +10,10 @@
 #include "kngin/core/base/callback.h"
 #include <memory>
 #include <deque>
+#include <vector>
 #include <atomic>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class event_loop : public noncopyable {
 public:
@@ -21,6 +22,7 @@ public:
     int events;
   };
 
+  typedef std::function<void ()> task;
   typedef std::shared_ptr<timer> timer_ptr;
 
   event_loop ();
@@ -127,6 +129,6 @@ private:
   rmutex event_rmutex_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_EVENT_LOOP_H */

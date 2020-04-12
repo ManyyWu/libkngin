@@ -7,7 +7,7 @@
 #include "detail/core/base/win_utils.h"
 #include <process.h>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class win_thread {
 public:
@@ -84,7 +84,7 @@ private:
   std::atomic_bool joined_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_WIN_THREAD) */
 

@@ -4,7 +4,7 @@
 #include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 template <typename Tp>
 class scope_sem : public noncopyable {
@@ -22,6 +22,6 @@ private:
   Tp &sem_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* SCOPE_SEM_H */

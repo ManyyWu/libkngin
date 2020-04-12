@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 address::address (const char *addrstr, uint16_t port, bool v6)
 {
@@ -56,4 +56,4 @@ address::is_valid_ipv6_addrstr (const char *addrstr)
   return ::inet_pton(AF_INET6, addrstr, &sa);
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

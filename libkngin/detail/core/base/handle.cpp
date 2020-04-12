@@ -4,8 +4,8 @@
 #include "kngin/core/base/system_error.h"
 #include "detail/core/base/descriptor.h"
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */

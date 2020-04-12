@@ -3,7 +3,7 @@
 
 #include "kngin/core/base/common.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 monotonic_timer::monotonic_timer (timeout_handler &&handler,
                                   timestamp initval, timestamp interval) noexcept
@@ -35,6 +35,6 @@ monotonic_timer::on_events (const timestamp &now) {
   }
 }
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */

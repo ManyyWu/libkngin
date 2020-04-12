@@ -7,7 +7,7 @@
 #include <WinSock2.h>
 #include <Windows.h>
 
-KNGIN_NAMESPACE_GROBLE_BEGIN
+namespace {
 
 extern const LONGLONG g_monotonic_base;
 
@@ -15,16 +15,16 @@ extern const LONGLONG g_monotonic_base;
 extern bool g_have_get_iocp_status_ex;
 #endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 
-KNGIN_NAMESPACE_GROBLE_END
+}
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 #if !defined(KNGIN_USE_WINDOWS_GETTICKCOUNT)
 LONGLONG
 get_monotonic_base ();
 #endif /* !defined(KNGIN_USE_WINDOWS_GETTICKCOUNT) */
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 

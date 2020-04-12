@@ -6,7 +6,7 @@
 
 #include "detail/core/base/win_utils.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class win_rmutex {
   friend class win_cond;
@@ -63,7 +63,7 @@ private:
 #endif /* !defined(NDEBUG) */
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_WIN_MUTEX) */
 

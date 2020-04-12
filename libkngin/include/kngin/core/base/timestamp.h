@@ -31,7 +31,7 @@
   int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #endif /* defined(KNGIN_SYTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class timestamp {
   friend
@@ -231,6 +231,6 @@ timediff (const timespec &tsl, const timespec &tsr) noexcept {
   return (timestamp(tsl).ms_ - timestamp(tsr).ms_);
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_TIMESTAMP_H */

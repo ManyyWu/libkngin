@@ -3,7 +3,7 @@
 #include <cstdarg>
 #include <cassert>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 extern logger &g_logger;
 
@@ -75,4 +75,4 @@ logfile::write_debug (const char *fmt, ...) {
   va_end(vl);
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

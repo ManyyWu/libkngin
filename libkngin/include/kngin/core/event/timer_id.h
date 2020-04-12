@@ -6,7 +6,7 @@
 #include "kngin/core/event/detail.h"
 #include <memory>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class event_loop;
 class timer_id {
@@ -54,6 +54,6 @@ private:
   timer_weak_ptr timer_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_TIMER_ID_H */

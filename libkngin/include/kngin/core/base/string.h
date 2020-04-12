@@ -4,7 +4,7 @@
 #include "kngin/core/define.h"
 #include <string>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 inline
 void
@@ -23,6 +23,6 @@ format_string (std::string &result, const char *fmt, ...);
 std::string
 format_string (const char *fmt, ...);
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_STRING_H */

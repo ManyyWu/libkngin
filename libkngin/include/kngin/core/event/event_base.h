@@ -3,9 +3,9 @@
 
 #include "kngin/core/base/noncopyable.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_EVENT_BASE_H */

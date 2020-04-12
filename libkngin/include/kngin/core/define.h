@@ -30,25 +30,6 @@
 #  endif /* defined(KNGIN_SYSTEM_WIN64) */
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-// namespace
-#define KNGIN_NAMESPACE_END                 };
-#define KNGIN_NAMESPACE_GROBLE_BEGIN        namespace {
-#define KNGIN_NAMESPACE_GROBLE_END          KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_K_BEGIN             namespace k {
-#define KNGIN_NAMESPACE_K_END               KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_DETAIL_BEGIN        namespace detail {
-#define KNGIN_NAMESPACE_DETAIL_END          KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_IMPL_BEGIN          namespace impl {
-#define KNGIN_NAMESPACE_IMPL_END            KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_TCP_BEGIN           namespace tcp {
-#define KNGIN_NAMESPACE_TCP_END             KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_UDP_BEGIN           namespace udp {
-#define KNGIN_NAMESPACE_UDP_END             KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_K_DETAIL_BEGIN      namespace k::detail {
-#define KNGIN_NAMESPACE_K_DETAIL_END        KNGIN_NAMESPACE_END
-#define KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN namespace k::detail::impl {
-#define KNGIN_NAMESPACE_K_DETAIL_IMPL_END   KNGIN_NAMESPACE_END
-
 // log
 #define LINE static_cast<int>(__LINE__)
 #if defined(KNGIN_USE_RELATIVE_LOG_PATH)
@@ -58,25 +39,17 @@
 
 // impl
 #define declare_detail_impl_class(type) \
-    KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN \
-      class type;                       \
-    KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+    namespace k::detail::impl { class type; }
 #define typedef_detail_impl(src_type, dst_type)   \
-    KNGIN_NAMESPACE_K_BEGIN                       \
-      typedef k::detail::impl::src_type dst_type; \
-    KNGIN_NAMESPACE_K_END
+    namespace k { typedef k::detail::impl::src_type dst_type; }
 
 // detail
 #define declare_detail_class(type) \
-    KNGIN_NAMESPACE_K_DETAIL_BEGIN \
-      class type;                  \
-    KNGIN_NAMESPACE_K_DETAIL_END
+    namespace k::detail { class type; }
 #define typedef_detail(src_type, dst_type)  \
-    KNGIN_NAMESPACE_K_BEGIN                 \
-      typedef k::detail::src_type dst_type; \
-    KNGIN_NAMESPACE_K_END
+    namespace k { typedef k::detail::src_type dst_type; }
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 // handle_t type
 #if defined(KNGIN_SYSTEM_WIN32)
@@ -91,7 +64,7 @@ KNGIN_NAMESPACE_K_BEGIN
 #  define INVALID_HANDLE    (-1)
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 
 #endif /* KNGIN_DEFINE_H */

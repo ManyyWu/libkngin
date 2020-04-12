@@ -6,7 +6,7 @@
 #  include <sys/syscall.h>
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 thread::thread (thread_proc &&proc,
                 const char *name /* = nullptr */,
@@ -67,4 +67,4 @@ thread::equal_to (thread &thr) noexcept {
   return impl_->equal_to(*thr.impl_);
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

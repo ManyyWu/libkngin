@@ -4,11 +4,10 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_IOCP_REACTOR)
 
-#include "detail/core/event/op_queue.h"
 #include "detail/core/base/win_utils.h"
 #include "detail/core/event/impl/iocp_event.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class iocp_reactor : public noncopyable {
 public:
@@ -42,7 +41,7 @@ private:
   handle_t iocp_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 

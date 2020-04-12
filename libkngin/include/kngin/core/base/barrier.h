@@ -4,7 +4,7 @@
 #include "kngin/core/base/noncopyable.h"
 #include "kngin/core/base/detail.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class barrier : public noncopyable {
 public:
@@ -28,6 +28,6 @@ private:
   barrier_impl *impl_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_BARRIER_H */

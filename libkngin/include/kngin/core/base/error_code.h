@@ -6,7 +6,7 @@
 #include <string>
 #include <cassert>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 #if defined(KNGIN_SYSTEM_WIN32)
 typedef int64_t error_type;
@@ -150,6 +150,6 @@ operator != (int code1, const error_code &&code2) noexcept {
   return (code1 != code2.code_);
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_ERROR_CODE_H */

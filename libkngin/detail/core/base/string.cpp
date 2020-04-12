@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cstdarg>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 std::string &
 format_string(std::string &result, const char *fmt, va_list vl,
@@ -56,4 +56,4 @@ format_string (const char *fmt, ...) {
   return result;
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

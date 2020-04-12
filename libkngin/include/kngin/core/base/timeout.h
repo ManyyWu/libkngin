@@ -3,7 +3,7 @@
 
 #include "kngin/core/base/timestamp.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class timeout {
 public:
@@ -81,6 +81,6 @@ private:
 };
 
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_TIMEOUT_H */

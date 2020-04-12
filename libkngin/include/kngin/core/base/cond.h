@@ -5,7 +5,7 @@
 #include "kngin/core/base/timestamp.h"
 #include "kngin/core/base/detail.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class mutex;
 class rmutex;
@@ -35,6 +35,6 @@ private:
   cond_impl *impl_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_COND_H */

@@ -2,7 +2,7 @@
 #include "kngin/core/base/rmutex.h"
 #include "detail/core/base/rmutex_impl.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 rmutex::rmutex ()
  : impl_(nullptr) {
@@ -28,4 +28,4 @@ rmutex::try_lock () {
   return impl_->try_lock();
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

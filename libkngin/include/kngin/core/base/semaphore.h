@@ -6,7 +6,7 @@
 #include "kngin/core/base/scoped_sem.h"
 #include "kngin/core/base/detail.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class semaphore : public noncopyable {
 public:
@@ -30,6 +30,6 @@ private:
   semaphore_impl *impl_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_SEMAPHORE_H */

@@ -8,7 +8,7 @@
 #include "kngin/core/base/system_error.h"
 #include "kngin/core/base/buffer.h"
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 namespace descriptor {
 
@@ -19,10 +19,10 @@ size_t
 read (handle_t h, in_buffer &buf, error_code &ec) noexcept;
 
 size_t
-write (handle_t h, out_buffer &buf);
+write (handle_t h, out_buffer buf);
 
 size_t
-write (handle_t h, out_buffer &buf, error_code &ec) noexcept;
+write (handle_t h, out_buffer buf, error_code &ec) noexcept;
 
 size_t
 readable (handle_t h);
@@ -71,7 +71,7 @@ closeexec (handle_t h, error_code &ec) noexcept;
 
 };
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 

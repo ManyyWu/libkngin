@@ -8,7 +8,7 @@
 declare_detail_impl_class(win_semaphore)
 typedef_detail_impl(win_semaphore, semaphore_impl)
 #elif defined(KNGIN_USE_POSIX_SEMAPHORE)
-declare_detail_impl_class(posix_semaphore)
+  declare_detail_impl_class(posix_semaphore)
   typedef_detail_impl(posix_semaphore, semaphore_impl)
 #endif /* defined(KNGIN_USE_WIN_SEMAPHORE) */
 

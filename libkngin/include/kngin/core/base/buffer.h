@@ -8,7 +8,7 @@
 #include <vector>
 #include <algorithm>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 typedef std::shared_ptr<char> uint8_arr_ptr;
 // XXX: use k::make_shared_array() to create uint8_arr_ptr
@@ -438,6 +438,6 @@ private:
   size_t valid_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_BUFFER_H */

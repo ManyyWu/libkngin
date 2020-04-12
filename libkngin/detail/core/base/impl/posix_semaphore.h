@@ -12,7 +12,7 @@
 # include <semaphore.h>
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class posix_semaphore {
 public:
@@ -57,7 +57,7 @@ private:
   sem_t sem_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_POSIX_SEMAPHORE) */
 

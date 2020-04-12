@@ -5,7 +5,7 @@
 #include "kngin/core/base/scoped_lock.h"
 #include "kngin/core/base/detail.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class mutex : public noncopyable {
   friend class cond;
@@ -30,6 +30,6 @@ private:
   mutex_impl *impl_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_MUTEX_H */

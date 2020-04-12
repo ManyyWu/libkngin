@@ -9,7 +9,7 @@
 #include "kngin/core/base/buffer.h"
 #include "detail/core/base/win_utils.h"
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 namespace handle {
 
@@ -60,7 +60,7 @@ nonblock (handle_t h, error_code &ec) noexcept;
 
 };
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* defined(KNGIN_HAS_HANDLE) */
 

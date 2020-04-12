@@ -4,34 +4,23 @@
 #include "kngin/core/define.h"
 #include <functional>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 enum class log_level;
+typedef std::function<void (log_level, const char *, size_t)> log_callback;
+
+typedef std::function<void (void)> task;
+
 class timer_id;
 class timestamp;
+typedef std::function<void (const timer_id &, const timestamp &)> timeout_handler;
 
-typedef void (log_callback_pfn) (const char *, log_level, const char *, size_t size);
-typedef void (void_void_pfn) (void);
-typedef void (timeout_pfn) (const timer_id &, const timestamp &);
+class in_buffer;
+class out_buffer;
+class error_code;
+typedef std::function<void (const out_buffer &, size_t, const error_code &)> recv_handler;
+typedef std::function<void (const in_buffer &, size_t, const error_code &)> sned_handler;
 
-#if defined(ENABLE_USE_STD_FUNCTION_LOG_CALLBACK)
-  typedef std::function<log_callback_pfn> log_callback;
-#else
-  typedef log_callback_pfn * log_callback;
-#endif /* defined(ENABLE_USE_STD_FUNCTION_LOG_CALLBACK) */
-
-#if defined(ENABLE_USE_STD_FUNCTION_EVENT_LOOP_TASK)
-  typedef std::function<void_void_pfn> task;
-#else
-  typedef void_void_pfn * task;
-#endif /* defined(ENABLE_USE_STD_FUNCTION_EVENT_LOOP_TASK) */
-
-#if defined(KNGIN_USE_STD_FUNCTION_TIMER_HANDLER)
-  typedef std::function<timeout_pfn> timeout_handler;
-#else
-  typedef timeout_pfn * timeout_handler;
-#endif /* defined(KNGIN_USE_STD_FUNCTION_TIMER_HANDLER) */
-
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_CALLBACK_H */

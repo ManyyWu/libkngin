@@ -2,7 +2,7 @@
 #include "kngin/core/base/mutex.h"
 #include "detail/core/base/mutex_impl.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 mutex::mutex ()
  : impl_(nullptr) {
@@ -28,4 +28,4 @@ mutex::try_lock () {
   return impl_->try_lock();
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

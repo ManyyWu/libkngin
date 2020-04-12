@@ -9,7 +9,7 @@
 #define SET_BIT(type, value, pos)    ((static_cast<type>(1) << (pos)) | static_cast<type>(value)))
 #define CLEAR_BIT(type, value, pos)  (~(static_cast<type>(1) << (pos)) & static_cast<type>(value))
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 template<typename Type>
 static
@@ -69,6 +69,6 @@ is_bits_set (Type val, Type1 first, Args... args) {
   return IS_BIT_SET(Type, val, first) and is_bits_set(val, args...);
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_BITS */

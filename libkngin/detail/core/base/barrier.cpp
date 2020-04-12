@@ -1,7 +1,7 @@
 #include "kngin/core/base/barrier.h"
 #include "detail/core/base/barrier_impl.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 barrier::barrier (unsigned count)
  : impl_(nullptr) {
@@ -32,4 +32,4 @@ barrier::destroyed () const noexcept {
   return impl_->destroyed();
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

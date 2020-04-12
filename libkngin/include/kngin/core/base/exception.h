@@ -8,7 +8,7 @@
 
 #define throw_exception(what) throw k::exception((what))
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class exception : public std::exception {
 public:
@@ -63,6 +63,6 @@ private:
   std::string dump_str_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_EXCEPTION_H */

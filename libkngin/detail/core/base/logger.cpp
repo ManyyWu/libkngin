@@ -29,7 +29,7 @@
 #define KNGIN_LOG_COLOR_DEBUG   ""
 #endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 // length of project path prefix
 const size_t g_path_prefix_size = (::strlen(__FILE__) -
@@ -197,7 +197,7 @@ logger::write_log (log_level level, logfile &file,
     logger::write_stderr(level, data.c_str(), size);
   TRY()
     if (file.mode_ & KNGIN_LOG_MODE_CALLBACK and file.cb_)
-      file.cb_(file.file_.c_str(), level, data.c_str(), size);
+      file.cb_(level, data.c_str(), size);
   CATCH_FATAL("logger::write_log()")
 }
 
@@ -279,5 +279,5 @@ logger::add_logfile (const char *file, int mode, log_callback &&cb) {
   return *g_logger.files_.back();
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 

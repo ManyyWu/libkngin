@@ -7,7 +7,7 @@
 #include "detail/core/base/kernel_list.h"
 #include <cassert>
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 template<typename Tp>
 class list_entry
@@ -111,6 +111,6 @@ private:
   size_t size_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */
 
 #endif /* KNGIN_LIST_H */

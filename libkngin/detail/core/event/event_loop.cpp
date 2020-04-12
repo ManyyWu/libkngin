@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 event_loop::event_loop ()
  : tid_(0),
@@ -137,7 +137,7 @@ event_loop::register_event (reactor_event &ev) {
 void
 event_loop::remove_event (reactor_event &ev) {
   if (reactor_) {
-    if (events_processing_) {
+    if (events_processing_.load()) {
       rmutex::scoped_lock lock(event_rmutex_);
       auto size = actived_events_.size();
       for (auto i = events_processing_.load(); i > size; ++i)
@@ -323,4 +323,4 @@ event_loop::process_timers () {
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

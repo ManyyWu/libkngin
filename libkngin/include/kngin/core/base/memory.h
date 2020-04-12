@@ -4,7 +4,7 @@
 #include "kngin/core/define.h"
 #include <cassert>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 template <typename Tp>
 inline
@@ -22,6 +22,6 @@ safe_release_array (Tp *&ptr) {
   ptr = nullptr;
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_MEMORY_H */

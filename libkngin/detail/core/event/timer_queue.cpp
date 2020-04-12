@@ -4,7 +4,7 @@
 #include "detail/core/event/timer_queue.h"
 #include <memory>
 
-KNGIN_NAMESPACE_K_DETAIL_BEGIN
+namespace k::detail {
 
 timer_queue::timer_queue (event_loop *loop)
  : heap_(),
@@ -123,4 +123,4 @@ timer_queue::process_ready_timers (timer_list &list, mutex &m) {
 #endif /* defined(KNGIN_USE_MONOTONIC_TIMER) */
 }
 
-KNGIN_NAMESPACE_K_DETAIL_END
+} /* namespace k::detail */

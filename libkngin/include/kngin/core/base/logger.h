@@ -15,7 +15,7 @@
 // "****** func[file:line] ******\n"
 #define KNGIN_LOG_ASSERT_FORMAT " | ASSERT  | %s[%s:%d] | ****** %s *******\n"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class mutex;
 class cond;
@@ -105,6 +105,6 @@ private:
 extern const size_t g_path_prefix_size;
 extern logger &query_logger ();
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_LOGGER_H */

@@ -10,7 +10,7 @@
 #define KNGIN_LOG_MODE_CALLBACK 0x4
 #define KNGIN_LOG_MODE_ALL      0x7
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 enum class log_level {
   log_level_fatal = 0,
@@ -98,6 +98,6 @@ private:
   bool enable_debug_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_LOGFILE_H */

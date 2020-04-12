@@ -11,7 +11,7 @@
 #include <string>
 #include <cstring>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 class address {
   friend class socket;
@@ -127,6 +127,6 @@ protected:
   sockaddr_u sa_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_ADDRESS_H */

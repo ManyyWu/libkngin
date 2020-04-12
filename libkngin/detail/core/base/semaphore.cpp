@@ -1,7 +1,7 @@
 #include "kngin/core/base/semaphore.h"
 #include "detail/core/base/semaphore_impl.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 semaphore::semaphore (unsigned initval)
  : impl_(nullptr) {
@@ -27,4 +27,4 @@ semaphore::post () {
   impl_->post();
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

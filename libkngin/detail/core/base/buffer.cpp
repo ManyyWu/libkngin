@@ -6,7 +6,7 @@
 #include <string>
 #include <cstring>
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 out_buffer::out_buffer() noexcept
  : arr_(nullptr),
@@ -139,4 +139,4 @@ in_buffer::dump () {
   return result;
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

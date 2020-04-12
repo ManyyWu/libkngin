@@ -3,7 +3,7 @@
 
 #include "kngin/core/define.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 template <typename Tp1, typename Tp2>
 class scoped_flag {
@@ -22,6 +22,6 @@ private:
   Tp2 final_;
 };
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */
 
 #endif /* KNGIN_SCOPED_FLAG_H */

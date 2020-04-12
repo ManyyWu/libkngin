@@ -10,7 +10,7 @@
 #endif
 #define KNGIN_FILENAME "libkngin/net/sockopts.cpp"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 const sockopts::sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
     { "SO_BROADCAST", SOL_SOCKET,   SO_BROADCAST },
@@ -159,4 +159,4 @@ sockopts::get_tcp_info (handle_t h, const sockopts_info &opt_info)
 }
 #endif /* defined(KNGIN_SYSTEM__WIN32) */
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

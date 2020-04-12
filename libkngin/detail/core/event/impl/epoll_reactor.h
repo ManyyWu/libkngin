@@ -8,7 +8,7 @@
 #include "kngin/core/event/event_loop.h"
 #include <vector>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class epoll_reactor {
 public:
@@ -49,7 +49,7 @@ private:
   handle_t waker_fd_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_EPOLL_REACTOR) */
 

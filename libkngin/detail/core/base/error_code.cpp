@@ -3,7 +3,7 @@
 #include "detail/core/base/win_utils.h"
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 error_type
 last_error () {
@@ -52,4 +52,4 @@ error_code::get_error_str (error_type code) {
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

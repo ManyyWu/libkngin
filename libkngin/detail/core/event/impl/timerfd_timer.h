@@ -8,7 +8,7 @@
 #include "detail/core/event/impl/epoll_event.h"
 #include <memory>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class timerfd_timer
   : public obj_entry<timerfd_timer> {
@@ -69,7 +69,7 @@ private:
   epoll_event ev_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_TIMERFD_TIMER) */
 

@@ -1,5 +1,5 @@
 #include "kngin/core/base/common.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

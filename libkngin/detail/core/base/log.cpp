@@ -1,6 +1,6 @@
 #include "kngin/core/base/log.h"
 
-KNGIN_NAMESPACE_K_BEGIN
+namespace k {
 
 // default logfile
 extern logger &query_logger ();
@@ -14,4 +14,4 @@ log () {
   return default_log;
 }
 
-KNGIN_NAMESPACE_K_END
+} /* namespace k */

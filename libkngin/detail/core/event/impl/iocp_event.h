@@ -8,7 +8,7 @@
 #include "detail/core/base/win_utils.h"
 #include "detail/core/event/impl/iocp_operation.h"
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class iocp_event : public noncopyable {
   friend class iocp_reactor;
@@ -104,7 +104,7 @@ private:
   handler handler_;
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_IOCP_REACTOR) */
 

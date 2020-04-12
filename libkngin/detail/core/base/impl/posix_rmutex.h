@@ -7,7 +7,7 @@
 #include "kngin/core/base/thread.h"
 #include <pthread.h>
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_BEGIN
+namespace k::detail::impl {
 
 class posix_rmutex {
   friend class posix_cond;
@@ -76,7 +76,7 @@ private:
 #endif /* !defined(NDEBUG) */
 };
 
-KNGIN_NAMESPACE_K_DETAIL_IMPL_END
+} /* namespace k::detail::impl */
 
 #endif /* defined(KNGIN_USE_POSIX_RMUTEX) */
 
