@@ -1,5 +1,5 @@
 #include "kngin/core/define.h"
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 
 #include "kngin/core/base/system_error.h"
 #include "detail/core/base/descriptor.h"
@@ -191,4 +191,4 @@ descriptor::closeexec (handle_t h, error_code &ec) noexcept {
 
 } /* namespace k::detail */
 
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */

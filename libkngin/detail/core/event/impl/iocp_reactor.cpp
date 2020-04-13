@@ -14,7 +14,7 @@ iocp_reactor::iocp_reactor ()
 
 iocp_reactor::~iocp_reactor () noexcept {
   TRY()
-    this->close();
+    close();
   IGNORE_EXCP()
 }
 
@@ -24,8 +24,7 @@ iocp_reactor::wait (op_queue &ops, timestamp delay) {
 }
 
 size_t
-iocp_reactor::poll (op_queue &ops, const timestamp &_ms)
-{
+iocp_reactor::poll (op_queue &ops, const timestamp &_ms) {
   ULONG            size = 0;
   ULONG            count = 0;
   ULONG_PTR        key = 0;
@@ -58,8 +57,7 @@ iocp_reactor::poll (op_queue &ops, const timestamp &_ms)
 }
 
 size_t
-iocp_reactor::poll_wine (op_queue &ops, const timestamp &_ms)
-{
+iocp_reactor::poll_wine (op_queue &ops, const timestamp &_ms) {
   auto   size = KNGIN_IOCP_REACTOR_MAX_EVENTS;
   size_t count = 0;
   while (count < size) {

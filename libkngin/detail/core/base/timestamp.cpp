@@ -55,8 +55,7 @@ timestamp::monotonic () noexcept {
 } /* namespace k */
 
 #if defined(KNGIN_SYSTEM_WIN32)
-int gettimeofday (struct timeval* tp, struct timezone* tzp)
-{
+int gettimeofday (struct timeval* tp, struct timezone* tzp) {
     // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
     // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
     // until 00:00:00 January 1, 1970 

@@ -362,7 +362,7 @@ tcp_info (const socket &s) {
 }
 #endif /* defined(KNGIN_SYSTEM__WIN32) */
 
-};
+} /* namespace sockopts */
 
 } /* namespace k */
 

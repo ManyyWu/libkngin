@@ -4,8 +4,7 @@
 using namespace std;
 
 void
-show_bits (int val)
-{
+show_bits (int val) {
   for (size_t i = 0; i < TYPE_BITS(int); ++i)
     cout << k::is_bits_set(val, i);
   cout << endl;

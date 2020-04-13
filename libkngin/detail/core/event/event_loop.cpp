@@ -287,7 +287,7 @@ event_loop::process_tasks () {
   for (auto &iter : taskq) {
     TRY()
       iter();
-    CATCH_ERROR("event_loop::process_tasks()")
+    CATCH_ERROR("event_loop::process_tasks")
   }
 }
 

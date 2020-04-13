@@ -7,7 +7,7 @@ namespace k {
 
 // default logfile
 #define KNGIN_DEFAULT_LOGFILE_NAME "kngin"
-#define KNGIN_DEFAULT_LOGFILE_MODE KNGIN_LOG_MODE_STDERR
+#define KNGIN_DEFAULT_LOGFILE_MODE log_mode_stderr
 #define KNGIN_DEFAULT_LOGFILE_CALLBACK nullptr
 extern logfile &log ();
 

@@ -27,7 +27,9 @@ public:
     struct ::sockaddr_in6 v6;
   };
 
-  address () = default;
+  address () noexcept {
+    ::memset(&sa_, 0, sizeof(sa_));
+  }
 
   address (const struct ::sockaddr_in &sa) noexcept {
     assert(AF_INET == sa.sin_family);

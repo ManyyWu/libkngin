@@ -57,15 +57,13 @@ const sockopts::sockopts_info sockopts::opts_entry[SOCKOPTS_TYPE_MAX] = {
 
 void
 sockopts::set_flag (const sockopt_val &val, handle_t h,
-                    const sockopts_info &opt_info)
-{
+                    const sockopts_info &opt_info) {
   set_int(val, h, opt_info);
 }
 
 void
 sockopts::set_int (const sockopt_val &val, handle_t h,
-                   const sockopts_info &opt_info)
-{
+                   const sockopts_info &opt_info) {
   if (::setsockopt(h, opt_info.opt_level, opt_info.opt_name,
                    (const char *)&val.i_val, sizeof(val.i_val)) < 0)
     throw_setsockopts_error();
@@ -73,8 +71,7 @@ sockopts::set_int (const sockopt_val &val, handle_t h,
 
 void
 sockopts::set_linger (const sockopt_val &val, handle_t h,
-                      const sockopts_info &opt_info)
-{
+                      const sockopts_info &opt_info) {
   if (::setsockopt(h, opt_info.opt_level, opt_info.opt_name,
                    (const char *)&val.linger_val, sizeof(val.linger_val)) < 0)
     throw_setsockopts_error();
@@ -82,8 +79,7 @@ sockopts::set_linger (const sockopt_val &val, handle_t h,
 
 void
 sockopts::set_timeval (const sockopt_val &val, handle_t h,
-                       const sockopts_info &opt_info)
-{
+                       const sockopts_info &opt_info) {
 #if defined(KNGIN_SYSTEM__WIN32)
   sockopt_val temp_val;
     temp_val.i_val = timestamp(val.timeval_val).value_int();
@@ -96,8 +92,7 @@ sockopts::set_timeval (const sockopt_val &val, handle_t h,
 }
 
 bool
-sockopts::get_flag (handle_t h, const sockopts_info &opt_info)
-{
+sockopts::get_flag (handle_t h, const sockopts_info &opt_info) {
   sockopt_val value;
   socklen_t optlen = sizeof(int);
   if (::getsockopt(h, opt_info.opt_level, opt_info.opt_name,
@@ -107,8 +102,7 @@ sockopts::get_flag (handle_t h, const sockopts_info &opt_info)
 }
 
 int
-sockopts::get_int (handle_t h, const sockopts_info &opt_info)
-{
+sockopts::get_int (handle_t h, const sockopts_info &opt_info) {
   sockopt_val value;
   socklen_t optlen = sizeof(int);
   if (::getsockopt(h, opt_info.opt_level, opt_info.opt_name,
@@ -118,8 +112,7 @@ sockopts::get_int (handle_t h, const sockopts_info &opt_info)
 }
 
 struct ::linger
-sockopts::get_linger (handle_t h, const sockopts_info &opt_info)
-{
+sockopts::get_linger (handle_t h, const sockopts_info &opt_info) {
   sockopt_val value;
   socklen_t optlen = sizeof(struct ::linger);
   if (::getsockopt(h, opt_info.opt_level, opt_info.opt_name,
@@ -129,8 +122,7 @@ sockopts::get_linger (handle_t h, const sockopts_info &opt_info)
 }
 
 struct ::timeval
-sockopts::get_timeval (handle_t h, const sockopts_info &opt_info)
-{
+sockopts::get_timeval (handle_t h, const sockopts_info &opt_info) {
 #if defined(KNGIN_SYSTEM__WIN32)
   struct ::timeval value;
   timestamp(get_int(h, opt_info)).to_timeval(value);
@@ -147,8 +139,7 @@ sockopts::get_timeval (handle_t h, const sockopts_info &opt_info)
 
 #if defined(KNGIN_SYSTEM__WIN32)
 struct ::tcp_info
-sockopts::get_tcp_info (handle_t h, const sockopts_info &opt_info)
-{
+sockopts::get_tcp_info (handle_t h, const sockopts_info &opt_info) {
   sockopt_val value;
   socklen_t optlen = sizeof(struct ::tcp_info);
   if (::getsockopt(h, opt_info.opt_level, opt_info.opt_name,

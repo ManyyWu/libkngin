@@ -20,14 +20,14 @@
 #define KNGIN_LOG_FILENAME_FORMT "%s_%04d-%02d-%02d.log"
 
 // color
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #define KNGIN_LOG_COLOR_NONE    "\033[0m"
 #define KNGIN_LOG_COLOR_FATAL   "\033[01;32;41m"
 #define KNGIN_LOG_COLOR_ERROR   "\033[01;37;43m"
 #define KNGIN_LOG_COLOR_WARNING "\033[01;31;49m"
 #define KNGIN_LOG_COLOR_INFO    "\033[01;32;49m"
 #define KNGIN_LOG_COLOR_DEBUG   ""
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 
 namespace k {
 
@@ -191,14 +191,14 @@ logger::format_log (log_level level, std::string &result,
 void
 logger::write_log (log_level level, logfile &file,
                    std::string &data, size_t size) {
-  if (file.mode_ & KNGIN_LOG_MODE_FILE)
+  if (file.mode_ & log_mode_file)
     logger::write_logfile(file.file_.c_str(), level, data.c_str(), size);
-  if (file.mode_ & KNGIN_LOG_MODE_STDERR)
+  if (file.mode_ & log_mode_stderr)
     logger::write_stderr(level, data.c_str(), size);
   TRY()
-    if (file.mode_ & KNGIN_LOG_MODE_CALLBACK and file.cb_)
+    if (file.mode_ & log_mode_callback and file.cb_)
       file.cb_(level, data.c_str(), size);
-  CATCH_FATAL("logger::write_log()")
+  CATCH_FATAL("logger::write_log")
 }
 
 void

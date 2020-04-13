@@ -100,6 +100,18 @@ public:
   size_t
   sendto (const address &addr, out_buffer buf, int flags, error_code &ec) noexcept;
 
+  void
+  local_addr (address &addr) const noexcept;
+
+  void
+  local_addr (address &addr, error_code &ec) const;
+
+  void
+  perr_addr (address &addr) const noexcept;
+
+  void
+  peer_addr (address &addr, error_code &ec) const;
+
   bool
   inet4 () const noexcept {
     return !(flags_ & flag_ipv6);

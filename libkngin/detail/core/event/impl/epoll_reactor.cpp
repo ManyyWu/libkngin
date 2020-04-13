@@ -29,7 +29,7 @@ epoll_reactor::epoll_reactor ()
 
 epoll_reactor::~epoll_reactor () noexcept {
   TRY()
-    this->close();
+    close();
   IGNORE_EXCP()
 }
 
@@ -123,12 +123,12 @@ epoll_reactor::update_event (int opt, handle_t h, epoll_event *ev) {
 }
 
 void
-epoll_reactor::on_wakeup() {
+epoll_reactor::on_wakeup () {
   int64_t val = 0;
   auto buf = in_buffer(&val, 8);
   TRY()
     descriptor::read(waker_fd_, buf);
-  CATCH_FATAL("descriptor::on_wakeup()");
+  CATCH_FATAL("descriptor::on_wakeup");
 }
 
 } /* namespace k::detail::impl */

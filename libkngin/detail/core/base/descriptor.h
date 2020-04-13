@@ -69,10 +69,10 @@ closeexec (handle_t h);
 bool
 closeexec (handle_t h, error_code &ec) noexcept;
 
-};
+} /* namespace descriptor */
 
 } /* namespace k::detail */
 
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 
 #endif /* KNGIN_DESCRIPTOR_H */

@@ -58,7 +58,7 @@ nonblock (handle_t h);
 bool
 nonblock (handle_t h, error_code &ec) noexcept;
 
-};
+} /* namespace handle */
 
 } /* namespace k::detail */
 

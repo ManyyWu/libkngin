@@ -21,11 +21,14 @@
 #else
 #  error unsupported platform
 #endif /* defined(_WIN32) */
+#if !defined(KNGIN_SYSTEM_WIN32)
+#  define KNGIN_NOT_SYSTEM_WIN32
+#endif /* !defined(KNGIN_SYSTEM_WIN32) */
 
 // semaphore
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_SEMAPHORE
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_SEMAPHORE)
 #  define KNGIN_USE_WIN_SEMAPHORE
 #elif defined(ENABLE_USE_POSIX_SEMAPHORE)
@@ -35,9 +38,9 @@
 #endif /* defined(ENABLE_USE_WIN_SEMAPHORE) */
 
 // mutex
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_MUTEX
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_MUTEX)
 #  define KNGIN_USE_WIN_MUTEX
 #elif defined(ENABLE_USE_POSIX_MUTEX)
@@ -47,9 +50,9 @@
 #endif /* defined(ENABLE_USE_WIN_MUTEX) */
 
 // rmutex
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_RMUTEX
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_RMUTEX)
 #  define KNGIN_USE_WIN_RMUTEX
 #elif defined(ENABLE_USE_POSIX_RMUTEX)
@@ -59,9 +62,9 @@
 #endif /* defined(ENABLE_USE_WIN_RMUTEX) */
 
 // cond
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_COND
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_COND)
 #  define KNGIN_USE_WIN_COND
 #elif defined(ENABLE_USE_POSIX_COND)
@@ -71,9 +74,9 @@
 #endif /* defined(ENABLE_USE_WIN_COND) */
 
 // rwlock
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_RWLOCK
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_RWLOCK)
 #  define KNGIN_USE_WIN_RWLOCK
 #elif defined(ENABLE_USE_POSIX_RWLOCK)
@@ -83,9 +86,9 @@
 #endif /* defined(ENABLE_USE_WIN_RWLOCK) */
 
 // barrier
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_BARRIER
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_BARRIER)
 #  define KNGIN_USE_WIN_BARRIER
 #elif defined(ENABLE_USE_POSIX_BARRIER)
@@ -95,9 +98,9 @@
 #endif /* defined(ENABLE_USE_WIN_BARRIER) */
 
 // thread
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_WIN_THREAD
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_WIN_THREAD)
 #  define KNGIN_USE_WIN_THREAD
 #elif defined(ENABLE_USE_POSIX_THREAD)
@@ -157,19 +160,19 @@
 #if defined(ENABLE_SESSION_NO_MUTEX)
 #  define KNGIN_SESSION_NO_MUTEX
 #endif /* defined(ENABLE_SESSION_NO_MUTEX) */
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  if defined(ENABLE_SESSION_USE_ET_MODE)
 #    define KNGIN_SESSION_USE_ET_MODE
 #  endif /* defined(ENABLE_SESSION_USE_ET_MODE) */
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 
 // timer
 #if !defined(KNGIN_SYSTEM_LINUX)
 #  undef ENABLE_USE_TIMERFD_TIMER
 #endif /* !defined(KNGIN_SYSTEM_LINUX) */
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  undef ENABLE_USE_QUEUED_TIMER
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(ENABLE_USE_TIMERFD_TIMER)
 #  define KNGIN_USE_TIMERFD_TIMER
 #elif defined(ENABLE_USE_MONOTONIC_TIMER)
@@ -181,12 +184,12 @@
 #endif /* defined(ENABLE_USE_TIMERFD_TIMER) */
 
 // epoll
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  define KNGIN_HAS_DESCRIPTOR
 #  define KNGIN_HAS_EPOLL
 #  define KNGIN_HAS_EPOLL_EVENT
 #  define KNGIN_EPOLL_REACTOR_MAX_EVENTS 128
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 
 // iocp
 #if defined(KNGIN_SYSTEM_WIN32)
@@ -204,9 +207,9 @@
 #endif /* defined(ENABLE_USE_TIMERFD_TIMER) */
 
 // event_fd
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  define KNGIN_HAS_EVENTFD
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #if defined(KNGIN_SYSTEM_MACOS)
 #  define KNGIN_HAS_EVENTFD_WINE
 #endif /* defined(KNGIN_SYSTEM_MACOS) */
@@ -218,5 +221,22 @@
 #else
 #  define KNGIN_LIST_PRE_ALLOC_SIZE KNGIN_DEFAULT_PREALLOC_SIZE
 #endif /* defined(LIST_PRE_ALLOC_SIZE) */
+
+// listener
+#if defined(KNGIN_SYSTEM_WIN32)
+#  define KNGIN_USE_IOCP_LISTENER
+#else
+#  define KNGIN_USE_POSIX_LISTENER
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+
+// listener
+#if defined(KNGIN_SYSTEM_WIN32)
+#  define KNGIN_USE_IOCP_SESSION
+#else
+#  define KNGIN_USE_POSIX_SESSION
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+
+// server options
+#define KNGIN_DEFAULT_BACKLOG 10
 
 #endif /* KNGIN_CONFIG_H */

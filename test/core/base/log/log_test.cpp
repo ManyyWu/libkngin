@@ -5,9 +5,9 @@ using namespace std;
 
 int
 main () {
-  auto &mylogfile = k::query_logger().add_logfile("test", KNGIN_LOG_MODE_STDERR | KNGIN_LOG_MODE_CALLBACK,
-      [] (const char *file, k::log_level level, const char *data, size_t len) {
-    cerr << "file: " << file << "\nlevel: " << static_cast<int>(level) << "\ndata: " << data << endl;
+  auto &mylogfile = k::query_logger().add_logfile("test", log_mode_stderr | log_mode_callback,
+      [] (k::log_level level, const char *data, size_t len) {
+    cerr << "\nlevel: " << static_cast<int>(level) << "\ndata: " << data << endl;
   });
   mylogfile.write_fatal(" %s\n", "test");
   mylogfile.write_error(" test\n");

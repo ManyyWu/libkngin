@@ -12,7 +12,7 @@ using namespace std;
 int
 main () {
 #define DATA "hello world!\n"
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
   int f = 0;
 
   {

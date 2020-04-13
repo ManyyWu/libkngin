@@ -37,12 +37,12 @@ public:
    : name_(data->name),
      pthr_(),
      joined_(false) {
-    this->create_thread(data, opt);
+    create_thread(data, opt);
   }
 
   ~posix_thread () noexcept {
     if (joinable())
-      this->detach();
+      detach();
   }
 
   int

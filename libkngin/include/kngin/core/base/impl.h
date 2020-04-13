@@ -5,8 +5,8 @@
 
 // semaphore
 #if defined(KNGIN_USE_WIN_SEMAPHORE)
-declare_detail_impl_class(win_semaphore)
-typedef_detail_impl(win_semaphore, semaphore_impl)
+  declare_detail_impl_class(win_semaphore)
+  typedef_detail_impl(win_semaphore, semaphore_impl)
 #elif defined(KNGIN_USE_POSIX_SEMAPHORE)
   declare_detail_impl_class(posix_semaphore)
   typedef_detail_impl(posix_semaphore, semaphore_impl)
@@ -24,7 +24,7 @@ typedef_detail_impl(win_semaphore, semaphore_impl)
 // rmutex
 #  if defined(KNGIN_USE_WIN_RMUTEX)
   declare_detail_impl_class(win_rmutex)
-    typedef_detail_impl(win_rmutex, rmutex_impl)
+  typedef_detail_impl(win_rmutex, rmutex_impl)
 #elif defined(KNGIN_USE_POSIX_RMUTEX)
   declare_detail_impl_class(posix_rmutex)
   typedef_detail_impl(posix_rmutex, rmutex_impl)

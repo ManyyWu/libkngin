@@ -90,7 +90,7 @@ private:
     TRY()
       if (handler_)
         handler_(loop, events);
-    CATCH_ERROR("epoll_event::on_events")
+    CATCH_ERROR("iocp_event::on_events")
   }
 
 protected:

@@ -5,10 +5,12 @@
 #include <string>
 #include <memory>
 
-#define KNGIN_LOG_MODE_FILE     0x1
-#define KNGIN_LOG_MODE_STDERR   0x2
-#define KNGIN_LOG_MODE_CALLBACK 0x4
-#define KNGIN_LOG_MODE_ALL      0x7
+enum {
+  log_mode_file     = 0x1,
+  log_mode_stderr   = 0x2,
+  log_mode_callback = 0x4,
+  log_mode_all      = 0x7,
+};
 
 namespace k {
 
@@ -48,7 +50,7 @@ public:
 
   int
   set_mode (int mode) noexcept {
-    return (mode_ &= mode & KNGIN_LOG_MODE_ALL);
+    return (mode_ &= mode & log_mode_all);
   }
 
   int

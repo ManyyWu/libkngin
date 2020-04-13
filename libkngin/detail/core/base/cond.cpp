@@ -36,7 +36,7 @@ cond::signal () {
 }
 
 void
-cond::broadcast() {
+cond::broadcast () {
   impl_->broadcast();
 }
 

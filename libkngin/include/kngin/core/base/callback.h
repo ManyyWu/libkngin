@@ -9,8 +9,6 @@ namespace k {
 enum class log_level;
 typedef std::function<void (log_level, const char *, size_t)> log_callback;
 
-typedef std::function<void (void)> task;
-
 class timer_id;
 class timestamp;
 typedef std::function<void (const timer_id &, const timestamp &)> timeout_handler;

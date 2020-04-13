@@ -70,7 +70,7 @@ timer_queue::sort () {
 }
 
 timestamp
-timer_queue::min_delay() const noexcept {
+timer_queue::min_delay () const noexcept {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
   return heap_.empty() ? timestamp::max : heap_.top()->get_timeout().remaining();
 #elif defined(KNGIN_USE_TIMERFD_TIMER)
@@ -106,7 +106,7 @@ timer_queue::process_ready_timers (timer_list &list, mutex &m) {
       continue;
     TRY()
       iter->on_events(now);
-    CATCH_ERROR("timer_queue::process_ready_timers()");
+    CATCH_ERROR("timer_queue::process_ready_timers");
     if (iter->closed())
       continue;
 

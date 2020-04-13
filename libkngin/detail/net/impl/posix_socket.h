@@ -10,7 +10,7 @@ public:
 
   virtual
   ~op_queue () noexcept {
-    this->clear();
+    clear();
   }
 
   virtual

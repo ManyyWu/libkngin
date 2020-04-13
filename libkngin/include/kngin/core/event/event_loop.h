@@ -22,7 +22,7 @@ public:
     int events;
   };
 
-  typedef std::function<void ()> task;
+  typedef std::function<void (void)> task;
   typedef std::shared_ptr<timer> timer_ptr;
 
   event_loop ();
@@ -100,7 +100,7 @@ private:
   typedef std::deque<task> taskq_type;
   typedef std::vector<timer_ptr> timer_list;
 
-  thread::tid_type tid_;
+  thread::tid_t tid_;
 
   reactor *reactor_;
 

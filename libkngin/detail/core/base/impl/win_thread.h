@@ -28,12 +28,12 @@ public:
    : name_(data->name),
      thr_(nullptr),
      joined_(false) {
-    this->create_thread(data, opt);
+    create_thread(data, opt);
   }
 
   ~win_thread () noexcept {
     if (joinable())
-      this->detach();
+      detach();
   }
 
   int

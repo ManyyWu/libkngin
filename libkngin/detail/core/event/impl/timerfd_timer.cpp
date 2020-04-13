@@ -16,12 +16,10 @@ timerfd_timer::timerfd_timer (timeout_handler &&handler,
    timeout_(initval, interval),
    handler_(std::move(handler)),
    id_(),
-   ev_(handle_, std::bind(&timerfd_timer::on_events,
-                        this,
-                              std::placeholders::_1,
-                              std::placeholders::_2
-                              )
-       ) {
+   ev_(handle_, [this] (event_loop &loop, int events) {
+                  on_events(loop, events);
+                }
+   ) {
   if (handle_ < 0)
     throw_system_error("::timerfd_create() error", last_error());
   set_time(initval, interval);
@@ -61,11 +59,11 @@ timerfd_timer::on_events (event_loop &loop, int events) {
   int64_t val = 0;
   in_buffer buf(&val, 8);
   descriptor::read(handle_, buf);
-  if (handler_ && events & epoll_event::event_type_read) {
+  if (handler_ and events & epoll_event::event_type_read) {
     auto now = timestamp::monotonic();
     TRY()
       handler_(id_, now);
-    CATCH_ERROR("timerfd_timer::on_events()");
+    CATCH_ERROR("timerfd_timer::on_events");
     if (!timeout_.persist())
       loop.cancel(s);
   }

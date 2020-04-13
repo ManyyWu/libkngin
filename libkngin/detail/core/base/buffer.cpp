@@ -73,8 +73,7 @@ out_buffer::dump () {
 in_buffer::in_buffer() noexcept
  : arr_(nullptr),
    size_(0),
-   valid_(0)
-{
+   valid_(0) {
 }
 
 in_buffer::in_buffer (void * arr, size_t size) noexcept

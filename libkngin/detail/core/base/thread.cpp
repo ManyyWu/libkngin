@@ -1,10 +1,10 @@
 #include "kngin/core/base/memory.h"
 #include "kngin/core/base/thread.h"
 #include "detail/core/base/thread_impl.h"
-#if !defined(KNGIN_SYSTEM_WIN32)
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
 #  include <unistd.h>
 #  include <sys/syscall.h>
-#endif /* !defined(KNGIN_SYSTEM_WIN32) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 
 namespace k {
 
@@ -44,7 +44,7 @@ thread::name () const noexcept {
   return impl_->name();
 }
 
-thread::tid_type
+thread::tid_t
 thread::tid () noexcept {
 #if defined(KNGIN_SYSTEM_WIN32)
   return ::GetCurrentThreadId();
@@ -54,7 +54,7 @@ thread::tid () noexcept {
 }
 
 void
-thread::sleep(timestamp ms) noexcept {
+thread::sleep (timestamp ms) noexcept {
 #if defined(KNGIN_SYSTEM_WIN32)
   ::Sleep(static_cast<DWORD>(ms.value_uint()));
 #else

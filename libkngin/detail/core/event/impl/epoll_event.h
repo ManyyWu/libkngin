@@ -8,7 +8,7 @@
 #include <functional>
 namespace sys::epoll {
 #include <sys/epoll.h>
-}
+} /* namespace sys::epoll */
 
 namespace k::detail::impl {
 

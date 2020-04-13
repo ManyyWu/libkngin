@@ -1,0 +1,39 @@
+#ifndef KNGIN_LISTENR_H
+#define KNGIN_LISTENR_H
+
+#include "kngin/core/define.h"
+#include "kngin/core/base/noncopyable.h"
+#include "kngin/net/detail.h"
+#include <functional>
+
+namespace k {
+
+class address;
+class socket;
+class service;
+class event_loop;
+struct server_opts;
+class listener : public noncopyable {
+public:
+  typedef std::function<void (socket &&, error_code &ec)> session_handler;
+
+  listener (service &s, const server_opts &opts, session_handler &&handler);
+
+  ~listener () noexcept;
+
+  void
+  close ();
+
+  bool
+  closed () const noexcept;
+
+  const address &
+  listen_addr () const noexcept;
+
+private:
+  listener_impl *impl_;
+};
+
+} /* namespace k */
+
+#endif /* KNGIN_LISTENR_H */

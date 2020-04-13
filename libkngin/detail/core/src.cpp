@@ -49,8 +49,3 @@
 
 #include "detail/core/event/impl/monotonic_timer.cpp"
 #include "detail/core/event/impl/timerfd_timer.cpp"
-
-// net
-#warning "noncopyable"
-
-// http
