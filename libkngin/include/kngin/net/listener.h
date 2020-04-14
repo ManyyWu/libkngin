@@ -17,7 +17,8 @@ class listener : public noncopyable {
 public:
   typedef std::function<void (socket &&, error_code &ec)> session_handler;
 
-  listener (service &s, const server_opts &opts, session_handler &&handler);
+  listener (service &s, socket &sock, const address &addr,
+            int backlog, session_handler &&handler);
 
   ~listener () noexcept;
 
@@ -26,9 +27,6 @@ public:
 
   bool
   closed () const noexcept;
-
-  const address &
-  listen_addr () const noexcept;
 
 private:
   listener_impl *impl_;

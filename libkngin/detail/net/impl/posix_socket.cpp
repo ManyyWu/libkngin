@@ -260,7 +260,7 @@ socket::sendto (const address &addr, out_buffer buf, int flags, error_code &ec) 
 }
 
 void
-socket::local_addr (address &addr) const noexcept {
+socket::local_addr (address &addr) const {
   assert(!closed());
   socklen_t len = sizeof(address::sockaddr_u);
   if (::getsockname(handle_, reinterpret_cast<sockaddr *>(&addr), &len) < 0)
@@ -277,7 +277,7 @@ socket::local_addr (address &addr, error_code &ec) const {
 }
 
 void
-socket::perr_addr (address &addr) const noexcept {
+socket::perr_addr (address &addr) const {
   assert(!closed());
   socklen_t len = sizeof(address::sockaddr_u);
   if (::getpeername(handle_, reinterpret_cast<sockaddr *>(&addr), &len) < 0)

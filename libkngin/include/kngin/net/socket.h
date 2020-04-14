@@ -101,13 +101,13 @@ public:
   sendto (const address &addr, out_buffer buf, int flags, error_code &ec) noexcept;
 
   void
-  local_addr (address &addr) const noexcept;
+  local_addr (address &addr) const;
 
   void
   local_addr (address &addr, error_code &ec) const;
 
   void
-  perr_addr (address &addr) const noexcept;
+  perr_addr (address &addr) const;
 
   void
   peer_addr (address &addr, error_code &ec) const;

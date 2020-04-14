@@ -3,6 +3,7 @@
 
 #include "kngin/core/define.h"
 #include "kngin/core/base/noncopyable.h"
+#include "kngin/core/base/thread.h"
 #include "kngin/core/event/event_loop.h"
 #include <functional>
 
@@ -17,21 +18,23 @@ public:
   ~service () noexcept;
 
   void
-  run (crash_handler &&handler);
+  run (size_t thread_num, crash_handler &&handler);
 
   void
   stop ();
 
   event_loop &
-  next_loop () const noexcept {
-
-  }
+  next_loop () noexcept;
 
 private:
   enum {
     flag_stopped  = 0x01,
     flag_stopping = 0x02,
   };
+
+  thread thread_;
+
+  event_loop loop_;
 
   // io_threadpool pool_;
 

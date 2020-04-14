@@ -1,44 +1,34 @@
 #include "kngin/core/base/system_error.h"
 #include "kngin/core/base/exception.h"
 #include "detail/net/impl/posix_listener.h"
-#include "kngin/net/server_opts.h"
 #include "kngin/net/socket.h"
 #include "kngin/net/sockopts.h"
 
 namespace k::detail::impl {
 
-static
-socket::inet_protocol
-opt_to_protocol (const server_opts &opts) {
-  if (opts.type & socket_type::tcp) {
-    if (opts.domain & socket_domain::ipv6_only)
-      return socket::ipv6_tcp;
-    else
-      return socket::ipv4_tcp;
-  } else {
-    if (opts.domain & socket_domain::ipv6_only)
-      return socket::ipv6_udp;
-    else
-      return socket::ipv4_udp;
-  }
-}
-
-posix_listener::posix_listener (service &s, const server_opts &opts, session_handler &&handler)
+posix_listener::posix_listener (service &s, socket &sock, const address &addr,
+                                int backlog, session_handler &&handler)
+  try
  : loop_(s.next_loop()),
-   socket_(opt_to_protocol(opts)),
-   listen_addr_(opts.name.c_str(), opts.port, opts.domain & socket_domain::ipv6_only),
+   socket_(sock),
+   listen_addr_(addr),
    handler_(std::move(handler)),
    idle_file_(::open("/dev/null", O_RDONLY | O_CLOEXEC)),
-   ev_(socket_.handle(),
-       [this] (event_loop &loop, int events) { on_events(loop, events); }
-       ) {
+   ev_(socket_.handle(), [this] (event_loop &loop, int events) { on_events(loop, events); }),
+   flags_(0) {
   if (!handler_)
     throw_exception("invalid handler value");
-  if (idle_file_)
+  if (HANDLE_INVALID(idle_file_))
     throw_system_error("::open(\"dev/null\") error", last_error());
+  k::sockopts::set_reuseaddr(sock, true);
+  k::sockopts::set_reuseport(sock, true);
+  sock.bind(addr);
+  sock.listen(backlog);
   ev_.enable_read();
   ev_.enable_et();
   loop_.register_event(ev_);
+} catch (...) {
+  sock.close();
 }
 
 posix_listener::~posix_listener () noexcept {
@@ -50,8 +40,9 @@ posix_listener::~posix_listener () noexcept {
 
 void
 posix_listener::close () {
-  assert(closed());
+  assert(!closed());
   if (!closed()) {
+    flags_ |= flag_closed;
     loop_.remove_event(ev_);
     socket_.close();
   }
@@ -72,7 +63,7 @@ posix_listener::on_events (event_loop &loop, int events) {
 void
 posix_listener::on_read (event_loop &loop) {
   assert(ev_.registed());
-  assert(closed());
+  assert(!closed());
   while (ev_.registed() and !closed()) {
     socket sock;
     address addr;
