@@ -16,8 +16,6 @@ out_buffer::out_buffer() noexcept
 out_buffer::out_buffer (const void * arr, size_t size) noexcept
  : arr_(static_cast<const unsigned char *>(arr)),
    size_(size) {
-  assert(arr);
-  assert(size);
 }
 
 out_buffer::out_buffer(const out_buffer &buf) noexcept
@@ -80,8 +78,6 @@ in_buffer::in_buffer (void * arr, size_t size) noexcept
  : arr_(static_cast<unsigned char *>(arr)),
    size_(size),
    valid_(0) {
-  assert(arr);
-  assert(size);
 }
 
 in_buffer::in_buffer (const in_buffer &buf) noexcept
@@ -126,7 +122,7 @@ in_buffer::swap (in_buffer &buf) noexcept {
 }
 
 std::string
-in_buffer::dump () {
+in_buffer::dump () const {
   std::string result;
   result.resize(size_ * 2 + 1);
   char tmp[3] = {0};

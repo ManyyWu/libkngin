@@ -153,18 +153,8 @@
 #if defined (EVENT_LOOP_DELAY)
 #  define KNGIN_EVENT_LOOP_DEFAULT_DELAY EVENT_LOOP_DELAY
 #else
-#  define KNGIN_EVENT_LOOP_DEFAULT_DELAY 3000
+#  define KNGIN_EVENT_LOOP_DEFAULT_DELAY 5000
 #endif /* defined (EVENT_LOOP_DELAY) */
-
-// session
-#if defined(ENABLE_SESSION_NO_MUTEX)
-#  define KNGIN_SESSION_NO_MUTEX
-#endif /* defined(ENABLE_SESSION_NO_MUTEX) */
-#if defined(KNGIN_NOT_SYSTEM_WIN32)
-#  if defined(ENABLE_SESSION_USE_ET_MODE)
-#    define KNGIN_SESSION_USE_ET_MODE
-#  endif /* defined(ENABLE_SESSION_USE_ET_MODE) */
-#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 
 // timer
 #if !defined(KNGIN_SYSTEM_LINUX)
@@ -233,8 +223,19 @@
 #if defined(KNGIN_SYSTEM_WIN32)
 #  define KNGIN_USE_IOCP_SESSION
 #else
-#  define KNGIN_USE_POSIX_SESSION
+#  define KNGIN_USE_POSIX_TCP_SESSION
 #endif /* defined(KNGIN_SYSTEM_WIN32) */
+
+// session
+#if defined(ENABLE_SESSION_NO_MUTEX)
+#  define KNGIN_SESSION_NO_MUTEX
+#endif /* defined(ENABLE_SESSION_NO_MUTEX) */
+#if defined(KNGIN_NOT_SYSTEM_WIN32)
+#  if defined(ENABLE_SESSION_USE_ET_MODE)
+#    define KNGIN_SESSION_USE_ET_MODE
+#  endif /* defined(ENABLE_SESSION_USE_ET_MODE) */
+#endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
+#define KNGIN_OUT_BUFFER_SIZE 40960
 
 // server options
 #define KNGIN_DEFAULT_BACKLOG 10

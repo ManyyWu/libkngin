@@ -62,6 +62,7 @@ private:
       return (first->get_timeout().next() > second->get_timeout().next());
     }
   };
+
   typedef std::priority_queue<timer_ptr, timer_list, timer_less> min_heap_type;
 
   min_heap_type heap_;

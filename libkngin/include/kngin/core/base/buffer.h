@@ -246,65 +246,6 @@ private:
   size_t size_;
 };
 
-class msg_buffer {
-public:
-  msg_buffer () noexcept
-   : arr_(nullptr),
-     buf_() {
-  }
-
-  msg_buffer (uint8_arr_ptr &arr, size_t offset, size_t size)
-   : arr_(arr),
-     buf_(arr.get() + offset, size) {
-  }
-
-  msg_buffer (const void *arr, size_t size)
-   : arr_(nullptr),
-     buf_(arr, size) {
-  }
-  // the arr must be constant string or stack space that life cycle is longer than this
-
-  msg_buffer (const msg_buffer &buf)
-   : arr_(buf.arr_),
-     buf_(buf.buf_) {
-  }
-
-  msg_buffer (msg_buffer &&buf) noexcept
-   : arr_(std::move(buf.arr_)),
-     buf_(std::move(buf.buf_)) {
-  }
-
-  ~msg_buffer () = default;
-
-  uint8_arr_ptr &
-  get () noexcept {
-    return arr_;
-  }
-  const uint8_arr_ptr &
-  get () const noexcept {
-    return arr_;
-  }
-  out_buffer &
-  buffer () {
-    return buf_;
-  }
-  const out_buffer &
-  buffer () const noexcept {
-    return buf_;
-  }
-  msg_buffer &
-  operator = (const msg_buffer &buf) {
-    arr_ = buf.arr_;
-    buf_ = buf.buf_;
-    return *this;
-  }
-
-private:
-  uint8_arr_ptr arr_;
-
-  out_buffer buf_;
-};
-
 class in_buffer {
 public:
   in_buffer () noexcept;
@@ -391,7 +332,7 @@ public:
   swap (in_buffer &buf) noexcept;
 
   std::string
-  dump ();
+  dump () const;
 
   in_buffer &
   operator += (size_t size) {

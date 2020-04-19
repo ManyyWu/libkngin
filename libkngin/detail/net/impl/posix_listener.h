@@ -4,7 +4,7 @@
 #include "kngin/core/define.h"
 #if defined(KNGIN_USE_POSIX_LISTENER)
 
-#include "kngin/core/event/detail.h"
+#include "kngin/net/detail.h"
 #include "kngin/net/listener.h"
 #include "kngin/net/service.h"
 
@@ -51,7 +51,7 @@ private:
 
   reactor_event ev_;
 
-  int flags_;
+  std::atomic_int flags_;
 };
 
 } /* namespace k::detail::impl */

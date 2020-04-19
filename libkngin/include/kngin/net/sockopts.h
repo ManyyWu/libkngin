@@ -89,6 +89,7 @@ set_linger (const sockopt_val &val, handle_t h, const sockopts_info &opt_info);
 
 void
 set_timeval (const sockopt_val &val, handle_t h, const sockopts_info &opt_info);
+
 inline
 bool
 broadcast (const socket &s) {

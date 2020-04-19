@@ -12,8 +12,9 @@ class event_loop;
 class iocp_operation
   : public noncoypable,
     public operation_base {
-public:
   friend class iocp_reactor;
+
+public:
 
 protected:
   OVERLAPPED overlapped_;

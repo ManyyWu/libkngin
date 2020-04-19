@@ -34,19 +34,26 @@
 #define LINE static_cast<int>(__LINE__)
 #if defined(KNGIN_USE_RELATIVE_LOG_PATH)
 #  undef FILENAME
-#  define FILENAME ((const char *)(__FILE__ + k::g_path_prefix_size))
+#  define FILENAME (reinterpret_cast<const char *>( \
+                        reinterpret_cast<uintptr_t>(__FILE__) + k::g_path_prefix_size))
 #endif /* defined(KNGIN_USE_RELATIVE_LOG_PATH) */
 
 // impl
 #define declare_detail_impl_class(type) \
     namespace k::detail::impl { class type; }
-#define typedef_detail_impl(src_type, dst_type)   \
+#define typedef_detail_impl(src_type, dst_type) \
     namespace k { typedef k::detail::impl::src_type dst_type; }
+
+// impl
+#define declare_detail_namespace_impl_class(ns, type) \
+    namespace k::detail::impl::ns { class type; }
+#define typedef_detail_namespace_impl(ns, src_type, dst_type) \
+    namespace k::ns { typedef k::detail::impl::ns::src_type dst_type; }
 
 // detail
 #define declare_detail_class(type) \
     namespace k::detail { class type; }
-#define typedef_detail(src_type, dst_type)  \
+#define typedef_detail(src_type, dst_type) \
     namespace k { typedef k::detail::src_type dst_type; }
 
 namespace k {

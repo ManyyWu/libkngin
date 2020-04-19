@@ -40,7 +40,7 @@ public:
   ~error_code () = default;
 
   std::string
-  message () {
+  message () const {
     return get_error_str(code_);
   }
 

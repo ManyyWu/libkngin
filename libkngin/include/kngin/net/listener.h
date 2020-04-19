@@ -11,8 +11,6 @@ namespace k {
 class address;
 class socket;
 class service;
-class event_loop;
-struct server_opts;
 class listener : public noncopyable {
 public:
   typedef std::function<void (socket &&, error_code &ec)> session_handler;

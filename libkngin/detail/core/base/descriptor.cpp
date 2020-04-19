@@ -11,7 +11,7 @@ namespace k::detail {
 
 size_t
 descriptor::read (handle_t h, in_buffer &buf) {
-  assert(buf.size() ? buf.writeable() : true);
+  assert(buf.writeable());
   assert(HANDLE_VALID(h));
   auto size = ::read(h, buf.begin(), buf.writeable());
   if (size < 0)
@@ -22,8 +22,8 @@ descriptor::read (handle_t h, in_buffer &buf) {
 
 size_t
 descriptor::read (handle_t h, in_buffer &buf, error_code &ec) noexcept {
-  assert(buf.size() ? buf.writeable() : true);
-//  assert(HANDLE_VALID(h));
+  assert(buf.writeable());
+  assert(HANDLE_VALID(h));
   auto size = ::read(h, buf.begin(), buf.writeable());
   if (size < 0) {
     ec = last_error();
@@ -37,7 +37,7 @@ descriptor::read (handle_t h, in_buffer &buf, error_code &ec) noexcept {
 
 size_t
 descriptor::write (handle_t h, out_buffer buf) {
-  assert(buf.size() ? !buf.eof() : true);
+  assert(buf.size());
   assert(HANDLE_VALID(h));
   auto size = ::write(h, buf.begin(), buf.size());
   if (size < 0)
@@ -47,7 +47,7 @@ descriptor::write (handle_t h, out_buffer buf) {
 
 size_t
 descriptor::write (handle_t h, out_buffer buf, error_code &ec) noexcept {
-  assert(buf.size() ? !buf.eof() : true);
+  assert(buf.size());
   assert(HANDLE_VALID(h));
   auto size = ::write(h, buf.begin(), buf.size());
   if (size < 0) {

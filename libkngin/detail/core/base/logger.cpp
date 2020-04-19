@@ -1,6 +1,8 @@
 #include "kngin/core/base/logger.h"
 #include "kngin/core/base/string.h"
-#include "kngin/core/base/thread.h"
+#if defined(KNGIN_USE_ASYNC_LOGGER)
+#  include "kngin/core/base/thread.h"
+#endif /* defined(KNGIN_USE_ASYNC_LOGGER) */
 #include "kngin/core/base/cond.h"
 #include "kngin/core/base/mutex.h"
 #include "kngin/core/base/memory.h"

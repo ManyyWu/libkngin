@@ -32,8 +32,6 @@ private:
     flag_stopping = 0x02,
   };
 
-  thread thread_;
-
   event_loop loop_;
 
   // io_threadpool pool_;

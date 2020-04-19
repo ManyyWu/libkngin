@@ -21,6 +21,7 @@ event_loop::event_loop ()
    stop_barrier_(2),
    timer_queue_processing_(false),
    events_processing_(0),
+   actived_events_(),
    event_rmutex_() {
   try {
     reactor_ = new reactor();
@@ -48,7 +49,7 @@ event_loop::run () {
   if (stop_barrier_.destroyed())
     stop_barrier_.reinit(2);
 
-  log_debug("event_loop is running in thread %" PRIu64, tid_);
+  log_debug("event_loop[%" PRIu64 "] is running", tid_);
 
   auto fail = [&] () {
     looping_ = false;
@@ -63,18 +64,15 @@ event_loop::run () {
 
   try {
     while (!stop_) {
-      actived_events_.clear();
-
       // process queued tasks
       process_tasks();
       if (stop_)
         break;
 
       // wait for events
-      auto size = wait();
+      wait();
       if (stop_)
         break;
-      log_debug("%" PRIu64 " events were captured in event_loop of thread %" PRIu64, size, tid_);
 
       // sort events
       //sort_events();
@@ -96,7 +94,7 @@ event_loop::run () {
   }
   fail();
 
-  log_debug("event_loop stopped in thread %" PRIu64, tid_);
+  log_debug("event_loop[%" PRIu64 "] stopped", tid_);
 }
 
 void
@@ -138,7 +136,7 @@ void
 event_loop::remove_event (reactor_event &ev) {
   if (reactor_) {
     if (events_processing_.load()) {
-      rmutex::scoped_lock lock(event_rmutex_);
+      rmutex::scoped_lock lock(event_rmutex_); // recursive mutex
       auto size = actived_events_.size();
       for (auto i = events_processing_.load(); i > size; ++i)
         if (&ev == actived_events_[i].ev)
@@ -272,8 +270,9 @@ event_loop::event_loop::wait () {
     delay = KNGIN_EVENT_LOOP_DEFAULT_DELAY;
 #endif
   }
-  log_debug("dealy: %" PRIu64 " ms", delay);
-  return reactor_->wait(actived_events_, delay);
+  auto size = reactor_->wait(actived_events_, delay);
+  log_debug("captured %" PRIu64 " events in thread = %" PRIu64 ", delay = %" PRIu64, size, tid_, delay);
+  return size;
 }
 
 void
@@ -288,6 +287,9 @@ event_loop::process_tasks () {
     TRY()
       iter();
     CATCH_ERROR("event_loop::process_tasks")
+
+    if (stop_)
+      break;
   }
 }
 
@@ -300,7 +302,10 @@ event_loop::process_events () {
     for (auto iter : actived_events_) {
       if (iter.ev)
         iter.ev->on_events(*this, iter.events);
+      if (stop_)
+        break;
     }
+    actived_events_.clear();
   }
 
 #if defined(KNGIN_USE_MONOTONIC_TIMER)

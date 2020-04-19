@@ -1,3 +1,6 @@
+#include "kngin/core/define.h"
+#if defined(KNGIN_USE_POSIX_LISTENER)
+
 #include "kngin/core/base/system_error.h"
 #include "kngin/core/base/exception.h"
 #include "detail/net/impl/posix_listener.h"
@@ -20,8 +23,9 @@ posix_listener::posix_listener (service &s, socket &sock, const address &addr,
     throw_exception("invalid handler value");
   if (HANDLE_INVALID(idle_file_))
     throw_system_error("::open(\"dev/null\") error", last_error());
-  k::sockopts::set_reuseaddr(sock, true);
-  k::sockopts::set_reuseport(sock, true);
+  sockopts::set_reuseaddr(sock, true);
+  sockopts::set_reuseport(sock, true);
+  socket_.set_nonblock(true);
   sock.bind(addr);
   sock.listen(backlog);
   ev_.enable_read();
@@ -29,11 +33,12 @@ posix_listener::posix_listener (service &s, socket &sock, const address &addr,
   loop_.register_event(ev_);
 } catch (...) {
   sock.close();
+  throw;
 }
 
 posix_listener::~posix_listener () noexcept {
   TRY()
-    if (closed())
+    if (!closed())
       close();
   IGNORE_EXCP()
 }
@@ -52,6 +57,7 @@ void
 posix_listener::on_events (event_loop &loop, int events) {
   assert(&loop_ == &loop);
   TRY()
+    log_debug("posix_listener::on_events");
     if (events & (epoll_event::event_type_error | epoll_event::event_type_read)) {
       on_read(loop);
     } else {
@@ -70,21 +76,29 @@ posix_listener::on_read (event_loop &loop) {
     error_code ec;
     socket_.accept(addr, sock, ec);
     if (ec) {
-      if (EMFILE == ec) {
-        socket temp_sock;
-        error_code temp_ec;
-        descriptor::close(idle_file_, temp_ec);
-        temp_sock.accept(addr, temp_sock, temp_ec);
-        temp_sock.close(temp_ec);
-        idle_file_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-        descriptor::close(idle_file_);
-        log_error("the process already has the maximum number of files open, "
-                  "a new session has been rejected");
-      } else if (EINTR == ec) {
+      switch (ec.value()) {
+      case EMFILE:
+        {
+          socket temp_sock;
+          error_code temp_ec;
+          descriptor::close(idle_file_, temp_ec);
+          temp_sock.accept(addr, temp_sock, temp_ec);
+          temp_sock.close(temp_ec);
+          idle_file_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+          descriptor::close(idle_file_);
+          log_error("the process already has the maximum number of files open, "
+                    "a new session has been rejected");
+        }
         continue;
-      } else if (EAGAIN == ec or EPROTO == ec or ECONNABORTED == ec) {
+      case EINTR:
+        continue;
+      case EAGAIN:
+        return;
+      case EPROTO:
+      case ECONNABORTED:
         log_debug("listener ignored error: %s", ec.message().c_str());
-      } else {
+        break;
+      default:
         log_error("socket::accept() error: ", ec.message().c_str());
       }
     }
@@ -96,3 +110,5 @@ posix_listener::on_read (event_loop &loop) {
 }
 
 } /* namespace k::net::impl */
+
+#endif /* defined(KNGIN_USE_POSIX_LISTENER) */

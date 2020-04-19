@@ -157,8 +157,9 @@ socket::write (out_buffer buf, error_code &ec) noexcept {
 
 size_t
 socket::recv (in_buffer &buf, int flags) {
-  assert(buf.size() ? buf.writeable() : true);
+  assert(buf.writeable());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::recv(handle_, buf.begin(), buf.writeable(), flags);
   if (size < 0)
     throw_system_error("::recv() error", last_error());
@@ -168,8 +169,9 @@ socket::recv (in_buffer &buf, int flags) {
 
 size_t
 socket::recv (in_buffer &buf, int flags, error_code &ec) noexcept {
-  assert(buf.size() ? buf.writeable() : true);
+  assert(buf.writeable());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::recv(handle_, buf.begin(), buf.writeable(), flags);
   if (size < 0) {
     ec = last_error();
@@ -183,8 +185,9 @@ socket::recv (in_buffer &buf, int flags, error_code &ec) noexcept {
 
 size_t
 socket::send (out_buffer buf, int flags) {
-  assert(buf.size() ? !buf.eof() : true);
+  assert(buf.size());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::send(handle_, buf.begin(), buf.size(), flags);
   if (size < 0)
     throw_system_error("::write() error", last_error());
@@ -193,8 +196,9 @@ socket::send (out_buffer buf, int flags) {
 
 size_t
 socket::send (out_buffer buf, int flags, error_code &ec) noexcept {
-  assert(buf.size() ? !buf.eof() : true);
+  assert(buf.size());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::send(handle_, buf.begin(), buf.size(), flags);
   if (size < 0) {
     ec = last_error();
@@ -207,9 +211,10 @@ socket::send (out_buffer buf, int flags, error_code &ec) noexcept {
 
 size_t
 socket::recvfrom (address &addr, in_buffer &buf, int flags) {
-  assert(buf.size() ? buf.writeable() : true);
+  assert(buf.writeable());
   assert(!closed());
   socklen_t len = sizeof(address::sockaddr_u);
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::recvfrom(handle_, buf.begin(), buf.writeable(), flags,
                          reinterpret_cast<sockaddr *>(&addr), &len);
   if (size < 0)
@@ -220,8 +225,9 @@ socket::recvfrom (address &addr, in_buffer &buf, int flags) {
 
 size_t
 socket::recvfrom (address &addr, in_buffer &buf, int flags, error_code &ec) noexcept {
-  assert(buf.size() ? buf.writeable() : true);
+  assert(buf.writeable());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::recv(handle_, buf.begin(), buf.writeable(), flags);
   if (size < 0) {
     ec = last_error();
@@ -235,8 +241,9 @@ socket::recvfrom (address &addr, in_buffer &buf, int flags, error_code &ec) noex
 
 size_t
 socket::sendto (const address &addr, out_buffer buf, int flags) {
-  assert(buf.size() ? !buf.eof() : true);
+  assert(buf.size());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::sendto(handle_, buf.begin(), buf.size(), flags,
                        reinterpret_cast<const sockaddr *>(&addr), addr.size());
   if (size < 0)
@@ -246,8 +253,9 @@ socket::sendto (const address &addr, out_buffer buf, int flags) {
 
 size_t
 socket::sendto (const address &addr, out_buffer buf, int flags, error_code &ec) noexcept {
-  assert(buf.size() ? !buf.eof() : true);
+  assert(buf.size());
   assert(!closed());
+  flags &= (message_peek | message_oob | message_dontroute);
   auto size = ::sendto(handle_, buf.begin(), buf.size(), flags,
                        reinterpret_cast<const sockaddr *>(&addr), addr.size());
   if (size < 0) {
@@ -277,7 +285,7 @@ socket::local_addr (address &addr, error_code &ec) const {
 }
 
 void
-socket::perr_addr (address &addr) const {
+socket::peer_addr (address &addr) const {
   assert(!closed());
   socklen_t len = sizeof(address::sockaddr_u);
   if (::getpeername(handle_, reinterpret_cast<sockaddr *>(&addr), &len) < 0)
@@ -291,6 +299,49 @@ socket::peer_addr (address &addr, error_code &ec) const {
   ec = (::getpeername(handle_, reinterpret_cast<sockaddr *>(&addr), &len) < 0)
         ? last_error()
         : error_code();
+}
+void
+socket::set_nonblock (bool on) {
+  assert(!closed());
+  detail::descriptor::set_nonblock(handle_, on);
+}
+
+void
+socket::set_nonblock (bool on, error_code &ec) noexcept {
+  assert(!closed());
+  detail::descriptor::set_nonblock(handle_, on, ec);
+}
+
+void
+socket::set_closeexec (bool on) {
+  assert(!closed());
+  detail::descriptor::set_closeexec(handle_, on);
+}
+
+void
+socket::set_closeexec (bool on, error_code &ec) noexcept {
+  assert(!closed());
+  detail::descriptor::set_closeexec(handle_, on, ec);
+}
+
+bool
+socket::nonblock () {
+  return detail::descriptor::nonblock(handle_);
+}
+
+bool
+socket::nonblock (error_code &ec) noexcept {
+  return detail::descriptor::nonblock(handle_, ec);
+}
+
+bool
+socket::closeexec () {
+  return detail::descriptor::closeexec(handle_);
+}
+
+bool
+socket::closeexec (error_code &ec) noexcept {
+  return detail::descriptor::closeexec(handle_, ec);
 }
 
 #endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */

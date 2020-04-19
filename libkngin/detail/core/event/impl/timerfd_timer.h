@@ -12,9 +12,7 @@ namespace k::detail::impl {
 
 class timerfd_timer
   : public obj_entry<timerfd_timer> {
-  class operation;
   friend class detail::timer_queue;
-  friend class timerfd_timer::operation;
 
 public:
   timerfd_timer (timeout_handler &&handler,

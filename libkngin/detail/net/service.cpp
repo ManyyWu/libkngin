@@ -3,9 +3,7 @@
 namespace k {
 
 service::service ()
- : thread_([this] () -> int { loop_.run(); }),
-   loop_() {
-
+ : loop_() {
 }
 
 service::~service () noexcept {
@@ -14,18 +12,19 @@ service::~service () noexcept {
 
 void
 service::run (size_t thread_num, crash_handler &&handler) {
-
+  thread t([this] () -> int { loop_.run(); return 0; });
+  t.join();
 }
 
 void
 service::stop () {
-
+  loop_.stop();
 }
 
 event_loop &
 service::next_loop () noexcept {
   // throw
-  return loop_;
+  return loop_; // test
 }
 
 } /* namespace k */

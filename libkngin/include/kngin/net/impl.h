@@ -13,12 +13,12 @@
 #endif /* defined(KNGIN_USE_POSIX_LISTENER) */
 
 // session
-#if defined(KNGIN_USE_POSIX_SESSION)
-  declare_detail_impl_class(posix_session)
-  typedef_detail_impl(posix_session, session_impl)
-#elif defined(KNGIN_USE_IOCP_SESSION)
+#if defined(KNGIN_USE_POSIX_TCP_SESSION)
+  declare_detail_namespace_impl_class(tcp, posix_session)
+  typedef_detail_namespace_impl(tcp, posix_session, session_impl)
+#elif defined(KNGIN_USE_IOCP_TCP_SESSION)
   declare_detail_impl_class(iocp_session)
   typedef_detail_impl(iocp_session, session_impl)
-#endif /* defined(KNGIN_USE_POSIX_SESSION) */
+#endif /* defined(KNGIN_USE_POSIX_TCP_SESSION) */
 
 #endif /* KNGIN_NET_IMPL_H */

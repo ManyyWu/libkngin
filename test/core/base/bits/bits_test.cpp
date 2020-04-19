@@ -1,5 +1,6 @@
 #include <iostream>
 #include "kngin/core/base/bits.h"
+#include "kngin/core/base/timestamp.h"
 
 using namespace std;
 
@@ -35,6 +36,20 @@ main () {
   cout << "bits_value 0, 1, 2, 3" << endl;
   val = k::bits_value<int>(0, 1, 2 ,3, 31);
   show_bits(val);
+
+  {
+    auto begin = k::timestamp::monotonic();
+    for (int i = 0; i < 10000000; ++i)
+      val = k::set_bits(val, 1);
+    cout << (k::timestamp::monotonic() - begin).value() << endl;
+  }
+
+  {
+    auto begin = k::timestamp::monotonic();
+    for (int i = 0; i < 10000000; ++i)
+      val |= (i << 1);
+    cout << (k::timestamp::monotonic() - begin).value() << endl;
+  }
 
   return 0;
 }

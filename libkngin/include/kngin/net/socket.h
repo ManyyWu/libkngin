@@ -19,6 +19,12 @@ public:
     ipv6_udp = 0x30,
   } inet_protocol;
 
+  typedef enum {
+    message_peek      = MSG_PEEK,
+    message_oob       = MSG_OOB,
+    message_dontroute = MSG_DONTROUTE,
+  } message_flag;
+
   socket ();
 
   explicit
@@ -107,10 +113,34 @@ public:
   local_addr (address &addr, error_code &ec) const;
 
   void
-  perr_addr (address &addr) const;
+  peer_addr (address &addr) const;
 
   void
   peer_addr (address &addr, error_code &ec) const;
+
+  void
+  set_nonblock (bool on);
+
+  void
+  set_nonblock (bool on, error_code &ec) noexcept;
+
+  void
+  set_closeexec (bool on);
+
+  void
+  set_closeexec (bool on, error_code &ec) noexcept;
+
+  bool
+  nonblock ();
+
+  bool
+  nonblock (error_code &ec) noexcept;
+
+  bool
+  closeexec ();
+
+  bool
+  closeexec (error_code &ec) noexcept;
 
   bool
   inet4 () const noexcept {
