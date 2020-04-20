@@ -109,8 +109,13 @@ posix_session::remaining () const noexcept {
 }
 
 std::string
-posix_session::name () const {
-  return addr_.addrstr();
+posix_session::ip_address () const {
+  return addr_.ip_address();
+}
+
+uint16_t
+posix_session::port () const noexcept {
+  return addr_.port();
 }
 
 void

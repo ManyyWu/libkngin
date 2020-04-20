@@ -45,7 +45,7 @@ public:
     sa_ = sa.sa_;
   }
 
-  address (const char *addrstr, uint16_t port, bool v6);
+  address (const char *ip, uint16_t port, bool v6);
 
   ~address () = default;
 
@@ -80,7 +80,7 @@ public:
   }
 
   std::string
-  addrstr () const;
+  ip_address () const;
 
   address &
   operator = (const struct ::sockaddr_in &sa) noexcept {
@@ -119,11 +119,11 @@ public:
 
   static
   bool
-  is_valid_ipv4_addrstr (const char *addrstr);
+  is_valid_ipv4_string (const char *ip);
 
   static
   bool
-  is_valid_ipv6_addrstr (const char *addrstr);
+  is_valid_ipv6_string (const char *ip);
 
 protected:
   sockaddr_u sa_;

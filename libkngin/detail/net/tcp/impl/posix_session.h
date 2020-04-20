@@ -71,7 +71,10 @@ public:
   remaining () const noexcept;
 
   std::string
-  name () const;
+  ip_address () const;
+
+  uint16_t
+  port () const noexcept;
 
 private:
   void

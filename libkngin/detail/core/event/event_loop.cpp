@@ -138,7 +138,7 @@ event_loop::remove_event (reactor_event &ev) {
     if (events_processing_.load()) {
       rmutex::scoped_lock lock(event_rmutex_); // recursive mutex
       auto size = actived_events_.size();
-      for (auto i = events_processing_.load(); i > size; ++i)
+      for (auto i = events_processing_.load(); i < size; ++i)
         if (&ev == actived_events_[i].ev)
           actived_events_[i].ev = nullptr;
     }
@@ -299,7 +299,7 @@ event_loop::process_events () {
     events_processing_ = true;
     scoped_flag<std::atomic_size_t, size_t> flag(events_processing_, 0);
     rmutex::scoped_lock lock(event_rmutex_);
-    for (auto iter : actived_events_) {
+    for (auto &iter : actived_events_) {
       if (iter.ev)
         iter.ev->on_events(*this, iter.events);
       if (stop_)

@@ -153,7 +153,7 @@
 #if defined (EVENT_LOOP_DELAY)
 #  define KNGIN_EVENT_LOOP_DEFAULT_DELAY EVENT_LOOP_DELAY
 #else
-#  define KNGIN_EVENT_LOOP_DEFAULT_DELAY 5000
+#  define KNGIN_EVENT_LOOP_DEFAULT_DELAY 30000
 #endif /* defined (EVENT_LOOP_DELAY) */
 
 // timer
@@ -235,7 +235,7 @@
 #    define KNGIN_SESSION_USE_ET_MODE
 #  endif /* defined(ENABLE_SESSION_USE_ET_MODE) */
 #endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
-#define KNGIN_OUT_BUFFER_SIZE 40960
+#define KNGIN_OUT_BUFFER_SIZE 40
 
 // server options
 #define KNGIN_DEFAULT_BACKLOG 10

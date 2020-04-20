@@ -13,7 +13,7 @@ int
 main () {
   {
     k::address a = k::address("192.168.0.2", 10000, false);
-    cerr << a.addrstr().c_str() << ":" << a.port() << endl;
+    cerr << a.ip_address().c_str() << ":" << a.port() << endl;
     cerr << "ipv6:" << a.ipv6() << "," << "ipv4:" << a.ipv4() << endl;
     cerr << "size:" << a.size() << endl;
     cerr << "ipv4 mapped:" << a.is_ipv4_mapped() << endl;
@@ -25,7 +25,7 @@ main () {
     sa.sin_port = htons(10000);
     sa.sin_addr.s_addr = ::inet_addr("192.168.0.2");
     k::address a1 = sa;
-    cerr << a1.addrstr().c_str() << ":" << a1.port() << endl;
+    cerr << a1.ip_address().c_str() << ":" << a1.port() << endl;
     cerr << "ipv6:" << a1.ipv6() << "," << "ipv4:" << a1.ipv4() << endl;
     cerr << "size:" << a1.size() << endl;
     cerr << "ipv4 mapped:" << a1.is_ipv4_mapped() << endl;
@@ -38,7 +38,7 @@ main () {
 
   {
     k::address a = k::address("fe80::1b28:e1c2:1ce8:3672", 10000, true);
-    cerr << a.addrstr().c_str() << ":" << a.port() << endl;
+    cerr << a.ip_address().c_str() << ":" << a.port() << endl;
     cerr << "ipv6:" << a.ipv6() << "," << "ipv4:" << a.ipv4() << endl;
     cerr << "size:" << a.size() << endl;
     cerr << "ipv4 mapped:" << a.is_ipv4_mapped() << endl;
@@ -47,7 +47,7 @@ main () {
 
   {
     k::address a = k::address("::1", 10000, true);
-    cerr << a.addrstr().c_str() << ":" << a.port() << endl;
+    cerr << a.ip_address().c_str() << ":" << a.port() << endl;
     cerr << "ipv6:" << a.ipv6() << "," << "ipv4:" << a.ipv4() << endl;
     cerr << "size:" << a.size() << endl;
     cerr << "ipv4 mapped:" << a.is_ipv4_mapped() << endl;
@@ -56,20 +56,20 @@ main () {
 
   {
     k::address a = k::address("::ffff:192.168.0.2", 10000, true);
-    cerr << a.addrstr().c_str() << ":" << a.port() << endl;
+    cerr << a.ip_address().c_str() << ":" << a.port() << endl;
     cerr << "ipv6:" << a.ipv6() << "," << "ipv4:" << a.ipv4() << endl;
     cerr << "size:" << a.size() << endl;
     cerr << "ipv4 mapped:" << a.is_ipv4_mapped() << endl;
     cerr << endl;
   }
   {
-    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("192.168.0.2") << endl;
-    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("192.168.0.0") << endl;
-    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("0.0.0.0") << endl;
-    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_addrstr("::ffff:0.0.0.0") << endl;
-    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_addrstr("0.0.0.0") << endl;
-    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_addrstr("::ffff:0.0.0.0") << endl;
-    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_addrstr("::1") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_string("192.168.0.2") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_string("192.168.0.0") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_string("0.0.0.0") << endl;
+    cerr << "valid ipv4 address:" << k::address::is_valid_ipv4_string("::ffff:0.0.0.0") << endl;
+    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_string("0.0.0.0") << endl;
+    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_string("::ffff:0.0.0.0") << endl;
+    cerr << "valid ipv6 address:" << k::address::is_valid_ipv6_string("::1") << endl;
   }
 
   return 0;

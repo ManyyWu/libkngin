@@ -37,7 +37,7 @@ main () {
         }
         {
           k::mutex::scoped_lock lock(m);
-          for (auto iter : s)
+          for (auto &iter : s)
             q.push_back(iter);
           c.signal();
           cout << "signal, q.size = " << q.size() << endl;

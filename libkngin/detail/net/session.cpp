@@ -81,8 +81,13 @@ session::remaining () const noexcept {
 }
 
 std::string
-session::name () const {
-  return impl_->name();
+session::ip_address () const {
+  return impl_->ip_address();
+}
+
+uint16_t
+session::port () const noexcept {
+  return impl_->port();
 }
 
 //const socket &

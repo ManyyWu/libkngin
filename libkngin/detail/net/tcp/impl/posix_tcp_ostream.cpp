@@ -77,7 +77,10 @@ posix_session::ostream::on_write () {
     assert(valid > 0);
 
     error_code ec;
-    out_buffer buf(&buffers_.front() + rindex_, valid);
+    out_buffer buf(buffers_.front() + rindex_, valid);
+#if (1 and !defined(NDEBUG))
+    log_debug("next: %s, ridx: %lld, widx: %lld", buf.dump().c_str(), rindex_.load(), windex_.load());
+#endif /* !defined(NDEBUG) */
     auto size = session_.socket_.send(buf, 0, ec);
     if (ec) {
       if (EINTR == ec)
@@ -96,18 +99,20 @@ posix_session::ostream::on_write () {
       continue;
     } else {
       assert(size <= valid);
+      if (size < valid)
+        continue;
+
+      // complete
       {
         mutex::scoped_lock lock(buffers_mutex_);
-        if (size == valid) {
-          assert((rindex_ + valid) == KNGIN_OUT_BUFFER_SIZE);
+        rindex_ += size;
+        assert(rindex_ <= KNGIN_OUT_BUFFER_SIZE);
+        if (KNGIN_OUT_BUFFER_SIZE == rindex_ || rindex_ == windex_) {
           rindex_ = 0;
-          windex_ -= valid;
+          windex_ -= size;
           if (buffers_.size() > 1)
             buffers_.erase(buffers_.begin());
-          next_buffer_ = buffers_.empty() ? nullptr : buffers_.front();
-        } else {
-          rindex_ += size;
-          continue;
+          next_buffer_ = (windex_ - rindex_) ? buffers_.front() : nullptr;
         }
       }
       on_complete(size, ec);
@@ -164,6 +169,7 @@ posix_session::ostream::append_buffer (const k::out_buffer &buf) {
   static const size_t buffer_size = KNGIN_OUT_BUFFER_SIZE;
   const size_t size = buf.size();
   const unsigned char *data = buf.begin();
+  assert(size > 0);
   if (size) {
     while (windex_ + size > buffer_size * buffers_.size())
       buffers_.push_back(new uint8_t[buffer_size]);
@@ -185,6 +191,13 @@ posix_session::ostream::append_buffer (const k::out_buffer &buf) {
     if (!next_buffer_)
       next_buffer_ = buffers_.front();
   }
+#if (1 and !defined(NDEBUG))
+    {
+      for (auto &iter : buffers_)
+        log_debug("%s", out_buffer(iter, KNGIN_OUT_BUFFER_SIZE).dump().c_str());
+      log_debug("");
+    }
+#endif /* !defined(DEGBUG) */
 }
 
 } /* namespace tcp */

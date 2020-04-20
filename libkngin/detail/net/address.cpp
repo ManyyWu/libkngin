@@ -7,7 +7,7 @@
 
 namespace k {
 
-address::address (const char *addrstr, uint16_t port, bool v6) {
+address::address (const char *ip, uint16_t port, bool v6) {
   ::memset(&sa_, 0, sizeof(sockaddr_u));
   if (v6) {
     sa_.v6.sin6_port = ::htons(port);
@@ -16,8 +16,7 @@ address::address (const char *addrstr, uint16_t port, bool v6) {
     sa_.v4.sin_port = ::htons(port);
     sa_.v4.sin_family = AF_INET;
   }
-  auto ret = ::inet_pton(v6 ? AF_INET6 : AF_INET,
-                         addrstr,
+  auto ret = ::inet_pton(v6 ? AF_INET6 : AF_INET, ip,
                          v6 ? static_cast<void *>(&sa_.v6.sin6_addr)
                                  : static_cast<void *>(&sa_.v4.sin_addr));
   if (!ret)
@@ -25,31 +24,29 @@ address::address (const char *addrstr, uint16_t port, bool v6) {
 }
 
 std::string
-address::addrstr () const {
-  std::string str;
-  str.reserve(size() + 1);
+address::ip_address () const {
+  char buf[INET6_ADDRSTRLEN];
   bool ip6 = ipv6();
   auto *ret = ::inet_ntop(
       ip6 ? AF_INET6 : AF_INET,
       ip6 ? static_cast<const void *>(&sa_.v6.sin6_addr)
-              : static_cast<const void *>(&sa_.v4.sin_addr),
-      str.data(),
-      size() + 1);
+          : static_cast<const void *>(&sa_.v4.sin_addr),
+      buf, size());
   if (!ret)
     throw_system_error("::inet_ntop() error", ERRNO(errno));
-  return str;
+  return ret;
 }
 
 bool
-address::is_valid_ipv4_addrstr (const char *addrstr) {
+address::is_valid_ipv4_string (const char *ip) {
   struct ::sockaddr_in sa;
-  return ::inet_pton(AF_INET, addrstr, &sa);
+  return ::inet_pton(AF_INET, ip, &sa);
 }
 
 bool
-address::is_valid_ipv6_addrstr (const char *addrstr) {
+address::is_valid_ipv6_string (const char *ip) {
   struct ::sockaddr_in sa;
-  return ::inet_pton(AF_INET6, addrstr, &sa);
+  return ::inet_pton(AF_INET6, ip, &sa);
 }
 
 } /* namespace k */

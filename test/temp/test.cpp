@@ -62,7 +62,7 @@ dump (const char *data, size_t size) {
 
 void
 dump_all (std::vector<uint8_t *> &buffers) {
-  for (auto iter : buffers) {
+  for (auto &iter : buffers) {
     std::cerr << dump((const char *)iter, SIZE) << std::endl;
   }
   std::cerr << std::endl;
@@ -89,7 +89,7 @@ main () {
       t.append_buffer(k::out_buffer(arr, len));
   }
 
-  for (auto iter : t.buffers_) {
+  for (auto &iter : t.buffers_) {
     iter[SIZE] = '\0';
     std::cerr << iter << std::endl;
   }

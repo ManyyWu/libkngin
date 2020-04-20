@@ -5,6 +5,7 @@
 #include "kngin/net/sockopts.h"
 #include <string>
 #include <map>
+#include <signal.h>
 
 #define LISTEN_ADDR "0.0.0.0"
 #define SERVER_ADDR "127.0.0.1"
@@ -86,8 +87,9 @@ public:
                                                      std::bind(&tcp_server::on_message, this, _1, _2, _3),
                                                      std::bind(&tcp_server::on_oob, this, _1, _2, _3));
     *data.arr = '\0';
-    data.name = data.session->name();
+    data.name = data.session->ip_address() + ":" + std::to_string(data.session->port());
     auto iter = sessions_.insert(std::make_pair(data.session.get(), std::move(data)));
+    log_info("accept new session: %s", iter.first->second.name.c_str());
     iter.first->second.session->async_read_some(k::in_buffer(iter.first->second.arr, BUF_SIZE));
   }
 
@@ -111,6 +113,12 @@ private:
 
 int
 main () {
+  sigset_t signal_mask;
+  sigemptyset(&signal_mask);
+  sigaddset(&signal_mask, SIGPIPE);
+  if(pthread_sigmask(SIG_BLOCK, &signal_mask, NULL) == -1)
+    perror("SIGPIPE");
+
   try {
     {
       k::event_loop loop;

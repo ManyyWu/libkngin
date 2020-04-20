@@ -100,7 +100,7 @@ void
 timer_queue::process_ready_timers (timer_list &list, mutex &m) {
 #if defined(KNGIN_USE_MONOTONIC_TIMER)
   auto now = timestamp::monotonic();
-  for (auto iter : list) {
+  for (auto &iter : list) {
     auto &timeout = iter->get_timeout();
     if (iter->closed())
       continue;
