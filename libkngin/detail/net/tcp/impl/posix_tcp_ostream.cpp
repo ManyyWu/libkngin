@@ -55,8 +55,6 @@ posix_session::ostream::clear () {
     oobq_.clear();
     next_buffer_ = nullptr;
     rindex_ = 0;
-    //ostream_.clear(); // unsafe
-    //istream_.clear();
   }
 }
 
@@ -166,8 +164,8 @@ posix_session::ostream::write_oob () {
 
 void
 posix_session::ostream::append_buffer (const k::out_buffer &buf) {
-  static const size_t buffer_size = KNGIN_OUT_BUFFER_SIZE;
   static_assert((KNGIN_OUT_BUFFER_SIZE > 0), "invalid KNGIN_OUT_BUFFER_SIZE value");
+  static const size_t buffer_size = KNGIN_OUT_BUFFER_SIZE;
   const size_t size = buf.size();
   const unsigned char *data = buf.begin();
   assert(size > 0);

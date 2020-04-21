@@ -90,6 +90,8 @@ posix_session::close () {
     flags_ |= flag_eof;
     loop_.remove_event(ev_);
     socket_.close();
+    istream_->clear();
+    ostream_->clear();
   }
 }
 
