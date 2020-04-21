@@ -46,9 +46,9 @@ public:
              iter->second.name.c_str());
 
     // post mesage
-    const int reply_times = 10;
+    const int reply_times = 1000;
     session.async_write(k::out_buffer(&reply_times, sizeof(reply_times)), 0);
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < reply_times; ++i) {
       session.async_write(k::out_buffer(iter->second.arr, buf.valid()), 0);
     }
   }
@@ -92,7 +92,7 @@ public:
     *data.arr = '\0';
     data.name = data.session->ip_address() + ":" + std::to_string(data.session->port());
     auto iter = sessions_.insert(std::make_pair(data.session.get(), std::move(data)));
-    log_info("accept new session: %s", iter.first->second.name.c_str());
+    log_info("accept new session: %s, online sessions:%d", iter.first->second.name.c_str(), sessions_.size());
     iter.first->second.session->async_read_some(k::in_buffer(iter.first->second.arr, BUF_SIZE));
   }
 
@@ -109,6 +109,7 @@ public:
       auto iter = sessions_.find(&session);
       assert(iter != sessions_.end());
       sessions_.erase(iter);
+      log_info("online sessions: %d", sessions_.size());
     });
   }
 

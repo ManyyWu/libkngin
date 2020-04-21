@@ -57,7 +57,6 @@ void
 posix_listener::on_events (event_loop &loop, int events) {
   assert(&loop_ == &loop);
   TRY()
-    log_debug("posix_listener::on_events");
     if (events & (epoll_event::event_type_error | epoll_event::event_type_read)) {
       on_read(loop);
     } else {
@@ -89,7 +88,7 @@ posix_listener::on_read (event_loop &loop) {
           log_error("the process already has the maximum number of files open, "
                     "a new session has been rejected");
         }
-        continue;
+        break;
       case EINTR:
         continue;
       case EAGAIN:

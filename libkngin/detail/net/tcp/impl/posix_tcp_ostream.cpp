@@ -18,6 +18,7 @@ posix_session::ostream::ostream (posix_session &session, socket &sock,
    oobq_(),
    buffers_(),
    rindex_(0),
+   windex_(0),
    buffers_mutex_(),
    next_buffer_(nullptr),
    complete_(false) {
