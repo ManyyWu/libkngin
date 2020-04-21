@@ -101,7 +101,7 @@ posix_session::istream::on_read () {
     if (!size) {
       complete_ = true;
       session_.flags_ |= flag_eof;
-      message_callback(k::tcp::session::eof, ec);
+      message_callback(buf, k::error_code::eof);
       break;
     } else {
       if (!buf.writeable()) {
@@ -141,7 +141,7 @@ posix_session::istream::on_oob () {
     if (!size) {
       complete_ = true;
       session_.flags_ |= flag_eof;
-      message_callback(k::tcp::session::eof, ec);
+      message_callback(buf, k::error_code::eof);
       break;
     } else {
       TRY()

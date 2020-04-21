@@ -13,7 +13,6 @@
 #define BACKLOG     3
 #define BUF_SIZE    512
 
-using namespace std;
 using namespace std::placeholders;
 
 class tcp_server {
@@ -34,19 +33,13 @@ public:
 
   void
   on_message (k::tcp::session &session, const k::in_buffer &buf, const k::error_code &ec) {
+    if (ec) {
+      on_error(session, ec);
+      return;
+    }
+
     auto iter = sessions_.find(&session);
     assert(iter != sessions_.end());
-    if (ec) {
-      log_error("receive error: %s, name = %s", ec.message().c_str(), iter->second.name.c_str());
-      session.close();
-      sessions_.erase(iter);
-      return;
-    }
-    if (&buf == &k::tcp::session::eof) {
-      log_info("client closed, name = %s", iter->second.name.c_str());
-      sessions_.erase(iter);
-      return;
-    }
     log_info("[s]receive %lld bytes, data= %s, name = %s",
              buf.valid(),
              k::in_buffer(buf.begin(), buf.valid()).dump().c_str(),
@@ -62,6 +55,11 @@ public:
 
   void
   on_send (k::tcp::session &session, size_t size, const k::error_code &ec) {
+    if (ec) {
+      on_error(session, ec);
+      return;
+    }
+
     auto iter = sessions_.find(&session);
     assert(iter != sessions_.end());
     log_info("[s]send: %d bytes, name = %s", size, iter->second.name.c_str());
@@ -69,6 +67,11 @@ public:
 
   void
   on_oob (k::tcp::session &session, uint8_t byte, const k::error_code &ec) {
+    if (ec) {
+      on_error(session, ec);
+      return;
+    }
+
     auto iter = sessions_.find(&session);
     assert(iter != sessions_.end());
     log_info("[s]receive oob data: %d, name = %s", static_cast<int>(byte), iter->second.name.c_str());
@@ -91,6 +94,22 @@ public:
     auto iter = sessions_.insert(std::make_pair(data.session.get(), std::move(data)));
     log_info("accept new session: %s", iter.first->second.name.c_str());
     iter.first->second.session->async_read_some(k::in_buffer(iter.first->second.arr, BUF_SIZE));
+  }
+
+  void
+  on_error (k::tcp::session &session, const k::error_code &ec) {
+    auto iter = sessions_.find(&session);
+    assert(iter != sessions_.end());
+    if (ec != k::error_code::eof)
+      log_error("%s, name = %s", ec.message().c_str(), iter->second.name.c_str());
+    else
+      log_info("client closed, name = %s", iter->second.name.c_str());
+    session.close();
+    session.get_loop().run_in_loop([this, &session] () {
+      auto iter = sessions_.find(&session);
+      assert(iter != sessions_.end());
+      sessions_.erase(iter);
+    });
   }
 
 private:

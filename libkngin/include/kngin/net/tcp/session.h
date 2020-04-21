@@ -60,6 +60,9 @@ public:
   const error_code &
   last_error () const noexcept;
 
+  event_loop &
+  get_loop () noexcept;
+
   size_t
   remaining () const noexcept;
 
@@ -75,9 +78,6 @@ public:
   static
   void
   broadcast (const session_list &, out_buffer buf, int flags);
-
-public:
-  static const in_buffer eof;
 
 private:
   session_impl *impl_;

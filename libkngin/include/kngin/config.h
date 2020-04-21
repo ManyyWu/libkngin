@@ -235,7 +235,7 @@
 #    define KNGIN_SESSION_USE_ET_MODE
 #  endif /* defined(ENABLE_SESSION_USE_ET_MODE) */
 #endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
-#define KNGIN_OUT_BUFFER_SIZE 40
+#define KNGIN_OUT_BUFFER_SIZE 10
 
 // server options
 #define KNGIN_DEFAULT_BACKLOG 10

@@ -5,6 +5,8 @@
 
 namespace k {
 
+const error_code error_code::eof(0xffffffff);
+
 error_type
 last_error () {
 #if defined(KNGIN_SYSTEM_WIN32)

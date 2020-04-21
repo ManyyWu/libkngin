@@ -63,7 +63,7 @@ posix_session::ostream::clear () {
 void
 posix_session::ostream::on_write () {
   do {
-    if (session_.flags_ & (flag_shutdown & flag_closed))
+    if (session_.flags_ & (flag_shutdown | flag_closed))
       break;
     if (oobq_.size()) {
       write_oob();
@@ -167,6 +167,7 @@ posix_session::ostream::write_oob () {
 void
 posix_session::ostream::append_buffer (const k::out_buffer &buf) {
   static const size_t buffer_size = KNGIN_OUT_BUFFER_SIZE;
+  static_assert((KNGIN_OUT_BUFFER_SIZE > 0), "invalid KNGIN_OUT_BUFFER_SIZE value");
   const size_t size = buf.size();
   const unsigned char *data = buf.begin();
   assert(size > 0);
@@ -191,10 +192,11 @@ posix_session::ostream::append_buffer (const k::out_buffer &buf) {
     if (!next_buffer_)
       next_buffer_ = buffers_.front();
   }
-#if (1 and !defined(NDEBUG))
+#if (0 and !defined(NDEBUG))
     {
       for (auto &iter : buffers_)
         log_debug("%s", out_buffer(iter, KNGIN_OUT_BUFFER_SIZE).dump().c_str());
+      log_debug("ridx: %lld, widx: %lld", rindex_.load(), windex_.load());
       log_debug("");
     }
 #endif /* !defined(DEGBUG) */

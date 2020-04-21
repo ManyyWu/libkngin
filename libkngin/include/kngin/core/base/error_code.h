@@ -122,6 +122,9 @@ private:
   std::string
   get_error_str (error_type code);
 
+public:
+  static const error_code eof;
+
 private:
   error_type code_;
 };

@@ -8,8 +8,6 @@ namespace k {
 
 namespace tcp {
 
-const in_buffer session::eof(nullptr, 0);
-
 session::session (service &s, socket &&sock,
                   write_handler &&o_cb,
                   message_handler &&i_cb,
@@ -73,6 +71,11 @@ session::is_eof () const noexcept {
 const error_code &
 session::last_error () const noexcept {
   return impl_->last_error();
+}
+
+event_loop &
+session::get_loop () noexcept {
+  return impl_->get_loop();
 }
 
 size_t

@@ -67,6 +67,11 @@ public:
     return last_error_;
   }
 
+  event_loop &
+  get_loop () noexcept {
+    return loop_;
+  }
+
   size_t
   remaining () const noexcept;
 
