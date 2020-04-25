@@ -26,7 +26,7 @@ public:
     assert(!inited_);
     auto ec = ::pthread_barrier_init(&barrier_, nullptr,  count);
     if (ec)
-      throw_system_error("::pthread_barrier_init() error", ERRNO(ec));
+      throw_system_error("::pthread_barrier_init() error", KNGIN_ERRNO(ec));
     inited_ = true;
   }
 
@@ -35,7 +35,7 @@ public:
     if (inited_) {
       auto ec = ::pthread_barrier_wait(&barrier_);
       if (ec and PTHREAD_BARRIER_SERIAL_THREAD != ec)
-        throw_system_error("::pthread_barrier_wait() error", ERRNO(ec));
+        throw_system_error("::pthread_barrier_wait() error", KNGIN_ERRNO(ec));
       return (PTHREAD_BARRIER_SERIAL_THREAD == ec);
     }
     return false;
@@ -45,7 +45,7 @@ public:
   destroy () {
     auto ec = ::pthread_barrier_destroy(&barrier_);
     if (ec)
-      throw_system_error("::pthread_barrier_destroy() error", ERRNO(ec));
+      throw_system_error("::pthread_barrier_destroy() error", KNGIN_ERRNO(ec));
     inited_ = false;
   }
 

@@ -19,7 +19,7 @@ posix_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
     ec = ::pthread_attr_init(attr);
     if (ec) {
       safe_release(attr);
-      throw_system_error("::pthread_attr_init() error", ec);
+      throw_system_error("::pthread_attr_init() error", KNGIN_ERRNO(ec));
     }
     ::pthread_attr_setstacksize(attr, stack_size);
     size_t size;
@@ -33,7 +33,7 @@ posix_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
     safe_release(attr);
   }
   if (ec)
-    throw_system_error("::pthread_create() error ", ERRNO(ec));
+    throw_system_error("::pthread_create() error ", KNGIN_ERRNO(ec));
 }
 
 void *

@@ -132,7 +132,7 @@ set_nonroute (const socket &s, bool on) {
 inline
 error_code
 error (const socket &s) {
-  return get_int(s.handle(), opts_entry[SOCKOPTS_TYPE_ERROR]);
+  return KNGIN_ERRNO(get_int(s.handle(), opts_entry[SOCKOPTS_TYPE_ERROR]));
 }
 
 inline

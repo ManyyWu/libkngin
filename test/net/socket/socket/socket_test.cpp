@@ -38,7 +38,7 @@ main () {
             break;
           }
           else if (ret < 0) {
-            log_error("[s]error: %s", ec.message().c_str());
+            log_error("[s]error: %s", ec.message());
             break;
           }
           buf.write_int8(0);

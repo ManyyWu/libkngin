@@ -86,9 +86,9 @@ posix_session::istream::on_read () {
     error_code ec;
     auto size = session_.socket_.recv(buf, 0, ec);
     if (ec) {
-      if (EINTR == ec)
+      if (KNGIN_EINTR == ec)
         continue;
-      if (EAGAIN == ec) {
+      if (KNGIN_EAGAIN == ec) {
         complete_ = true;
         break;
       }
@@ -101,7 +101,7 @@ posix_session::istream::on_read () {
     if (!size) {
       complete_ = true;
       session_.flags_ |= flag_eof;
-      message_callback(buf, k::error_code::eof);
+      message_callback(buf, KNGIN_EOF);
       break;
     } else {
       if (!buf.writeable()) {
@@ -127,9 +127,9 @@ posix_session::istream::on_oob () {
     error_code ec;
     auto size = session_.socket_.recv(buf, socket::message_oob, ec);
     if (ec) {
-      if (EINTR == ec)
+      if (KNGIN_EINTR == ec)
         continue;
-      if (EAGAIN == ec) {
+      if (KNGIN_EAGAIN == ec) {
         break;
       }
       session_.flags_ |= flag_error;
@@ -141,7 +141,7 @@ posix_session::istream::on_oob () {
     if (!size) {
       complete_ = true;
       session_.flags_ |= flag_eof;
-      message_callback(buf, k::error_code::eof);
+      message_callback(buf, KNGIN_EOF);
       break;
     } else {
       TRY()
@@ -168,7 +168,7 @@ posix_session::istream::on_completion(bool remove) {
       next_ctx_ = ctxq_.empty() ? nullptr : &ctxq_.back();
     }
   }
-  message_callback(ctx.buffer, 0);
+  message_callback(ctx.buffer, KNGIN_ESUCCESS);
 }
 
 } /* namespace tcp */

@@ -76,7 +76,8 @@ posix_listener::on_read (event_loop &loop) {
     socket_.accept(addr, sock, ec);
     if (ec) {
       switch (ec.value()) {
-      case EMFILE:
+      case KNGIN_ENFILE:
+      case KNGIN_EMFILE: // default: 1024
         {
           socket temp_sock;
           error_code temp_ec;
@@ -89,16 +90,16 @@ posix_listener::on_read (event_loop &loop) {
                     "a new session has been rejected");
         }
         break;
-      case EINTR:
+      case KNGIN_EINTR:
         continue;
-      case EAGAIN:
+      case KNGIN_EAGAIN:
         return;
-      case EPROTO:
-      case ECONNABORTED:
-        log_debug("listener ignored error: %s", ec.message().c_str());
+      case KNGIN_EPROTO:
+      case KNGIN_ECONNABORTED:
+        log_debug("listener ignored error: %s", ec.message());
         break;
       default:
-        log_error("socket::accept() error: ", ec.message().c_str());
+        log_error("socket::accept() error: ", ec.message());
       }
     }
 

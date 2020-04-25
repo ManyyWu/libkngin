@@ -20,7 +20,7 @@ address::address (const char *ip, uint16_t port, bool v6) {
                          v6 ? static_cast<void *>(&sa_.v6.sin6_addr)
                                  : static_cast<void *>(&sa_.v4.sin_addr));
   if (!ret)
-    throw_system_error("::invalid inet4(6) address", ERRNO(errno));
+    throw_system_error("::invalid inet4(6) address", KNGIN_ERRNO(errno));
 }
 
 std::string
@@ -33,7 +33,7 @@ address::ip_address () const {
           : static_cast<const void *>(&sa_.v4.sin_addr),
       buf, size());
   if (!ret)
-    throw_system_error("::inet_ntop() error", ERRNO(errno));
+    throw_system_error("::inet_ntop() error", KNGIN_ERRNO(errno));
   return ret;
 }
 

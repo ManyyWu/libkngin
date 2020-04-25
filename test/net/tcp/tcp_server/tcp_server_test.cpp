@@ -46,7 +46,7 @@ public:
              iter->second.name.c_str());
 
     // post mesage
-    const int reply_times = 1000;
+    const int reply_times = 10;
     session.async_write(k::out_buffer(&reply_times, sizeof(reply_times)), 0);
     for (int i = 0; i < reply_times; ++i) {
       session.async_write(k::out_buffer(iter->second.arr, buf.valid()), 0);
@@ -80,7 +80,7 @@ public:
   void
   on_new_session (k::socket &&sock, const k::error_code &ec) {
     if (ec) {
-      log_error("listener error: %s", ec.message().c_str());
+      log_error("listener error: %s", ec.message());
       return;
     }
     session_data data;
@@ -100,8 +100,8 @@ public:
   on_error (k::tcp::session &session, const k::error_code &ec) {
     auto iter = sessions_.find(&session);
     assert(iter != sessions_.end());
-    if (ec != k::error_code::eof)
-      log_error("%s, name = %s", ec.message().c_str(), iter->second.name.c_str());
+    if (ec != k::KNGIN_EOF)
+      log_error("%s, name = %s", ec.message(), iter->second.name.c_str());
     else
       log_info("client closed, name = %s", iter->second.name.c_str());
     session.close();

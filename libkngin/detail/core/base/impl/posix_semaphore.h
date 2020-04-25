@@ -20,7 +20,7 @@ public:
   posix_semaphore (unsigned initval)
    : sem_() {
     if (::sem_init(&sem_, 0, initval) < 0)
-      throw_system_error("::sem_init() error", ERRNO(errno));
+      throw_system_error("::sem_init() error", KNGIN_ERRNO(errno));
   }
 
   ~posix_semaphore () noexcept {
@@ -31,7 +31,7 @@ public:
   wait () {
     auto ret = ::sem_wait(&sem_);
     if (ret < 0 and ETIMEDOUT != ret)
-      throw_system_error("::sem_wait() error", ERRNO(errno));
+      throw_system_error("::sem_wait() error", KNGIN_ERRNO(errno));
     return (ETIMEDOUT != ret);
   }
 
@@ -43,14 +43,14 @@ public:
     (time += ms).to_timespec(ts);
     auto ret = ::sem_timedwait(&sem_, &ts);
     if (ret < 0 and ETIMEDOUT != ret)
-      throw_system_error("::sem_timedwait() error", ERRNO(errno));
+      throw_system_error("::sem_timedwait() error", KNGIN_ERRNO(errno));
     return (ETIMEDOUT != ret);
   }
 
   void
   post () {
     if (::sem_post(&sem_) < 0)
-      throw_system_error("::sem_post() error", ERRNO(errno));
+      throw_system_error("::sem_post() error", KNGIN_ERRNO(errno));
   }
 
 private:

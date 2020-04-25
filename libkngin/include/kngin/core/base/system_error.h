@@ -15,15 +15,13 @@ public:
 
   explicit
   system_error (const char *what, error_code ec)
-   : what_(format_string("[k::system_error] %s - %s:%" PRId64,
-                         what, ec.message().c_str(), ec.value())),
+   : what_(format_string("[k::system_error] %s - %s:%" PRId64, what, ec.message())),
      ec_(ec) {
   }
 
   explicit
   system_error (const std::string &what, error_code ec)
-   : what_(format_string("[k::system_error] %s:%" PRId64,
-                         ec.message().c_str(), ec.value())),
+   : what_(format_string("[k::system_error] %s:%" PRId64, ec.message(), ec.value())),
      ec_(ec) {
   }
 

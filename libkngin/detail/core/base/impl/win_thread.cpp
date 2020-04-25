@@ -18,7 +18,7 @@ win_thread::create_thread (thread_data *&data, thread::thread_opt *opt) {
                                     0,
                                     &tid_);
   if (!thr_)
-    throw_system_error("::_beginthreadex() error", ERRNO(errno));
+    throw_system_error("::_beginthreadex() error", KNGIN_ERRNO(errno));
 }
 
 unsigned

@@ -40,7 +40,7 @@ epoll_reactor::wait (event_list &list, timestamp delay) {
                            KNGIN_EPOLL_REACTOR_MAX_EVENTS, delay.value_int());
   auto ec = last_error();
   if (size < 0) {
-    if (EINTR != ec)
+    if (KNGIN_EINTR != ec)
       throw_system_error("::epoll_wait() error", last_error());
     return 0;
   }
@@ -122,7 +122,7 @@ epoll_reactor::update_event (int opt, handle_t h, epoll_event *ev) {
 
   sys::epoll::epoll_event internal_event = {ev->flags(), ev};
   if (sys::epoll::epoll_ctl(epoll_fd_, opt, h, &internal_event) < 0)
-    throw_system_error("::epoll_ctl() error", errno);
+    throw_system_error("::epoll_ctl() error", KNGIN_ERRNO(errno));
 }
 
 void

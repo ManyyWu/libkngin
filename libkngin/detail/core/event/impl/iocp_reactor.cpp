@@ -48,7 +48,7 @@ iocp_reactor::poll (op_queue &ops, const timestamp &_ms) {
         --count; // wakeup;
       }
     }
-  } else if (WAIT_TIMEOUT == ec) {
+  } else if (KNGIN_EBUSY == ec) {
     return 0;
   } else {
     throw_system_error("::GetQueuedCompletionStatusEx() error", ec);
@@ -77,7 +77,7 @@ iocp_reactor::poll_wine (op_queue &ops, const timestamp &_ms) {
             overlapped, iocp_operation, overlapped_));
       else
         break; // wakeup
-    } else if (WAIT_TIMEOUT == ec) {
+    } else if (KNGIN_EBUSY == ec) {
       return 0;
     } else {
       throw_system_error("::GetQueuedCompletionStatus() error", ec);

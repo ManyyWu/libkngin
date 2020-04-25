@@ -25,21 +25,21 @@ public:
   lock () {
     auto ec = ::pthread_mutex_lock(&mutex_);
     if (ec)
-      throw_system_error("::pthread_mutex_lock() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_lock() error", KNGIN_ERRNO(ec));
   }
 
   void
   unlock () {
     auto ec = ::pthread_mutex_unlock(&mutex_);
     if (ec)
-      throw_system_error("::pthread_mutex_unlock() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_unlock() error", KNGIN_ERRNO(ec));
   }
 
   bool
   try_lock () {
     auto ec = ::pthread_mutex_trylock(&mutex_);
     if (ec and EBUSY != ec)
-      throw_system_error("::pthread_mutex_trylock() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_trylock() error", KNGIN_ERRNO(ec));
     return (EBUSY != ec);
   }
 

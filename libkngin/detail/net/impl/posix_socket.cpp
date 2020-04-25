@@ -46,7 +46,7 @@ socket::accept (address &addr, socket &s) {
   if (HANDLE_INVALID(handle))
     throw_system_error("::accept() error", last_error());
   if (temp.v4.sin_family != AF_INET and temp.v4.sin_family != AF_INET6)
-    throw_system_error("accept return unsupported socket", EPROTO);
+    throw_system_error("accept return unsupported socket", KNGIN_EPROTO);
   s.handle_ = handle;
   s.flags_ = (flags_ & 0x30);
   if (flags_ & flag_ipv6)
@@ -68,7 +68,7 @@ socket::accept (address &addr, socket &s, error_code &ec) noexcept {
     ec = last_error();
   } else {
     if (temp.v4.sin_family != AF_INET and temp.v4.sin_family != AF_INET6) {
-      ec = EPROTO;
+      ec = KNGIN_EPROTO;
       return;
     }
     if (flags_ & flag_ipv6)

@@ -9,7 +9,7 @@ using namespace std;
 int
 main () {
   try {
-    throw_system_error("EAGAIN", ERRNO(EAGAIN));
+    throw_system_error("EAGAIN", k::KNGIN_EAGAIN);
   } catch (const std::exception &e) {
     cerr << "catch exception: " << e.what() << endl;
   }

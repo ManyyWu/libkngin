@@ -2,69 +2,48 @@
 #define KNGIN_ERROR_CODE_H
 
 #include "kngin/core/define.h"
+#include "kngin/core/base/error.h"
 #include <cerrno>
 #include <string>
 #include <cassert>
 
 namespace k {
 
-#if defined(KNGIN_SYSTEM_WIN32)
-typedef int64_t error_type;
-#define ERRNO(code) (assert((code) > 0), -(code))
-#else
-typedef int error_type;
-#define ERRNO(code) (code)
-#endif /* defined(KNGIN_SYSTEM_WIN32) */
-
-error_type
+errno_type
 last_error ();
-
-void
-set_last_error (error_type ec);
 
 class error_code {
 public:
   error_code () noexcept
-   : code_(0) {
+   : code_(KNGIN_ESUCCESS) {
   }
-  error_code (error_type code) noexcept
+  error_code (errno_type code) noexcept
    : code_(code) {
   }
   error_code (const error_code &code) noexcept
    : code_(code.code_) {
   }
-  error_code (const error_code &&code) noexcept
-   : code_(code.code_) {
-  }
-
   ~error_code () = default;
 
-  std::string
-  message () const {
+  const char *
+  message () const noexcept {
     return get_error_str(code_);
   }
-
-  error_type
+  errno_type
   value () const noexcept {
     return code_;
   }
-
-  bool
-  is_errno () {
-    return (code_ < 0);
-  }
-
   explicit
   operator bool () const noexcept {
     return code_;
   }
   explicit
-  operator error_type () const noexcept {
+  operator errno_type () const noexcept {
     return code_;
   }
 
   error_code &
-  operator = (error_type code) noexcept {
+  operator = (errno_type code) noexcept {
     code_ = code;
     return *this;
   }
@@ -73,14 +52,9 @@ public:
     code_ = code.code_;
     return *this;
   }
-  error_code &
-  operator = (const error_code &&code) noexcept {
-    code_ = code.code_;
-    return *this;
-  }
 
   bool
-  operator == (const error_type code) const noexcept {
+  operator == (const errno_type code) const noexcept {
     return (code_ == code);
   }
   bool
@@ -92,7 +66,7 @@ public:
     return (code_ == code.code_);
   }
   bool
-  operator != (const error_type code) const noexcept {
+  operator != (const errno_type code) const noexcept {
     return (code_ != code);
   }
   bool
@@ -106,50 +80,42 @@ public:
 
   friend
   bool
-  operator == (int code1, const error_code &code2) noexcept;
+  operator == (errno_type code1, const error_code &code2) noexcept;
   friend
   bool
-  operator == (int code1, const error_code &&code2) noexcept;
+  operator == (errno_type code1, const error_code &&code2) noexcept;
   friend
   bool
-  operator != (int code1, const error_code &code2) noexcept;
+  operator != (errno_type code1, const error_code &code2) noexcept;
   friend
   bool
-  operator != (int code1, const error_code &&code2) noexcept;
+  operator != (errno_type code1, const error_code &&code2) noexcept;
 
 private:
-  static
-  std::string
-  get_error_str (error_type code);
-
-public:
-  static const error_code eof;
-
-private:
-  error_type code_;
+  errno_type code_;
 };
 
 inline
 bool
-operator == (int code1, const error_code &code2) noexcept {
+operator == (errno_type code1, const error_code &code2) noexcept {
   return (code1 == code2.code_);
 }
 
 inline
 bool
-operator == (int code1, const error_code &&code2) noexcept {
+operator == (errno_type code1, const error_code &&code2) noexcept {
   return (code1 == code2.code_);
 }
 
 inline
 bool
-operator != (int code1, const error_code &code2) noexcept {
+operator != (errno_type code1, const error_code &code2) noexcept {
   return (code1 != code2.code_);
 }
 
 inline
 bool
-operator != (int code1, const error_code &&code2) noexcept {
+operator != (errno_type code1, const error_code &&code2) noexcept {
   return (code1 != code2.code_);
 }
 

@@ -32,7 +32,7 @@ public:
   wait () {
     auto ec = ::pthread_cond_wait(&cond_, &mutex_);
     if (ec)
-      throw_system_error("::pthread_cond_wait() error", ERRNO(ec));
+      throw_system_error("::pthread_cond_wait() error", KNGIN_ERRNO(ec));
   }
 
   bool
@@ -43,7 +43,7 @@ public:
     (time += ms).to_timespec(ts);
     auto ec = ::pthread_cond_timedwait(&cond_, &mutex_, &ts);
     if (ec and ETIMEDOUT != ec)
-      throw_system_error("::pthread_cond_timedwait() error", ERRNO(ec));
+      throw_system_error("::pthread_cond_timedwait() error", KNGIN_ERRNO(ec));
     return (ETIMEDOUT != ec);
   }
 
@@ -51,14 +51,14 @@ public:
   signal () {
     auto ec = ::pthread_cond_signal(&cond_);
     if (ec)
-      throw_system_error("::pthread_cond_signal() error", ERRNO(ec));
+      throw_system_error("::pthread_cond_signal() error", KNGIN_ERRNO(ec));
   }
 
   void
   broadcast () {
     auto ec = ::pthread_cond_broadcast(&cond_);
     if (ec)
-      throw_system_error("::pthread_cond_broadcast() error", ERRNO(ec));
+      throw_system_error("::pthread_cond_broadcast() error", KNGIN_ERRNO(ec));
   }
 
 private:

@@ -123,7 +123,6 @@ posix_session::port () const noexcept {
 void
 posix_session::on_events (event_loop &loop, int events) {
   assert(&loop_ == &loop);
-  log_debug("posix_session::on_events");
   assert(!(events & ~(epoll_event::event_type_error
                       | epoll_event::event_type_read
                       | epoll_event::event_type_write

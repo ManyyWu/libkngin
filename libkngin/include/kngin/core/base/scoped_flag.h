@@ -1,8 +1,6 @@
 #ifndef KNGIN_SCOPED_FLAG_H
 #define KNGIN_SCOPED_FLAG_H
 
-#include "kngin/core/define.h"
-
 namespace k {
 
 template <typename Tp1, typename Tp2>

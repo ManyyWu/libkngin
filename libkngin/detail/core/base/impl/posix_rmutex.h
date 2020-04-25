@@ -18,12 +18,12 @@ public:
     pthread_mutexattr_t attr;
     auto ec = ::pthread_mutexattr_init(&attr);
     if (ec)
-      throw_system_error("::pthread_mutexattr_init() error", ERRNO(ec));
+      throw_system_error("::pthread_mutexattr_init() error", KNGIN_ERRNO(ec));
     ::pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
     ec = ::pthread_mutex_init(&mutex_, &attr);
     ::pthread_mutexattr_destroy(&attr);
     if (ec) {
-      throw_system_error("::pthread_mutex_init() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_init() error", KNGIN_ERRNO(ec));
     }
 #if !defined(NDEBUG)
     stack_ = 0;
@@ -41,7 +41,7 @@ public:
   lock () {
     auto ec = ::pthread_mutex_lock(&mutex_);
     if (ec)
-      throw_system_error("::pthread_mutex_lock() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_lock() error", KNGIN_ERRNO(ec));
 #if !defined(NDEBUG)
     stack_++;
 #endif /* !defined(NDEBUG) */
@@ -51,7 +51,7 @@ public:
   unlock () {
     auto ec = ::pthread_mutex_unlock(&mutex_);
     if (ec)
-      throw_system_error("::pthread_mutex_unlock() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_unlock() error", KNGIN_ERRNO(ec));
 #if !defined(NDEBUG)
     stack_--;
 #endif /* !defined(NDEBUG) */
@@ -61,7 +61,7 @@ public:
   try_lock () {
     auto ec = ::pthread_mutex_trylock(&mutex_);
     if (ec and EBUSY != ec)
-      throw_system_error("::pthread_mutex_trylock() error", ERRNO(ec));
+      throw_system_error("::pthread_mutex_trylock() error", KNGIN_ERRNO(ec));
 #if !defined(NDEBUG)
     stack_++;
 #endif /* !defined(NDEBUG) */

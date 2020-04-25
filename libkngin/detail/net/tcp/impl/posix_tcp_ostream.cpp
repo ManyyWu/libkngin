@@ -77,14 +77,14 @@ posix_session::ostream::on_write () {
 
     error_code ec;
     out_buffer buf(buffers_.front() + rindex_, valid);
-#if (1 and !defined(NDEBUG))
+#if (0 and !defined(NDEBUG))
     log_debug("next: %s, ridx: %lld, widx: %lld", buf.dump().c_str(), rindex_.load(), windex_.load());
 #endif /* !defined(NDEBUG) */
     auto size = session_.socket_.send(buf, 0, ec);
     if (ec) {
-      if (EINTR == ec)
+      if (KNGIN_EINTR == ec)
         continue;
-      if (EAGAIN == ec) {
+      if (KNGIN_EAGAIN == ec) {
         complete_ = true;
         break;
       }
@@ -148,9 +148,9 @@ posix_session::ostream::write_oob () {
     out_buffer buf(&data, 1);
     session_.socket_.send(buf, socket::message_oob, ec);
     if (ec) {
-      if (EINTR == ec)
+      if (KNGIN_EINTR == ec)
         continue;
-      if (EAGAIN == ec) {
+      if (KNGIN_EAGAIN == ec) {
         complete_ = true;
         break;
       }
