@@ -10,7 +10,8 @@
 namespace k {
 
 void
-exception::dump_stack () {
+exception::dump_stack (std::string &str) {
+  str.clear();
 #if defined(KNGIN_SYSTEM_WIN32)
 #else
   void * array[KNGIN_DUMP_LINE];
@@ -19,13 +20,13 @@ exception::dump_stack () {
   if (!size or !statcks)
     return;
 
-  dump_str_.reserve(size * KNGIN_DUMP_LINE_SIZE);
-  dump_str_ += "invocation stack: ";
+  str.reserve(size * KNGIN_DUMP_LINE_SIZE);
+  str += "invocation stack: ";
   if (size and statcks) {
     for (int i = 0; i < size; ++i) {
       if (statcks[i]) {
-        dump_str_ += std::string("\n");
-        dump_str_ += + statcks[i];
+        str += std::string("\n");
+        str += + statcks[i];
       }
     }
   }

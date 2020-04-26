@@ -15,21 +15,21 @@ public:
   exception ()
    : what_(),
      dump_str_() {
-    dump_stack();
+    exception::dump_stack(dump_str_);
   }
 
   explicit
   exception (const char *what)
    : what_(std::string("[k::exception] ") + what),
      dump_str_() {
-    dump_stack();
+    exception::dump_stack(dump_str_);
   }
 
   explicit
   exception (const std::string &what)
    : what_(std::string("[k::exception] ") + what),
      dump_str_() {
-    dump_stack();
+    exception::dump_stack(dump_str_);
   }
 
   exception (const k::exception &e)
@@ -40,7 +40,8 @@ public:
   virtual
   ~exception () = default;
 
-  virtual const char *
+  virtual
+  const char *
   what () const noexcept {
     return what_.c_str();
   }
@@ -54,8 +55,9 @@ public:
   operator = (const k::exception &) = delete;
 
 protected:
+  static
   void
-  dump_stack ();
+  dump_stack (std::string &str);
 
 private:
   const std::string what_;

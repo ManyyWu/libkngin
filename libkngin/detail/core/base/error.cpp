@@ -7,7 +7,7 @@ const char *
 get_error_str (errno_type code) {
   switch (code) {
 #define KNGIN_STRERROR_GEN(code, str) case KNGIN_##code: return str;
-    KNGIN_ERRNO_MAP(KNGIN_STRERROR_GEN)
+  KNGIN_ERRNO_MAP(KNGIN_STRERROR_GEN)
 #undef KNGIN_STRERROR_GEN
   }
   return "unknown system error";

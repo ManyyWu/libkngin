@@ -23,7 +23,7 @@ last_error () {
 //    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 //                   FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, DWORD(code),
 //                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, nullptr);
-//    result = buf ? buf : "Unknown error";
+//    result = buf ? buf : "unknown system error";
 //    if (buf)
 //        LocalFree(buf);
 //    if (result.size() > 3)
@@ -31,11 +31,11 @@ last_error () {
 //    return result;
 //  }else {
 //    auto *str = ::strerror(static_cast<int>(-code));
-//    return str ? str : "Unknown error";
+//    return str ? str : "unknown system error";
 //  }
 //#else
 //  auto *str = ::strerror(static_cast<int>(code));
-//  return str ? str : "Unknown error";
+//  return str ? str : "unknown system error";
 //#endif /* defined(KNGIN_SYSTEM_WIN32) */
 //}
 

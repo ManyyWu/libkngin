@@ -19,9 +19,11 @@ public:
   }
   error_code (errno_type code) noexcept
    : code_(code) {
+    assert(code <= 0);
   }
   error_code (const error_code &code) noexcept
    : code_(code.code_) {
+    assert(code_ <= 0);
   }
   ~error_code () = default;
 
