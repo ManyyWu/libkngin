@@ -36,11 +36,8 @@ posix_session::istream::async_read (in_buffer &buf) {
     if (!next_ctx_)
       next_ctx_ = &ctxq_.back();
   }
-  if (!complete_) {
-    session_.loop_.run_in_loop([this]() {
-      on_read();
-    });
-  }
+  if (!complete_ and session_.ev_.et())
+    session_.loop_.run_in_loop([this]() { on_read(); });
 }
 
 void
@@ -52,11 +49,8 @@ posix_session::istream::async_read_some (in_buffer &buf) {
     if (!next_ctx_)
       next_ctx_ = &ctxq_.back();
   }
-  if (!complete_) {
-    session_.loop_.run_in_loop([this]() {
-      on_read();
-    });
-  }
+  if (!complete_ and session_.ev_.et())
+    session_.loop_.run_in_loop([this]() { on_read(); });
 }
 
 void
@@ -89,7 +83,8 @@ posix_session::istream::on_read () {
       if (KNGIN_EINTR == ec)
         continue;
       if (KNGIN_EAGAIN == ec) {
-        complete_ = true;
+        if (session_.ev_.et())
+          complete_ = true;
         break;
       }
       session_.flags_ |= flag_error;
@@ -99,7 +94,8 @@ posix_session::istream::on_read () {
     }
     session_.flags_ &= ~flag_error;
     if (!size) {
-      complete_ = true;
+      if (session_.ev_.et())
+        complete_ = true;
       session_.flags_ |= flag_eof;
       message_callback(buf, KNGIN_EOF);
       break;
@@ -112,6 +108,9 @@ posix_session::istream::on_read () {
       }
     }
   } while (true);
+
+  if (!(complete_ or session_.flags_ & (flag_closed | flag_error)))
+    session_.loop_.run_in_loop([this]() { on_read(); });
 }
 
 void
@@ -139,7 +138,8 @@ posix_session::istream::on_oob () {
     }
     session_.flags_ &= ~flag_error;
     if (!size) {
-      complete_ = true;
+      if (session_.ev_.et())
+        complete_ = true;
       session_.flags_ |= flag_eof;
       message_callback(buf, KNGIN_EOF);
       break;

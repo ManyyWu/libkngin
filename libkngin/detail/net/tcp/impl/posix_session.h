@@ -20,6 +20,7 @@ public:
   typedef k::tcp::session::message_handler message_handler;
   typedef k::tcp::session::write_handler write_handler;
   typedef k::tcp::session::oob_handler oob_handler;
+  typedef k::tcp::session::close_handler close_handler;
   typedef k::tcp::session::session_list session_list;
 
   posix_session (service &s, socket &&sock, k::tcp::session &owner,
@@ -37,7 +38,13 @@ public:
   async_read_some (in_buffer &buf);
 
   void
-  close ();
+  stop_read ();
+
+  void
+  start_read ();
+
+  void
+  close (close_handler &&handler);
 
   void
   shutdown ();

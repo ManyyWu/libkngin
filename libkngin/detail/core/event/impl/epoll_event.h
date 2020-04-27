@@ -120,19 +120,19 @@ public:
     flags_ &= ~sys::epoll::EPOLLET;
   }
   bool
-  pollin () const noexcept {
+  in () const noexcept {
     return (flags_ & sys::epoll::EPOLLIN);
   }
   bool
-  pollout () const noexcept {
+  out () const noexcept {
     return (flags_ & sys::epoll::EPOLLOUT);
   }
   bool
-  pollpri () const noexcept {
+  pri () const noexcept {
     return (flags_ & sys::epoll::EPOLLPRI);
   }
   bool
-  pollonce () const noexcept {
+  once () const noexcept {
     return (flags_ & sys::epoll::EPOLLONESHOT);
   }
   bool

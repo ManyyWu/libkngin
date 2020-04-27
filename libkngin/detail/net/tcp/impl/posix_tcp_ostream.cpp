@@ -35,14 +35,25 @@ void
 posix_session::ostream::async_write (const out_buffer &buf, int flags) {
   assert(buf.size());
   {
+    auto size = buf.size();
     mutex::scoped_lock lock(buffers_mutex_);
-    append_buffer(buf);
+    bool enable_write = !next_buffer_;
+    if (flags & socket::message_oob) {
+      if (size > 1) {
+        out_buffer temp(buf.begin(), size - 1);
+        append_buffer(temp);
+      }
+      oobq_.push_back(buf[size - 1]);
+    } else {
+      append_buffer(buf);
+    }
+    if (enable_write and !session_.ev_.et()) {
+      session_.ev_.enable_write();
+      session_.loop_.update_event(session_.ev_);
+    }
   }
-  if (!complete_) {
-    session_.loop_.run_in_loop([this]() {
-      on_write();
-    });
-  }
+  if (!complete_ and session_.ev_.et())
+    session_.loop_.run_in_loop([this]() { on_write(); });
 }
 
 void
@@ -68,8 +79,13 @@ posix_session::ostream::on_write () {
       write_oob();
       continue;
     }
-    if (!next_buffer_ and !complete_)
+    if (!next_buffer_ and !complete_) {
+      if (session_.ev_.out()) {
+        session_.ev_.disable_write();
+        session_.loop_.update_event(session_.ev_);
+      }
       break;
+    }
     complete_ = false;
 
     auto valid = (std::min<size_t>)(windex_ - rindex_, KNGIN_OUT_BUFFER_SIZE - rindex_);
@@ -85,7 +101,12 @@ posix_session::ostream::on_write () {
       if (KNGIN_EINTR == ec)
         continue;
       if (KNGIN_EAGAIN == ec) {
-        complete_ = true;
+        if (session_.ev_.et()) {
+          complete_ = true;
+        } else {
+          session_.ev_.disable_write();
+          session_.loop_.update_event(session_.ev_);
+        }
         break;
       }
       session_.flags_ |= flag_error;
@@ -117,6 +138,9 @@ posix_session::ostream::on_write () {
       on_complete(size, ec);
     }
   } while (true);
+
+  if (!(complete_ or session_.flags_ & (flag_shutdown | flag_closed | flag_error)))
+    session_.loop_.run_in_loop([this]() { on_write(); });
 }
 
 void
@@ -129,9 +153,6 @@ posix_session::ostream::on_complete(size_t size, const error_code &ec) {
 
 void
 posix_session::ostream::write_oob () {
-  if (oobq_.empty())
-    return;
-
   uint8_t data;
   bool empty = true;
   do {

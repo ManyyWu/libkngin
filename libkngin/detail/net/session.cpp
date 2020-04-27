@@ -44,8 +44,18 @@ session::async_read_some (in_buffer buf) {
 }
 
 void
-session::close () {
-  impl_->close();
+session::stop_read () {
+  impl_->stop_read();
+}
+
+void
+session::start_read () {
+  impl_->start_read();
+}
+
+void
+session::close (close_handler &&handler) {
+  impl_->close(std::move(handler));
 }
 
 void

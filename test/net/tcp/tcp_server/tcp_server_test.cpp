@@ -46,7 +46,7 @@ public:
              iter->second.name.c_str());
 
     // post mesage
-    const int reply_times = 10;
+    const int reply_times = 1000000;
     session.async_write(k::out_buffer(&reply_times, sizeof(reply_times)), 0);
     for (int i = 0; i < reply_times; ++i) {
       session.async_write(k::out_buffer(iter->second.arr, buf.valid()), 0);
@@ -104,8 +104,7 @@ public:
       log_error("%s, name = %s", ec.message(), iter->second.name.c_str());
     else
       log_info("client closed, name = %s", iter->second.name.c_str());
-    session.close();
-    session.get_loop().run_in_loop([this, &session] () {
+    session.close([&] (k::tcp::session &session) {
       auto iter = sessions_.find(&session);
       assert(iter != sessions_.end());
       sessions_.erase(iter);

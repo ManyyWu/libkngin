@@ -11,11 +11,11 @@ namespace k {
 #define TRY() \
     try {
 #define IGNORE_EXCP() \
-    } catch (...) { assert(!"ignore exception"); log_error("an exception has been ignored"); }
+    } catch (...) { /*assert(!"ignore exception");*/ log_error("an exception has been ignored"); }
 #define CATCH_FATAL(message, ...) \
-    } catch (...) { assert(!"exception"); log_fatal(message, ##__VA_ARGS__); throw; }
+    } catch (...) { /*assert(!"exception");*/ log_fatal(message, ##__VA_ARGS__); throw; }
 #define CATCH_ERROR(message, ...) \
-    } catch (...) { assert(!"exception"); log_fatal(message, ##__VA_ARGS__); throw; }
+    } catch (...) { /*assert(!"exception");*/ log_fatal(message, ##__VA_ARGS__); throw; }
 
 // expression check
 #define if_not(exp) \

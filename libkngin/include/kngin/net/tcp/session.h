@@ -21,6 +21,7 @@ public:
   typedef std::function<void(session &, const in_buffer &, const error_code &)> message_handler;
   typedef std::function<void(session &, size_t, const error_code &)> write_handler;
   typedef std::function<void(session &, uint8_t, const error_code &)> oob_handler;
+  typedef std::function<void(session &)> close_handler;
   typedef std::vector<session *> session_list;
 
   session (service &s, socket &&sock,
@@ -43,7 +44,13 @@ public:
   async_read_some (in_buffer buf);
 
   void
-  close ();
+  stop_read ();
+
+  void
+  start_read ();
+
+  void
+  close (close_handler &&handler);
 
   void
   shutdown ();

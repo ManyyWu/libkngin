@@ -1,4 +1,3 @@
-#include "kngin/core/define.h"
 #include "kngin/core/base/error_code.h"
 
 namespace k {

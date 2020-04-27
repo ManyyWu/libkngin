@@ -1,7 +1,6 @@
-/*
+/**
  * Copy from libuv
- *
- * */
+ */
 
 #ifndef KNGIN_ERROR_H
 #define KNGIN_ERROR_H
