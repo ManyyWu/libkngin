@@ -80,7 +80,7 @@ posix_session::ostream::on_write () {
       continue;
     }
     if (!next_buffer_ and !complete_) {
-      if (session_.ev_.out()) {
+      if (!session_.ev_.et() and session_.ev_.out()) {
         session_.ev_.disable_write();
         session_.loop_.update_event(session_.ev_);
       }
@@ -138,7 +138,6 @@ posix_session::ostream::on_write () {
       on_complete(size, ec);
     }
   } while (true);
-
   if (!(complete_ or session_.flags_ & (flag_shutdown | flag_closed | flag_error)))
     session_.loop_.run_in_loop([this]() { on_write(); });
 }
