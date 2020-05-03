@@ -14,7 +14,7 @@ timer_queue::timer_queue (event_loop *loop)
 timer_queue::~timer_queue () noexcept {
   TRY()
     clear();
-  IGNORE_EXCP()
+  IGNORE_EXCP("timer_queue::~timer_queue")
 }
 
 timer &
@@ -106,7 +106,7 @@ timer_queue::process_ready_timers (timer_list &list, mutex &m) {
       continue;
     TRY()
       iter->on_events(now);
-    CATCH_ERROR("timer_queue::process_ready_timers");
+    IGNORE_EXCP("timer_queue::process_ready_timers");
     if (iter->closed())
       continue;
 

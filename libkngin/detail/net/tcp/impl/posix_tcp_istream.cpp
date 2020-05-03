@@ -24,7 +24,7 @@ posix_session::istream::istream (posix_session &session, socket &sock,
 posix_session::istream::~istream () noexcept {
   TRY()
     ctxq_.clear();
-  IGNORE_EXCP()
+  IGNORE_EXCP("posix_session::istream::~istream")
 }
 
 void
@@ -66,7 +66,7 @@ void
 posix_session::istream::on_read () {
   assert(!session_.is_eof());
   do {
-    if (session_.flags_ & flag_closed)
+    if (session_.flags_ & (flag_closed | flag_closing))
       break;
     if (!next_ctx_ and !complete_)
       break; // wait for new post
@@ -108,16 +108,13 @@ posix_session::istream::on_read () {
       }
     }
   } while (true);
-
-  if (!(complete_ or session_.flags_ & (flag_closed | flag_error)))
-    session_.loop_.run_in_loop([this]() { on_read(); });
 }
 
 void
 posix_session::istream::on_oob () {
   assert(!session_.is_eof());
   do {
-    if (session_.flags_ & flag_closed)
+    if (session_.flags_ & (flag_closed | flag_closing))
       break;
     complete_ = false;
 
@@ -146,7 +143,7 @@ posix_session::istream::on_oob () {
     } else {
       TRY()
         oob_handler_(session_.owner_, byte, ec);
-      CATCH_ERROR("posix_session::istream::on_oob")
+      IGNORE_EXCP("posix_session::istream::on_oob")
     }
   } while (true);
 }
@@ -155,7 +152,7 @@ void
 posix_session::istream::message_callback (const in_buffer &buf, const error_code &ec) {
   TRY ()
     message_handler_(session_.owner_, buf, ec);
-  CATCH_ERROR("posix_session::istream::message_callback")
+  IGNORE_EXCP("posix_session::istream::message_callback")
 }
 void
 posix_session::istream::on_completion(bool remove) {

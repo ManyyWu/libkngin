@@ -30,7 +30,7 @@ epoll_reactor::epoll_reactor ()
 epoll_reactor::~epoll_reactor () noexcept {
   TRY()
     close();
-  IGNORE_EXCP()
+  IGNORE_EXCP("epoll_reactor::~epoll_reactor")
 }
 
 size_t
@@ -129,9 +129,7 @@ void
 epoll_reactor::on_wakeup () {
   int64_t val = 0;
   auto buf = in_buffer(&val, 8);
-  TRY()
-    descriptor::read(waker_fd_, buf);
-  CATCH_FATAL("descriptor::on_wakeup");
+  descriptor::read(waker_fd_, buf);
 }
 
 } /* namespace k::detail::impl */

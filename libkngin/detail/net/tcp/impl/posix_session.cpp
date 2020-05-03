@@ -23,7 +23,8 @@ posix_session::posix_session (service &s, socket &&sock, k::tcp::session &owner,
    istream_(nullptr),
    ostream_(nullptr),
    ev_(socket_.handle(), [this] (event_loop &loop, int events) { on_events(loop, events); }),
-   flags_(0) {
+   flags_(0),
+   last_error_() {
   socket_.set_nonblock(true);
   socket_.set_closeexec(true);
   socket_.peer_addr(addr_);
@@ -46,25 +47,30 @@ posix_session::~posix_session () noexcept {
       close(nullptr);
     safe_release(istream_);
     safe_release(ostream_);
-  IGNORE_EXCP()
+  IGNORE_EXCP("posix_session::~posix_session")
 }
 
 bool
 posix_session::async_write (const out_buffer &buf, int flags) {
-  assert(!(flags_ & (flag_closed | flag_shutdown)));
   assert(buf.size());
-  if (!(flags_ & (flag_closed | flag_shutdown)) and buf.size()) {
+  if (!(flags_ & (flag_closed | flag_shutdown | flag_closing | flag_closing)) and buf.size()) {
     ostream_->async_write(buf, flags);
     return true;
   }
   return false;
 }
 
+size_t
+posix_session::async_write (const out_buffers &bufs) {
+  if (!(flags_ & (flag_closed | flag_shutdown | flag_closing)))
+    return ostream_->async_write(bufs);
+  return 0;
+}
+
 bool
 posix_session::async_read (in_buffer &buf) {
-  assert(!(flags_ & flag_closed));
   assert(buf.writeable());
-  if (!(flags_ & flag_closed) and istream_ and buf.writeable()) {
+  if (!(flags_ & (flag_closed | flag_closing)) and istream_ and buf.writeable()) {
     istream_->async_read(buf);
     return true;
   }
@@ -73,9 +79,8 @@ posix_session::async_read (in_buffer &buf) {
 
 bool
 posix_session::async_read_some (in_buffer &buf) {
-  assert(!(flags_ & flag_closed));
   assert(buf.writeable());
-  if (!(flags_ & flag_closed) and buf.writeable()) {
+  if (!(flags_ & (flag_closed | flag_closing)) and buf.writeable()) {
     istream_->async_read_some(buf);
     return true;
   }
@@ -107,29 +112,42 @@ posix_session::close (close_handler &&handler) {
   assert(handler);
   assert(!closed());
   if (!closed()) {
+    flags_ |= flag_closing;
     loop_.run_in_loop([this, handler=std::move(handler)] () {
-      flags_ |= flag_closed;
-      flags_ |= flag_eof;
-      loop_.remove_event(ev_);
-      socket_.close();
-      istream_->clear();
-      ostream_->clear();
-      TRY()
-        if (handler)
-          handler(this->owner_);
-      CATCH_ERROR("posix_session::close_handler");
+      if (!closed()) {
+        flags_ |= flag_closed;
+        flags_ |= flag_eof;
+        loop_.remove_event(ev_);
+        socket_.close();
+        istream_->clear();
+        ostream_->clear();
+        TRY()
+          if (handler)
+            handler(this->owner_);
+        IGNORE_EXCP("posix_session::close_handler");
+      }
     });
   }
 }
 
 void
-posix_session::shutdown () {
+posix_session::force_shutdown () {
   assert(!closed());
   assert(is_shutdown());
   if (!closed() and !is_shutdown()) {
     flags_ |= flag_shutdown;
     socket_.shutdown();
   }
+}
+
+void
+posix_session::async_shutdown () {
+//  assert(!closed());
+//  assert(is_shutdown());
+//  if (!closed() and !is_shutdown()) {
+//    flags_ |= flag_shutdown;
+//    socket_.shutdown();
+//  }
 }
 
 size_t

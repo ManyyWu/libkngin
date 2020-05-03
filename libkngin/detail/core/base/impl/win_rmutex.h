@@ -22,7 +22,7 @@ public:
   ~win_rmutex () noexcept {
     TRY()
       ::DeleteCriticalSection(&mutex_);
-    IGNORE_EXCP();
+    IGNORE_EXCP("win_rmutex::~win_rmutex");
 #if !defined(NDEBUG)
     assert(!stack_);
 #endif /* !defined(NDEBUG) */

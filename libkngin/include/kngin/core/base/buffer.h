@@ -44,6 +44,10 @@ public:
   begin () const noexcept {
     return arr_;
   }
+  const unsigned char *
+  end () const noexcept {
+    return (arr_ + size_ - 1);
+  }
   size_t
   size () const noexcept {
     return size_;
@@ -275,6 +279,10 @@ public:
   unsigned char *
   begin () const noexcept {
     return arr_;
+  }
+  unsigned char *
+  end () const noexcept {
+    return (arr_ + size_ - 1);
   }
   size_t
   size () const noexcept {

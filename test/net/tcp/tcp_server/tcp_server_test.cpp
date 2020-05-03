@@ -32,6 +32,16 @@ public:
   }
 
   void
+  on_timer (const k::timer_id &, const k::timestamp &) {
+//    log_info("on_timer");
+    for (auto &iter : sessions_) {
+      if (iter.second.size)
+        iter.second.session->async_write(k::out_buffer(iter.second.arr, iter.second.size), 0);
+    }
+  }
+
+private:
+  void
   on_message (k::tcp::session &session, const k::in_buffer &buf, const k::error_code &ec) {
     if (ec) {
       on_error(session, ec);
@@ -45,12 +55,13 @@ public:
              k::in_buffer(buf.begin(), buf.valid()).dump().c_str(),
              iter->second.name.c_str());
 
-    // post mesage
-    const int reply_times = 1000000;
-    session.async_write(k::out_buffer(&reply_times, sizeof(reply_times)), 0);
-    for (int i = 0; i < reply_times; ++i) {
-      session.async_write(k::out_buffer(iter->second.arr, buf.valid()), 0);
-    }
+    const int reply_times = BUF_SIZE / buf.valid();
+    iter->second.size = buf.valid() * reply_times;
+    int arr = BUF_SIZE / buf.valid() * 10;
+    session.async_write(k::out_buffer(&arr, sizeof(arr)), 0);
+    k::in_buffer temp_buf(iter->second.arr, iter->second.size);
+    while (temp_buf.writeable())
+      temp_buf.write_bytes(buf.begin(), buf.valid());
   }
 
   void
@@ -91,6 +102,7 @@ public:
                                                      std::bind(&tcp_server::on_oob, this, _1, _2, _3));
     *data.arr = '\0';
     data.name = data.session->ip_address() + ":" + std::to_string(data.session->port());
+    data.size = 0;
     auto iter = sessions_.insert(std::make_pair(data.session.get(), std::move(data)));
     log_info("accept new session: %s, online sessions:%d", iter.first->second.name.c_str(), sessions_.size());
     iter.first->second.session->async_read_some(k::in_buffer(iter.first->second.arr, BUF_SIZE));
@@ -116,6 +128,7 @@ private:
   struct session_data {
     std::shared_ptr<k::tcp::session> session;
     char arr[BUF_SIZE];
+    size_t size;
     std::string name;
   };
 
@@ -142,6 +155,7 @@ main () {
     {
       k::event_loop loop;
       tcp_server server;
+      loop.run_every(1, std::bind(&tcp_server::on_timer, &server, _1, _2));
       loop.run();
     }
   } catch (const std::exception &e) {

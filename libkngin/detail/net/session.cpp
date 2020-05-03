@@ -33,6 +33,11 @@ session::async_write (out_buffer buf, int flags) {
   return impl_->async_write(buf, flags);
 }
 
+size_t
+session::async_write (const out_buffers &bufs) {
+  return impl_->async_write(bufs);
+}
+
 bool
 session::async_read (in_buffer buf) {
   return impl_->async_read(buf);
@@ -59,8 +64,13 @@ session::close (close_handler &&handler) {
 }
 
 void
-session::shutdown () {
-  impl_->shutdown();
+session::force_shutdown () {
+  impl_->force_shutdown();
+}
+
+void
+session::async_shutdown () {
+  impl_->async_shutdown();
 }
 
 bool

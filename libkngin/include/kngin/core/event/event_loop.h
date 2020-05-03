@@ -21,7 +21,6 @@ public:
     reactor_event *ev;
     int events;
   };
-
   typedef std::function<void (void)> task;
   typedef std::shared_ptr<timer> timer_ptr;
 
@@ -82,8 +81,6 @@ public:
   cancel (timer_ptr &ptr);
 
 private:
-  typedef std::vector<actived_event> event_list;
-
   size_t
   wait ();
 
@@ -98,6 +95,7 @@ private:
 
 private:
   typedef std::deque<task> taskq_type;
+  typedef std::vector<actived_event> event_list;
   typedef std::vector<timer_ptr> timer_list;
 
   thread::tid_t tid_;

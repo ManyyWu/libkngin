@@ -21,6 +21,7 @@ class posix_session::ostream : noncopyable {
 
 public:
   typedef k::tcp::session::write_handler write_handler;
+  typedef k::tcp::session::out_buffers out_buffers;
 
   ostream (posix_session &session, socket &sock, write_handler &&w_cb);
 
@@ -28,6 +29,9 @@ public:
 
   void
   async_write (const out_buffer &buf, int flags);
+
+  size_t
+  async_write (const out_buffers &bufs);
 
   void
   clear ();

@@ -28,7 +28,7 @@ posix_session::ostream::ostream (posix_session &session, socket &sock,
 posix_session::ostream::~ostream () noexcept {
   TRY()
     oobq_.clear();
-  IGNORE_EXCP()
+  IGNORE_EXCP("posix_session::ostream::~ostream")
 }
 
 void
@@ -56,6 +56,30 @@ posix_session::ostream::async_write (const out_buffer &buf, int flags) {
     session_.loop_.run_in_loop([this]() { on_write(); });
 }
 
+size_t
+posix_session::ostream::async_write (const out_buffers &bufs) {
+  size_t done = 0;
+  if (bufs.size())
+  {
+    mutex::scoped_lock lock(buffers_mutex_);
+    bool enable_write = !next_buffer_;
+    try {
+      for (auto &iter : bufs) {
+        append_buffer(iter);
+        ++done;
+      }
+    } catch (...) {
+    }
+    if (enable_write and !session_.ev_.et()) {
+      session_.ev_.enable_write();
+      session_.loop_.update_event(session_.ev_);
+    }
+  }
+  if (!complete_ and session_.ev_.et())
+    session_.loop_.run_in_loop([this]() { on_write(); });
+  return done;
+}
+
 void
 posix_session::ostream::clear () {
   {
@@ -73,7 +97,7 @@ posix_session::ostream::clear () {
 void
 posix_session::ostream::on_write () {
   do {
-    if (session_.flags_ & (flag_shutdown | flag_closed))
+    if (session_.flags_ & (flag_shutdown | flag_closed | flag_closing))
       break;
     if (oobq_.size()) {
       write_oob();
@@ -138,8 +162,6 @@ posix_session::ostream::on_write () {
       on_complete(size, ec);
     }
   } while (true);
-  if (!(complete_ or session_.flags_ & (flag_shutdown | flag_closed | flag_error)))
-    session_.loop_.run_in_loop([this]() { on_write(); });
 }
 
 void
@@ -147,7 +169,7 @@ posix_session::ostream::on_complete(size_t size, const error_code &ec) {
   TRY ()
     if (write_handler_)
       write_handler_(session_.owner_, size, ec);
-  CATCH_ERROR("posix_session::istream::message_callback")
+  IGNORE_EXCP("posix_session::istream::message_callback")
 }
 
 void

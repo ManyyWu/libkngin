@@ -21,6 +21,7 @@ public:
   typedef k::tcp::session::write_handler write_handler;
   typedef k::tcp::session::oob_handler oob_handler;
   typedef k::tcp::session::close_handler close_handler;
+  typedef k::tcp::session::out_buffers out_buffers;
   typedef k::tcp::session::session_list session_list;
 
   posix_session (service &s, socket &&sock, k::tcp::session &owner,
@@ -30,6 +31,9 @@ public:
 
   bool
   async_write (const out_buffer &buf, int flags);
+
+  size_t
+  async_write (const out_buffers &bufs);
 
   bool
   async_read (in_buffer &buf);
@@ -47,7 +51,10 @@ public:
   close (close_handler &&handler);
 
   void
-  shutdown ();
+  force_shutdown ();
+
+  void
+  async_shutdown ();
 
   bool
   closed () const noexcept {
@@ -96,8 +103,9 @@ private:
   enum {
     flag_closed       = 0x0001,
     flag_shutdown     = 0x0002,
-    flag_error        = 0x0004,
-    flag_eof          = 0x0008,
+    flag_closing      = 0x0004,
+    flag_error        = 0x0008,
+    flag_eof          = 0x0010,
   };
 
   class istream;

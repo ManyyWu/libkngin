@@ -7,13 +7,12 @@ service::service ()
 }
 
 service::~service () noexcept {
-
+  thr_->join();
 }
 
 void
 service::run (size_t thread_num, crash_handler &&handler) {
-  thread t([this] () -> int { loop_.run(); return 0; });
-  t.join();
+  thr_ = std::make_shared<thread>([this] () -> int { loop_.run(); return 0; });
 }
 
 void

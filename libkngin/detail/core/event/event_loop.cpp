@@ -38,7 +38,7 @@ event_loop::~event_loop () noexcept {
     stop();
     safe_release(reactor_);
     safe_release(timerq_);
-  IGNORE_EXCP()
+  IGNORE_EXCP("event_loop::~event_loop")
 }
 
 void
@@ -82,14 +82,14 @@ event_loop::run () {
     }
     is_throw = false;
   } catch (const k::exception &e) {
-    log_fatal("posix_thread::start(), thread = %" PRIu64 ", message = %s",
+    log_fatal("event_loop::run(), thread = %" PRIu64 ", message = %s",
           thread::tid(), e.what());
     log_fatal("%s", e.dump());
   } catch (const std::exception &e) {
-    log_fatal("posix_thread::start(), thread = %" PRIu64 ", message = %s",
+    log_fatal("event_loop::run(), thread = %" PRIu64 ", message = %s",
           thread::tid(), e.what());
   } catch (...) {
-    log_fatal("posix_thread::start(), thread = %" PRIu64 ", message = unkown exception",
+    log_fatal("event_loop::run(), thread = %" PRIu64 ", message = unkown exception",
           thread::tid());
   }
   fail();
@@ -271,7 +271,7 @@ event_loop::event_loop::wait () {
 #endif
   }
   auto size = reactor_->wait(actived_events_, delay);
-  log_debug("captured %" PRIu64 " events in thread = %" PRIu64 ", delay = %" PRIu64, size, tid_, delay);
+//  log_debug("captured %" PRIu64 " events in thread = %" PRIu64 ", delay = %" PRIu64, size, tid_, delay);
   return size;
 }
 
@@ -286,7 +286,7 @@ event_loop::process_tasks () {
   for (auto &iter : taskq) {
     TRY()
       iter();
-    CATCH_ERROR("event_loop::process_tasks")
+    IGNORE_EXCP("event_loop::process_tasks")
 
     if (stop_)
       break;
@@ -300,8 +300,15 @@ event_loop::process_events () {
     scoped_flag<std::atomic_size_t, size_t> flag(events_processing_, 0);
     rmutex::scoped_lock lock(event_rmutex_);
     for (auto &iter : actived_events_) {
-      if (iter.ev)
-        iter.ev->on_events(*this, iter.events);
+      TRY()
+        try {
+          if (iter.ev)
+            iter.ev->on_events(*this, iter.events);
+        } catch (...) {
+          remove_event(*iter.ev);
+        }
+      IGNORE_EXCP("event_loop::process_events")
+
       if (stop_)
         break;
     }

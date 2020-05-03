@@ -34,6 +34,8 @@ private:
 
   event_loop loop_;
 
+  std::shared_ptr<thread> thr_;
+
   // io_threadpool pool_;
 
   // int flags_;

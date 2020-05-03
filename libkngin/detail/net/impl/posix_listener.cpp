@@ -26,13 +26,19 @@ posix_listener::posix_listener (service &s, socket &sock, const address &addr,
   sockopts::set_reuseaddr(sock, true);
   sockopts::set_reuseport(sock, true);
   socket_.set_nonblock(true);
+  socket_.set_closeexec(true);
+  descriptor::set_nonblock(idle_file_,true);
+  descriptor::set_closeexec(idle_file_, true);
   sock.bind(addr);
   sock.listen(backlog);
   ev_.enable_read();
   ev_.enable_et();
   loop_.register_event(ev_);
 } catch (...) {
-  sock.close();
+  if (!sock.closed())
+    sock.close();
+  if (HANDLE_VALID(idle_file_))
+    descriptor::close(idle_file_);
   throw;
 }
 
@@ -40,7 +46,7 @@ posix_listener::~posix_listener () noexcept {
   TRY()
     if (!closed())
       close();
-  IGNORE_EXCP()
+  IGNORE_EXCP("posix_listener::~posix_listener")
 }
 
 void
@@ -89,7 +95,7 @@ posix_listener::on_read (event_loop &loop) {
           log_error("the process already has the maximum number of files open, "
                     "a new session has been rejected");
         }
-        break;
+        continue;
       case KNGIN_EINTR:
         continue;
       case KNGIN_EAGAIN:
@@ -97,15 +103,16 @@ posix_listener::on_read (event_loop &loop) {
       case KNGIN_EPROTO:
       case KNGIN_ECONNABORTED:
         log_debug("listener ignored error: %s", ec.message());
-        break;
+        continue;
       default:
         log_error("socket::accept() error: ", ec.message());
+        continue;
       }
     }
 
     TRY()
       handler_(std::move(sock), ec);
-    CATCH_ERROR("posix_listener::on_read");
+    IGNORE_EXCP("posix_listener::on_read");
   }
 }
 

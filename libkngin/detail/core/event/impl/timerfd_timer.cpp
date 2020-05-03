@@ -23,7 +23,10 @@ timerfd_timer::timerfd_timer (timeout_handler &&handler,
   if (handle_ < 0)
     throw_system_error("::timerfd_create() error", last_error());
   set_time(initval, interval);
+  descriptor::set_nonblock(handle_,true);
+  descriptor::set_closeexec(handle_, true);
   ev_.enable_read();
+  ev_.enable_et();
 } catch (...) {
   if (HANDLE_VALID(handle_))
     descriptor::close(handle_);
@@ -33,7 +36,7 @@ timerfd_timer::timerfd_timer (timeout_handler &&handler,
 timerfd_timer::~timerfd_timer () noexcept {
   TRY()
     close();
-  IGNORE_EXCP()
+  IGNORE_EXCP("timerfd_timer::~timerfd_timer")
 }
 
 void
@@ -57,16 +60,27 @@ void
 timerfd_timer::on_events (event_loop &loop, int events) {
   auto s = self();
   int64_t val = 0;
-  in_buffer buf(&val, 8);
-  descriptor::read(handle_, buf);
-  if (handler_ and events & epoll_event::event_type_read) {
-    auto now = timestamp::monotonic();
-    TRY()
-      handler_(id_, now);
-    CATCH_ERROR("timerfd_timer::on_events");
-    if (!timeout_.persist())
-      loop.cancel(s);
-  }
+  do {
+    in_buffer buf(&val, 8);
+    error_code ec;
+    descriptor::read(handle_, buf, ec);
+    if (KNGIN_EINTR == ec)
+      continue;
+    if (KNGIN_EAGAIN == ec)
+      break;
+    if (ec)
+      throw_system_error("descriptor::read() error", ec);
+    if (handler_ and events & reactor_event::event_type_read) {
+      auto now = timestamp::monotonic();
+      TRY()
+        handler_(id_, now);
+      IGNORE_EXCP("timerfd_timer::on_events");
+      if (!timeout_.persist()) {
+        loop.cancel(s);
+        break;
+      }
+    }
+  } while (true);
 }
 
 } /* namespace k::detail::impl */

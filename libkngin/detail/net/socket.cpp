@@ -35,7 +35,7 @@ socket::~socket () noexcept {
   TRY()
     if (HANDLE_VALID(handle_))
       close();
-  IGNORE_EXCP()
+  IGNORE_EXCP("socket::~socket")
 }
 
 } /* namespace k */

@@ -15,7 +15,7 @@ iocp_reactor::iocp_reactor ()
 iocp_reactor::~iocp_reactor () noexcept {
   TRY()
     close();
-  IGNORE_EXCP()
+  IGNORE_EXCP("iocp_reactor::~iocp_reactor")
 }
 
 size_t

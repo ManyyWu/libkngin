@@ -31,7 +31,7 @@ monotonic_timer::on_events (const timestamp &now) {
   if (handler_) {
     TRY()
       handler_(id_, now);
-    CATCH_ERROR("monotonic_timer::on_events")
+    IGNORE_EXCP("monotonic_timer::on_events")
   }
 }
 

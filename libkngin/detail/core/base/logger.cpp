@@ -80,7 +80,7 @@ logger::logger ()
 logger::~logger () noexcept {
   TRY()
     deinit();
-  IGNORE_EXCP()
+  IGNORE_EXCP("logger::~logger")
 }
 
 void
@@ -200,7 +200,7 @@ logger::write_log (log_level level, logfile &file,
   TRY()
     if (file.mode_ & log_mode_callback and file.cb_)
       file.cb_(level, data.c_str(), size);
-  CATCH_FATAL("logger::write_log")
+  IGNORE_EXCP("logger::write_log")
 }
 
 void
