@@ -118,7 +118,8 @@ posix_session::ostream::on_write () {
     error_code ec;
     out_buffer buf(buffers_.front() + rindex_, valid);
 #if (0 and !defined(NDEBUG))
-    log_debug("next: %s, ridx: %lld, widx: %lld", buf.dump().c_str(), rindex_.load(), windex_.load());
+    log_debug("next: %s, ridx: %lld, widx: %lld",
+              buf.dump().c_str(), rindex_.load(), windex_.load());
 #endif /* !defined(NDEBUG) */
     auto size = session_.socket_.send(buf, 0, ec);
     if (ec) {
@@ -210,7 +211,7 @@ posix_session::ostream::append_buffer (const k::out_buffer &buf) {
   static_assert((KNGIN_OUT_BUFFER_SIZE > 0), "invalid KNGIN_OUT_BUFFER_SIZE value");
   static const size_t buffer_size = KNGIN_OUT_BUFFER_SIZE;
   const size_t size = buf.size();
-  const unsigned char *data = buf.begin();
+  const uint8_t *data = buf.begin();
   assert(size > 0);
   if (size) {
     while (windex_ + size > buffer_size * buffers_.size())

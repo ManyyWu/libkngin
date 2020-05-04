@@ -41,7 +41,7 @@ main () {
             log_error("[s]error: %s", ec.message());
             break;
           }
-          buf.write_int8(0);
+          buf.write(char(0));
           log_info("[s]received: %s", buf.begin());
         }
       }

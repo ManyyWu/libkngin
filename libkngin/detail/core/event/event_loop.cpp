@@ -271,7 +271,9 @@ event_loop::event_loop::wait () {
 #endif
   }
   auto size = reactor_->wait(actived_events_, delay);
-//  log_debug("captured %" PRIu64 " events in thread = %" PRIu64 ", delay = %" PRIu64, size, tid_, delay);
+#if (1 and !defined(NDEBUG))
+  log_debug("captured %" PRIu64 " events, thread = %" PRIu64 ", delay = %" PRIu64, size, tid_, delay);
+#endif /* !defined(NDEBUG) */
   return size;
 }
 

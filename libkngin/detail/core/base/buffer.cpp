@@ -8,22 +8,22 @@
 
 namespace k {
 
-out_buffer::out_buffer() noexcept
+out_buffer::out_buffer () noexcept
  : arr_(nullptr),
    size_(0) {
 }
 
-out_buffer::out_buffer (const void * arr, size_t size) noexcept
- : arr_(static_cast<const unsigned char *>(arr)),
+out_buffer::out_buffer (const void *arr, size_t size) noexcept
+ : arr_(static_cast<const uint8_t *>(arr)),
    size_(size) {
 }
 
-out_buffer::out_buffer(const out_buffer &buf) noexcept
+out_buffer::out_buffer (const out_buffer &buf) noexcept
  : arr_(buf.arr_),
    size_(buf.size_) {
 }
 
-out_buffer::out_buffer(out_buffer &&buf) noexcept
+out_buffer::out_buffer (out_buffer &&buf) noexcept
  : arr_(nullptr),
    size_(0) {
   std::swap(arr_, buf.arr_);
@@ -31,7 +31,7 @@ out_buffer::out_buffer(out_buffer &&buf) noexcept
 }
 
 size_t
-out_buffer::read_bytes (void * p, size_t n) {
+out_buffer::read (void * p, size_t n) {
   assert(p);
   assert(n);
   check_readable(n);
@@ -42,10 +42,10 @@ out_buffer::read_bytes (void * p, size_t n) {
 }
 
 void
-out_buffer::reset (const void * arr, size_t size) noexcept {
+out_buffer::reset (const void *arr, size_t size) noexcept {
   assert(arr);
   assert(size);
-  arr_ = static_cast<const unsigned char *>(arr);
+  arr_ = static_cast<const uint8_t *>(arr);
   size_ = size;
 }
 
@@ -74,8 +74,8 @@ in_buffer::in_buffer() noexcept
    valid_(0) {
 }
 
-in_buffer::in_buffer (void * arr, size_t size) noexcept
- : arr_(static_cast<unsigned char *>(arr)),
+in_buffer::in_buffer (void *arr, size_t size) noexcept
+ : arr_(static_cast<uint8_t *>(arr)),
    size_(size),
    valid_(0) {
 }
@@ -96,7 +96,7 @@ in_buffer::in_buffer (in_buffer &&buf) noexcept
 }
 
 in_buffer &
-in_buffer::write_bytes (const void * p, size_t n) {
+in_buffer::write (const void *p, size_t n) {
   assert(p);
   assert(n);
   check_writeable(n);
@@ -106,10 +106,10 @@ in_buffer::write_bytes (const void * p, size_t n) {
 }
 
 void
-in_buffer::reset (void * arr, size_t size) noexcept {
+in_buffer::reset (void *arr, size_t size) noexcept {
   assert(arr);
   assert(size);
-  arr_ = static_cast<unsigned char *>(arr);
+  arr_ = static_cast<uint8_t *>(arr);
   size_ = size;
   valid_ = 0;
 }

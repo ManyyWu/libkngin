@@ -61,7 +61,7 @@ private:
     session.async_write(k::out_buffer(&arr, sizeof(arr)), 0);
     k::in_buffer temp_buf(iter->second.arr, iter->second.size);
     while (temp_buf.writeable())
-      temp_buf.write_bytes(buf.begin(), buf.valid());
+      temp_buf.write(buf.begin(), buf.valid());
   }
 
   void
@@ -155,7 +155,7 @@ main () {
     {
       k::event_loop loop;
       tcp_server server;
-      loop.run_every(1, std::bind(&tcp_server::on_timer, &server, _1, _2));
+      loop.run_every(1000, std::bind(&tcp_server::on_timer, &server, _1, _2));
       loop.run();
     }
   } catch (const std::exception &e) {

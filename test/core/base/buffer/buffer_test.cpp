@@ -10,8 +10,8 @@ main () {
   {
     k::in_buffer buf(arr, SIZE);
     for (int i = 0; i < SIZE / 4; ++i)
-      buf.write_int32(i);
-    //buf.write_int8(0);
+      buf.write(i);
+    //buf.write(char(0));
   }
   {
     k::out_buffer buf(arr, SIZE);
@@ -22,7 +22,7 @@ main () {
   }
   {
     k::in_buffer buf(arr, SIZE);
-    buf.write_bytes("hello world!\n", 13);
+    buf.write("hello world!\n", 13);
     cout << arr << endl;
   }
 

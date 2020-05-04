@@ -19,7 +19,7 @@ struct test {
   void
   append_buffer(const k::out_buffer &buf) {
     const size_t size = buf.size();
-    const unsigned char *data = buf.begin();
+    const uint8_t *data = buf.begin();
     if (size) {
       while (windex_ + size > SIZE * buffers_.size())
         buffers_.push_back(new uint8_t[SIZE]);
