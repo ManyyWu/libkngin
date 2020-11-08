@@ -87,6 +87,8 @@ posix_session::istream::on_read () {
           complete_ = true;
         break;
       }
+      if (KNGIN_ECONNRESET == ec || KNGIN_EPIPE == ec)
+        session_.flags_ |= flag_reset;
       session_.flags_ |= flag_error;
       session_.last_error_ = ec;
       message_callback(in_buffer(buf), ec);
@@ -125,9 +127,10 @@ posix_session::istream::on_oob () {
     if (ec) {
       if (KNGIN_EINTR == ec)
         continue;
-      if (KNGIN_EAGAIN == ec) {
+      if (KNGIN_EAGAIN == ec)
         break;
-      }
+      if (KNGIN_ECONNRESET == ec || KNGIN_EPIPE == ec)
+        session_.flags_ |= flag_reset;
       session_.flags_ |= flag_error;
       session_.last_error_ = ec;
       message_callback(buf, ec);

@@ -21,4 +21,13 @@
   typedef_detail_impl(iocp_session, session_impl)
 #endif /* defined(KNGIN_USE_POSIX_TCP_SESSION) */
 
+// connector
+#if defined(KNGIN_USE_POSIX_CONNECTOR)
+  declare_detail_impl_class(posix_connector)
+  typedef_detail_impl(posix_connector, connector_impl)
+#elif defined(KNGIN_USE_IOCP_CONNECTOR)
+  declare_detail_impl_class(iocp_connector)
+  typedef_detail_impl(iocp_connector, connector_impl)
+#endif /* defined(KNGIN_USE_POSIX_CONNECTOR) */
+
 #endif /* KNGIN_NET_IMPL_H */

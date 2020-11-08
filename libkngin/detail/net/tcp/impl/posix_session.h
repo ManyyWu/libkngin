@@ -71,6 +71,11 @@ public:
     return (flags_ & flag_eof);
   }
 
+  bool
+  is_reset () const noexcept {
+    return (flags_ & flag_reset);
+  }
+
   const socket &
   get_socket () const noexcept {
     return socket_;
@@ -106,6 +111,7 @@ private:
     flag_closing      = 0x0004,
     flag_error        = 0x0008,
     flag_eof          = 0x0010,
+    flag_reset        = 0x0020,
   };
 
   class istream;

@@ -88,6 +88,11 @@ session::is_eof () const noexcept {
   return impl_->is_eof();
 }
 
+bool
+session::is_reset () const noexcept {
+  return impl_->is_reset();
+}
+
 const error_code &
 session::last_error () const noexcept {
   return impl_->last_error();

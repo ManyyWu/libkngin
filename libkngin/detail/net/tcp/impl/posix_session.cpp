@@ -32,6 +32,7 @@ posix_session::posix_session (service &s, socket &&sock, k::tcp::session &owner,
   ostream_ = new ostream(*this, socket_, std::move(o_cb));
   ev_.enable_read();
   ev_.enable_write();
+  ev_.enable_oob();
   ev_.enable_et();
   loop_.register_event(ev_);
 } catch (...) {
@@ -115,8 +116,7 @@ posix_session::close (close_handler &&handler) {
     flags_ |= flag_closing;
     loop_.run_in_loop([this, handler=std::move(handler)] () {
       if (!closed()) {
-        flags_ |= flag_closed;
-        flags_ |= flag_eof;
+        flags_ |= (flag_closed | flag_eof | flag_reset);
         loop_.remove_event(ev_);
         socket_.close();
         istream_->clear();

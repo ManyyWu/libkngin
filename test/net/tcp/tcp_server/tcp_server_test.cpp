@@ -33,7 +33,6 @@ public:
 
   void
   on_timer (const k::timer_id &, const k::timestamp &) {
-//    log_info("on_timer");
     for (auto &iter : sessions_) {
       if (iter.second.size)
         iter.second.session->async_write(k::out_buffer(iter.second.arr, iter.second.size), 0);
@@ -165,4 +164,41 @@ main () {
   }
 
   return 0;
+}
+
+void
+demo ()
+{
+/*
+  service s;
+
+  tcp_server server("localhost", 20000);
+  server
+  .on(tcp_server::connection, [&] (tcp_session &session) {
+    log_info("new client %s", session.name());
+    session
+    .on(tcp_session::data, [&] (error_code ec, tcp_session &session, buffer buf) {
+      session.async_write(buf, [&] (error_code ec, tcp_session &session) {
+        log_debug("total write: %lldbytes", session.writen());
+      });
+      session.end([&] (tcp_session &session) {
+        session.close(); // async
+      });
+    })
+    .on(tcp_session::end, [&] (tcp_session &session) {
+      session.close([&] (tcp_session &session) {
+        log_info("client %s closed", session.name());
+      });
+    });
+  })
+  .on(tcp_server::error, [&] (error_code ec, session &session) {
+    log_error("%s", ec.message());
+    server.close([&] () {
+      s.stop(); // async
+    });
+  })
+  .listen();
+
+  s.run();
+*/
 }

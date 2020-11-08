@@ -237,6 +237,13 @@
 #endif /* defined(KNGIN_NOT_SYSTEM_WIN32) */
 #define KNGIN_OUT_BUFFER_SIZE 40960
 
+// connector
+#if defined(KNGIN_SYSTEM_WIN32)
+#  define KNGIN_USE_IOCP_CONNECTOR
+#else
+#  define KNGIN_USE_POSIX_CONNECTOR
+#endif /* defined(KNGIN_SYSTEM_WIN32) */
+
 // server options
 #define KNGIN_DEFAULT_BACKLOG 10
 

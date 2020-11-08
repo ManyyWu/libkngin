@@ -71,6 +71,9 @@ public:
   bool
   is_eof () const noexcept;
 
+  bool
+  is_reset () const noexcept;
+
   const error_code &
   last_error () const noexcept;
 

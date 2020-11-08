@@ -134,6 +134,8 @@ posix_session::ostream::on_write () {
         }
         break;
       }
+      if (KNGIN_ECONNRESET == ec || KNGIN_EPIPE == ec)
+        session_.flags_ |= flag_reset;
       session_.flags_ |= flag_error;
       session_.last_error_ = ec;
       on_complete(0, ec);
@@ -197,6 +199,8 @@ posix_session::ostream::write_oob () {
         complete_ = true;
         break;
       }
+      if (KNGIN_ECONNRESET == ec || KNGIN_EPIPE == ec)
+        session_.flags_ |= flag_reset;
       session_.flags_ |= flag_error;
       session_.last_error_ = ec;
       on_complete(0, ec);
